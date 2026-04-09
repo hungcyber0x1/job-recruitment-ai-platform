@@ -11,6 +11,25 @@ const aiConfig = require('../config/ai.config');
 const chatbotServiceConfig = require('../config/chatbot-service.config');
 const logger = require('../utils/logger');
 
+/** 503/429/lỗi tạm từ nhà cung cấp — nên retry hoặc đổi model. */
+function isRetryableAiError(error) {
+  const msg = String(error?.message || '');
+  const status = error?.status || error?.statusCode || error?.response?.status;
+  if (status === 429 || status === 503 || status === 502 || status === 504) return true;
+  if (
+    /503|502|504|429|timeout|ETIMEDOUT|ECONNRESET|unavailable|overloaded|high demand|try again later|RESOURCE_EXHAUSTED|Too Many Requests/i.test(
+      msg
+    )
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 const CAREER_COUNSELOR_INSTRUCTION =
   'You are a helpful expert career counselor in Vietnam. ' +
   'You help candidates find the right career path, prepare for interviews, ' +
@@ -310,25 +329,121 @@ class AIService {
     return careerAdviceErrorMessage(lastError);
   }
 
-  /** Sinh nội dung một lượt (không phải chat có lịch sử). */
+  /** Sinh nội dung một lượt (không phải chat có lịch sử). Retry + đổi model khi 503/429. */
   async generateContent(prompt) {
+    const maxTokens = aiConfig.options.contentMaxTokens ?? 4096;
+    const temperature = aiConfig.options.temperature;
+
     try {
       if (this._usesOpenAICompatibleChat()) {
-        if (!this.openai) return 'AI service unavailable';
-        const completion = await this.openai.chat.completions.create({
-          model: aiConfig.openAICompatibleContentModel,
-          messages: [{ role: 'user', content: prompt }],
-          max_tokens: aiConfig.options.maxTokens,
-          temperature: aiConfig.options.temperature,
+        if (!this.openai) {
+          throw new Error('AI service not configured');
+        }
+        const models =
+          aiConfig.openAICompatibleCareerChatModels?.length > 0
+            ? aiConfig.openAICompatibleCareerChatModels
+            : [aiConfig.openAICompatibleContentModel];
+
+        let lastError = null;
+        for (let mi = 0; mi < models.length; mi += 1) {
+          const modelName = models[mi];
+          for (let attempt = 0; attempt < 3; attempt += 1) {
+            try {
+              if (attempt > 0) {
+                await sleep(Math.min(8000, 400 * 2 ** (attempt - 1)));
+              }
+              const completion = await this.openai.chat.completions.create({
+                model: modelName,
+                messages: [{ role: 'user', content: prompt }],
+                max_tokens: maxTokens,
+                temperature,
+              });
+              const text = (completion.choices[0]?.message?.content || '').trim();
+              if (text) {
+                if (mi > 0 || attempt > 0) {
+                  logger.info(`generateContent: ok with model=${modelName} attempt=${attempt + 1}`);
+                }
+                return text;
+              }
+              lastError = new Error('Empty AI response');
+            } catch (error) {
+              lastError = error;
+              const retry = isRetryableAiError(error);
+              if (retry && attempt < 2) {
+                logger.warn(
+                  `generateContent: retry model=${modelName} attempt=${attempt + 1} (${String(error?.message || error).slice(0, 120)})`
+                );
+                continue;
+              }
+              if (retry && mi < models.length - 1) {
+                logger.warn(
+                  `generateContent: switch model ${modelName} → next after ${String(error?.message || error).slice(0, 100)}`
+                );
+                break;
+              }
+              logger.error('AI Generate Content Error:', error);
+              throw error;
+            }
+          }
+        }
+        throw lastError || new Error('AI content generation failed');
+      }
+
+      if (!this.genAI) {
+        throw new Error('AI service not configured');
+      }
+
+      const models =
+        aiConfig.careerChatModels?.length > 0 ? aiConfig.careerChatModels : [aiConfig.model];
+
+      let lastError = null;
+      for (let mi = 0; mi < models.length; mi += 1) {
+        const modelName = models[mi];
+        const model = this.genAI.getGenerativeModel({
+          model: modelName,
+          generationConfig: {
+            maxOutputTokens: maxTokens,
+            temperature,
+          },
         });
-        return completion.choices[0]?.message?.content || '';
+
+        for (let attempt = 0; attempt < 3; attempt += 1) {
+          try {
+            if (attempt > 0) {
+              await sleep(Math.min(8000, 400 * 2 ** (attempt - 1)));
+            }
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            const text = (response.text() || '').trim();
+            if (text) {
+              if (mi > 0 || attempt > 0) {
+                logger.info(`generateContent: ok with model=${modelName} attempt=${attempt + 1}`);
+              }
+              return text;
+            }
+            lastError = new Error('Empty AI response');
+          } catch (error) {
+            lastError = error;
+            const retry = isRetryableAiError(error);
+            if (retry && attempt < 2) {
+              logger.warn(
+                `generateContent: retry model=${modelName} attempt=${attempt + 1} (${String(error?.message || error).slice(0, 120)})`
+              );
+              continue;
+            }
+            if (retry && mi < models.length - 1) {
+              logger.warn(
+                `generateContent: switch model ${modelName} → next after ${String(error?.message || error).slice(0, 100)}`
+              );
+              break;
+            }
+            logger.error('AI Generate Content Error:', error);
+            throw error;
+          }
+        }
       }
-      if (!this.model) {
-        return 'AI service unavailable';
-      }
-      const result = await this.model.generateContent(prompt);
-      const response = await result.response;
-      return response.text();
+
+      throw lastError || new Error('AI content generation failed');
     } catch (error) {
       logger.error('AI Generate Content Error:', error);
       throw error;

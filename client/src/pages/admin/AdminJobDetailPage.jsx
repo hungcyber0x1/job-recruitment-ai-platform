@@ -178,7 +178,7 @@ const AdminJobDetailPage = () => {
           aria-label="Hướng dẫn moderation"
           className="rounded-2xl border border-border/80 bg-gradient-to-br from-muted/40 via-card to-card p-5 shadow-sm sm:p-6"
         >
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+          <p className="text-base font-bold uppercase tracking-[0.2em] text-muted-foreground">
             Job governance
           </p>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
@@ -193,8 +193,8 @@ const AdminJobDetailPage = () => {
                     <Icon size={20} strokeWidth={2} />
                   </div>
                   <div className="min-w-0">
-                    <h2 className="text-sm font-bold text-foreground">{module.title}</h2>
-                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                    <h2 className="text-base font-bold text-foreground">{module.title}</h2>
+                    <p className="mt-1 text-base leading-relaxed text-muted-foreground">
                       {module.description}
                     </p>
                   </div>
@@ -207,7 +207,7 @@ const AdminJobDetailPage = () => {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <Link
             to="/admin/jobs"
-            className="group inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-primary"
+            className="group inline-flex items-center gap-2 text-base font-semibold text-muted-foreground transition-colors hover:text-primary"
           >
             <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-card shadow-sm transition-colors group-hover:border-primary/30 group-hover:bg-primary/5">
               <ArrowLeft size={18} />
@@ -247,7 +247,7 @@ const AdminJobDetailPage = () => {
             <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
               <div className="min-w-0 space-y-4">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-lg bg-background px-2.5 py-1 text-xs font-bold text-muted-foreground shadow-sm ring-1 ring-border/60">
+                  <span className="inline-flex items-center gap-1.5 rounded-lg bg-background px-2.5 py-1 text-base font-bold text-muted-foreground shadow-sm ring-1 ring-border/60">
                     <Briefcase size={14} className="text-primary" />
                     Job #{job.id}
                   </span>
@@ -266,7 +266,7 @@ const AdminJobDetailPage = () => {
                   <h1 className="text-2xl font-black tracking-tight text-foreground sm:text-3xl">
                     {job.title || EMPTY}
                   </h1>
-                  <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
+                  <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-base text-muted-foreground">
                     <span className="inline-flex items-center gap-2 font-medium">
                       <Building2 size={17} className="shrink-0 text-primary/80" />
                       {displayOrEmpty(job.company_name)}
@@ -285,13 +285,13 @@ const AdminJobDetailPage = () => {
 
               <div className="grid w-full shrink-0 grid-cols-2 gap-3 sm:max-w-md lg:w-[22rem]">
                 <div className="rounded-xl border border-border/70 bg-card p-4 shadow-sm">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-base font-bold uppercase tracking-wider text-muted-foreground">
                     Loại hình
                   </p>
                   <p className="mt-2 text-base font-bold text-foreground">{employmentLabel}</p>
                 </div>
                 <div className="rounded-xl border border-border/70 bg-card p-4 shadow-sm">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-base font-bold uppercase tracking-wider text-muted-foreground">
                     Danh mục
                   </p>
                   <p className="mt-2 text-base font-bold text-foreground">
@@ -299,7 +299,7 @@ const AdminJobDetailPage = () => {
                   </p>
                 </div>
                 <div className="col-span-2 rounded-xl border border-border/70 bg-card p-4 shadow-sm sm:col-span-2">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-base font-bold uppercase tracking-wider text-muted-foreground">
                     Mức lương
                   </p>
                   <p className="mt-2 text-base font-bold leading-snug text-foreground">
@@ -307,7 +307,7 @@ const AdminJobDetailPage = () => {
                   </p>
                 </div>
                 <div className="col-span-2 rounded-xl border border-border/70 bg-card p-4 shadow-sm">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-base font-bold uppercase tracking-wider text-muted-foreground">
                     Hạn nộp
                   </p>
                   <p className="mt-2 text-base font-bold text-foreground">
@@ -319,7 +319,7 @@ const AdminJobDetailPage = () => {
           </div>
 
           {(job.experience_required || job.education_required) && (
-            <div className="flex flex-wrap gap-4 border-b border-border/60 px-6 py-4 text-sm sm:px-8">
+            <div className="flex flex-wrap gap-4 border-b border-border/60 px-6 py-4 text-base sm:px-8">
               {job.experience_required ? (
                 <span className="inline-flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-1.5 font-medium text-foreground">
                   <Briefcase size={15} className="text-muted-foreground" />
@@ -348,7 +348,7 @@ const AdminJobDetailPage = () => {
                   <h2 className="text-lg font-black tracking-tight text-foreground">
                     {block.title}
                   </h2>
-                  <p className="mt-4 whitespace-pre-line text-[15px] leading-[1.7] text-foreground/85">
+                  <p className="mt-4 whitespace-pre-line text-base leading-[1.7] text-foreground/85">
                     {String(block.body || '').trim() ? block.body : block.empty}
                   </p>
                 </div>
@@ -359,7 +359,7 @@ const AdminJobDetailPage = () => {
           <div className="space-y-4">
             <Card className="border-border/80 p-6 shadow-sm">
               <h2 className="text-lg font-black text-foreground">Thông tin liên quan</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="mt-1 text-base text-muted-foreground">
                 Liên kết nhanh tới công ty, hồ sơ và trang công khai.
               </p>
               <div className="mt-5 space-y-3">
@@ -368,18 +368,18 @@ const AdminJobDetailPage = () => {
                     to={`/admin/companies/${job.employer_id}`}
                     className="group block rounded-xl border border-border/70 bg-muted/30 p-4 transition-all hover:border-primary/35 hover:bg-primary/5 hover:shadow-sm"
                   >
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                    <p className="text-base font-bold uppercase tracking-wider text-muted-foreground">
                       Công ty
                     </p>
                     <p className="mt-2 font-bold text-foreground group-hover:text-primary">
                       {displayOrEmpty(job.company_name)}
                     </p>
-                    <p className="mt-1 text-sm text-muted-foreground">
+                    <p className="mt-1 text-base text-muted-foreground">
                       {displayOrEmpty(job.company_location)}
                     </p>
                   </Link>
                 ) : (
-                  <div className="rounded-xl border border-dashed border-border bg-muted/20 p-4 text-sm text-muted-foreground">
+                  <div className="rounded-xl border border-dashed border-border bg-muted/20 p-4 text-base text-muted-foreground">
                     Chưa gắn nhà tuyển dụng hợp lệ.
                   </div>
                 )}
@@ -387,13 +387,13 @@ const AdminJobDetailPage = () => {
                   to={`/admin/applications?search=${encodeURIComponent(job.title || '')}`}
                   className="group block rounded-xl border border-border/70 bg-muted/30 p-4 transition-all hover:border-primary/35 hover:bg-primary/5 hover:shadow-sm"
                 >
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-base font-bold uppercase tracking-wider text-muted-foreground">
                     Ứng tuyển
                   </p>
                   <p className="mt-2 font-bold text-foreground group-hover:text-primary">
                     Xem hồ sơ theo tin này
                   </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
+                  <p className="mt-1 text-base text-muted-foreground">
                     Lọc theo tiêu đề job trong trang quản trị.
                   </p>
                 </Link>
@@ -404,7 +404,7 @@ const AdminJobDetailPage = () => {
                   className="flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-muted/30 p-4 transition-all hover:border-primary/35 hover:bg-primary/5 hover:shadow-sm"
                 >
                   <div>
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                    <p className="text-base font-bold uppercase tracking-wider text-muted-foreground">
                       Trang công khai
                     </p>
                     <p className="mt-2 font-bold text-foreground">Mở trên cổng ứng viên</p>

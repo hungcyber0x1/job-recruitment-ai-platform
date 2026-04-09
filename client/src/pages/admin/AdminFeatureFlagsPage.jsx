@@ -145,9 +145,9 @@ const AdminFeatureFlagsPage = () => {
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold text-slate-500">Feature Flags (Cờ tính năng)</p>
+            <p className="text-base font-semibold text-slate-500">Feature Flags (Cờ tính năng)</p>
             <h1 className="text-2xl font-bold text-slate-900 mt-1">Cấu hình Tính năng</h1>
-            <p className="text-sm text-slate-500 mt-1">
+            <p className="text-base text-slate-500 mt-1">
               Bật/tắt các module hệ thống và phân quyền truy cập theo cấp độ tài khoản người dùng.
             </p>
           </div>
@@ -159,14 +159,14 @@ const AdminFeatureFlagsPage = () => {
                 placeholder="Tìm kiếm tính năng..."
                 value={searchFeature}
                 onChange={(e) => setSearchFeature(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder:text-slate-500 focus:border-emerald-500/50 focus:outline-none"
+                className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-base text-slate-900 placeholder:text-slate-500 focus:border-emerald-500/50 focus:outline-none"
               />
             </div>
             <button
               type="button"
               onClick={handleSaveAll}
               disabled={loading || saving}
-              className="flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-600 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2.5 text-base font-semibold text-white hover:bg-emerald-600 disabled:opacity-50"
             >
               {saving ? <LoaderCircle size={18} className="animate-spin" /> : <Save size={18} />}
               Lưu thay đổi
@@ -193,17 +193,17 @@ const AdminFeatureFlagsPage = () => {
                     <div className="flex items-center gap-2">
                       <h3 className="font-semibold text-slate-900">{f.label}</h3>
                       {f.isNew && (
-                        <span className="rounded bg-emerald-500/20 px-2 py-0.5 text-xs font-bold text-emerald-400">
+                        <span className="rounded bg-emerald-500/20 px-2 py-0.5 text-base font-bold text-emerald-400">
                           MỚI
                         </span>
                       )}
                       {f.tier && (
-                        <span className="text-xs font-semibold uppercase text-slate-500">
+                        <span className="text-base font-semibold uppercase text-slate-500">
                           PHÂN QUYỀN · {f.tier}
                         </span>
                       )}
                     </div>
-                    <p className="mt-1 text-sm text-slate-500">{f.desc}</p>
+                    <p className="mt-1 text-base text-slate-500">{f.desc}</p>
                   </div>
                   <button
                     type="button"
@@ -268,13 +268,13 @@ const AdminFeatureFlagsPage = () => {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-base font-bold text-slate-900">Phân quyền theo Tier</h2>
-              <p className="text-sm text-slate-500 mt-0.5">
+              <p className="text-base text-slate-500 mt-0.5">
                 Cấu hình các tính năng khả dụng dựa trên cấp độ gói dịch vụ.
               </p>
             </div>
             <a
               href="#plans"
-              className="text-sm font-semibold text-emerald-400 hover:text-emerald-300"
+              className="text-base font-semibold text-emerald-400 hover:text-emerald-300"
             >
               Quản lý Gói
             </a>

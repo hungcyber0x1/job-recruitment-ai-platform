@@ -401,14 +401,14 @@ const AdminJobsPage = () => {
               </div>
               Quản lý Tin Tuyển dụng
             </h1>
-            <p className="mt-1.5 text-sm text-slate-500">
+            <p className="mt-1.5 text-base text-slate-500">
               Theo dõi, phê duyệt và quản lý các tin tuyển dụng trên nền tảng
             </p>
           </div>
           <div className="flex items-center gap-3">
             <button
               onClick={() => fetchJobs()}
-              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 hover:bg-muted/55 transition-colors duration-200 ease-out"
+              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-base font-semibold text-slate-900 hover:bg-muted/55 transition-colors duration-200 ease-out"
             >
               <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
               Làm mới
@@ -416,14 +416,14 @@ const AdminJobsPage = () => {
             <button
               onClick={handleExportJobs}
               disabled={exporting}
-              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 hover:bg-muted/55 transition-colors duration-200 ease-out disabled:opacity-50"
+              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-base font-semibold text-slate-900 hover:bg-muted/55 transition-colors duration-200 ease-out disabled:opacity-50"
             >
               <Download size={18} />
               {exporting ? 'Đang xuất...' : 'Xuất Excel'}
             </button>
             <Link
               to="/admin/jobs/new"
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:from-emerald-600 hover:to-emerald-700 shadow-lg shadow-emerald-500/25 transition-all"
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-4 py-2.5 text-base font-semibold text-white hover:from-emerald-600 hover:to-emerald-700 shadow-lg shadow-emerald-500/25 transition-all"
             >
               <Plus size={18} />
               Đăng tin mới
@@ -451,20 +451,20 @@ const AdminJobsPage = () => {
                     <Icon size={22} />
                   </div>
                   <div
-                    className={`flex items-center gap-1 text-xs font-semibold ${card.trendUp ? 'text-emerald-400' : 'text-red-400'}`}
+                    className={`flex items-center gap-1 text-base font-semibold ${card.trendUp ? 'text-emerald-400' : 'text-red-400'}`}
                   >
                     {card.trendUp ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
                     {card.trend}
                   </div>
                 </div>
                 <div className="mt-4">
-                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                  <p className="text-base font-medium text-slate-500 uppercase tracking-wide">
                     {card.label}
                   </p>
                   <p className="mt-1.5 text-3xl font-bold text-slate-900">
                     {card.value.toLocaleString('vi-VN')}
                   </p>
-                  <p className="mt-1 text-xs text-slate-500">{card.sub}</p>
+                  <p className="mt-1 text-base text-slate-500">{card.sub}</p>
                 </div>
               </div>
             );
@@ -492,7 +492,7 @@ const AdminJobsPage = () => {
                 {/* Filter Toggle */}
                 <button
                   onClick={() => setShowFilterPanel(!showFilterPanel)}
-                  className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-all ${
+                  className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-base font-semibold transition-all ${
                     showFilterPanel
                       ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-400'
                       : 'border-slate-200 bg-white text-slate-900 hover:bg-muted/55'
@@ -501,7 +501,7 @@ const AdminJobsPage = () => {
                   <Filter size={18} />
                   Lọc dữ liệu
                   {(filters.riskLevel !== 'all' || filters.company) && (
-                    <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-xs text-white">
+                    <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-base text-white">
                       {(filters.riskLevel !== 'all' ? 1 : 0) + (filters.company ? 1 : 0)}
                     </span>
                   )}
@@ -516,7 +516,7 @@ const AdminJobsPage = () => {
                       setSortBy(field);
                       setSortOrder(order);
                     }}
-                    className="h-11 appearance-none rounded-xl border border-slate-200 bg-white px-4 pr-10 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 cursor-pointer"
+                    className="h-11 appearance-none rounded-xl border border-slate-200 bg-white px-4 pr-10 text-base font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 cursor-pointer"
                   >
                     <option value="created_at-desc">Mới nhất</option>
                     <option value="created_at-asc">Cũ nhất</option>
@@ -529,7 +529,7 @@ const AdminJobsPage = () => {
                 {/* Bulk Actions */}
                 {selectedJobs.length > 0 && (
                   <div className="flex items-center gap-2 pl-3 border-l border-slate-200">
-                    <span className="text-sm text-slate-500">{selectedJobs.length} đã chọn</span>
+                    <span className="text-base text-slate-500">{selectedJobs.length} đã chọn</span>
                     <button
                       onClick={() => setSelectedJobs([])}
                       className="p-2 rounded-lg text-slate-500 hover:text-foreground hover:bg-muted/55"
@@ -546,7 +546,7 @@ const AdminJobsPage = () => {
               <div className="mt-4 pt-4 border-t border-slate-200 animate-in slide-in-from-top-2 duration-200">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-slate-500 mb-2">
+                    <label className="block text-base font-medium text-slate-500 mb-2">
                       Mức độ rủi ro AI
                     </label>
                     <select
@@ -554,7 +554,7 @@ const AdminJobsPage = () => {
                       onChange={(e) =>
                         setFilters((prev) => ({ ...prev, riskLevel: e.target.value }))
                       }
-                      className="w-full h-10 rounded-lg bg-slate-900/50 border border-slate-200 px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                      className="w-full h-10 rounded-lg bg-slate-900/50 border border-slate-200 px-3 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                     >
                       <option value="all">Tất cả mức độ</option>
                       <option value="low">Rủi ro thấp</option>
@@ -563,17 +563,19 @@ const AdminJobsPage = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-slate-500 mb-2">Công ty</label>
+                    <label className="block text-base font-medium text-slate-500 mb-2">
+                      Công ty
+                    </label>
                     <input
                       type="text"
                       placeholder="Lọc theo công ty..."
                       value={filters.company}
                       onChange={(e) => setFilters((prev) => ({ ...prev, company: e.target.value }))}
-                      className="w-full h-10 rounded-lg bg-slate-900/50 border border-slate-200 px-3 text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                      className="w-full h-10 rounded-lg bg-slate-900/50 border border-slate-200 px-3 text-base text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-slate-500 mb-2">
+                    <label className="block text-base font-medium text-slate-500 mb-2">
                       Thời gian đăng
                     </label>
                     <select
@@ -581,7 +583,7 @@ const AdminJobsPage = () => {
                       onChange={(e) =>
                         setFilters((prev) => ({ ...prev, dateRange: e.target.value }))
                       }
-                      className="w-full h-10 rounded-lg bg-slate-900/50 border border-slate-200 px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                      className="w-full h-10 rounded-lg bg-slate-900/50 border border-slate-200 px-3 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                     >
                       <option value="all">Tất cả thời gian</option>
                       <option value="today">Hôm nay</option>
@@ -593,7 +595,7 @@ const AdminJobsPage = () => {
                 <div className="mt-4 flex justify-end">
                   <button
                     onClick={() => setFilters({ riskLevel: 'all', company: '', dateRange: 'all' })}
-                    className="text-sm text-slate-500 hover:text-foreground transition-colors"
+                    className="text-base text-slate-500 hover:text-foreground transition-colors"
                   >
                     Xóa bộ lọc
                   </button>
@@ -612,14 +614,14 @@ const AdminJobsPage = () => {
                   setTabFilter(tab.id);
                   setPage(1);
                 }}
-                className={`px-4 py-3.5 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
+                className={`px-4 py-3.5 text-base font-semibold border-b-2 transition-all whitespace-nowrap ${
                   tabFilter === tab.id
                     ? 'border-emerald-500 text-emerald-400'
                     : 'border-transparent text-slate-500 transition-colors duration-200 ease-out hover:bg-muted/40 hover:text-foreground'
                 }`}
               >
                 <span className={tab.color}>{tab.label}</span>
-                <span className="ml-2 inline-flex items-center justify-center min-w-[24px] h-6 px-1.5 rounded-full bg-slate-100 text-xs">
+                <span className="ml-2 inline-flex items-center justify-center min-w-[24px] h-6 px-1.5 rounded-full bg-slate-100 text-base">
                   {tab.count}
                 </span>
               </button>
@@ -671,7 +673,7 @@ const AdminJobsPage = () => {
                             <p className="text-lg font-semibold text-slate-900">
                               Không tìm thấy tin tuyển dụng
                             </p>
-                            <p className="text-sm text-slate-500 mt-1">
+                            <p className="text-base text-slate-500 mt-1">
                               Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm
                             </p>
                           </div>
@@ -706,11 +708,11 @@ const AdminJobsPage = () => {
                                     {job.title}
                                   </Link>
                                   <div className="flex items-center gap-2 mt-0.5">
-                                    <span className="text-xs text-slate-500">
+                                    <span className="text-base text-slate-500">
                                       JOB-{String(job.id).slice(-4)}
                                     </span>
-                                    <span className="text-xs text-slate-600">•</span>
-                                    <span className="text-xs text-slate-500">
+                                    <span className="text-base text-slate-600">•</span>
+                                    <span className="text-base text-slate-500">
                                       {formatDate(job.created_at)}
                                     </span>
                                   </div>
@@ -720,19 +722,19 @@ const AdminJobsPage = () => {
                             <td className="px-4 py-4">
                               <Link
                                 to={`/admin/companies/${job.employer_id}`}
-                                className="text-sm font-medium text-slate-900 hover:text-emerald-400 transition-colors"
+                                className="text-base font-medium text-slate-900 hover:text-emerald-400 transition-colors"
                               >
                                 {job.company_name || 'N/A'}
                               </Link>
-                              <p className="text-xs text-slate-500 mt-0.5">{job.category}</p>
+                              <p className="text-base text-slate-500 mt-0.5">{job.category}</p>
                             </td>
                             <td className="px-4 py-4">
                               <div className="space-y-1.5">
-                                <div className="flex items-center gap-1.5 text-sm text-slate-600">
+                                <div className="flex items-center gap-1.5 text-base text-slate-600">
                                   <MapPin size={14} className="text-slate-500" />
                                   {job.location}
                                 </div>
-                                <div className="flex items-center gap-1.5 text-sm text-emerald-400 font-medium">
+                                <div className="flex items-center gap-1.5 text-base text-emerald-400 font-medium">
                                   <DollarSign size={14} />
                                   {formatSalary(job.salary_min, job.salary_max)}
                                 </div>
@@ -744,14 +746,14 @@ const AdminJobsPage = () => {
                                   <p className="text-lg font-bold text-slate-900">
                                     {job.applicants || 0}
                                   </p>
-                                  <p className="text-xs text-slate-500">Ứng tuyển</p>
+                                  <p className="text-base text-slate-500">Ứng tuyển</p>
                                 </div>
                                 <div className="w-px h-8 bg-slate-100" />
                                 <div className="text-center">
                                   <p className="text-lg font-bold text-slate-900">
                                     {job.views || 0}
                                   </p>
-                                  <p className="text-xs text-slate-500">Lượt xem</p>
+                                  <p className="text-base text-slate-500">Lượt xem</p>
                                 </div>
                               </div>
                             </td>
@@ -760,7 +762,7 @@ const AdminJobsPage = () => {
                                 className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg ${risk.bg} border ${risk.border}`}
                               >
                                 <risk.icon size={14} className={risk.color} />
-                                <span className={`text-sm font-semibold ${risk.color}`}>
+                                <span className={`text-base font-semibold ${risk.color}`}>
                                   {risk.label} ({risk.pct}%)
                                 </span>
                               </div>
@@ -770,7 +772,7 @@ const AdminJobsPage = () => {
                                 className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg ${status.bg} border ${status.border}`}
                               >
                                 <span className={`h-2 w-2 rounded-full ${status.color}`} />
-                                <span className={`text-sm font-semibold ${status.text}`}>
+                                <span className={`text-base font-semibold ${status.text}`}>
                                   {status.label}
                                 </span>
                               </div>
@@ -809,7 +811,7 @@ const AdminJobsPage = () => {
                                   <div className="absolute right-0 top-full mt-1 w-48 rounded-xl border border-slate-200 bg-white p-1 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
                                     <Link
                                       to={`/admin/jobs/${job.id}/edit`}
-                                      className="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:text-foreground hover:bg-muted/55 rounded-lg transition-colors"
+                                      className="flex items-center gap-2 px-3 py-2 text-base text-slate-600 hover:text-foreground hover:bg-muted/55 rounded-lg transition-colors"
                                     >
                                       <Edit size={14} />
                                       Chỉnh sửa
@@ -819,7 +821,7 @@ const AdminJobsPage = () => {
                                         setSelectedJob(job);
                                         setShowDeleteModal(true);
                                       }}
-                                      className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-destructive/100/10 rounded-lg transition-colors"
+                                      className="w-full flex items-center gap-2 px-3 py-2 text-base text-red-400 hover:bg-destructive/100/10 rounded-lg transition-colors"
                                     >
                                       <Trash2 size={14} />
                                       Xóa tin
@@ -839,7 +841,7 @@ const AdminJobsPage = () => {
               {/* Pagination */}
               {totalJobs > 0 && (
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border bg-muted/25 px-6 py-4">
-                  <p className="text-sm text-slate-500">
+                  <p className="text-base text-slate-500">
                     Hiển thị{' '}
                     <span className="text-slate-900 font-semibold">
                       {(page - 1) * limit + 1}-{Math.min(page * limit, totalJobs)}
@@ -872,7 +874,7 @@ const AdminJobsPage = () => {
                           key={pageNum}
                           type="button"
                           onClick={() => setPage(pageNum)}
-                          className={`min-w-[36px] h-9 rounded-lg text-sm font-semibold transition-all ${
+                          className={`min-w-[36px] h-9 rounded-lg text-base font-semibold transition-all ${
                             page === pageNum
                               ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25'
                               : 'border border-slate-200 text-slate-500 hover:bg-muted/55 hover:text-foreground'
@@ -907,12 +909,12 @@ const AdminJobsPage = () => {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-slate-900">Xóa tin tuyển dụng?</h3>
-                  <p className="text-sm text-slate-500">Hành động này không thể hoàn tác</p>
+                  <p className="text-base text-slate-500">Hành động này không thể hoàn tác</p>
                 </div>
               </div>
               <div className="p-4 rounded-xl bg-slate-900/50 border border-slate-200 mb-6">
                 <p className="font-semibold text-slate-900">{selectedJob.title}</p>
-                <p className="text-sm text-slate-500 mt-1">{selectedJob.company_name}</p>
+                <p className="text-base text-slate-500 mt-1">{selectedJob.company_name}</p>
               </div>
               <div className="flex gap-3">
                 <button

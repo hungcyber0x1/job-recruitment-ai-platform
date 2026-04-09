@@ -41,11 +41,13 @@ const PublicCompanyDetailPage = () => {
     return (
       <div className="min-h-[50vh] bg-emerald-50/30 px-4 py-16">
         <div className="container mx-auto max-w-lg text-center">
-          <h1 className="text-xl font-bold text-foreground">Không tìm thấy công ty</h1>
-          <p className="mt-2 text-muted-foreground">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Không tìm thấy công ty
+          </h1>
+          <p className="mt-3 text-base font-medium text-muted-foreground">
             Mã công ty không hợp lệ hoặc đã gỡ khỏi danh sách.
           </p>
-          <Button className="mt-6" asChild>
+          <Button className="mt-8 text-base font-bold" asChild>
             <Link to="/companies">Quay lại danh sách</Link>
           </Button>
         </div>
@@ -67,7 +69,7 @@ const PublicCompanyDetailPage = () => {
         <div className="container relative z-10 mx-auto max-w-6xl px-4 pb-10 pt-6 sm:px-6 md:pb-12 md:pt-8">
           <Link
             to="/companies"
-            className="group mb-8 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:text-primary"
+            className="group mb-8 inline-flex items-center gap-2 text-base font-medium text-muted-foreground transition-colors hover:text-primary"
           >
             <ArrowLeft
               className="size-4 transition-transform group-hover:-translate-x-0.5"
@@ -90,14 +92,14 @@ const PublicCompanyDetailPage = () => {
                   {ini}
                 </div>
                 <div className="min-w-0">
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/15 bg-primary/[0.07] px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/15 bg-primary/[0.07] px-3 py-1 text-xs font-bold uppercase tracking-widest text-primary">
                     <Sparkles className="size-3" strokeWidth={2} aria-hidden />
                     {company.industry}
                   </span>
-                  <h1 className="mt-3 text-balance text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl md:text-[2.35rem] md:leading-[1.15]">
+                  <h1 className="mt-3 text-balance text-3xl font-black tracking-tight text-foreground sm:text-4xl md:text-4xl lg:text-5xl">
                     {company.name}
                   </h1>
-                  <div className="mt-5 flex flex-wrap gap-x-3 gap-y-2 text-sm md:gap-x-4">
+                  <div className="mt-5 flex flex-wrap gap-x-3 gap-y-2 text-base md:gap-x-4">
                     <span className="inline-flex items-center gap-2 text-muted-foreground">
                       <span className="flex size-8 items-center justify-center rounded-lg bg-white/80 text-primary shadow-sm ring-1 ring-border/50 dark:bg-slate-900/80">
                         <MapPin className="size-3.5" aria-hidden />
@@ -118,7 +120,7 @@ const PublicCompanyDetailPage = () => {
                     <span className="hidden text-border sm:inline" aria-hidden>
                       ·
                     </span>
-                    <span className="inline-flex items-center gap-2 font-semibold text-primary">
+                    <span className="inline-flex items-center gap-2 font-bold text-primary">
                       <span className="flex size-8 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-primary/15">
                         <Briefcase className="size-3.5" aria-hidden />
                       </span>
@@ -132,7 +134,7 @@ const PublicCompanyDetailPage = () => {
             <div className="flex w-full shrink-0 flex-col gap-3 sm:flex-row sm:items-center lg:w-auto lg:min-w-[280px] lg:flex-col lg:items-stretch">
               <Button
                 size="lg"
-                className="h-12 w-full gap-2 font-semibold shadow-md sm:flex-1 lg:flex-none"
+                className="h-12 w-full gap-2 text-base font-bold shadow-md sm:flex-1 lg:flex-none"
                 asChild
               >
                 <Link to="/jobs">
@@ -143,7 +145,7 @@ const PublicCompanyDetailPage = () => {
               <Button
                 size="lg"
                 variant="outline"
-                className="h-12 w-full border-primary/25 bg-white/90 font-semibold text-foreground hover:bg-primary/5 hover:text-primary dark:bg-slate-950/90 sm:flex-1 lg:flex-none"
+                className="h-12 w-full border-primary/25 bg-white/90 text-base font-bold text-foreground hover:bg-primary/5 hover:text-primary dark:bg-slate-950/90 sm:flex-1 lg:flex-none"
                 asChild
               >
                 <Link to="/register">Tạo tài khoản ứng viên</Link>
@@ -161,10 +163,10 @@ const PublicCompanyDetailPage = () => {
                 <Building2 className="size-[1.15rem]" strokeWidth={2} aria-hidden />
               </span>
               <div>
-                <h2 className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
+                <h2 className="text-xl font-bold tracking-tight text-foreground md:text-2xl">
                   Giới thiệu
                 </h2>
-                <p className="text-xs font-medium text-muted-foreground">
+                <p className="text-sm font-medium text-muted-foreground">
                   Tổng quan nhà tuyển dụng
                 </p>
               </div>
@@ -173,12 +175,12 @@ const PublicCompanyDetailPage = () => {
 
           <div className="px-6 py-7 sm:px-8 sm:py-8">
             <div className="mx-auto max-w-3xl">
-              <p className="text-[15px] leading-[1.7] text-foreground/85 sm:text-base">
-                <span className="font-semibold text-foreground">{company.name}</span> tuyển dụng tại{' '}
+              <p className="text-base font-medium leading-relaxed text-foreground">
+                <span className="font-bold text-foreground">{company.name}</span> tuyển dụng tại{' '}
                 {company.location}. Tại HireAI bạn có thể xem tin việc phù hợp, theo dõi nhà tuyển
                 dụng và ứng tuyển trực tuyến — mọi thông tin được cập nhật theo dữ liệu nền tảng.
               </p>
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+              <p className="mt-4 text-base font-medium leading-relaxed text-muted-foreground">
                 Đăng nhập bằng tài khoản ứng viên để xem thêm chi tiết về văn hóa, phúc lợi và lưu
                 công ty vào danh sách theo dõi.
               </p>
@@ -188,7 +190,7 @@ const PublicCompanyDetailPage = () => {
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
                 <Button
                   variant="outline"
-                  className="h-11 w-full shrink-0 border-primary/20 font-semibold sm:w-auto sm:min-w-[240px]"
+                  className="h-11 w-full shrink-0 border-primary/20 text-base font-bold sm:w-auto sm:min-w-[240px]"
                   asChild
                 >
                   <Link
@@ -198,11 +200,11 @@ const PublicCompanyDetailPage = () => {
                     Đăng nhập ứng viên
                   </Link>
                 </Button>
-                <p className="text-xs leading-relaxed text-muted-foreground sm:max-w-md sm:text-right">
+                <p className="text-sm font-medium leading-relaxed text-muted-foreground sm:max-w-md sm:text-right">
                   Sau đăng nhập, bạn có thể mở đầy đủ hồ sơ công ty trong khu vực ứng viên.{' '}
                   <Link
                     to="/register"
-                    className="font-semibold text-primary underline-offset-4 hover:underline"
+                    className="font-bold text-primary underline-offset-4 hover:underline"
                   >
                     Đăng ký miễn phí
                   </Link>

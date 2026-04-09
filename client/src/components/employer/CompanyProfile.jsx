@@ -122,7 +122,7 @@ const CompanyProfile = ({ companyData, isEditable = false }) => {
             </div>
 
             <div className="mt-10 pt-8 border-t border-slate-50">
-              <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-6 text-center">
+              <p className="text-xs font-black text-slate-300 uppercase tracking-widest mb-6 text-center">
                 Mạng xã hội
               </p>
               <div className="flex justify-center gap-4">

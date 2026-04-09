@@ -101,7 +101,7 @@ function AiScoreBadge({ score }) {
 
   return (
     <div className={`flex flex-col items-center rounded-xl border px-3 py-2 min-w-[80px] ${color}`}>
-      <div className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider opacity-70 mb-0.5">
+      <div className="flex items-center gap-1 text-base font-bold uppercase tracking-wider opacity-70 mb-0.5">
         <Sparkles size={8} />
         AI MATCH SCORE
       </div>
@@ -213,13 +213,13 @@ const ManageJobsPage = () => {
           <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase">
             Quản lý tin tuyển dụng
           </h1>
-          <p className="text-sm text-slate-500 font-medium mt-1">
+          <p className="text-base text-slate-500 font-medium mt-1">
             Theo dõi hiệu quả và quản lý các vị trí tuyển dụng của bạn.
           </p>
         </div>
         <Link
           to="/employer/jobs/post"
-          className="flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white hover:bg-emerald-700 active:scale-95 transition-all shadow-lg shadow-emerald-500/20"
+          className="flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-6 py-3 text-base font-bold text-white hover:bg-emerald-700 active:scale-95 transition-all shadow-lg shadow-emerald-500/20"
         >
           <Plus size={18} />
           ĐĂNG TIN MỚI
@@ -236,7 +236,7 @@ const ManageJobsPage = () => {
                 setActiveTab(tab.key);
                 setCurrentPage(1);
               }}
-              className={`relative flex items-center gap-2 px-6 py-2.5 text-sm font-bold rounded-lg transition-all ${
+              className={`relative flex items-center gap-2 px-6 py-2.5 text-base font-bold rounded-lg transition-all ${
                 activeTab === tab.key
                   ? 'bg-white text-emerald-600 shadow-sm'
                   : 'text-slate-500 hover:text-slate-700'
@@ -244,7 +244,7 @@ const ManageJobsPage = () => {
             >
               {tab.label}
               <span
-                className={`rounded-full px-2 py-0.5 text-[10px] font-black tabular-nums ${
+                className={`rounded-full px-2 py-0.5 text-base font-black tabular-nums ${
                   activeTab === tab.key
                     ? 'bg-emerald-100 text-emerald-600'
                     : 'bg-slate-200 text-slate-500'
@@ -267,7 +267,7 @@ const ManageJobsPage = () => {
                 setCurrentPage(1);
               }}
               placeholder="Tìm theo tiêu đề, địa điểm..."
-              className="w-full rounded-xl border border-slate-200 bg-white pl-11 pr-4 py-2.5 text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500/40 transition-all"
+              className="w-full rounded-xl border border-slate-200 bg-white pl-11 pr-4 py-2.5 text-base font-medium text-slate-900 outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500/40 transition-all"
             />
           </div>
 
@@ -278,7 +278,7 @@ const ManageJobsPage = () => {
                 setFilterType(e.target.value);
                 setCurrentPage(1);
               }}
-              className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-600 outline-none appearance-none cursor-pointer hover:border-emerald-300 hover:text-emerald-600 transition-all shadow-sm"
+              className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-base font-bold text-slate-600 outline-none appearance-none cursor-pointer hover:border-emerald-300 hover:text-emerald-600 transition-all shadow-sm"
             >
               <option value="all">Tất cả loại hình</option>
               <option value="full_time">Toàn thời gian</option>
@@ -293,7 +293,7 @@ const ManageJobsPage = () => {
                 setFilterLocation(e.target.value);
                 setCurrentPage(1);
               }}
-              className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-600 outline-none appearance-none cursor-pointer hover:border-emerald-300 hover:text-emerald-600 transition-all shadow-sm"
+              className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-base font-bold text-slate-600 outline-none appearance-none cursor-pointer hover:border-emerald-300 hover:text-emerald-600 transition-all shadow-sm"
             >
               <option value="all">Tất cả địa điểm</option>
               <option value="Hồ Chí Minh">TP. Hồ Chí Minh</option>
@@ -326,7 +326,7 @@ const ManageJobsPage = () => {
           </p>
           <Link
             to="/employer/jobs/post"
-            className="mt-8 flex items-center gap-2 rounded-2xl bg-emerald-600 px-8 py-3.5 text-sm font-bold text-white hover:bg-emerald-700 shadow-lg shadow-emerald-500/20 transition-all"
+            className="mt-8 flex items-center gap-2 rounded-2xl bg-emerald-600 px-8 py-3.5 text-base font-bold text-white hover:bg-emerald-700 shadow-lg shadow-emerald-500/20 transition-all"
           >
             <Plus size={18} />
             ĐĂNG TIN NGAY
@@ -350,7 +350,7 @@ const ManageJobsPage = () => {
                 className={`group relative rounded-2xl border bg-white transition-all overflow-hidden ${isClosed ? 'border-slate-100 opacity-80' : 'border-slate-200 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/5'}`}
               >
                 {aiScore >= 80 && !isClosed && (
-                  <div className="absolute top-4 left-4 z-10 rounded-lg bg-emerald-600 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-emerald-500/30">
+                  <div className="absolute top-4 left-4 z-10 rounded-lg bg-emerald-600 px-3 py-1 text-base font-black uppercase tracking-widest text-white shadow-lg shadow-emerald-500/30">
                     AI MATCHED
                   </div>
                 )}
@@ -376,7 +376,7 @@ const ManageJobsPage = () => {
                             {statusMeta.label}
                           </Badge>
                         </div>
-                        <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                        <div className="flex flex-wrap items-center gap-4 text-base font-bold text-slate-400 uppercase tracking-widest">
                           <span className="flex items-center gap-1.5">
                             <Calendar size={13} className="text-emerald-500" />
                             Đăng: {formatShortDate(job.created_at)}
@@ -407,16 +407,16 @@ const ManageJobsPage = () => {
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-4 border-y border-slate-50">
                       <div>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                        <p className="text-base font-bold text-slate-400 uppercase tracking-widest mb-1">
                           Ứng tuyển
                         </p>
                         <p className="text-lg font-black text-slate-900">
                           {formatCompactNumber(job.applicant_count || 0)}{' '}
-                          <span className="text-xs font-medium text-slate-500">Hồ sơ</span>
+                          <span className="text-base font-medium text-slate-500">Hồ sơ</span>
                         </p>
                       </div>
                       <div>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                        <p className="text-base font-bold text-slate-400 uppercase tracking-widest mb-1">
                           Lượt xem
                         </p>
                         <p className="text-lg font-black text-slate-900">
@@ -424,15 +424,15 @@ const ManageJobsPage = () => {
                         </p>
                       </div>
                       <div className="col-span-2">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                        <p className="text-base font-bold text-slate-400 uppercase tracking-widest mb-1">
                           Thời gian
                         </p>
                         {isClosed ? (
-                          <p className="text-sm font-bold text-red-500 flex items-center gap-2">
+                          <p className="text-base font-bold text-red-500 flex items-center gap-2">
                             <XCircle size={14} /> Đã kết thúc tuyển dụng
                           </p>
                         ) : appDeadlinePassed ? (
-                          <p className="text-sm font-bold text-amber-600 flex items-center gap-2">
+                          <p className="text-base font-bold text-amber-600 flex items-center gap-2">
                             <XCircle size={14} /> Đã quá hạn ứng tuyển — gia hạn hạn nộp hoặc đóng
                             tin
                           </p>
@@ -445,13 +445,13 @@ const ManageJobsPage = () => {
                               />
                             </div>
                             <p
-                              className={`text-sm font-bold ${daysLeft <= 3 ? 'text-red-500' : 'text-slate-700'}`}
+                              className={`text-base font-bold ${daysLeft <= 3 ? 'text-red-500' : 'text-slate-700'}`}
                             >
                               Còn {daysLeft} ngày đến hạn nộp
                             </p>
                           </div>
                         ) : (
-                          <p className="text-sm font-bold text-slate-400">Không đặt hạn nộp</p>
+                          <p className="text-base font-bold text-slate-400">Không đặt hạn nộp</p>
                         )}
                       </div>
                     </div>
@@ -478,7 +478,7 @@ const ManageJobsPage = () => {
                       </div>
                       <Link
                         to={`/employer/applications?jobId=${job.id}`}
-                        className="flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-2.5 text-xs font-bold text-white hover:bg-emerald-700 active:scale-95 transition-all shadow-lg shadow-black/10"
+                        className="flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-2.5 text-base font-bold text-white hover:bg-emerald-700 active:scale-95 transition-all shadow-lg shadow-black/10"
                       >
                         XEM PIPELINE <ChevronRight size={14} />
                       </Link>
@@ -506,7 +506,7 @@ const ManageJobsPage = () => {
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`h-10 px-4 rounded-xl text-sm font-bold transition-all ${
+                className={`h-10 px-4 rounded-xl text-base font-bold transition-all ${
                   page === currentPage
                     ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20'
                     : 'border border-slate-200 text-slate-500 hover:bg-muted/35 bg-white'

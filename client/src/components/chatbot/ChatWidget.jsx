@@ -88,7 +88,7 @@ const ChatWidget = () => {
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-semibold text-[15px] sm:text-base tracking-tight text-white">
+                      <h3 className="text-base font-semibold tracking-tight text-white">
                         HireAI Assistant
                       </h3>
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 pl-2 pr-2.5 py-0.5 ring-1 ring-emerald-400/25">
@@ -96,12 +96,12 @@ const ChatWidget = () => {
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-45" />
                           <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
                         </span>
-                        <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-200/95">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-emerald-200/95">
                           Đang hoạt động
                         </span>
                       </span>
                     </div>
-                    <p className="text-[11px] sm:text-xs text-slate-400 mt-1 leading-snug max-w-[18rem]">
+                    <p className="text-sm sm:text-xs text-slate-400 mt-1 leading-snug max-w-[18rem]">
                       Tư vấn tìm việc, CV và phỏng vấn — phản hồi theo ngữ cảnh của bạn.
                       <span className="mt-1 block text-slate-400/95">
                         Lịch sử được lưu theo tài khoản để bạn xem lại.
@@ -148,7 +148,7 @@ const ChatWidget = () => {
                         cứ nhắn hoặc chọn gợi ý nhanh bên dưới.
                       </p>
                       <div className="w-full mt-5 space-y-2">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400 text-left w-full">
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400 text-left w-full">
                           Gợi ý nhanh
                         </p>
                         <div className="flex flex-col gap-2">
@@ -158,7 +158,7 @@ const ChatWidget = () => {
                               type="button"
                               onClick={() => handleQuickPrompt(q)}
                               disabled={isLoading}
-                              className="text-left text-xs sm:text-[13px] leading-snug px-3.5 py-2.5 rounded-xl bg-white/95 border border-slate-200/90 text-slate-700 hover:border-emerald-300/80 hover:bg-primary/10 hover:text-emerald-950 transition-colors disabled:opacity-50 disabled:pointer-events-none shadow-sm"
+                              className="text-left text-xs sm:text-base leading-snug px-3.5 py-2.5 rounded-xl bg-white/95 border border-slate-200/90 text-slate-700 hover:border-emerald-300/80 hover:bg-primary/10 hover:text-emerald-950 transition-colors disabled:opacity-50 disabled:pointer-events-none shadow-sm"
                             >
                               {q}
                             </button>
@@ -176,13 +176,13 @@ const ChatWidget = () => {
                           className={`w-fit min-w-0 break-words ${
                             msg.isAi
                               ? 'max-w-[min(100%,36rem)] rounded-2xl rounded-tl-md bg-white border border-slate-200/90 px-5 py-4 shadow-[0_4px_24px_-8px_rgba(15,23,42,0.12)]'
-                              : 'max-w-[88%] rounded-2xl rounded-tr-md bg-gradient-to-br from-emerald-600 to-emerald-700 px-4 py-2.5 text-[13px] leading-relaxed text-white shadow-md shadow-emerald-900/18 ring-1 ring-white/15 text-left'
+                              : 'max-w-[88%] rounded-2xl rounded-tr-md bg-gradient-to-br from-emerald-600 to-emerald-700 px-4 py-2.5 text-base leading-relaxed text-white shadow-md shadow-emerald-900/18 ring-1 ring-white/15 text-left'
                           }`}
                         >
                           {msg.isAi ? (
                             <AiMessageMarkdown text={msg.text} />
                           ) : (
-                            <span className="text-[13px] leading-relaxed">{msg.text}</span>
+                            <span className="text-base leading-relaxed">{msg.text}</span>
                           )}
                         </div>
                       </div>
@@ -213,7 +213,7 @@ const ChatWidget = () => {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Nhập câu hỏi của bạn…"
-                    className="min-h-[2.75rem] flex-1 min-w-0 rounded-xl border-0 bg-transparent px-3 py-2.5 text-[15px] leading-snug text-slate-900 shadow-none outline-none ring-0 placeholder:text-slate-400 focus:border-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 sm:min-h-0 sm:px-3.5 sm:py-2 sm:text-sm"
+                    className="min-h-[2.75rem] flex-1 min-w-0 rounded-xl border-0 bg-transparent px-3 py-2.5 text-base leading-snug text-slate-900 shadow-none outline-none ring-0 placeholder:text-slate-400 focus:border-0 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 sm:min-h-0 sm:px-3.5 sm:py-2 sm:text-sm"
                     autoComplete="off"
                   />
                   <button
@@ -226,7 +226,7 @@ const ChatWidget = () => {
                   </button>
                 </div>
               </form>
-              <p className="mt-2.5 flex items-center justify-center gap-1.5 text-[10px] text-slate-400 leading-snug text-center">
+              <p className="mt-2.5 flex items-center justify-center gap-1.5 text-xs text-slate-400 leading-snug text-center">
                 <ShieldCheck size={12} className="text-emerald-600/50 shrink-0" />
                 <span>Trợ lý có thể nhầm lẫn — hãy kiểm tra thông tin quan trọng.</span>
               </p>

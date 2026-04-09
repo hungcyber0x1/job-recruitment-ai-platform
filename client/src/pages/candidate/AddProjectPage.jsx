@@ -191,20 +191,20 @@ const AddProjectPage = () => {
           </div>
           <div>
             <h1 className="text-xl font-bold text-foreground">Thêm dự án mới</h1>
-            <p className="text-sm text-muted-foreground">Xây dựng hồ sơ năng lực ấn tượng</p>
+            <p className="text-base text-muted-foreground">Xây dựng hồ sơ năng lực ấn tượng</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
           <Link
             to="/candidate/profile"
-            className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary"
+            className="inline-flex items-center gap-2 text-base font-medium text-muted-foreground hover:text-primary"
           >
             <ArrowLeft className="h-4 w-4" />
             Quay lại profile
           </Link>
           <Avatar className="h-8 w-8 rounded-full border border-primary/20">
             <AvatarImage src={user?.avatar_url} alt={displayName} />
-            <AvatarFallback className="bg-primary/15 text-xs font-semibold text-primary">
+            <AvatarFallback className="bg-primary/15 text-base font-semibold text-primary">
               {displayName.charAt(0) || 'U'}
             </AvatarFallback>
           </Avatar>
@@ -213,12 +213,12 @@ const AddProjectPage = () => {
 
       {/* Profile completion */}
       <div className="mb-6 space-y-2">
-        <div className="flex items-center justify-between text-sm">
+        <div className="flex items-center justify-between text-base">
           <span className="font-medium text-foreground">Độ hoàn thiện hồ sơ</span>
           <span className="text-muted-foreground">{profileCompletion.completion}%</span>
         </div>
         <Progress value={profileCompletion.completion} className="h-2 bg-muted" />
-        <div className="flex items-start gap-2 rounded-lg bg-primary/10 p-3 text-sm text-foreground">
+        <div className="flex items-start gap-2 rounded-lg bg-primary/10 p-3 text-base text-foreground">
           <Info className="h-4 w-4 shrink-0 text-primary mt-0.5" />
           <p>Thêm dự án thực tế giúp tăng 35% khả năng lọt vào mắt xanh của nhà tuyển dụng.</p>
         </div>
@@ -291,13 +291,13 @@ const AddProjectPage = () => {
                   ) : (
                     <>
                       <ImageIcon className="h-10 w-10 text-muted-foreground" />
-                      <span className="mt-2 text-center text-sm font-medium text-muted-foreground">
+                      <span className="mt-2 text-center text-base font-medium text-muted-foreground">
                         {isUploading ? 'Đang tải...' : 'Tải ảnh lên (PNG, JPG)'}
                       </span>
                     </>
                   )}
                 </label>
-                <ul className="flex list-disc flex-col gap-1 text-sm text-muted-foreground sm:col-span-2 sm:list-inside">
+                <ul className="flex list-disc flex-col gap-1 text-base text-muted-foreground sm:col-span-2 sm:list-inside">
                   <li>Kích thước tối đa: {MAX_IMAGE_SIZE_MB}MB</li>
                   <li>Khuyên dùng tỷ lệ: 16:9</li>
                   <li>Hình ảnh rõ nét giúp dự án nổi bật hơn</li>
@@ -314,7 +314,7 @@ const AddProjectPage = () => {
                 {formData.technologies.map((tech) => (
                   <span
                     key={tech}
-                    className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary"
+                    className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-3 py-1.5 text-base font-medium text-primary"
                   >
                     {tech}
                     <button

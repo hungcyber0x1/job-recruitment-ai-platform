@@ -84,7 +84,7 @@ const LandingHeader = () => {
           >
             <span className="text-white font-black text-xl">H</span>
           </motion.div>
-          <span className="text-xl font-black tracking-tighter text-neutral-900 transition-colors group-hover:opacity-90">
+          <span className="text-lg font-black tracking-tight text-neutral-900 transition-colors group-hover:opacity-90 sm:text-xl">
             HireAI<span className="text-[#00a685]">.</span>
           </span>
         </Link>
@@ -98,10 +98,10 @@ const LandingHeader = () => {
                 <Link
                   to={link.path}
                   className={cn(
-                    'flex items-center gap-2 px-3 py-2.5 text-[14px] font-semibold rounded-xl transition-all duration-300 relative group',
+                    'flex items-center gap-2 px-3 py-2.5 text-base font-semibold rounded-xl transition-all duration-300 relative group',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2',
                     active
-                      ? 'text-primary bg-primary/10'
+                      ? 'text-primary bg-primary/10 font-bold'
                       : 'text-muted-foreground hover:text-foreground'
                   )}
                   aria-current={active ? 'page' : undefined}
@@ -135,13 +135,13 @@ const LandingHeader = () => {
             <>
               <Link
                 to="/login"
-                className="hidden sm:block text-sm font-bold px-3 py-2 text-muted-foreground hover:text-foreground transition-colors"
+                className="hidden sm:block px-3 py-2 text-base font-semibold text-muted-foreground hover:text-foreground transition-colors"
               >
                 Đăng nhập
               </Link>
               <Link
                 to="/register"
-                className="landing-btn-cta px-5 py-2.5 text-sm hidden sm:inline-flex"
+                className="landing-btn-cta hidden px-5 py-2.5 text-base font-bold sm:inline-flex"
               >
                 Tuyển dụng ngay
               </Link>
@@ -176,10 +176,10 @@ const LandingHeader = () => {
                   className="w-64 mt-2 p-2 border-border/50 shadow-premium rounded-2xl"
                 >
                   <div className="px-3 py-4 mb-2">
-                    <p className="font-black text-foreground tracking-tight">
+                    <p className="text-base font-black tracking-tight text-foreground">
                       {user?.first_name} {user?.last_name}
                     </p>
-                    <p className="text-xs text-muted-foreground truncate font-medium">
+                    <p className="truncate text-sm font-medium text-muted-foreground">
                       {user?.email}
                     </p>
                   </div>
@@ -190,7 +190,7 @@ const LandingHeader = () => {
                       className="flex items-center gap-3 py-3 rounded-xl cursor-pointer"
                     >
                       <AppIcon icon={LayoutDashboard} size={18} className="text-muted-foreground" />
-                      <span className="font-bold text-sm">Bảng điều khiển</span>
+                      <span className="text-base font-bold">Bảng điều khiển</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
@@ -199,7 +199,7 @@ const LandingHeader = () => {
                       className="flex items-center gap-3 py-3 rounded-xl cursor-pointer"
                     >
                       <AppIcon icon={Settings} size={18} className="text-muted-foreground" />
-                      <span className="font-bold text-sm">Cài đặt</span>
+                      <span className="text-base font-bold">Cài đặt</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-border/50 mx-1" />
@@ -208,7 +208,7 @@ const LandingHeader = () => {
                     className="flex items-center gap-3 py-3 rounded-xl cursor-pointer text-red-500 focus:text-red-500 focus:bg-red-50"
                   >
                     <AppIcon icon={LogOut} size={18} className="text-current" />
-                    <span className="font-bold text-sm">Đăng xuất</span>
+                    <span className="text-base font-bold">Đăng xuất</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -244,10 +244,10 @@ const LandingHeader = () => {
                     to={link.path}
                     onClick={() => setMobileMenuOpen(false)}
                     className={cn(
-                      'flex items-center gap-4 px-4 py-3.5 rounded-xl text-base font-semibold transition-colors',
+                      'flex items-center gap-4 px-4 py-3.5 rounded-xl text-base transition-colors',
                       active
-                        ? 'bg-primary/10 text-primary'
-                        : 'text-slate-600 hover:bg-muted/55 hover:text-foreground'
+                        ? 'bg-primary/10 text-primary font-bold'
+                        : 'text-slate-600 font-semibold hover:bg-muted/55 hover:text-foreground'
                     )}
                     aria-current={active ? 'page' : undefined}
                   >
@@ -270,13 +270,13 @@ const LandingHeader = () => {
               <div className="grid grid-cols-1 gap-3 mt-3">
                 <Link
                   to="/login"
-                  className="py-4 text-center font-bold border border-border rounded-2xl hover:bg-muted/50"
+                  className="py-4 text-center text-base font-semibold border border-border rounded-2xl hover:bg-muted/50"
                 >
                   Đăng nhập
                 </Link>
                 <Link
                   to="/register"
-                  className="py-4 text-center font-bold landing-btn-cta rounded-2xl"
+                  className="landing-btn-cta rounded-2xl py-4 text-center text-base font-bold"
                 >
                   Tuyển dụng ngay
                 </Link>

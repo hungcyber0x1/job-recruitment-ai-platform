@@ -1,3 +1,4 @@
+const AppError = require('../utils/errorHandler');
 const JobRepository = require('../repositories/job');
 const UserRepository = require('../repositories/user');
 const ApplicationRepository = require('../repositories/application');
@@ -131,6 +132,16 @@ class AdminController {
     try {
       const { id } = req.params;
       const { status } = req.body;
+      const targetId = parseInt(id, 10);
+      const deactivating = status !== 'active';
+      if (Number.isFinite(targetId) && targetId === req.user.id && deactivating) {
+        return next(
+          new AppError(
+            'Không thể vô hiệu hóa chính tài khoản đang đăng nhập. Nhờ admin khác bật lại hoặc cập nhật is_active trong database.',
+            400
+          )
+        );
+      }
 
       const updated = await UserRepository.updateStatus(id, status);
 

@@ -1,9 +1,16 @@
 import { describe, it, expect } from 'vitest';
-import { API_BASE_URL, API_TIMEOUT, resolveApiResourceUrl, resolveBrowserApiUrl } from './index.js';
+import {
+  API_BASE_URL,
+  API_TIMEOUT,
+  API_TIMEOUT_AI_CV_MS,
+  resolveApiResourceUrl,
+  resolveBrowserApiUrl,
+} from './index.js';
 
 describe('app config', () => {
   it('exports stable API settings', () => {
     expect(API_TIMEOUT).toBe(30000);
+    expect(API_TIMEOUT_AI_CV_MS).toBe(180000);
     expect(typeof API_BASE_URL).toBe('string');
     expect(API_BASE_URL.length).toBeGreaterThan(0);
   });

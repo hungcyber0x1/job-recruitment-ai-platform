@@ -20,7 +20,6 @@ const footerLinks = [
     links: [
       { label: 'Về HireAI', path: '/about' },
       { label: 'Định hướng nghề nghiệp', path: '/career' },
-      { label: 'Luyện phỏng vấn với AI', path: '/ai-interview' },
       { label: 'Liên hệ hợp tác', path: '/contact' },
     ],
   },
@@ -132,7 +131,7 @@ const Footer = () => {
                     <li key={`${link.label}-${link.path}`}>
                       <Link
                         to={link.path}
-                        className="group/link flex items-center gap-2 text-[15px] text-slate-400 transition-all hover:text-white"
+                        className="group/link flex items-center gap-2 text-base text-slate-400 transition-all hover:text-white"
                       >
                         <span className="h-1 w-1 -translate-x-2 rounded-full bg-primary opacity-0 transition-all duration-300 group-hover/link:translate-x-0 group-hover/link:opacity-100"></span>
                         <span className="transition-transform duration-300 group-hover/link:translate-x-1">
@@ -211,7 +210,7 @@ const Footer = () => {
               </Link>
               <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1">
                 <div className="h-2 w-2 rounded-full bg-success shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-                <span className="text-[10px] font-semibold uppercase tracking-widest">
+                <span className="text-xs font-semibold uppercase tracking-widest">
                   Hệ thống hoạt động ổn định
                 </span>
               </div>

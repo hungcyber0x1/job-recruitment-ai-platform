@@ -210,13 +210,13 @@ const AdminCategoriesPage = () => {
       <div className="mx-auto max-w-6xl space-y-8 pb-8 text-slate-900">
         <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-emerald-600/90">
+            <p className="text-base font-bold uppercase tracking-[0.2em] text-emerald-600/90">
               Cấu hình hệ thống
             </p>
             <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
               Ngành nghề &amp; kỹ năng
             </h1>
-            <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-500">
+            <p className="mt-2 max-w-xl text-base leading-relaxed text-slate-500">
               Quản lý danh mục ngành và từ khóa kỹ năng phục vụ bộ lọc tìm việc, gợi ý AI và báo
               cáo.
             </p>
@@ -229,7 +229,7 @@ const AdminCategoriesPage = () => {
               key={card.label}
               className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
             >
-              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <p className="text-base font-bold uppercase tracking-wider text-slate-400">
                 {card.label}
               </p>
               <p
@@ -238,7 +238,7 @@ const AdminCategoriesPage = () => {
                 {card.value}
               </p>
               {card.hint ? (
-                <p className="mt-2 text-xs leading-relaxed text-slate-500">{card.hint}</p>
+                <p className="mt-2 text-base leading-relaxed text-slate-500">{card.hint}</p>
               ) : null}
             </div>
           ))}
@@ -253,7 +253,7 @@ const AdminCategoriesPage = () => {
                 </span>
                 <div className="min-w-0">
                   <h2 className="text-lg font-black text-slate-900">Danh sách danh mục</h2>
-                  <p className="mt-0.5 text-sm text-slate-500">
+                  <p className="mt-0.5 text-base text-slate-500">
                     Mở rộng từng dòng để xem nhóm phụ và tag kỹ năng (theo dữ liệu thật từ API).
                   </p>
                 </div>
@@ -269,13 +269,13 @@ const AdminCategoriesPage = () => {
                     placeholder="Lọc theo tên ngành..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm font-medium text-slate-900 shadow-inner shadow-slate-100/50 placeholder:text-slate-400 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
+                    className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-base font-medium text-slate-900 shadow-inner shadow-slate-100/50 placeholder:text-slate-400 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
                   />
                 </div>
                 <button
                   type="button"
                   onClick={() => openModal(null, 'category')}
-                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-emerald-600/15 transition hover:bg-emerald-700 active:scale-[0.98]"
+                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-base font-bold text-white shadow-md shadow-emerald-600/15 transition hover:bg-emerald-700 active:scale-[0.98]"
                 >
                   <Plus size={18} strokeWidth={2.5} />
                   Thêm danh mục
@@ -285,7 +285,7 @@ const AdminCategoriesPage = () => {
           </div>
 
           {!loading && filteredCategories.length > 0 && (
-            <div className="hidden border-b border-slate-100 bg-slate-50/60 px-6 py-2.5 text-[11px] font-bold uppercase tracking-wider text-slate-400 md:grid md:grid-cols-[2.5rem,2.75rem,1fr,auto,auto] md:items-center md:gap-3 md:pl-[calc(1.5rem+0.25rem)]">
+            <div className="hidden border-b border-slate-100 bg-slate-50/60 px-6 py-2.5 text-base font-bold uppercase tracking-wider text-slate-400 md:grid md:grid-cols-[2.5rem,2.75rem,1fr,auto,auto] md:items-center md:gap-3 md:pl-[calc(1.5rem+0.25rem)]">
               <span className="sr-only">Mở rộng</span>
               <span className="sr-only">Biểu tượng</span>
               <span>Danh mục</span>
@@ -310,7 +310,7 @@ const AdminCategoriesPage = () => {
                       ? 'Chưa có danh mục nào'
                       : 'Không khớp bộ lọc tìm kiếm'}
                   </p>
-                  <p className="mx-auto mt-2 max-w-sm text-sm text-slate-500">
+                  <p className="mx-auto mt-2 max-w-sm text-base text-slate-500">
                     {categories.length === 0
                       ? 'Tạo danh mục đầu tiên để gắn tin tuyển dụng và phân loại kỹ năng.'
                       : 'Thử từ khóa khác hoặc xóa ô tìm kiếm.'}
@@ -319,7 +319,7 @@ const AdminCategoriesPage = () => {
                     <button
                       type="button"
                       onClick={() => openModal(null, 'category')}
-                      className="mt-6 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white shadow-md hover:bg-emerald-700"
+                      className="mt-6 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-base font-bold text-white shadow-md hover:bg-emerald-700"
                     >
                       <Plus size={18} />
                       Thêm danh mục
@@ -372,14 +372,14 @@ const AdminCategoriesPage = () => {
                         <div className="min-w-0 flex-1 md:min-w-0">
                           <p className="font-bold text-slate-900">{cat.name}</p>
                           {cat.description ? (
-                            <p className="mt-0.5 line-clamp-1 text-xs text-slate-500">
+                            <p className="mt-0.5 line-clamp-1 text-base text-slate-500">
                               {cat.description}
                             </p>
                           ) : null}
                         </div>
                         <div className="flex flex-wrap items-center gap-2 md:justify-center">
                           <span
-                            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold tabular-nums ${
+                            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-base font-semibold tabular-nums ${
                               jobCount > 0
                                 ? 'border-emerald-200/80 bg-emerald-50 text-emerald-800'
                                 : 'border-slate-200 bg-slate-50 text-slate-500'
@@ -389,7 +389,7 @@ const AdminCategoriesPage = () => {
                             {jobCount} tin
                           </span>
                           <span
-                            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold tabular-nums ${
+                            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-base font-semibold tabular-nums ${
                               skillCount > 0
                                 ? 'border-sky-200/80 bg-sky-50 text-sky-900'
                                 : 'border-slate-200 bg-slate-50 text-slate-500'
@@ -399,7 +399,7 @@ const AdminCategoriesPage = () => {
                             {skillCount} kỹ năng
                           </span>
                           {isQuiet ? (
-                            <span className="hidden text-[10px] font-medium uppercase tracking-wide text-slate-400 sm:inline">
+                            <span className="hidden text-base font-medium uppercase tracking-wide text-slate-400 sm:inline">
                               Chưa gắn dữ liệu
                             </span>
                           ) : null}
@@ -437,19 +437,19 @@ const AdminCategoriesPage = () => {
                           className="space-y-4 border-t border-slate-100 bg-slate-50/40 px-4 py-5 sm:px-6 md:pl-24"
                         >
                           <div>
-                            <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+                            <p className="text-base font-bold uppercase tracking-wider text-slate-500 mb-2">
                               Nhóm ngành phụ
                             </p>
                             <ul className="space-y-1">
                               {MOCK_SUB_INDUSTRIES.map((sub, i) => (
                                 <li
                                   key={i}
-                                  className="flex items-center justify-between py-1.5 text-sm text-slate-600"
+                                  className="flex items-center justify-between py-1.5 text-base text-slate-600"
                                 >
                                   {sub}
                                   <button
                                     type="button"
-                                    className="text-xs font-medium text-emerald-400 hover:underline"
+                                    className="text-base font-medium text-emerald-400 hover:underline"
                                   >
                                     Sửa
                                   </button>
@@ -458,7 +458,7 @@ const AdminCategoriesPage = () => {
                               <li>
                                 <button
                                   type="button"
-                                  className="text-xs font-semibold text-emerald-400 hover:underline flex items-center gap-1 mt-1"
+                                  className="text-base font-semibold text-emerald-400 hover:underline flex items-center gap-1 mt-1"
                                 >
                                   <Plus size={12} />
                                   Thêm nhóm phụ
@@ -467,7 +467,7 @@ const AdminCategoriesPage = () => {
                             </ul>
                           </div>
                           <div>
-                            <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+                            <p className="text-base font-bold uppercase tracking-wider text-slate-500 mb-2">
                               Từ khóa kỹ năng (tags)
                             </p>
                             <div className="flex flex-wrap gap-2">
@@ -480,7 +480,7 @@ const AdminCategoriesPage = () => {
                               ).map((tag, i) => (
                                 <span
                                   key={i}
-                                  className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 text-xs font-medium text-emerald-400"
+                                  className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 text-base font-medium text-emerald-400"
                                 >
                                   {tag}
                                   <button
@@ -494,7 +494,7 @@ const AdminCategoriesPage = () => {
                               ))}
                               <button
                                 type="button"
-                                className="text-xs font-semibold text-emerald-400 hover:underline flex items-center gap-1"
+                                className="text-base font-semibold text-emerald-400 hover:underline flex items-center gap-1"
                               >
                                 <Plus size={12} />
                                 Thêm tag
@@ -517,14 +517,14 @@ const AdminCategoriesPage = () => {
               <h3 className="text-lg font-black text-slate-900">
                 Phân bổ tin tuyển dụng theo ngành
               </h3>
-              <p className="text-sm text-slate-500">
+              <p className="text-base text-slate-500">
                 Tỷ lệ tương đối theo số tin đang gắn từng danh mục (chuẩn hóa theo ngành có nhiều
                 tin nhất).
               </p>
             </div>
           </div>
           {trendBars.length === 0 ? (
-            <div className="mt-8 rounded-xl border border-dashed border-slate-200 bg-slate-50/50 px-4 py-10 text-center text-sm text-slate-500">
+            <div className="mt-8 rounded-xl border border-dashed border-slate-200 bg-slate-50/50 px-4 py-10 text-center text-base text-slate-500">
               Chưa có tin tuyển dụng gắn danh mục — biểu đồ sẽ hiển thị khi có dữ liệu.
             </div>
           ) : (
@@ -534,7 +534,7 @@ const AdminCategoriesPage = () => {
                   key={item.label}
                   className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4"
                 >
-                  <span className="w-full text-sm font-semibold text-slate-700 sm:w-52 sm:shrink-0">
+                  <span className="w-full text-base font-semibold text-slate-700 sm:w-52 sm:shrink-0">
                     {item.label}
                   </span>
                   <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -544,7 +544,7 @@ const AdminCategoriesPage = () => {
                         style={{ width: `${item.pct}%` }}
                       />
                     </div>
-                    <span className="w-14 shrink-0 text-right text-sm font-bold tabular-nums text-slate-800">
+                    <span className="w-14 shrink-0 text-right text-base font-bold tabular-nums text-slate-800">
                       {item.value}
                     </span>
                   </div>
@@ -577,7 +577,7 @@ const AdminCategoriesPage = () => {
               </div>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-600 mb-1.5">Tên</label>
+                  <label className="block text-base font-semibold text-slate-600 mb-1.5">Tên</label>
                   <input
                     type="text"
                     value={formData.name}
@@ -588,7 +588,9 @@ const AdminCategoriesPage = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-600 mb-1.5">Mô tả</label>
+                  <label className="block text-base font-semibold text-slate-600 mb-1.5">
+                    Mô tả
+                  </label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}

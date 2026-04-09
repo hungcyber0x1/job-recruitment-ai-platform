@@ -103,30 +103,32 @@ const JobCard = ({ job, basePath = '/candidate/jobs' }) => {
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
             <div className="min-w-0 flex-1">
               <Link to={detailPath}>
-                <h3 className="text-lg font-semibold leading-snug tracking-tight text-foreground transition-colors line-clamp-2 hover:text-primary">
+                <h3 className="text-xl font-bold leading-snug tracking-tight text-foreground transition-colors line-clamp-2 hover:text-primary">
                   {job.title}
                 </h3>
               </Link>
               {job.company_id != null ? (
                 <Link
                   to={`/candidate/companies/${job.company_id}`}
-                  className="mt-1 inline-block text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+                  className="mt-1 inline-block text-base font-medium text-muted-foreground transition-colors hover:text-primary"
                 >
                   {job.company_name}
                 </Link>
               ) : (
-                <p className="mt-1 text-sm font-medium text-muted-foreground">{job.company_name}</p>
+                <p className="mt-1 text-base font-medium text-muted-foreground">
+                  {job.company_name}
+                </p>
               )}
             </div>
             {job.match_score > 0 && (
-              <div className="flex shrink-0 items-center gap-1.5 self-start rounded-lg border border-primary/15 bg-primary/8 px-2.5 py-1 text-xs font-semibold text-primary">
+              <div className="flex shrink-0 items-center gap-1.5 self-start rounded-lg border border-primary/15 bg-primary/8 px-2.5 py-1 text-sm font-semibold text-primary">
                 <Sparkles size={13} className="shrink-0 opacity-90" aria-hidden />
                 <span>{job.match_score}% phù hợp</span>
               </div>
             )}
           </div>
 
-          <div className="flex flex-wrap gap-x-6 gap-y-2.5 text-sm text-muted-foreground">
+          <div className="flex flex-wrap gap-x-6 gap-y-2.5 text-base text-muted-foreground">
             <div className="flex min-w-0 max-w-full items-center gap-2">
               <MapPin size={15} className="shrink-0 text-muted-foreground/70" aria-hidden />
               <span className="font-medium truncate">{job.location || '—'}</span>
@@ -166,7 +168,7 @@ const JobCard = ({ job, basePath = '/candidate/jobs' }) => {
                   <Badge
                     key={`${String(skill)}-${idx}`}
                     variant="gray"
-                    className="rounded-md border border-border/40 bg-muted/40 py-0.5 text-xs font-medium text-muted-foreground"
+                    className="rounded-md border border-border/40 bg-muted/40 py-0.5 text-sm font-medium text-muted-foreground"
                   >
                     {skill}
                   </Badge>
@@ -174,7 +176,7 @@ const JobCard = ({ job, basePath = '/candidate/jobs' }) => {
               {hasSkills && job.skills.length > MAX_SKILLS_DISPLAY && (
                 <Badge
                   variant="gray"
-                  className="rounded-md border border-border/40 bg-muted/30 py-0.5 text-xs font-medium text-muted-foreground/80"
+                  className="rounded-md border border-border/40 bg-muted/30 py-0.5 text-sm font-medium text-muted-foreground/80"
                 >
                   +{job.skills.length - MAX_SKILLS_DISPLAY}
                 </Badge>
@@ -196,7 +198,7 @@ const JobCard = ({ job, basePath = '/candidate/jobs' }) => {
               </button>
               <Link
                 to={detailPath}
-                className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 active:scale-[0.98]"
+                className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-5 text-base font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 active:scale-[0.98]"
               >
                 Xem chi tiết
               </Link>

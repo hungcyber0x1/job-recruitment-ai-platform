@@ -143,7 +143,7 @@ const Profile = ({ user, candidate, onSave }) => {
                 icon={<MapPin size={18} />}
               />
               <div className="space-y-3">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                <label className="text-xs font-black uppercase tracking-widest text-slate-400">
                   Gioi thieu ban than
                 </label>
                 <textarea

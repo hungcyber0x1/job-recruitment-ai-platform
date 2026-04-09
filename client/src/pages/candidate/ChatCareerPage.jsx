@@ -206,7 +206,7 @@ const ChatCareerPage = () => {
           <CardContent>
             <Bot className="mx-auto mb-4 h-12 w-12 text-amber-500" />
             <h1 className="text-xl font-bold text-foreground">AI Career Advisor đang tạm dừng</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-2 text-base text-muted-foreground">
               Admin đã tắt chatbot. Bạn có thể quay lại khi tính năng được mở lại.
             </p>
             <div className="mt-6 flex justify-center gap-3">
@@ -228,7 +228,7 @@ const ChatCareerPage = () => {
       {/* Top bar */}
       <div className="border-b px-4 py-3">
         <div className="flex items-center justify-between gap-2">
-          <p className="truncate text-sm font-medium text-foreground">
+          <p className="truncate text-base font-medium text-foreground">
             Cuộc hội thoại: {activeTitle}
           </p>
           <div className="flex shrink-0 items-center gap-1">
@@ -250,7 +250,7 @@ const ChatCareerPage = () => {
             </DropdownMenu>
           </div>
         </div>
-        <p className="mt-2 text-xs text-muted-foreground">
+        <p className="mt-2 text-base text-muted-foreground">
           Lịch sử được lưu theo tài khoản để bạn xem lại.
         </p>
       </div>
@@ -279,7 +279,7 @@ const ChatCareerPage = () => {
                         <Icon className="h-5 w-5" />
                       </div>
                       <h3 className="mt-3 font-semibold text-foreground">{card.title}</h3>
-                      <p className="mt-1 text-xs text-muted-foreground">{card.subtitle}</p>
+                      <p className="mt-1 text-base text-muted-foreground">{card.subtitle}</p>
                     </CardContent>
                   </Card>
                 );
@@ -310,7 +310,7 @@ const ChatCareerPage = () => {
               className={`flex flex-col ${msg.sender === 'user' ? 'max-w-[85%] items-end' : 'max-w-[min(100%,42rem)] items-start'}`}
             >
               <div
-                className={`rounded-2xl text-sm leading-relaxed ${
+                className={`rounded-2xl text-base leading-relaxed ${
                   msg.sender === 'user'
                     ? 'bg-primary/15 text-foreground px-4 py-3'
                     : 'border border-border/80 bg-card px-5 py-4 shadow-sm'
@@ -319,7 +319,7 @@ const ChatCareerPage = () => {
                 {msg.sender === 'ai' ? <AiMessageMarkdown text={msg.text} /> : msg.text}
               </div>
               {msg.sender === 'ai' && (
-                <div className="mt-2 flex gap-3 text-xs text-muted-foreground">
+                <div className="mt-2 flex gap-3 text-base text-muted-foreground">
                   <button type="button" className="flex items-center gap-1 hover:text-foreground">
                     <ThumbsUp className="h-3.5 w-3.5" /> Hữu ích
                   </button>
@@ -373,7 +373,7 @@ const ChatCareerPage = () => {
             onKeyDown={handleKeyDown}
             placeholder="Hỏi bất cứ điều gì về sự nghiệp của bạn..."
             rows={1}
-            className="min-h-[40px] flex-1 resize-none bg-transparent py-2 text-sm outline-none placeholder:text-muted-foreground"
+            className="min-h-[40px] flex-1 resize-none bg-transparent py-2 text-base outline-none placeholder:text-muted-foreground"
           />
           <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0">
             <Mic className="h-4 w-4" />
@@ -387,10 +387,10 @@ const ChatCareerPage = () => {
             <Send className="h-4 w-4" />
           </Button>
         </div>
-        <p className="mt-2 text-center text-xs text-muted-foreground">
+        <p className="mt-2 text-center text-base text-muted-foreground">
           Career AI có thể đưa ra câu trả lời chưa chính xác. Hãy kiểm tra các thông tin quan trọng.
         </p>
-        <p className="mt-1 text-center text-[11px] text-muted-foreground/90">
+        <p className="mt-1 text-center text-base text-muted-foreground/90">
           Lịch sử được lưu theo tài khoản để bạn xem lại.
         </p>
       </div>

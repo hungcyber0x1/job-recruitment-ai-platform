@@ -253,9 +253,9 @@ const EmployerDashboard = () => {
         <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-50 rounded-full blur-3xl opacity-60 -mr-20 -mt-20 shrink-0" />
         <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-8">
           <div className="space-y-4 max-w-2xl">
-            <div className="flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-full w-fit">
-              <Sparkles size={14} className="animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-widest">
+            <div className="flex w-fit items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-emerald-600">
+              <Sparkles size={16} className="animate-pulse" />
+              <span className="text-base font-black uppercase tracking-widest">
                 AI Recruitment Hub Active
               </span>
             </div>
@@ -263,13 +263,13 @@ const EmployerDashboard = () => {
               Chào mừng trở lại, <br />
               <span className="text-emerald-600">{companyName}</span>
             </h1>
-            <div className="flex flex-wrap items-center gap-6 text-sm font-bold text-slate-500 uppercase tracking-wider">
+            <div className="flex flex-wrap items-center gap-6 text-base font-bold uppercase tracking-wide text-slate-600">
               <span className="flex items-center gap-2">
-                <Target className="h-4 w-4 text-emerald-500" />
+                <Target className="h-5 w-5 text-emerald-500" />
                 Hiệu suất Pipeline: <span className="text-slate-900">{pipelinePercent}%</span>
               </span>
               <span className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-emerald-500" />
+                <Users className="h-5 w-5 text-emerald-500" />
                 Tổng hồ sơ: <span className="text-slate-900">{totalProfiles.toLocaleString()}</span>
               </span>
             </div>
@@ -316,13 +316,13 @@ const EmployerDashboard = () => {
                     className={card.label.includes('Tin Tuyển Dụng') ? 'animate-pulse' : ''}
                   />
                 </div>
-                <p className="text-slate-500 text-sm font-bold uppercase tracking-wider mb-1">
+                <p className="mb-1 text-base font-bold uppercase tracking-wide text-slate-600">
                   {card.label}
                 </p>
                 <div className="flex items-end gap-3">
                   <span className="text-3xl font-black text-slate-900">{card.value}</span>
                   <span
-                    className={`text-xs font-black mb-1.5 ${card.up ? 'text-emerald-600' : 'text-rose-600'}`}
+                    className={`mb-1.5 text-base font-black ${card.up ? 'text-emerald-600' : 'text-rose-600'}`}
                   >
                     {card.change}
                   </span>
@@ -342,12 +342,12 @@ const EmployerDashboard = () => {
               <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
                 <BarChart3 className="text-emerald-600" size={20} />
               </div>
-              <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">
+              <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900">
                 Phễu tuyển dụng
               </h2>
             </div>
             <Select value={period} onValueChange={setPeriod}>
-              <SelectTrigger className="w-[140px] bg-slate-50 border-slate-200 text-slate-900 h-10 font-bold rounded-xl">
+              <SelectTrigger className="h-11 w-[150px] rounded-xl border-slate-200 bg-slate-50 font-bold text-slate-900">
                 <SelectValue placeholder="Tháng này" />
               </SelectTrigger>
               <SelectContent className="bg-white border-slate-200">
@@ -368,16 +368,16 @@ const EmployerDashboard = () => {
           </div>
 
           <Tabs value={chartSectionTab} onValueChange={setChartSectionTab} className="w-full">
-            <TabsList className="bg-slate-50 border border-slate-200 p-1.5 h-auto rounded-2xl mb-8">
+            <TabsList className="mb-8 h-auto rounded-2xl border border-slate-200 bg-slate-50 p-1.5">
               <TabsTrigger
                 value="funnel"
-                className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm text-slate-500 font-bold rounded-xl px-6 py-2"
+                className="rounded-xl px-6 py-3 text-base font-bold text-slate-600 data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm"
               >
                 Trạng thái ứng viên
               </TabsTrigger>
               <TabsTrigger
                 value="pipeline"
-                className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm text-slate-500 font-bold rounded-xl px-6 py-2"
+                className="rounded-xl px-6 py-3 text-base font-bold text-slate-600 data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm"
               >
                 Phân bổ Pipeline
               </TabsTrigger>
@@ -397,7 +397,7 @@ const EmployerDashboard = () => {
                         type="category"
                         dataKey="name"
                         width={80}
-                        tick={{ fill: '#64748b', fontSize: 13, fontWeight: 700 }}
+                        tick={{ fill: '#64748b', fontSize: 15, fontWeight: 700 }}
                         axisLine={false}
                         tickLine={false}
                       />
@@ -418,7 +418,7 @@ const EmployerDashboard = () => {
                         label={{
                           position: 'right',
                           fill: '#1e293b',
-                          fontSize: 13,
+                          fontSize: 15,
                           fontWeight: 800,
                         }}
                       >
@@ -466,7 +466,7 @@ const EmployerDashboard = () => {
                             jobs.length ||
                             15}
                         </p>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        <p className="text-base font-bold uppercase tracking-widest text-slate-500">
                           VỊ TRÍ
                         </p>
                       </div>
@@ -478,7 +478,7 @@ const EmployerDashboard = () => {
                       const pct = Math.round((d.value / total) * 100);
                       return (
                         <div key={d.name} className="space-y-1.5">
-                          <div className="flex justify-between text-sm font-bold">
+                          <div className="flex justify-between text-base font-bold">
                             <span className="text-slate-700">{d.name}</span>
                             <span className="text-slate-900">{pct}%</span>
                           </div>
@@ -504,7 +504,7 @@ const EmployerDashboard = () => {
             <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center">
               <Sparkles className="text-violet-600" size={20} />
             </div>
-            <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">
+            <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900">
               AI Match mới nhất
             </h2>
           </div>
@@ -526,11 +526,11 @@ const EmployerDashboard = () => {
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-start mb-1">
-                    <p className="text-sm font-black text-slate-900 truncate pr-2">
+                    <p className="truncate pr-2 text-base font-black text-slate-900">
                       {getCandidateName(app)}
                     </p>
                     <span
-                      className={`shrink-0 rounded-lg px-2 py-0.5 text-[10px] font-black ${
+                      className={`shrink-0 rounded-lg px-2.5 py-1 text-base font-black ${
                         (app.score ?? 0) >= 90
                           ? 'bg-emerald-100 text-emerald-600'
                           : 'bg-amber-100 text-amber-600'
@@ -539,10 +539,10 @@ const EmployerDashboard = () => {
                       {app.score ?? 0}%
                     </span>
                   </div>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest truncate">
+                  <p className="truncate text-base font-bold uppercase tracking-wide text-slate-500">
                     {getJobTitle(app)}
                   </p>
-                  <p className="text-[10px] text-slate-400 mt-2 font-medium">
+                  <p className="mt-2 text-base font-medium text-slate-500">
                     {formatRelative(app.updated_at || app.created_at)}
                   </p>
                 </div>
@@ -551,7 +551,7 @@ const EmployerDashboard = () => {
             {recentMatches.length === 0 && (
               <div className="flex flex-col items-center justify-center py-12 text-slate-400">
                 <Users size={32} className="opacity-20 mb-3" />
-                <p className="text-sm font-medium">Chưa có match gần đây</p>
+                <p className="text-base font-medium">Chưa có match gần đây</p>
               </div>
             )}
           </div>
@@ -561,7 +561,7 @@ const EmployerDashboard = () => {
             asChild
           >
             <Link to="/employer/search-candidates">
-              Xem tất cả ứng viên AI <ChevronRight size={16} className="ml-1" />
+              Xem tất cả ứng viên AI <ChevronRight size={18} className="ml-1" />
             </Link>
           </Button>
         </div>
@@ -574,7 +574,7 @@ const EmployerDashboard = () => {
             <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
               <Briefcase className="text-blue-600" size={20} />
             </div>
-            <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">
+            <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900">
               Hiệu suất tin tuyển dụng
             </h2>
           </div>
@@ -591,16 +591,16 @@ const EmployerDashboard = () => {
           <table className="data-table">
             <thead>
               <tr>
-                <th className="px-4 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
+                <th className="px-4 py-4 text-base font-black uppercase tracking-[0.15em] text-slate-600">
                   Vị trí Tuyển dụng
                 </th>
-                <th className="px-4 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
+                <th className="px-4 py-4 text-base font-black uppercase tracking-[0.15em] text-slate-600">
                   Hồ sơ
                 </th>
-                <th className="px-4 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
+                <th className="px-4 py-4 text-base font-black uppercase tracking-[0.15em] text-slate-600">
                   High Matches
                 </th>
-                <th className="px-4 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
+                <th className="px-4 py-4 text-base font-black uppercase tracking-[0.15em] text-slate-600">
                   Trạng thái
                 </th>
                 <th className="!normal-case !tracking-normal px-4 py-4" aria-hidden="true" />
@@ -613,7 +613,7 @@ const EmployerDashboard = () => {
                     <p className="text-slate-900 group-hover:text-emerald-700 transition-colors">
                       {job.title || 'Vị trí'}
                     </p>
-                    <p className="text-[10px] text-slate-400 font-medium uppercase mt-0.5">
+                    <p className="mt-0.5 text-base font-medium uppercase text-slate-500">
                       {job.location || 'Remote'} • {job.employment_type || 'Fulltime'}
                     </p>
                   </td>
@@ -656,7 +656,7 @@ const EmployerDashboard = () => {
               <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto">
                 <Briefcase size={28} className="text-slate-300" />
               </div>
-              <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">
+              <p className="text-base font-bold uppercase tracking-wide text-slate-600">
                 Chưa có tin tuyển dụng nào được đăng
               </p>
               <Button

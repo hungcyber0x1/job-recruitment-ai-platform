@@ -172,7 +172,7 @@ const Sidebar = ({ role = 'candidate', mobileOpen = false, onMobileClose = null 
             </div>
             <div className="mt-2 flex items-center justify-center gap-3">
               <span className="h-[2px] w-4 bg-accent" />
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground/80">
+              <span className="text-sm font-black uppercase tracking-[0.4em] text-muted-foreground/80">
                 {role}_TERMINAL
               </span>
               <span className="h-[2px] w-4 bg-accent" />
@@ -188,14 +188,14 @@ const Sidebar = ({ role = 'candidate', mobileOpen = false, onMobileClose = null 
           <div className="group/status relative overflow-hidden border border-border/60 bg-muted/30 p-4 transition-all hover:border-accent/40">
             <div className="absolute top-0 left-0 h-full w-1 bg-accent opacity-50" />
             <div className="flex items-center gap-4">
-              <div className="flex h-10 w-10 items-center justify-center border border-accent/20 bg-accent/10 text-xs font-black text-accent animate-pulse">
+              <div className="flex h-10 w-10 items-center justify-center border border-accent/20 bg-accent/10 text-sm font-black text-accent animate-pulse">
                 AI
               </div>
               <div>
-                <div className="text-[9px] font-black uppercase tracking-widest leading-tight text-muted-foreground">
+                <div className="text-sm font-black uppercase tracking-widest leading-tight text-muted-foreground">
                   SYSTEM_STATUS
                 </div>
-                <div className="text-[11px] font-black uppercase tracking-wider text-foreground transition-colors group-hover/status:text-accent">
+                <div className="text-base font-black uppercase tracking-wider text-foreground transition-colors group-hover/status:text-accent">
                   Engine_Online.sys
                 </div>
               </div>
@@ -217,7 +217,7 @@ const Sidebar = ({ role = 'candidate', mobileOpen = false, onMobileClose = null 
             <Logo className="h-11 w-11" />
             <div>
               <div className="text-lg font-black tracking-tight text-white">HireAI</div>
-              <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">{role}</div>
+              <div className="text-base uppercase tracking-[0.18em] text-slate-400">{role}</div>
             </div>
           </Link>
 

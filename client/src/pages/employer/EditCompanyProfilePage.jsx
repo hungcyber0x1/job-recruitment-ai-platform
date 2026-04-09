@@ -136,7 +136,7 @@ const EditCompanyProfilePage = () => {
             </h1>
             <Badge
               variant="outline"
-              className="bg-emerald-50 text-emerald-600 border-emerald-200 uppercase tracking-widest text-[10px] px-2.5 py-1"
+              className="bg-emerald-50 text-emerald-600 border-emerald-200 uppercase tracking-widest text-base px-2.5 py-1"
             >
               CHẾ ĐỘ CHỈNH SỬA
             </Badge>
@@ -202,7 +202,7 @@ const EditCompanyProfilePage = () => {
                 {isUploading.cover ? (
                   <div className="flex flex-col items-center gap-3">
                     <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin" />
-                    <span className="text-white font-black text-xs uppercase tracking-widest">
+                    <span className="text-white font-black text-base uppercase tracking-widest">
                       ĐANG TẢI LÊN...
                     </span>
                   </div>
@@ -246,7 +246,7 @@ const EditCompanyProfilePage = () => {
                 </div>
                 <div className="flex-1 space-y-4">
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">
+                    <Label className="text-base font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">
                       Tên công ty *
                     </Label>
                     <Input
@@ -263,7 +263,7 @@ const EditCompanyProfilePage = () => {
               {/* Lĩnh vực & Quy mô Row */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">
+                  <Label className="text-base font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">
                     Lĩnh vực
                   </Label>
                   <Input
@@ -275,7 +275,7 @@ const EditCompanyProfilePage = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">
+                  <Label className="text-base font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">
                     Quy mô nhân sự
                   </Label>
                   <select
@@ -357,7 +357,7 @@ const EditCompanyProfilePage = () => {
                 },
               ].map((field) => (
                 <div key={field.name} className="space-y-2">
-                  <Label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">
+                  <Label className="text-base font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">
                     {field.label}
                   </Label>
                   <div className="relative group">
@@ -398,7 +398,7 @@ const EditCompanyProfilePage = () => {
                 ].map((tip, idx) => (
                   <li
                     key={idx}
-                    className="flex items-center gap-3 text-slate-600 text-sm font-medium"
+                    className="flex items-center gap-3 text-slate-600 text-base font-medium"
                   >
                     <div className="w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
                       <ChevronRight size={12} className="text-emerald-600" />
@@ -408,7 +408,7 @@ const EditCompanyProfilePage = () => {
                 ))}
               </ul>
               <div className="mt-8 p-4 rounded-2xl bg-white border border-emerald-100/50">
-                <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                <p className="text-base text-slate-500 font-medium leading-relaxed">
                   Hồ sơ đầy đủ giúp tăng tỷ lệ ứng tuyển lên đến{' '}
                   <span className="text-emerald-600 font-bold">60%</span>. Hãy bổ sung ngay các
                   thông tin còn thiếu!

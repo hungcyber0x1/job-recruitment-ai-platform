@@ -247,7 +247,7 @@ const AdminSupportPage = () => {
     <AdminLayout>
       <div className="space-y-6 text-slate-900">
         {/* Breadcrumb */}
-        <nav className="text-sm text-slate-500">
+        <nav className="text-base text-slate-500">
           <Link to="/admin/dashboard" className="hover:text-foreground">
             Trang chủ
           </Link>
@@ -265,13 +265,13 @@ const AdminSupportPage = () => {
                 placeholder="Tìm kiếm ticket..."
                 value={searchTicket}
                 onChange={(e) => setSearchTicket(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-4 pr-4 text-sm text-slate-900 placeholder:text-slate-500 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-4 pr-4 text-base text-slate-900 placeholder:text-slate-500 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
               />
             </div>
             <button
               type="button"
               onClick={() => setShowFilterPanel(!showFilterPanel)}
-              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 hover:bg-muted/55"
+              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-base font-semibold text-slate-900 hover:bg-muted/55"
             >
               <Filter size={18} />
               Lọc
@@ -280,7 +280,7 @@ const AdminSupportPage = () => {
               type="button"
               onClick={handleExportTickets}
               disabled={exporting}
-              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 hover:bg-muted/55 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-base font-semibold text-slate-900 hover:bg-muted/55 disabled:opacity-50"
             >
               <Download size={18} />
               {exporting ? 'Đang xuất...' : 'Xuất báo cáo'}
@@ -291,16 +291,16 @@ const AdminSupportPage = () => {
         {/* Filter Panel */}
         {showFilterPanel && (
           <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-4">
-            <h3 className="text-sm font-bold text-slate-900">Lọc ticket nâng cao</h3>
+            <h3 className="text-base font-bold text-slate-900">Lọc ticket nâng cao</h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
+                <label className="block text-base font-semibold uppercase text-slate-500 mb-1">
                   Mức độ ưu tiên
                 </label>
                 <select
                   value={ticketFilter.priority}
                   onChange={(e) => setTicketFilter({ ...ticketFilter, priority: e.target.value })}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-base text-slate-900"
                 >
                   <option value="all">Tất cả</option>
                   <option value="low">Thấp</option>
@@ -309,13 +309,13 @@ const AdminSupportPage = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
+                <label className="block text-base font-semibold uppercase text-slate-500 mb-1">
                   Phân loại
                 </label>
                 <select
                   value={ticketFilter.category}
                   onChange={(e) => setTicketFilter({ ...ticketFilter, category: e.target.value })}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-base text-slate-900"
                 >
                   <option value="all">Tất cả</option>
                   <option value="bug">BUG</option>
@@ -325,13 +325,13 @@ const AdminSupportPage = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
+                <label className="block text-base font-semibold uppercase text-slate-500 mb-1">
                   Người phụ trách
                 </label>
                 <select
                   value={ticketFilter.assignee}
                   onChange={(e) => setTicketFilter({ ...ticketFilter, assignee: e.target.value })}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-base text-slate-900"
                 >
                   <option value="all">Tất cả</option>
                   <option value="unassigned">Chưa phân công</option>
@@ -347,7 +347,7 @@ const AdminSupportPage = () => {
                 onClick={() =>
                   setTicketFilter({ priority: 'all', category: 'all', assignee: 'all' })
                 }
-                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-500 hover:text-foreground"
+                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-base font-semibold text-slate-500 hover:text-foreground"
               >
                 Xóa lọc
               </button>
@@ -357,7 +357,7 @@ const AdminSupportPage = () => {
                   fetchTickets();
                   setShowFilterPanel(false);
                 }}
-                className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600"
+                className="rounded-xl bg-emerald-500 px-4 py-2 text-base font-semibold text-white hover:bg-emerald-600"
               >
                 Áp dụng
               </button>
@@ -368,23 +368,25 @@ const AdminSupportPage = () => {
         {/* 4 KPI cards */}
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-2xl border border-slate-200 bg-white p-5">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Tổng ticket</p>
+            <p className="text-base font-bold uppercase tracking-wider text-slate-500">
+              Tổng ticket
+            </p>
             <p className="mt-2 text-2xl font-bold text-slate-900">
               {counts.total.toLocaleString('vi-VN')}
             </p>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-white p-5">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Đang chờ</p>
+            <p className="text-base font-bold uppercase tracking-wider text-slate-500">Đang chờ</p>
             <p className="mt-2 text-2xl font-bold text-slate-900">{counts.pending}</p>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-white p-5">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
+            <p className="text-base font-bold uppercase tracking-wider text-slate-500">
               Thời gian phản hồi
             </p>
             <p className="mt-2 text-2xl font-bold text-slate-900">1.2h</p>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-white p-5">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
+            <p className="text-base font-bold uppercase tracking-wider text-slate-500">
               Đã giải quyết
             </p>
             <p className="mt-2 text-2xl font-bold text-emerald-400">{counts.resolvedPct}%</p>
@@ -406,7 +408,7 @@ const AdminSupportPage = () => {
                 setTabFilter(tab.id);
                 setPage(1);
               }}
-              className={`px-4 py-3 text-sm font-semibold border-b-2 transition-all ${
+              className={`px-4 py-3 text-base font-semibold border-b-2 transition-all ${
                 tabFilter === tab.id
                   ? 'border-emerald-500 text-emerald-400'
                   : 'border-transparent text-slate-500 hover:text-foreground'
@@ -465,37 +467,37 @@ const AdminSupportPage = () => {
                               #TK-{String(ticket.id).slice(-4)} -{' '}
                               {ticket.subject || 'Không tiêu đề'}
                             </p>
-                            <p className="text-xs text-slate-500">Người gửi: {sender}</p>
+                            <p className="text-base text-slate-500">Người gửi: {sender}</p>
                           </div>
                         </td>
                         <td className="px-5 py-4">
                           <span
-                            className={`inline-flex rounded-lg border px-2.5 py-1 text-xs font-semibold ${categoryStyle}`}
+                            className={`inline-flex rounded-lg border px-2.5 py-1 text-base font-semibold ${categoryStyle}`}
                           >
                             {getCategoryLabel(ticket.category)}
                           </span>
                         </td>
                         <td className="px-5 py-4">
                           <span
-                            className={`inline-flex rounded-lg border px-2.5 py-1 text-xs font-semibold ${priorityStyle}`}
+                            className={`inline-flex rounded-lg border px-2.5 py-1 text-base font-semibold ${priorityStyle}`}
                           >
                             {getPriorityLabel(ticket.priority)}
                           </span>
                         </td>
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-2">
-                            <div className="h-8 w-8 rounded-full bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-600">
+                            <div className="h-8 w-8 rounded-full bg-slate-600 flex items-center justify-center text-base font-bold text-slate-600">
                               {(ticket.assignee || '?').charAt(0)}
                             </div>
-                            <span className="text-sm text-slate-900">
+                            <span className="text-base text-slate-900">
                               {ticket.admin_id ? ticket.assignee : 'Chưa bàn giao'}
                             </span>
                           </div>
                         </td>
-                        <td className="px-5 py-4 text-sm text-slate-500">
+                        <td className="px-5 py-4 text-base text-slate-500">
                           {formatTime(ticket.created_at)}
                           <br />
-                          <span className="text-xs text-slate-500">
+                          <span className="text-base text-slate-500">
                             {new Date(ticket.created_at).toLocaleDateString('vi-VN')}
                           </span>
                         </td>
@@ -521,7 +523,7 @@ const AdminSupportPage = () => {
           {/* Pagination */}
           {filteredTickets.length > 0 && (
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border bg-muted/25 px-5 py-4">
-              <p className="text-sm text-slate-500">
+              <p className="text-base text-slate-500">
                 Hiển thị {(page - 1) * limit + 1}-{Math.min(page * limit, filteredTickets.length)}{' '}
                 trong số {filteredTickets.length} tickets
               </p>
@@ -541,7 +543,7 @@ const AdminSupportPage = () => {
                       key={p}
                       type="button"
                       onClick={() => setPage(p)}
-                      className={`min-w-[36px] h-9 rounded-lg text-sm font-semibold ${
+                      className={`min-w-[36px] h-9 rounded-lg text-base font-semibold ${
                         page === p
                           ? 'bg-emerald-500 text-white'
                           : 'border border-border text-muted-foreground hover:bg-muted/55 hover:text-foreground'
@@ -572,7 +574,7 @@ const AdminSupportPage = () => {
               </div>
               <div className="p-4 space-y-3">
                 <div>
-                  <p className="text-xs text-slate-500">Trạng thái</p>
+                  <p className="text-base text-slate-500">Trạng thái</p>
                   <div className="flex flex-wrap gap-2 mt-1">
                     {STATUS_OPTIONS.map((status) => (
                       <button
@@ -580,7 +582,7 @@ const AdminSupportPage = () => {
                         type="button"
                         disabled={saving || selectedTicket.status === status}
                         onClick={() => handleStatusChange(selectedTicket.id, status)}
-                        className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${
+                        className={`rounded-lg px-3 py-1.5 text-base font-semibold ${
                           selectedTicket.status === status
                             ? 'bg-emerald-500 text-white'
                             : 'border border-slate-200 text-slate-500 hover:text-foreground'
@@ -591,7 +593,7 @@ const AdminSupportPage = () => {
                     ))}
                   </div>
                 </div>
-                <div className="rounded-xl bg-white p-3 text-sm text-slate-600">
+                <div className="rounded-xl bg-white p-3 text-base text-slate-600">
                   <p className="font-semibold text-slate-900">Người gửi</p>
                   <p>
                     {[selectedTicket.first_name, selectedTicket.last_name]
@@ -601,7 +603,7 @@ const AdminSupportPage = () => {
                       '—'}
                   </p>
                 </div>
-                <div className="rounded-xl bg-white p-3 text-sm text-slate-600">
+                <div className="rounded-xl bg-white p-3 text-base text-slate-600">
                   <p className="font-semibold text-slate-900">Mốc thời gian</p>
                   <p>Tạo: {new Date(selectedTicket.created_at).toLocaleString('vi-VN')}</p>
                 </div>
@@ -612,13 +614,13 @@ const AdminSupportPage = () => {
                 <h2 className="text-lg font-bold text-slate-900">
                   {selectedTicket.subject || `#${selectedTicket.id}`}
                 </h2>
-                <p className="text-sm text-slate-500 mt-1">
+                <p className="text-base text-slate-500 mt-1">
                   {selectedTicket.description || 'Không có mô tả.'}
                 </p>
               </div>
               <div className="max-h-[420px] overflow-y-auto p-5 space-y-4">
                 {messages.length === 0 ? (
-                  <p className="text-sm text-slate-500">Chưa có hội thoại.</p>
+                  <p className="text-base text-slate-500">Chưa có hội thoại.</p>
                 ) : (
                   messages.map((msg) => (
                     <div
@@ -630,21 +632,21 @@ const AdminSupportPage = () => {
                       }`}
                     >
                       <div className="flex justify-between items-center">
-                        <span className="text-sm font-semibold text-slate-900">
+                        <span className="text-base font-semibold text-slate-900">
                           {[msg.first_name, msg.last_name].filter(Boolean).join(' ') ||
                             msg.role ||
                             'Hỗ trợ'}
                         </span>
-                        <span className="text-xs text-slate-500">
+                        <span className="text-base text-slate-500">
                           {msg.created_at ? new Date(msg.created_at).toLocaleString('vi-VN') : ''}
                         </span>
                       </div>
                       {msg.is_internal && (
-                        <span className="inline-block mt-1 rounded bg-amber-500/20 px-2 py-0.5 text-xs font-semibold text-amber-400">
+                        <span className="inline-block mt-1 rounded bg-amber-500/20 px-2 py-0.5 text-base font-semibold text-amber-400">
                           Ghi chú nội bộ
                         </span>
                       )}
-                      <p className="mt-2 text-sm text-slate-600">
+                      <p className="mt-2 text-base text-slate-600">
                         {msg.message || msg.content || ''}
                       </p>
                     </div>
@@ -657,9 +659,9 @@ const AdminSupportPage = () => {
                   value={reply}
                   onChange={(e) => setReply(e.target.value)}
                   placeholder="Nhập nội dung phản hồi..."
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-500 focus:border-emerald-500/50 focus:outline-none"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 placeholder:text-slate-500 focus:border-emerald-500/50 focus:outline-none"
                 />
-                <label className="mt-3 flex items-center gap-2 text-sm text-slate-500">
+                <label className="mt-3 flex items-center gap-2 text-base text-slate-500">
                   <input
                     type="checkbox"
                     checked={isInternal}
@@ -673,7 +675,7 @@ const AdminSupportPage = () => {
                     type="button"
                     disabled={saving || !reply.trim()}
                     onClick={handleReply}
-                    className="flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-600 disabled:opacity-50"
+                    className="flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-base font-semibold text-white hover:bg-emerald-600 disabled:opacity-50"
                   >
                     <Send size={16} />
                     Gửi phản hồi

@@ -86,7 +86,7 @@ const ApplicationCard = ({ application, onClick }) => {
                 </div>
               ))}
             </div>
-            <p className="text-[10px] font-bold uppercase text-txt-light">Tiến độ</p>
+            <p className="text-xs font-bold uppercase text-txt-light">Tiến độ</p>
           </div>
 
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-txt-light transition-colors group-hover:bg-secondary/10 group-hover:text-secondary">

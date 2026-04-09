@@ -57,7 +57,7 @@ const EmployerDashboard = ({ stats, activeJobs }) => {
               {stat.icon}
             </div>
             <p className="text-3xl font-black text-slate-900 mb-1">{stat.val}</p>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">
+            <p className="text-xs font-black text-slate-400 uppercase tracking-widest leading-none">
               {stat.label}
             </p>
           </Card>
@@ -110,7 +110,7 @@ const EmployerDashboard = ({ stats, activeJobs }) => {
                         <p className="text-sm font-bold text-slate-900 truncate max-w-[150px]">
                           {job.title}
                         </p>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">
+                        <p className="text-xs text-slate-400 font-bold uppercase tracking-tight">
                           {job.applicant_count} Ứng viên
                         </p>
                       </div>

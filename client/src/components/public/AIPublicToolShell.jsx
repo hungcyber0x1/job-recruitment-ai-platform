@@ -24,7 +24,10 @@ const AIPublicToolShell = ({ icon: Icon, kicker = 'Công cụ AI', title, descri
         />
 
         <div className="container relative z-10 mx-auto max-w-6xl px-4 pb-10 pt-6 sm:px-6 md:pb-14 md:pt-8">
-          <nav aria-label="Breadcrumb" className="mb-8 flex flex-wrap items-center gap-1.5 text-sm">
+          <nav
+            aria-label="Breadcrumb"
+            className="mb-8 flex flex-wrap items-center gap-1.5 text-base"
+          >
             <Link
               to="/"
               className="inline-flex items-center gap-1.5 rounded-lg px-1 py-0.5 font-medium text-muted-foreground transition-colors hover:bg-primary/5 hover:text-primary"
@@ -33,20 +36,20 @@ const AIPublicToolShell = ({ icon: Icon, kicker = 'Công cụ AI', title, descri
               Trang chủ
             </Link>
             <ChevronRight className="size-3.5 shrink-0 text-muted-foreground/50" aria-hidden />
-            <span className="font-semibold text-foreground">{kicker}</span>
+            <span className="font-bold text-foreground">{kicker}</span>
           </nav>
 
           <header className="text-center">
             <div className="mx-auto mb-5 flex h-[4.25rem] w-[4.25rem] items-center justify-center rounded-2xl bg-emerald-50 text-primary shadow-[0_10px_36px_-10px_rgba(16,185,129,0.35)] ring-1 ring-primary/15 dark:bg-primary/15 dark:ring-primary/25">
               <Icon className="size-9" strokeWidth={1.75} aria-hidden />
             </div>
-            <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-primary sm:text-xs sm:tracking-[0.18em]">
+            <p className="mb-3 text-sm font-bold uppercase tracking-widest text-primary">
               {kicker}
             </p>
-            <h1 className="text-balance text-[1.85rem] font-extrabold leading-tight tracking-tight text-foreground sm:text-4xl md:text-5xl md:leading-[1.08]">
+            <h1 className="text-balance text-3xl font-black leading-tight tracking-tight text-foreground sm:text-4xl md:text-4xl lg:text-5xl">
               {title}
             </h1>
-            <p className="mx-auto mt-4 max-w-2xl text-base font-medium leading-relaxed text-muted-foreground sm:text-lg">
+            <p className="mx-auto mt-3 max-w-2xl text-base font-medium leading-relaxed text-muted-foreground md:text-lg">
               {description}
             </p>
           </header>

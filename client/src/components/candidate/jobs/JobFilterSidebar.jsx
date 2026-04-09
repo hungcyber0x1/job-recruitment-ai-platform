@@ -33,7 +33,7 @@ const FilterSection = ({ title, icon: Icon, children }) => (
       <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
         <Icon className="size-4" aria-hidden />
       </div>
-      <h4 className="text-sm font-semibold uppercase tracking-wide text-foreground">{title}</h4>
+      <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">{title}</h4>
     </div>
     <div className="flex flex-col gap-2 pl-10">{children}</div>
   </div>
@@ -84,7 +84,7 @@ const JobFilterSidebar = ({ filters, setFilters, onFilterChange, embedded }) => 
               id={`salary-${item}`}
               className="size-4 rounded border-input text-primary focus:ring-primary"
             />
-            <span className="text-sm font-medium text-muted-foreground">{item}</span>
+            <span className="text-base font-medium text-foreground">{item}</span>
           </label>
         ))}
       </FilterSection>
@@ -108,7 +108,7 @@ const JobFilterSidebar = ({ filters, setFilters, onFilterChange, embedded }) => 
               onChange={() => handleTypeToggle(item)}
               className="size-4 rounded border-input text-primary focus:ring-primary"
             />
-            <span className="text-sm font-medium text-muted-foreground">{item}</span>
+            <span className="text-base font-medium text-foreground">{item}</span>
           </label>
         ))}
       </FilterSection>
@@ -130,7 +130,7 @@ const JobFilterSidebar = ({ filters, setFilters, onFilterChange, embedded }) => 
               id={`exp-${item}`}
               className="size-4 rounded border-input text-primary focus:ring-primary"
             />
-            <span className="text-sm font-medium text-muted-foreground">{item}</span>
+            <span className="text-base font-medium text-foreground">{item}</span>
           </label>
         ))}
       </FilterSection>
@@ -141,12 +141,12 @@ const JobFilterSidebar = ({ filters, setFilters, onFilterChange, embedded }) => 
     return (
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold">Bộ lọc</h3>
+          <h3 className="text-lg font-bold tracking-tight text-foreground">Bộ lọc</h3>
           <Button
             variant="ghost"
             size="sm"
             onClick={handleReset}
-            className="text-destructive hover:bg-destructive/10"
+            className="text-base font-semibold text-destructive hover:bg-destructive/10"
           >
             Đặt lại
           </Button>
@@ -160,7 +160,7 @@ const JobFilterSidebar = ({ filters, setFilters, onFilterChange, embedded }) => 
   return (
     <Card className="overflow-hidden rounded-2xl border-border/60 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between gap-4 px-6 py-5">
-        <CardTitle className="flex items-center gap-2 text-base font-bold">
+        <CardTitle className="flex items-center gap-2 text-lg font-bold tracking-tight">
           <Filter className="size-4 text-primary" aria-hidden />
           Bộ lọc
         </CardTitle>
@@ -168,7 +168,7 @@ const JobFilterSidebar = ({ filters, setFilters, onFilterChange, embedded }) => 
           variant="ghost"
           size="sm"
           onClick={handleReset}
-          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+          className="text-base font-semibold text-destructive hover:bg-destructive/10 hover:text-destructive"
         >
           Đặt lại
         </Button>

@@ -73,13 +73,13 @@ const RecommendedJobs = ({ jobs }) => {
                 {['React', 'NodeJS', 'Figma'].map((skill) => (
                   <div
                     key={skill}
-                    className="z-10 flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-muted text-[10px] font-semibold text-muted-foreground shadow-sm"
+                    className="z-10 flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-muted text-xs font-semibold text-muted-foreground shadow-sm"
                     title={skill}
                   >
                     {skill[0]}
                   </div>
                 ))}
-                <div className="relative z-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-primary text-[10px] font-semibold text-primary-foreground shadow-sm">
+                <div className="relative z-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-primary text-xs font-semibold text-primary-foreground shadow-sm">
                   +3
                 </div>
               </div>

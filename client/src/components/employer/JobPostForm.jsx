@@ -50,7 +50,7 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
             <h2 className="text-3xl font-black leading-tight text-foreground">
               {initialData ? 'Chỉnh sửa tin tuyển dụng' : 'Đăng tin tuyển dụng mới'}
             </h2>
-            <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-txt-light">
+            <p className="mt-1 text-xs font-bold uppercase tracking-widest text-txt-light">
               Hãy cung cấp đầy đủ thông tin để AI Matching hoạt động tốt nhất
             </p>
           </div>
@@ -70,7 +70,7 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
           </div>
 
           <div className="space-y-3">
-            <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-txt-light">
+            <label className="ml-1 text-xs font-black uppercase tracking-widest text-txt-light">
               Lĩnh vực / Ngành nghề
             </label>
             <select
@@ -90,7 +90,7 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
           </div>
 
           <div className="space-y-3">
-            <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-txt-light">
+            <label className="ml-1 text-xs font-black uppercase tracking-widest text-txt-light">
               Hình thức làm việc
             </label>
             <select
@@ -157,7 +157,7 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
             </h3>
             <div className="space-y-8">
               <div className="space-y-3">
-                <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-txt-light">
+                <label className="ml-1 text-xs font-black uppercase tracking-widest text-txt-light">
                   Mô tả công việc
                 </label>
                 <textarea
@@ -171,7 +171,7 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
                 />
               </div>
               <div className="space-y-3">
-                <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-txt-light">
+                <label className="ml-1 text-xs font-black uppercase tracking-widest text-txt-light">
                   Yêu cầu ứng viên
                 </label>
                 <textarea
@@ -185,7 +185,7 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
                 />
               </div>
               <div className="space-y-3">
-                <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-txt-light">
+                <label className="ml-1 text-xs font-black uppercase tracking-widest text-txt-light">
                   Quyền lợi
                 </label>
                 <textarea

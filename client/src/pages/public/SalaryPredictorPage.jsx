@@ -156,14 +156,14 @@ const SalaryPredictorPage = () => {
           className={`w-full ${predicted ? 'lg:w-[400px] lg:shrink-0' : 'lg:mx-auto lg:max-w-xl'}`}
         >
           <div className="ai-tool-panel p-8">
-            <h2 className="mb-6 flex items-center gap-2 text-xl font-bold text-foreground">
+            <h2 className="mb-6 flex items-center gap-2 text-xl font-bold text-foreground md:text-2xl">
               <Target className="text-primary" size={22} strokeWidth={1.8} />
               Thông tin tra cứu
             </h2>
 
             <form onSubmit={handlePredict} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="salary-title" className="font-semibold text-foreground">
+                <Label htmlFor="salary-title" className="text-base font-bold text-foreground">
                   Chức danh / Vị trí
                 </Label>
                 <div className="relative">
@@ -178,21 +178,21 @@ const SalaryPredictorPage = () => {
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     placeholder="VD: Senior Frontend Developer, Marketing Manager…"
-                    className="h-12 rounded-xl border-border/60 bg-muted/50 pl-11"
+                    className="h-12 rounded-xl border-border/60 bg-muted/50 pl-11 text-base"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="salary-exp" className="font-semibold text-foreground">
+                  <Label htmlFor="salary-exp" className="text-base font-bold text-foreground">
                     Số năm kinh nghiệm
                   </Label>
                   <select
                     id="salary-exp"
                     value={formData.experience}
                     onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
-                    className="h-12 w-full rounded-xl border border-border/60 bg-muted/50 px-4 font-medium text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    className="h-12 w-full rounded-xl border border-border/60 bg-muted/50 px-4 text-base font-medium text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   >
                     {EXPERIENCE_OPTIONS.map((o) => (
                       <option key={o.value} value={o.value}>
@@ -202,7 +202,7 @@ const SalaryPredictorPage = () => {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="salary-loc" className="font-semibold text-foreground">
+                  <Label htmlFor="salary-loc" className="text-base font-bold text-foreground">
                     Địa điểm làm việc
                   </Label>
                   <div className="relative">
@@ -214,7 +214,7 @@ const SalaryPredictorPage = () => {
                       id="salary-loc"
                       value={formData.location}
                       onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                      className="h-12 w-full appearance-none rounded-xl border border-border/60 bg-muted/50 pl-11 pr-4 font-medium text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      className="h-12 w-full appearance-none rounded-xl border border-border/60 bg-muted/50 pl-11 pr-4 text-base font-medium text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                     >
                       {LOCATION_OPTIONS.map((o) => (
                         <option key={o.value} value={o.value}>
@@ -227,7 +227,7 @@ const SalaryPredictorPage = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="salary-ind" className="font-semibold text-foreground">
+                <Label htmlFor="salary-ind" className="text-base font-bold text-foreground">
                   Ngành nghề
                 </Label>
                 <div className="relative">
@@ -239,7 +239,7 @@ const SalaryPredictorPage = () => {
                     id="salary-ind"
                     value={formData.industry}
                     onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
-                    className="h-12 w-full appearance-none rounded-xl border border-border/60 bg-muted/50 pl-11 pr-4 font-medium text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    className="h-12 w-full appearance-none rounded-xl border border-border/60 bg-muted/50 pl-11 pr-4 text-base font-medium text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   >
                     {INDUSTRY_OPTIONS.map((o) => (
                       <option key={o.value} value={o.value}>
@@ -254,7 +254,7 @@ const SalaryPredictorPage = () => {
                 <Button
                   type="submit"
                   size="lg"
-                  className="w-full flex-1 gap-2 sm:w-auto"
+                  className="w-full flex-1 gap-2 text-base font-bold sm:w-auto"
                   disabled={loading}
                 >
                   {loading ? 'Đang phân tích…' : 'Xem mức lương dự báo'}
@@ -265,7 +265,7 @@ const SalaryPredictorPage = () => {
                     type="button"
                     variant="outline"
                     size="lg"
-                    className="w-full sm:w-auto"
+                    className="w-full text-base font-bold sm:w-auto"
                     onClick={resetPrediction}
                   >
                     Thu gọn kết quả
@@ -281,17 +281,19 @@ const SalaryPredictorPage = () => {
             <div className="ai-tool-panel flex h-full flex-col p-8">
               <div className="mb-8 flex flex-col gap-4 border-b border-border/60 pb-6 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <Badge variant="secondary" className="mb-3 font-semibold">
+                  <Badge variant="secondary" className="mb-3 text-sm font-bold">
                     Báo cáo tham khảo 2026
                   </Badge>
-                  <h2 className="text-2xl font-bold text-foreground">{formData.title.trim()}</h2>
-                  <p className="mt-1 text-sm font-medium text-muted-foreground">
+                  <h2 className="text-2xl font-black text-foreground md:text-3xl">
+                    {formData.title.trim()}
+                  </h2>
+                  <p className="mt-1 text-base font-medium text-muted-foreground">
                     {labelOf(EXPERIENCE_OPTIONS, formData.experience)} ·{' '}
                     {labelOf(LOCATION_OPTIONS, formData.location)} ·{' '}
                     {labelOf(INDUSTRY_OPTIONS, formData.industry)}
                   </p>
                 </div>
-                <Button variant="outline" size="sm" asChild>
+                <Button variant="outline" size="sm" className="text-base font-bold" asChild>
                   <Link to="/jobs">Việc làm gợi ý</Link>
                 </Button>
               </div>
@@ -299,27 +301,27 @@ const SalaryPredictorPage = () => {
               <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div className="rounded-xl border border-border/40 bg-muted/50 p-6">
                   <div className="mb-4 flex items-center justify-between">
-                    <span className="text-sm font-semibold text-muted-foreground">
+                    <span className="text-sm font-bold text-muted-foreground">
                       Lương trung bình (gross ước lượng)
                     </span>
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
                       <TrendingUp className="size-4" aria-hidden />
                     </div>
                   </div>
-                  <p className="text-2xl font-extrabold tabular-nums text-foreground md:text-3xl">
+                  <p className="text-2xl font-black tabular-nums text-foreground md:text-4xl">
                     {formatCurrency(estimate.mid)}
                   </p>
-                  <p className="mt-2 flex items-center gap-1 text-sm font-semibold text-primary">
+                  <p className="mt-2 flex items-center gap-1 text-base font-bold text-primary">
                     <TrendingUp className="size-3.5" aria-hidden />+{estimate.growthPct.toFixed(1)}%
                     so với mặt bằng năm trước (mô phỏng)
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-border/40 bg-muted/50 p-6">
-                  <p className="mb-4 text-sm font-semibold text-muted-foreground">
+                  <p className="mb-4 text-sm font-bold text-muted-foreground">
                     Khoảng lương phổ biến
                   </p>
-                  <p className="text-xl font-bold text-primary">
+                  <p className="text-xl font-black text-primary md:text-2xl">
                     {formatCurrency(estimate.low)} – {formatCurrency(estimate.high)}
                   </p>
                   <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-muted">
@@ -328,7 +330,7 @@ const SalaryPredictorPage = () => {
                       style={{ width: `${rangeBarPct}%` }}
                     />
                   </div>
-                  <div className="mt-2 flex justify-between text-xs font-medium text-muted-foreground">
+                  <div className="mt-2 flex justify-between text-sm font-medium text-muted-foreground">
                     <span>Thấp hơn</span>
                     <span>Trung vị ước lượng</span>
                     <span>Cao hơn</span>
@@ -337,8 +339,8 @@ const SalaryPredictorPage = () => {
               </div>
 
               <div className="rounded-xl border border-primary/10 bg-primary/5 p-6">
-                <h3 className="mb-2 font-bold text-primary">Đánh giá nhanh</h3>
-                <p className="font-medium leading-relaxed text-foreground/90">
+                <h3 className="mb-2 text-lg font-bold text-primary md:text-xl">Đánh giá nhanh</h3>
+                <p className="text-base font-medium leading-relaxed text-foreground/90">
                   Với <strong className="text-primary">{formData.title.trim()}</strong> tại{' '}
                   <strong>{labelOf(LOCATION_OPTIONS, formData.location)}</strong>, nhóm{' '}
                   <strong>{labelOf(INDUSTRY_OPTIONS, formData.industry)}</strong> thường có biên độ
@@ -350,18 +352,18 @@ const SalaryPredictorPage = () => {
                   {estimateSource === 'offline' && (
                     <Badge
                       variant="outline"
-                      className="font-semibold text-amber-700 dark:text-amber-400"
+                      className="text-sm font-bold text-amber-700 dark:text-amber-400"
                     >
                       Đang dùng tính toán ngoại tuyến (API không khả dụng)
                     </Badge>
                   )}
-                  <Badge variant="outline" className="font-semibold text-primary">
+                  <Badge variant="outline" className="text-sm font-bold text-primary">
                     Không thay thế khảo sát thị trường
                   </Badge>
                 </div>
               </div>
 
-              <p className="mt-6 text-center text-xs text-muted-foreground">
+              <p className="mt-6 text-center text-sm font-medium text-muted-foreground">
                 * Ước lượng tham khảo; thực tế phụ thuộc công ty, quy mô và kỹ năng cụ thể.
               </p>
             </div>

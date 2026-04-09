@@ -152,7 +152,7 @@ const JobsPage = () => {
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-primary"
+              className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-bold uppercase tracking-widest text-primary"
             >
               <Briefcase className="size-3.5" />
               Hơn 8.000+ việc làm mới mỗi tháng
@@ -161,7 +161,7 @@ const JobsPage = () => {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.05 }}
-              className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-[2.75rem]"
+              className="text-3xl font-black tracking-tight text-foreground sm:text-4xl md:text-4xl lg:text-5xl"
             >
               Tìm việc làm phù hợp với bạn
             </motion.h1>
@@ -169,7 +169,7 @@ const JobsPage = () => {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="mt-3 text-base text-muted-foreground"
+              className="mt-3 text-base font-medium leading-relaxed text-muted-foreground md:text-lg"
             >
               Khám phá cơ hội từ các công ty hàng đầu với AI matching thông minh
             </motion.p>
@@ -210,7 +210,7 @@ const JobsPage = () => {
                 <select
                   value={selectedLocation}
                   onChange={(e) => setSelectedLocation(e.target.value)}
-                  className="h-12 w-full cursor-pointer appearance-none border-0 bg-transparent pl-3 pr-10 text-sm font-medium text-foreground outline-none"
+                  className="h-12 w-full cursor-pointer appearance-none border-0 bg-transparent pl-3 pr-10 text-base font-medium text-foreground outline-none"
                   aria-label="Chọn địa điểm"
                 >
                   {locationOptions.map((opt) => (
@@ -225,7 +225,7 @@ const JobsPage = () => {
                 />
               </div>
 
-              <Button size="lg" className="h-12 shrink-0 font-semibold sm:px-10">
+              <Button size="lg" className="h-12 shrink-0 text-base font-bold sm:px-10">
                 Tìm kiếm
               </Button>
             </div>
@@ -242,7 +242,7 @@ const JobsPage = () => {
                     key={item.value}
                     type="button"
                     onClick={() => applyQuickFilter(item)}
-                    className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 ${
+                    className={`rounded-full border px-4 py-2 text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 ${
                       isActive
                         ? 'border-transparent bg-primary text-primary-foreground hover:bg-primary/90'
                         : 'border-border bg-transparent hover:bg-primary/10 hover:text-primary'
@@ -271,7 +271,7 @@ const JobsPage = () => {
           <Sheet open={mobileFilterOpen} onOpenChange={setMobileFilterOpen}>
             <SheetContent side="left" className="flex w-full max-w-sm flex-col p-0">
               <SheetHeader className="shrink-0 border-b px-6 py-4">
-                <SheetTitle>Bộ lọc</SheetTitle>
+                <SheetTitle className="text-lg font-bold tracking-tight">Bộ lọc</SheetTitle>
               </SheetHeader>
               <div className="flex-1 overflow-y-auto p-4">
                 <JobFilterSidebar filters={filters} setFilters={setFilters} embedded />
@@ -282,15 +282,14 @@ const JobsPage = () => {
           {/* Results */}
           <div className="flex flex-col gap-6 lg:col-span-9">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm text-muted-foreground">
-                <span className="font-semibold text-foreground">{jobs.length}</span> việc làm phù
-                hợp
+              <p className="text-base font-medium text-muted-foreground">
+                <span className="font-bold text-foreground">{jobs.length}</span> việc làm phù hợp
               </p>
               <div className="flex items-center gap-3">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="lg:hidden"
+                  className="lg:hidden text-base font-semibold"
                   onClick={() => setMobileFilterOpen(true)}
                   aria-label="Mở bộ lọc"
                 >
@@ -298,7 +297,7 @@ const JobsPage = () => {
                   Bộ lọc
                 </Button>
                 <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-[200px]">
+                  <SelectTrigger className="h-11 w-[220px] text-base font-medium">
                     <SelectValue placeholder="Sắp xếp" />
                   </SelectTrigger>
                   <SelectContent>

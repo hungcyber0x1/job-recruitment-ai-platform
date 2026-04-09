@@ -78,7 +78,7 @@ const EditProfilePage = () => {
   }
 
   const fieldClass =
-    'h-11 rounded-lg border-slate-200 bg-white text-sm shadow-sm transition-shadow focus-visible:border-emerald-500 focus-visible:ring-emerald-500/20';
+    'h-11 rounded-lg border-slate-200 bg-white text-base shadow-sm transition-shadow focus-visible:border-emerald-500 focus-visible:ring-emerald-500/20';
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/80 px-4 pb-16 pt-8 md:pb-24 md:pt-10">
@@ -90,7 +90,7 @@ const EditProfilePage = () => {
           className="group -ml-2 gap-2 px-2 text-slate-600 hover:bg-slate-200/60 hover:text-slate-900"
         >
           <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
-          <span className="text-sm font-medium">Quay lại hồ sơ</span>
+          <span className="text-base font-medium">Quay lại hồ sơ</span>
         </Button>
 
         <Card className="overflow-hidden rounded-2xl border-slate-200/80 bg-white shadow-[0_20px_50px_-24px_rgba(15,23,42,0.15)]">
@@ -102,13 +102,13 @@ const EditProfilePage = () => {
               }}
             />
             <div className="relative z-10 max-w-2xl space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-400">
+              <p className="text-base font-semibold uppercase tracking-[0.2em] text-emerald-400">
                 Hồ sơ ứng viên
               </p>
               <h1 className="text-2xl font-semibold leading-tight tracking-tight text-white md:text-3xl">
                 Chỉnh sửa thông tin chuyên môn
               </h1>
-              <p className="text-sm leading-relaxed text-slate-300 md:text-[15px]">
+              <p className="text-base leading-relaxed text-slate-300 md:text-base">
                 Thông tin chính xác giúp gợi ý việc làm và lộ trình phù hợp hơn — cả từ hệ thống AI
                 và từ nhà tuyển dụng khi xem hồ sơ của bạn.
               </p>
@@ -123,7 +123,9 @@ const EditProfilePage = () => {
                   <Label htmlFor="title" className="text-slate-700">
                     Chức danh công việc
                   </Label>
-                  <p className="text-xs text-muted-foreground">Ví dụ: Lập trình viên Full-stack</p>
+                  <p className="text-base text-muted-foreground">
+                    Ví dụ: Lập trình viên Full-stack
+                  </p>
                   <Input
                     id="title"
                     name="title"
@@ -139,7 +141,7 @@ const EditProfilePage = () => {
                   <Label htmlFor="location" className="text-slate-700">
                     Địa điểm làm việc
                   </Label>
-                  <p className="text-xs text-muted-foreground">Thành phố hoặc khu vực</p>
+                  <p className="text-base text-muted-foreground">Thành phố hoặc khu vực</p>
                   <Input
                     id="location"
                     name="location"
@@ -156,7 +158,7 @@ const EditProfilePage = () => {
                 <Label htmlFor="phone" className="text-slate-700">
                   Số điện thoại
                 </Label>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-base text-muted-foreground">
                   Dùng để nhà tuyển dụng liên hệ khi cần
                 </p>
                 <Input
@@ -175,7 +177,7 @@ const EditProfilePage = () => {
                 <Label htmlFor="bio" className="text-slate-700">
                   Giới thiệu bản thân
                 </Label>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-base text-muted-foreground">
                   Kinh nghiệm, kỹ năng nổi bật và định hướng nghề nghiệp (khuyến nghị 2–6 câu)
                 </p>
                 <Textarea
@@ -184,13 +186,13 @@ const EditProfilePage = () => {
                   value={formData.bio}
                   onChange={handleChange}
                   rows={6}
-                  className="min-h-[140px] resize-y rounded-lg border-slate-200 bg-white text-sm shadow-sm focus-visible:border-emerald-500 focus-visible:ring-emerald-500/20 md:min-h-[160px]"
+                  className="min-h-[140px] resize-y rounded-lg border-slate-200 bg-white text-base shadow-sm focus-visible:border-emerald-500 focus-visible:ring-emerald-500/20 md:min-h-[160px]"
                   placeholder="Mô tả ngắn gọn về chuyên môn, dự án tiêu biểu và mục tiêu nghề nghiệp…"
                 />
               </div>
 
               <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-8 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-                <p className="text-center text-xs text-muted-foreground sm:text-left">
+                <p className="text-center text-base text-muted-foreground sm:text-left">
                   Nhấn &quot;Lưu thay đổi&quot; để cập nhật hồ sơ hiển thị với nhà tuyển dụng.
                 </p>
                 <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
@@ -199,14 +201,14 @@ const EditProfilePage = () => {
                     variant="outline"
                     onClick={() => navigate('/candidate/profile')}
                     disabled={saving}
-                    className="h-11 rounded-xl border-slate-300 bg-white px-6 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 hover:text-slate-900"
+                    className="h-11 rounded-xl border-slate-300 bg-white px-6 text-base font-semibold text-slate-700 shadow-sm hover:bg-slate-50 hover:text-slate-900"
                   >
                     Hủy
                   </Button>
                   <Button
                     type="submit"
                     disabled={saving}
-                    className="h-11 gap-2 rounded-xl bg-emerald-600 px-8 text-sm font-semibold text-white shadow-md shadow-emerald-600/20 hover:bg-emerald-700 hover:text-white focus-visible:ring-emerald-500"
+                    className="h-11 gap-2 rounded-xl bg-emerald-600 px-8 text-base font-semibold text-white shadow-md shadow-emerald-600/20 hover:bg-emerald-700 hover:text-white focus-visible:ring-emerald-500"
                   >
                     {saving ? (
                       <>

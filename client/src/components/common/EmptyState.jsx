@@ -167,9 +167,11 @@ const EmptyState = ({
       <div className="mb-6 w-32 h-32 sm:w-40 sm:h-40 flex items-center justify-center">
         {mascotContent}
       </div>
-      <h2 className="text-xl font-semibold text-foreground">{title}</h2>
+      <h2 className="text-2xl font-bold tracking-tight text-foreground">{title}</h2>
       {description && (
-        <p className="mt-2 max-w-sm text-sm text-muted-foreground leading-relaxed">{description}</p>
+        <p className="mt-2 max-w-sm text-base font-medium text-muted-foreground leading-relaxed">
+          {description}
+        </p>
       )}
       {action && <div className="mt-6">{action}</div>}
     </div>

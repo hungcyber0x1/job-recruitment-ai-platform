@@ -54,7 +54,7 @@ const RecentApplications = ({ applications = [] }) => {
                     >
                       {getStatusLabel(app.status)}
                     </Badge>
-                    <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
                       {formatDate(app.applied_at)}
                     </p>
                   </div>

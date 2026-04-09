@@ -9,7 +9,7 @@ const JobManagement = ({ jobs, onDelete }) => {
     <div className="overflow-x-auto">
       <table className="w-full text-left">
         <thead>
-          <tr className="border-b border-border bg-muted uppercase tracking-widest text-[10px] font-black text-txt-light">
+          <tr className="border-b border-border bg-muted uppercase tracking-widest text-xs font-black text-txt-light">
             <th className="px-8 py-5">Tin tuyển dụng</th>
             <th className="px-8 py-5">Trạng thái</th>
             <th className="px-8 py-5 text-center">Ứng viên</th>
@@ -23,7 +23,7 @@ const JobManagement = ({ jobs, onDelete }) => {
                 <div className="font-bold text-foreground transition-colors group-hover:text-secondary">
                   {job.title}
                 </div>
-                <div className="mt-1 text-[10px] font-black uppercase tracking-widest text-txt-light">
+                <div className="mt-1 text-xs font-black uppercase tracking-widest text-txt-light">
                   {job.location} • {job.type}
                 </div>
               </td>

@@ -65,7 +65,7 @@ const Header = () => {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`text-[16px] font-bold transition-colors transition-transform transition-shadow opacity-100 duration-200 hover:text-primary relative group pb-1 ${
+                className={`text-lg font-bold transition-colors transition-transform transition-shadow opacity-100 duration-200 hover:text-primary relative group pb-1 ${
                   location.pathname === link.path ? 'text-primary' : 'text-txt-muted'
                 }`}
                 onClick={() => {
@@ -121,7 +121,7 @@ const Header = () => {
                           {user?.first_name} {user?.last_name}
                         </p>
                         <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-                        <span className="mt-2 inline-block px-2 py-0.5 bg-emerald-500/10 text-emerald-700 text-[10px] font-black uppercase rounded">
+                        <span className="mt-2 inline-block px-2 py-0.5 bg-emerald-500/10 text-emerald-700 text-xs font-black uppercase rounded">
                           {user?.role}
                         </span>
                       </div>

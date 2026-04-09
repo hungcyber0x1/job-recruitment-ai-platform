@@ -66,7 +66,7 @@ const CTASection = () => {
             transition={{ delay: 0.05, duration: 0.45 }}
             className="mb-8 flex justify-center"
           >
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.08] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/95 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] backdrop-blur-sm">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.08] px-4 py-2 text-sm font-bold uppercase tracking-widest text-white/95 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] backdrop-blur-sm">
               <Sparkles size={13} className="text-emerald-300" strokeWidth={2} aria-hidden="true" />
               Bắt đầu miễn phí
             </span>
@@ -74,19 +74,19 @@ const CTASection = () => {
 
           <h2
             id="cta-heading"
-            className="mx-auto max-w-[22ch] text-balance text-3xl font-extrabold tracking-[-0.03em] text-white sm:text-4xl md:text-5xl lg:text-[3.25rem] lg:leading-[1.08]"
+            className="mx-auto max-w-[24ch] text-balance text-3xl font-black tracking-tight text-white sm:text-4xl md:text-4xl lg:text-5xl lg:leading-[1.08]"
           >
             Sẵn sàng để bước tiếp trong <span className="text-emerald-300">sự nghiệp</span> của bạn?
           </h2>
 
-          <p className="mx-auto mt-5 max-w-xl text-base font-medium leading-relaxed text-white/75 md:text-lg">
+          <p className="mx-auto mt-5 max-w-xl text-base font-medium leading-relaxed text-white/80 md:text-lg">
             Tạo hồ sơ được AI gợi ý hoặc tải CV có sẵn — nhận việc làm khớp kỹ năng thực tế của bạn.
           </p>
 
           <div className="mt-10 flex flex-col items-stretch justify-center gap-3 sm:mt-12 sm:flex-row sm:items-center sm:gap-4">
             <Link
               to={createAiProfileHref}
-              className="group landing-focus inline-flex min-h-[52px] w-full items-center justify-center gap-2.5 rounded-2xl bg-white px-8 text-sm font-semibold text-slate-900 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/95 hover:shadow-[0_16px_48px_-12px_rgba(0,0,0,0.4)] active:scale-[0.98] sm:w-auto"
+              className="group landing-focus inline-flex min-h-[52px] w-full items-center justify-center gap-2.5 rounded-2xl bg-white px-8 text-base font-bold text-slate-900 shadow-[0_12px_40px_-12px_rgba(0,0,0,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/95 hover:shadow-[0_16px_48px_-12px_rgba(0,0,0,0.4)] active:scale-[0.98] sm:w-auto"
             >
               Tạo hồ sơ AI
               <ArrowRight
@@ -99,14 +99,14 @@ const CTASection = () => {
 
             <Link
               to={uploadCvHref}
-              className="landing-focus inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl border border-white/30 bg-white/[0.06] px-8 text-sm font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:border-white/45 hover:bg-white/10 active:scale-[0.98] sm:w-auto"
+              className="landing-focus inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl border border-white/30 bg-white/[0.06] px-8 text-base font-bold text-white backdrop-blur-sm transition-all duration-300 hover:border-white/45 hover:bg-white/10 active:scale-[0.98] sm:w-auto"
             >
               <Upload size={17} strokeWidth={2} className="opacity-90" aria-hidden="true" />
               Tải CV lên
             </Link>
           </div>
 
-          <p className="mt-10 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs font-medium text-white/40">
+          <p className="mt-10 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm font-medium text-white/50">
             <span className="inline-flex items-center gap-1.5">
               <Shield
                 size={13}

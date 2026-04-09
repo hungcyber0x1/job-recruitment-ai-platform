@@ -32,7 +32,7 @@ const CompaniesPage = () => {
       {/* Hero - blog-style: off-white + blurred photo overlay */}
       <div className="company-hero-bg pt-16 pb-24 px-4">
         <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-[#D1FAE5] dark:bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-[#D1FAE5] dark:bg-primary/10 px-4 py-2 text-base font-semibold text-primary">
             <Briefcase size={16} />
             Khám phá doanh nghiệp
           </div>

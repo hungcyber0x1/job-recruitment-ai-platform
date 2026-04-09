@@ -61,16 +61,16 @@ const CompanyCard = ({ company }) => {
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1 pt-0.5">
-            <h3 className="line-clamp-2 text-lg font-semibold leading-snug tracking-tight text-foreground transition-colors group-hover:text-primary">
+            <h3 className="line-clamp-2 text-lg font-bold leading-snug tracking-tight text-foreground transition-colors group-hover:text-primary">
               {company.name}
             </h3>
-            <p className="mt-2 inline-flex max-w-full rounded-full border border-primary/12 bg-primary/[0.07] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
+            <p className="mt-2 inline-flex max-w-full rounded-full border border-primary/12 bg-primary/[0.07] px-2.5 py-0.5 text-xs font-bold uppercase tracking-widest text-primary">
               <span className="truncate">{company.industry}</span>
             </p>
           </div>
         </div>
 
-        <ul className="mt-6 flex flex-col gap-2.5 text-sm">
+        <ul className="mt-6 flex flex-col gap-2.5 text-base">
           <li className="flex items-start gap-3">
             <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted/80 text-muted-foreground">
               <MapPin className="size-3.5" aria-hidden />
@@ -89,7 +89,7 @@ const CompanyCard = ({ company }) => {
             <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <Briefcase className="size-3.5" aria-hidden />
             </span>
-            <span className="pt-1 font-semibold text-primary">
+            <span className="pt-1 font-bold text-primary">
               {company.openPositions} việc đang tuyển
             </span>
           </li>
@@ -98,7 +98,7 @@ const CompanyCard = ({ company }) => {
 
       <div className="border-t border-border/50 px-5 py-4 sm:px-6">
         <Button
-          className="h-11 w-full gap-2 rounded-xl font-semibold shadow-sm transition-all duration-300 hover:gap-2.5"
+          className="h-11 w-full gap-2 rounded-xl text-base font-bold shadow-sm transition-all duration-300 hover:gap-2.5"
           asChild
         >
           <Link to={`/companies/${company.id}`}>

@@ -129,13 +129,13 @@ const AdminBlogPage = () => {
               <BookOpen className="size-7 text-emerald-600" />
               Quản lý blog toàn hệ thống
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground max-w-3xl leading-relaxed">
+            <p className="mt-1 text-base text-muted-foreground max-w-3xl leading-relaxed">
               Toàn bộ bài trên{' '}
               <Link to="/blog" className="font-medium text-emerald-600 hover:underline">
                 /blog
               </Link>{' '}
               đều đọc từ bảng{' '}
-              <code className="rounded bg-muted px-1 text-xs font-mono text-foreground">
+              <code className="rounded bg-muted px-1 text-base font-mono text-foreground">
                 blog_posts
               </code>{' '}
               trong MySQL — kể cả bài nhập từ seed/migration. Tài khoản{' '}
@@ -145,7 +145,7 @@ const AdminBlogPage = () => {
               khai chỉ hiển thị bài đã xuất bản; tại đây bạn tạo mới, sửa, gỡ xuất bản hoặc xóa.
             </p>
             {!loading && !loadError ? (
-              <p className="mt-2 text-xs font-medium text-emerald-800">
+              <p className="mt-2 text-base font-medium text-emerald-800">
                 Tổng <span className="tabular-nums font-semibold">{listMeta.total}</span> bài trong
                 CSDL — đang xem <span className="tabular-nums font-semibold">{listMeta.page}</span>{' '}
                 / <span className="tabular-nums font-semibold">{listMeta.totalPages}</span> (
@@ -164,7 +164,7 @@ const AdminBlogPage = () => {
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <label
               htmlFor="admin-blog-source"
-              className="text-xs font-medium text-muted-foreground whitespace-nowrap"
+              className="text-base font-medium text-muted-foreground whitespace-nowrap"
             >
               Nguồn bài
             </label>
@@ -172,7 +172,7 @@ const AdminBlogPage = () => {
               id="admin-blog-source"
               value={authorFilter}
               onChange={(e) => setAuthorFilter(e.target.value)}
-              className="h-10 min-w-[200px] rounded-md border border-border bg-white px-3 text-sm text-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
+              className="h-10 min-w-[200px] rounded-md border border-border bg-white px-3 text-base text-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
             >
               <option value="">Tất cả (quản trị + nhà tuyển dụng)</option>
               <option value="admin">Chỉ bài quản trị</option>
@@ -203,9 +203,9 @@ const AdminBlogPage = () => {
           ) : loadError ? (
             <div className="p-12 text-center space-y-3">
               <p className="text-destructive font-medium">{loadError}</p>
-              <p className="text-sm text-muted-foreground max-w-lg mx-auto">
+              <p className="text-base text-muted-foreground max-w-lg mx-auto">
                 Mở tab Network (F12) xem request{' '}
-                <code className="text-xs bg-muted px-1 rounded">GET …/admin/blog/posts</code>— nếu
+                <code className="text-base bg-muted px-1 rounded">GET …/admin/blog/posts</code>— nếu
                 401 thì đăng nhập lại; 404/500 thường do sai URL API hoặc chưa chạy migration bảng
                 blog.
               </p>
@@ -220,7 +220,7 @@ const AdminBlogPage = () => {
                   <p className="font-medium text-foreground">
                     Không có bài khớp bộ lọc hoặc từ khóa.
                   </p>
-                  <p className="text-sm">
+                  <p className="text-base">
                     Thử xóa từ khóa, chọn nguồn bài{' '}
                     <span className="font-medium text-foreground">Tất cả</span>, hoặc bấm{' '}
                     <span className="font-medium text-foreground">Tìm</span> lại sau khi để trống ô
@@ -235,13 +235,13 @@ const AdminBlogPage = () => {
                   <p>
                     Bấm nút <span className="font-semibold text-emerald-700">Viết bài mới</span>{' '}
                     phía trên để tạo bài, hoặc trong thư mục{' '}
-                    <code className="text-xs bg-muted px-1 rounded">server</code> chạy:
+                    <code className="text-base bg-muted px-1 rounded">server</code> chạy:
                   </p>
-                  <pre className="mx-auto max-w-md rounded-lg bg-slate-900 px-4 py-3 text-left text-xs text-slate-100">
+                  <pre className="mx-auto max-w-md rounded-lg bg-slate-900 px-4 py-3 text-left text-base text-slate-100">
                     npm run db:migrate{'\n'}
                     npm run db:seed
                   </pre>
-                  <p className="text-xs">
+                  <p className="text-base">
                     Đảm bảo file <code className="rounded bg-muted px-1">.env</code> trong{' '}
                     <code className="rounded bg-muted px-1">server</code> trỏ đúng MySQL mà gateway
                     đang dùng.
@@ -252,7 +252,7 @@ const AdminBlogPage = () => {
           ) : (
             <>
               <div className="data-table-scroll">
-                <table className="data-table text-sm">
+                <table className="data-table text-base">
                   <thead>
                     <tr>
                       <th className="px-4 py-3">Tiêu đề</th>
@@ -269,11 +269,11 @@ const AdminBlogPage = () => {
                       <tr key={row.id}>
                         <td className="max-w-xs px-4 py-3">
                           <p className="font-medium text-foreground line-clamp-2">{row.title}</p>
-                          <p className="mt-0.5 text-xs text-muted-foreground font-mono">
+                          <p className="mt-0.5 text-base text-muted-foreground font-mono">
                             {row.slug}
                           </p>
                         </td>
-                        <td className="max-w-[10rem] px-4 py-3 text-xs text-foreground">
+                        <td className="max-w-[10rem] px-4 py-3 text-base text-foreground">
                           {row.category ? (
                             <span className="line-clamp-2 rounded-md bg-slate-100 px-2 py-1">
                               {row.category}
@@ -286,8 +286,8 @@ const AdminBlogPage = () => {
                           <span
                             className={
                               row.author_type === 'employer'
-                                ? 'rounded-md bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-900'
-                                : 'rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700'
+                                ? 'rounded-md bg-amber-50 px-2 py-0.5 text-base font-medium text-amber-900'
+                                : 'rounded-md bg-slate-100 px-2 py-0.5 text-base font-medium text-slate-700'
                             }
                           >
                             {row.author_type === 'employer'
@@ -297,15 +297,15 @@ const AdminBlogPage = () => {
                                 : row.author_type || '—'}
                           </span>
                           {row.author_name ? (
-                            <span className="mt-1 block text-xs text-foreground">
+                            <span className="mt-1 block text-base text-foreground">
                               {row.author_name.trim()}
                             </span>
                           ) : null}
                           {row.company_name ? (
-                            <span className="mt-0.5 block text-xs">{row.company_name}</span>
+                            <span className="mt-0.5 block text-base">{row.company_name}</span>
                           ) : null}
                         </td>
-                        <td className="px-4 py-3 text-xs tabular-nums text-muted-foreground whitespace-nowrap">
+                        <td className="px-4 py-3 text-base tabular-nums text-muted-foreground whitespace-nowrap">
                           {typeof row.view_count === 'number'
                             ? row.view_count.toLocaleString('vi-VN')
                             : typeof row.viewCount === 'number'
@@ -319,7 +319,7 @@ const AdminBlogPage = () => {
                             <span className="text-amber-600">Nháp</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-muted-foreground whitespace-nowrap text-xs">
+                        <td className="px-4 py-3 text-muted-foreground whitespace-nowrap text-base">
                           {formatWhen(row)}
                         </td>
                         <td className="px-4 py-3 text-right">
@@ -360,7 +360,7 @@ const AdminBlogPage = () => {
                 </table>
               </div>
               <div className="flex flex-col gap-3 border-t border-border/60 bg-slate-50/90 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-xs text-muted-foreground">
+                <p className="text-base text-muted-foreground">
                   <span className="font-medium text-foreground">{listMeta.total}</span> bài · trang{' '}
                   <span className="tabular-nums font-medium text-foreground">
                     {listMeta.page}/{listMeta.totalPages}
@@ -369,7 +369,7 @@ const AdminBlogPage = () => {
                 <div className="flex flex-wrap items-center gap-2">
                   <label
                     htmlFor="admin-blog-page-size"
-                    className="text-xs text-muted-foreground whitespace-nowrap"
+                    className="text-base text-muted-foreground whitespace-nowrap"
                   >
                     Số bài/trang
                   </label>
@@ -377,7 +377,7 @@ const AdminBlogPage = () => {
                     id="admin-blog-page-size"
                     value={pageSize}
                     onChange={(e) => setPageSize(Number(e.target.value))}
-                    className="h-9 rounded-md border border-border bg-white px-2 text-sm text-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
+                    className="h-9 rounded-md border border-border bg-white px-2 text-base text-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
                   >
                     <option value={10}>10</option>
                     <option value={20}>20</option>
@@ -396,7 +396,7 @@ const AdminBlogPage = () => {
                     >
                       <ChevronLeft className="size-4" />
                     </Button>
-                    <span className="min-w-[4.5rem] text-center text-xs tabular-nums text-muted-foreground">
+                    <span className="min-w-[4.5rem] text-center text-base tabular-nums text-muted-foreground">
                       {listMeta.page} / {listMeta.totalPages}
                     </span>
                     <Button

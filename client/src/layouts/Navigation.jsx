@@ -25,7 +25,7 @@ const renderLink = (item) => (
         >
           {React.cloneElement(item.icon, { size: 18, strokeWidth: isActive ? 2.5 : 2 })}
         </span>
-        <span className="text-sm font-bold tracking-wide">{item.label}</span>
+        <span className="text-base font-bold tracking-wide">{item.label}</span>
       </>
     )}
   </NavLink>
@@ -39,7 +39,7 @@ const Navigation = ({ items, className = '' }) => {
       {isGrouped
         ? items.map((group) => (
             <div key={group.title} className="flex flex-col gap-2">
-              <div className="px-3 pt-3 text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
+              <div className="px-3 pt-3 text-base font-black uppercase tracking-[0.2em] text-slate-400">
                 {group.title}
               </div>
               <div className="flex flex-col gap-1">{group.items.map(renderLink)}</div>

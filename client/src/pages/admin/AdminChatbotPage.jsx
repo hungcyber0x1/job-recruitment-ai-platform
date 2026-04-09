@@ -110,7 +110,7 @@ const AdminChatbotPage = () => {
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-slate-900">Quản trị Chatbot</h1>
-            <span className="inline-flex items-center rounded-lg bg-emerald-500 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white">
+            <span className="inline-flex items-center rounded-lg bg-emerald-500 px-3 py-1 text-base font-bold uppercase tracking-wider text-white">
               Live monitoring
             </span>
           </div>
@@ -121,7 +121,7 @@ const AdminChatbotPage = () => {
               placeholder="Tìm kiếm phiên chat..."
               value={searchSession}
               onChange={(e) => setSearchSession(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder:text-slate-500 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+              className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-base text-slate-900 placeholder:text-slate-500 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             />
           </div>
         </div>
@@ -140,11 +140,11 @@ const AdminChatbotPage = () => {
                     <Icon size={22} className={card.iconColor} />
                   </div>
                 </div>
-                <p className="mt-3 text-xs font-medium uppercase tracking-wider text-slate-500">
+                <p className="mt-3 text-base font-medium uppercase tracking-wider text-slate-500">
                   {card.label}
                 </p>
                 <p className="mt-1 text-xl font-bold text-slate-900">{card.value}</p>
-                <p className="mt-0.5 text-xs text-slate-500">{card.sub}</p>
+                <p className="mt-0.5 text-base text-slate-500">{card.sub}</p>
               </div>
             );
           })}
@@ -160,7 +160,7 @@ const AdminChatbotPage = () => {
                 <h2 className="text-base font-bold text-slate-900">Nhật ký hội thoại gần đây</h2>
                 <a
                   href="/admin/chatbot?tab=conversations"
-                  className="text-sm font-semibold text-emerald-400 hover:text-emerald-300"
+                  className="text-base font-semibold text-emerald-400 hover:text-emerald-300"
                 >
                   Xem tất cả
                 </a>
@@ -194,17 +194,17 @@ const AdminChatbotPage = () => {
                           <tr key={conv.id}>
                             <td className="px-5 py-3">
                               <div className="flex items-center gap-3">
-                                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/20 text-sm font-bold text-emerald-400">
+                                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/20 text-base font-bold text-emerald-400">
                                   {initials}
                                 </div>
                                 <span className="font-medium text-slate-900">{full}</span>
                               </div>
                             </td>
-                            <td className="max-w-[200px] truncate px-5 py-3 text-sm text-slate-500">
+                            <td className="max-w-[200px] truncate px-5 py-3 text-base text-slate-500">
                               {conv.last_message_preview ?? conv.title ?? '—'}
                             </td>
                             <td className="px-5 py-3">
-                              <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-xs font-semibold text-emerald-400">
+                              <span className="rounded-full bg-emerald-500/20 px-2.5 py-1 text-base font-semibold text-emerald-400">
                                 Đã
                               </span>
                             </td>
@@ -225,7 +225,7 @@ const AdminChatbotPage = () => {
                 </h2>
                 <button
                   type="button"
-                  className="flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-600"
+                  className="flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-base font-semibold text-white hover:bg-emerald-600"
                 >
                   <Upload size={18} />
                   Tải lên dữ liệu mới
@@ -245,7 +245,7 @@ const AdminChatbotPage = () => {
                         </div>
                         <div>
                           <p className="font-medium text-slate-900">{file.name}</p>
-                          <p className="text-xs text-slate-500">Đã cập nhật: {file.updated}</p>
+                          <p className="text-base text-slate-500">Đã cập nhật: {file.updated}</p>
                         </div>
                       </div>
                       <button
@@ -269,11 +269,11 @@ const AdminChatbotPage = () => {
 
               <div className="space-y-5">
                 <div>
-                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <label className="mb-2 block text-base font-semibold uppercase tracking-wider text-slate-500">
                     Mô hình AI
                   </label>
                   <select
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-base text-slate-900 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                     defaultValue="recruit-ai-core"
                   >
                     <option value="recruit-ai-core">RecruitAI Core (GPT-4 based)</option>
@@ -281,7 +281,7 @@ const AdminChatbotPage = () => {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <label className="mb-2 block text-base font-semibold uppercase tracking-wider text-slate-500">
                     Tính cách phản hồi
                   </label>
                   <div className="grid grid-cols-2 gap-2">
@@ -290,7 +290,7 @@ const AdminChatbotPage = () => {
                         key={opt.id}
                         type="button"
                         onClick={() => setPersonality(opt.id)}
-                        className={`rounded-xl border px-3 py-2.5 text-sm font-medium transition-all ${
+                        className={`rounded-xl border px-3 py-2.5 text-base font-medium transition-all ${
                           personality === opt.id
                             ? 'border-emerald-500/50 bg-emerald-500/20 text-emerald-400'
                             : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-foreground'
@@ -303,11 +303,11 @@ const AdminChatbotPage = () => {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <label className="mb-2 block text-base font-semibold uppercase tracking-wider text-slate-500">
                     Độ sáng tạo (Temperature)
                   </label>
                   <div className="flex items-center gap-3">
-                    <span className="text-[10px] font-bold text-slate-500">CHÍNH XÁC (0.1)</span>
+                    <span className="text-base font-bold text-slate-500">CHÍNH XÁC (0.1)</span>
                     <input
                       type="range"
                       min="0.1"
@@ -317,12 +317,12 @@ const AdminChatbotPage = () => {
                       onChange={(e) => setTemperature(parseFloat(e.target.value))}
                       className="h-2 flex-1 appearance-none rounded-full bg-slate-100 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald-500"
                     />
-                    <span className="text-[10px] font-bold text-slate-500">LINH HOẠT (0.8)</span>
+                    <span className="text-base font-bold text-slate-500">LINH HOẠT (0.8)</span>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3">
-                  <span className="text-sm font-medium text-slate-900">
+                  <span className="text-base font-medium text-slate-900">
                     Tự động leo thang (Human Handoff)
                   </span>
                   <button
@@ -343,7 +343,9 @@ const AdminChatbotPage = () => {
                 </div>
 
                 <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3">
-                  <span className="text-sm font-medium text-slate-900">Bật chế độ Đa ngôn ngữ</span>
+                  <span className="text-base font-medium text-slate-900">
+                    Bật chế độ Đa ngôn ngữ
+                  </span>
                   <button
                     type="button"
                     role="switch"
@@ -376,7 +378,7 @@ const AdminChatbotPage = () => {
             {/* Thông tin hệ thống */}
             <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4">
               <h2 className="text-base font-bold text-slate-900">Thông tin hệ thống</h2>
-              <p className="mt-2 text-sm text-slate-500">Phiên bản RecruitAI Chatbot 2.0</p>
+              <p className="mt-2 text-base text-slate-500">Phiên bản RecruitAI Chatbot 2.0</p>
             </div>
           </div>
         </div>

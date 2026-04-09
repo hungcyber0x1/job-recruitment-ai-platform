@@ -171,7 +171,7 @@ const AdminLogsPage = () => {
               <h1 className="text-2xl font-bold tracking-tight text-foreground">
                 Nhật ký hệ thống
               </h1>
-              <p className="text-sm text-muted-foreground">Giám sát hoạt động thời gian thực</p>
+              <p className="text-base text-muted-foreground">Giám sát hoạt động thời gian thực</p>
             </div>
           </div>
           <div className="relative max-w-md flex-1 lg:max-w-xs">
@@ -181,7 +181,7 @@ const AdminLogsPage = () => {
               placeholder="Tìm kiếm nhật ký..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-xl border border-border bg-card py-2.5 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="w-full rounded-xl border border-border bg-card py-2.5 pl-10 pr-4 text-base text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           </div>
         </div>
@@ -200,7 +200,7 @@ const AdminLogsPage = () => {
                   setEventFilter(ev.id);
                   setPage(1);
                 }}
-                className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-all ${
+                className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-base font-semibold transition-all ${
                   eventFilter === ev.id
                     ? 'border-primary bg-primary/10 text-primary'
                     : 'border-border bg-card text-muted-foreground hover:bg-muted/50 hover:text-foreground'
@@ -209,7 +209,7 @@ const AdminLogsPage = () => {
                 <Icon size={18} />
                 {ev.label}
                 {ev.id === 'all' && (
-                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-base text-muted-foreground">
                     {count}
                   </span>
                 )}
@@ -223,7 +223,7 @@ const AdminLogsPage = () => {
           <button
             type="button"
             onClick={() => setShowAdvancedFilter(!showAdvancedFilter)}
-            className="flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-muted/60"
+            className="flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-base font-semibold text-foreground hover:bg-muted/60"
           >
             <Filter size={18} />
             Lọc nâng cao
@@ -232,7 +232,7 @@ const AdminLogsPage = () => {
             type="button"
             onClick={handleExportLogs}
             disabled={exporting}
-            className="flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-muted/60 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-base font-semibold text-foreground hover:bg-muted/60 disabled:opacity-50"
           >
             <Download size={18} />
             {exporting ? 'Đang xuất...' : 'Xuất File'}
@@ -242,10 +242,10 @@ const AdminLogsPage = () => {
         {/* Advanced Filter Panel */}
         {showAdvancedFilter && (
           <div className="rounded-2xl border border-border bg-card p-5 space-y-4 shadow-sm">
-            <h3 className="text-sm font-bold text-foreground">Lọc nâng cao</h3>
+            <h3 className="text-base font-bold text-foreground">Lọc nâng cao</h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="mb-1 block text-xs font-semibold uppercase text-muted-foreground">
+                <label className="mb-1 block text-base font-semibold uppercase text-muted-foreground">
                   Từ ngày
                 </label>
                 <input
@@ -254,11 +254,11 @@ const AdminLogsPage = () => {
                   onChange={(e) =>
                     setAdvancedFilter({ ...advancedFilter, startDate: e.target.value })
                   }
-                  className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground"
+                  className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-base text-foreground"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-semibold uppercase text-muted-foreground">
+                <label className="mb-1 block text-base font-semibold uppercase text-muted-foreground">
                   Đến ngày
                 </label>
                 <input
@@ -267,11 +267,11 @@ const AdminLogsPage = () => {
                   onChange={(e) =>
                     setAdvancedFilter({ ...advancedFilter, endDate: e.target.value })
                   }
-                  className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground"
+                  className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-base text-foreground"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-semibold uppercase text-muted-foreground">
+                <label className="mb-1 block text-base font-semibold uppercase text-muted-foreground">
                   Admin ID
                 </label>
                 <input
@@ -281,7 +281,7 @@ const AdminLogsPage = () => {
                   onChange={(e) =>
                     setAdvancedFilter({ ...advancedFilter, adminId: e.target.value })
                   }
-                  className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground"
+                  className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-base text-foreground placeholder:text-muted-foreground"
                 />
               </div>
             </div>
@@ -289,7 +289,7 @@ const AdminLogsPage = () => {
               <button
                 type="button"
                 onClick={() => setAdvancedFilter({ startDate: '', endDate: '', adminId: '' })}
-                className="rounded-xl border border-border bg-card px-4 py-2 text-sm font-semibold text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                className="rounded-xl border border-border bg-card px-4 py-2 text-base font-semibold text-muted-foreground hover:bg-muted/50 hover:text-foreground"
               >
                 Xóa lọc
               </button>
@@ -299,7 +299,7 @@ const AdminLogsPage = () => {
                   fetchLogs();
                   setShowAdvancedFilter(false);
                 }}
-                className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+                className="rounded-xl bg-primary px-4 py-2 text-base font-semibold text-primary-foreground hover:bg-primary/90"
               >
                 Áp dụng
               </button>
@@ -331,10 +331,10 @@ const AdminLogsPage = () => {
                   <tr className="bg-muted/20">
                     <td colSpan={5} className="px-5 py-16 text-center text-muted-foreground">
                       <FileText className="mx-auto mb-3 h-12 w-12 opacity-50" aria-hidden />
-                      <p className="text-sm font-medium text-foreground/80">
+                      <p className="text-base font-medium text-foreground/80">
                         Chưa có nhật ký phù hợp
                       </p>
-                      <p className="mt-1 text-xs text-muted-foreground">
+                      <p className="mt-1 text-base text-muted-foreground">
                         Thử đổi bộ lọc hoặc khoảng thời gian.
                       </p>
                     </td>
@@ -344,7 +344,7 @@ const AdminLogsPage = () => {
                     const style = EVENT_TYPE_STYLE[log.eventType] || EVENT_TYPE_STYLE.default;
                     return (
                       <tr key={log.id}>
-                        <td className="whitespace-nowrap px-5 py-4 text-sm font-medium text-muted-foreground">
+                        <td className="whitespace-nowrap px-5 py-4 text-base font-medium text-muted-foreground">
                           {new Date(log.created_at).toLocaleString('vi-VN', {
                             dateStyle: 'short',
                             timeStyle: 'medium',
@@ -352,15 +352,15 @@ const AdminLogsPage = () => {
                         </td>
                         <td className="px-5 py-4">
                           <span
-                            className={`inline-flex rounded-lg border px-2.5 py-1 text-xs font-semibold ${style}`}
+                            className={`inline-flex rounded-lg border px-2.5 py-1 text-base font-semibold ${style}`}
                           >
                             {getEventTypeLabel(log.eventType)}
                           </span>
                         </td>
-                        <td className="max-w-md truncate px-5 py-4 text-sm text-muted-foreground">
+                        <td className="max-w-md truncate px-5 py-4 text-base text-muted-foreground">
                           {log.details || log.action || '—'}
                         </td>
-                        <td className="px-5 py-4 text-sm font-medium text-foreground">
+                        <td className="px-5 py-4 text-base font-medium text-foreground">
                           {log.admin_email || 'System'}
                         </td>
                         <td className="px-5 py-4">{getStatusIcon(log.eventType, log.action)}</td>
@@ -374,7 +374,7 @@ const AdminLogsPage = () => {
 
           {filteredLogs.length > 0 && (
             <div className="flex flex-col items-center justify-between gap-4 border-t border-border bg-muted/25 px-5 py-4 sm:flex-row">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-base text-muted-foreground">
                 Hiển thị {(page - 1) * limit + 1}-{Math.min(page * limit, filteredLogs.length)} của{' '}
                 {filteredLogs.length} kết quả nhật ký
               </p>
@@ -392,7 +392,7 @@ const AdminLogsPage = () => {
                     key={p}
                     type="button"
                     onClick={() => setPage(p)}
-                    className={`h-9 min-w-[36px] rounded-lg text-sm font-semibold ${
+                    className={`h-9 min-w-[36px] rounded-lg text-base font-semibold ${
                       page === p
                         ? 'bg-primary text-primary-foreground shadow-sm'
                         : 'border border-border text-muted-foreground hover:bg-muted/60 hover:text-foreground'

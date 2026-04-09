@@ -109,11 +109,11 @@ const AdminUserDetailPage = () => {
               key={module.title}
               className="rounded-3xl border border-border bg-card p-6 shadow-sm"
             >
-              <p className="text-[11px] font-black uppercase tracking-[0.22em] text-muted-foreground">
+              <p className="text-base font-black uppercase tracking-[0.22em] text-muted-foreground">
                 User governance
               </p>
               <h2 className="mt-3 text-xl font-black text-foreground">{module.title}</h2>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">{module.description}</p>
+              <p className="mt-2 text-base leading-6 text-muted-foreground">{module.description}</p>
             </div>
           ))}
         </div>
@@ -133,7 +133,7 @@ const AdminUserDetailPage = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-black text-foreground">{fullName}</h1>
-                <div className="mt-3 flex flex-wrap gap-4 text-sm font-semibold text-muted-foreground">
+                <div className="mt-3 flex flex-wrap gap-4 text-base font-semibold text-muted-foreground">
                   <span className="flex items-center gap-1.5">
                     <Mail size={16} /> {user.email}
                   </span>
@@ -149,13 +149,13 @@ const AdminUserDetailPage = () => {
 
             <div className="grid min-w-[260px] grid-cols-2 gap-3">
               <div className="rounded-2xl border border-border bg-muted p-4">
-                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <p className="text-base font-bold uppercase tracking-wide text-muted-foreground">
                   Trạng thái
                 </p>
                 <p className="mt-2 text-xl font-black capitalize text-foreground">{user.status}</p>
               </div>
               <div className="rounded-2xl border border-border bg-muted p-4">
-                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <p className="text-base font-bold uppercase tracking-wide text-muted-foreground">
                   Tham gia
                 </p>
                 <p className="mt-2 text-xl font-black text-foreground">
@@ -163,7 +163,7 @@ const AdminUserDetailPage = () => {
                 </p>
               </div>
               <div className="rounded-2xl border border-border bg-muted p-4">
-                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <p className="text-base font-bold uppercase tracking-wide text-muted-foreground">
                   Ứng tuyển
                 </p>
                 <p className="mt-2 text-xl font-black text-foreground">
@@ -171,7 +171,7 @@ const AdminUserDetailPage = () => {
                 </p>
               </div>
               <div className="rounded-2xl border border-border bg-muted p-4">
-                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <p className="text-base font-bold uppercase tracking-wide text-muted-foreground">
                   Việc làm
                 </p>
                 <p className="mt-2 text-xl font-black text-foreground">{user.job_count || 0}</p>
@@ -185,40 +185,40 @@ const AdminUserDetailPage = () => {
             <h2 className="text-lg font-black text-foreground">Thông tin hồ sơ</h2>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="rounded-2xl border border-border bg-muted p-4">
-                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <p className="text-base font-bold uppercase tracking-wide text-muted-foreground">
                   Vai trò
                 </p>
-                <p className="mt-2 text-sm font-semibold text-foreground">{user.role}</p>
+                <p className="mt-2 text-base font-semibold text-foreground">{user.role}</p>
               </div>
               <div className="rounded-2xl border border-border bg-muted p-4">
-                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <p className="text-base font-bold uppercase tracking-wide text-muted-foreground">
                   Địa chỉ
                 </p>
-                <p className="mt-2 text-sm font-semibold text-foreground">
+                <p className="mt-2 text-base font-semibold text-foreground">
                   {user.address || 'Không rõ'}
                 </p>
               </div>
               <div className="rounded-2xl border border-border bg-muted p-4">
-                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <p className="text-base font-bold uppercase tracking-wide text-muted-foreground">
                   Vị trí hiện tại
                 </p>
-                <p className="mt-2 text-sm font-semibold text-foreground">
+                <p className="mt-2 text-base font-semibold text-foreground">
                   {user.current_job_title || 'Không rõ'}
                 </p>
               </div>
               <div className="rounded-2xl border border-border bg-muted p-4">
-                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <p className="text-base font-bold uppercase tracking-wide text-muted-foreground">
                   Công ty
                 </p>
-                <p className="mt-2 text-sm font-semibold text-foreground">
+                <p className="mt-2 text-base font-semibold text-foreground">
                   {user.company_name || 'Không rõ'}
                 </p>
               </div>
               <div className="rounded-2xl border border-border bg-muted p-4 md:col-span-2">
-                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <p className="text-base font-bold uppercase tracking-wide text-muted-foreground">
                   Giới thiệu
                 </p>
-                <p className="mt-2 text-sm font-semibold text-foreground">
+                <p className="mt-2 text-base font-semibold text-foreground">
                   {user.bio || 'Không rõ'}
                 </p>
               </div>
@@ -234,7 +234,7 @@ const AdminUserDetailPage = () => {
               <FileText className="text-secondary" size={18} />
               <div>
                 <p className="font-bold text-foreground">Xem ứng tuyển</p>
-                <p className="text-sm text-muted-foreground">Tất cả hồ sơ liên quan</p>
+                <p className="text-base text-muted-foreground">Tất cả hồ sơ liên quan</p>
               </div>
             </Link>
             {user.employer_id ? (
@@ -245,7 +245,7 @@ const AdminUserDetailPage = () => {
                 <Briefcase className="text-secondary" size={18} />
                 <div>
                   <p className="font-bold text-foreground">Xem công ty</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-base text-muted-foreground">
                     {user.company_name || 'Hồ sơ công ty'}
                   </p>
                 </div>
@@ -261,7 +261,7 @@ const AdminUserDetailPage = () => {
                 <UserCircle2 className="text-secondary" size={18} />
                 <div>
                   <p className="font-bold text-foreground">Mở CV</p>
-                  <p className="text-sm text-muted-foreground">Tài liệu CV của candidate</p>
+                  <p className="text-base text-muted-foreground">Tài liệu CV của candidate</p>
                 </div>
               </a>
             ) : null}
@@ -269,7 +269,7 @@ const AdminUserDetailPage = () => {
               <MapPin className="text-secondary" size={18} />
               <div>
                 <p className="font-bold text-foreground">Địa điểm</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-base text-muted-foreground">
                   {user.candidate_location || user.company_location || 'Không rõ'}
                 </p>
               </div>

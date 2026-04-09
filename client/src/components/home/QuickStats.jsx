@@ -58,7 +58,7 @@ const QuickStats = () => {
                   >
                     {stat.display}
                   </p>
-                  <p className="mt-1.5 text-sm font-medium text-neutral-500">{stat.label}</p>
+                  <p className="mt-1.5 text-base font-medium text-neutral-500">{stat.label}</p>
                 </div>
               </motion.div>
             );

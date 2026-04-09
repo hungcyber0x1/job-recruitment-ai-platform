@@ -99,14 +99,14 @@ const CompaniesPage = () => {
 
         <div className="container relative z-10 mx-auto max-w-6xl px-4 py-14 sm:px-6 md:py-16 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/8 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-primary sm:text-sm">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-bold uppercase tracking-widest text-primary">
               <span className="size-2 animate-pulse rounded-full bg-primary" />
               Khám phá 10.000+ công ty
             </div>
-            <h1 className="text-balance text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl md:text-5xl md:leading-[1.1]">
+            <h1 className="text-balance text-3xl font-black tracking-tight text-foreground sm:text-4xl md:text-4xl lg:text-5xl">
               Tìm công ty phù hợp <span className="text-primary">văn hóa của bạn</span>
             </h1>
-            <p className="mx-auto mt-4 max-w-2xl text-base font-medium leading-relaxed text-muted-foreground md:text-lg">
+            <p className="mx-auto mt-3 max-w-2xl text-base font-medium leading-relaxed text-muted-foreground md:text-lg">
               Khám phá đội ngũ, giá trị và cơ hội tuyển dụng từ các công ty có thương hiệu mạnh và
               lộ trình phát triển rõ ràng.
             </p>
@@ -149,7 +149,7 @@ const CompaniesPage = () => {
                 <Button
                   type="submit"
                   size="lg"
-                  className="h-12 w-full shrink-0 font-semibold sm:w-auto sm:px-8"
+                  className="h-12 w-full shrink-0 text-base font-bold sm:w-auto sm:px-8"
                 >
                   Tìm kiếm
                 </Button>
@@ -162,13 +162,13 @@ const CompaniesPage = () => {
       <div id="company-results" className="relative scroll-mt-24 pb-16 pt-10 md:pt-12">
         <div className="page-content-bg relative">
           <div className="container relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-            <p className="mb-6 text-sm font-medium text-muted-foreground" aria-live="polite">
+            <p className="mb-6 text-base font-medium text-muted-foreground" aria-live="polite">
               {loading ? (
                 'Đang tải…'
               ) : (
                 <>
                   Hiển thị{' '}
-                  <span className="font-semibold tabular-nums text-foreground">
+                  <span className="font-bold tabular-nums text-foreground">
                     {visibleList.length}
                   </span>{' '}
                   / <span className="tabular-nums">{filteredCompanies.length}</span> công ty
@@ -210,7 +210,7 @@ const CompaniesPage = () => {
                     type="button"
                     variant="outline"
                     size="lg"
-                    className="rounded-xl border-border/60 px-8 font-semibold"
+                    className="rounded-xl border-border/60 px-8 text-base font-bold"
                     onClick={loadMore}
                   >
                     Xem thêm công ty

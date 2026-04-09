@@ -179,7 +179,7 @@ const ApplicationDetailPage = () => {
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <XCircle className="text-slate-300 mb-4" size={64} />
         <h2 className="text-xl font-bold text-slate-900 mb-2">{title}</h2>
-        <p className="text-sm text-slate-500 mb-6 max-w-md">{subtitle}</p>
+        <p className="text-base text-slate-500 mb-6 max-w-md">{subtitle}</p>
         <Button onClick={() => navigate('/employer/applications')} variant="outline">
           Quay về danh sách
         </Button>
@@ -193,7 +193,7 @@ const ApplicationDetailPage = () => {
     <div className="pb-20 pt-4 animate-fade-in bg-slate-50 min-h-screen">
       {/* ── Breadcrumbs & Navigation ── */}
       <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-xs text-slate-500">
+        <div className="flex items-center gap-2 text-base text-slate-500">
           <Link to="/employer/applications" className="hover:text-emerald-600 transition-colors">
             Tuyển dụng
           </Link>
@@ -236,7 +236,7 @@ const ApplicationDetailPage = () => {
                   size="xl"
                   className="border-4 border-slate-50 shadow-md transition-transform group-hover:scale-105"
                 />
-                <div className="absolute -bottom-2 -right-2 flex h-14 w-14 items-center justify-center rounded-full bg-slate-900 border-4 border-white text-white font-black text-sm shadow-xl">
+                <div className="absolute -bottom-2 -right-2 flex h-14 w-14 items-center justify-center rounded-full bg-slate-900 border-4 border-white text-white font-black text-base shadow-xl">
                   {candidate.matchScore}%
                 </div>
               </div>
@@ -251,25 +251,25 @@ const ApplicationDetailPage = () => {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex items-center gap-2.5 text-sm text-slate-600">
+                  <div className="flex items-center gap-2.5 text-base text-slate-600">
                     <div className="h-8 w-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
                       <Mail size={16} />
                     </div>
                     <span>{candidate.email}</span>
                   </div>
-                  <div className="flex items-center gap-2.5 text-sm text-slate-600">
+                  <div className="flex items-center gap-2.5 text-base text-slate-600">
                     <div className="h-8 w-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
                       <Phone size={16} />
                     </div>
                     <span>{candidate.phone}</span>
                   </div>
-                  <div className="flex items-center gap-2.5 text-sm text-slate-600">
+                  <div className="flex items-center gap-2.5 text-base text-slate-600">
                     <div className="h-8 w-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
                       <MapPin size={16} />
                     </div>
                     <span>{candidate.location}</span>
                   </div>
-                  <div className="flex items-center gap-2.5 text-sm text-slate-600">
+                  <div className="flex items-center gap-2.5 text-base text-slate-600">
                     <div className="h-8 w-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
                       <Briefcase size={16} />
                     </div>
@@ -281,13 +281,13 @@ const ApplicationDetailPage = () => {
                   {candidate.skills.slice(0, 5).map((skill, idx) => (
                     <span
                       key={idx}
-                      className="rounded-xl bg-slate-100 border border-slate-200 px-3 py-1 text-[11px] font-bold text-slate-600 uppercase tracking-wider"
+                      className="rounded-xl bg-slate-100 border border-slate-200 px-3 py-1 text-base font-bold text-slate-600 uppercase tracking-wider"
                     >
                       {typeof skill === 'string' ? skill : skill.name}
                     </span>
                   ))}
                   {candidate.skills.length > 5 && (
-                    <span className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                    <span className="rounded-xl bg-slate-50 border border-slate-100 px-3 py-1 text-base font-bold text-slate-400 uppercase tracking-wider">
                       +{candidate.skills.length - 5} MORE
                     </span>
                   )}
@@ -320,21 +320,21 @@ const ApplicationDetailPage = () => {
                         <div className="absolute left-[-3px] top-2 h-1.5 w-1.5 rounded-full bg-slate-300 group-hover:bg-emerald-500 transition-colors" />
                         <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
                           <h4 className="font-black text-slate-900">{exp.title || exp.position}</h4>
-                          <span className="rounded-lg bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-500">
+                          <span className="rounded-lg bg-slate-100 px-2 py-0.5 text-base font-bold text-slate-500">
                             {exp.period}
                           </span>
                         </div>
-                        <p className="text-sm font-bold text-emerald-600 mb-2 uppercase tracking-wide">
+                        <p className="text-base font-bold text-emerald-600 mb-2 uppercase tracking-wide">
                           {exp.company}
                         </p>
-                        <p className="text-sm text-slate-500 leading-relaxed">
+                        <p className="text-base text-slate-500 leading-relaxed">
                           {exp.description || exp.desc}
                         </p>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-slate-400 italic">Chưa có thông tin kinh nghiệm</p>
+                  <p className="text-base text-slate-400 italic">Chưa có thông tin kinh nghiệm</p>
                 )}
               </section>
 
@@ -352,15 +352,15 @@ const ApplicationDetailPage = () => {
                         className="rounded-xl border border-slate-100 bg-slate-50 p-5 hover:border-blue-200 transition-all"
                       >
                         <h4 className="font-bold text-slate-900 mb-1">{edu.degree}</h4>
-                        <p className="text-xs font-bold text-slate-500 mb-3">{edu.school}</p>
-                        <div className="text-[10px] font-bold text-slate-400 uppercase bg-white px-2 py-1 rounded-md w-fit border border-slate-100">
+                        <p className="text-base font-bold text-slate-500 mb-3">{edu.school}</p>
+                        <div className="text-base font-bold text-slate-400 uppercase bg-white px-2 py-1 rounded-md w-fit border border-slate-100">
                           {edu.period || edu.year}
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-slate-400 italic">Chưa có thông tin học vấn</p>
+                  <p className="text-base text-slate-400 italic">Chưa có thông tin học vấn</p>
                 )}
               </section>
             </div>
@@ -380,7 +380,7 @@ const ApplicationDetailPage = () => {
                   href={candidate.cvUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-600 hover:bg-muted/35 transition-all"
+                  className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-base font-bold text-slate-600 hover:bg-muted/35 transition-all"
                 >
                   <ExternalLink size={16} /> Xem bản gốc
                 </a>
@@ -391,13 +391,13 @@ const ApplicationDetailPage = () => {
                 <Paperclip size={24} className="text-emerald-500" />
               </div>
               <h4 className="font-bold text-slate-900 mb-1">Preview sẵn sàng</h4>
-              <p className="text-xs text-slate-500 mb-6 uppercase tracking-widest font-bold">
+              <p className="text-base text-slate-500 mb-6 uppercase tracking-widest font-bold">
                 Hệ thống AI đã xử lý xong tài liệu ứng viên
               </p>
               <a
                 href={candidate.cvUrl}
                 download
-                className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-black text-white hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/20"
+                className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-base font-black text-white hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/20"
               >
                 <Download size={18} /> Tải hồ sơ (PDF)
               </a>
@@ -409,12 +409,12 @@ const ApplicationDetailPage = () => {
         <div className="lg:col-span-4 space-y-8">
           {/* Status Update Card */}
           <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest mb-6">
+            <h3 className="text-base font-bold text-slate-900 uppercase tracking-widest mb-6">
               Trạng thái hồ sơ
             </h3>
             <div className="space-y-6">
               <div className="space-y-3">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1">
+                <p className="text-base font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-1">
                   Cập nhật Trạng thái
                 </p>
                 <div className="relative group">
@@ -422,7 +422,7 @@ const ApplicationDetailPage = () => {
                     value={status}
                     onChange={(e) => handleStatusUpdate(e.target.value)}
                     disabled={savingStatus}
-                    className="w-full rounded-xl border border-slate-200 bg-white p-4 text-sm font-bold text-slate-900 outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500/40 appearance-none shadow-sm cursor-pointer transition-all"
+                    className="w-full rounded-xl border border-slate-200 bg-white p-4 text-base font-bold text-slate-900 outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500/40 appearance-none shadow-sm cursor-pointer transition-all"
                   >
                     {STATUS_OPTIONS.map((o) => (
                       <option key={o.value} value={o.value}>
@@ -438,11 +438,11 @@ const ApplicationDetailPage = () => {
 
               <div className="rounded-xl bg-slate-50 p-5 border border-slate-100 flex items-center justify-between">
                 <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                  <p className="text-base font-black text-slate-400 uppercase tracking-widest mb-1">
                     Hiện tại
                   </p>
                   <span
-                    className={`text-sm font-black ${STATUS_OPTIONS.find((o) => o.value === status)?.color || 'text-slate-900'}`}
+                    className={`text-base font-black ${STATUS_OPTIONS.find((o) => o.value === status)?.color || 'text-slate-900'}`}
                   >
                     {getStatusLabel(status)}
                   </span>
@@ -470,11 +470,11 @@ const ApplicationDetailPage = () => {
             <div className="p-6 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <ClipboardCheck size={18} className="text-emerald-500" />
-                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest leading-none">
+                <h3 className="text-base font-bold text-slate-900 uppercase tracking-widest leading-none">
                   Ghi chú đánh giá
                 </h3>
               </div>
-              <span className="h-6 min-w-[24px] rounded-full bg-white border border-slate-200 px-2 flex items-center justify-center text-[10px] font-black text-slate-500">
+              <span className="h-6 min-w-[24px] rounded-full bg-white border border-slate-200 px-2 flex items-center justify-center text-base font-black text-slate-500">
                 {noteItems.length}
               </span>
             </div>
@@ -488,20 +488,20 @@ const ApplicationDetailPage = () => {
                     className="relative pl-4 border-l-2 border-slate-100 hover:border-emerald-300 transition-colors"
                   >
                     <div className="flex items-center justify-between gap-4 mb-2">
-                      <p className="text-[10px] font-black text-slate-900 uppercase">
+                      <p className="text-base font-black text-slate-900 uppercase">
                         {item.first_name || 'Hệ thống'} {item.last_name}
                       </p>
-                      <time className="text-[9px] font-bold text-slate-400 uppercase">
+                      <time className="text-base font-bold text-slate-400 uppercase">
                         {formatTimeAgo(item.created_at)}
                       </time>
                     </div>
-                    <p className="text-sm text-slate-600 leading-snug">{item.notes}</p>
+                    <p className="text-base text-slate-600 leading-snug">{item.notes}</p>
                   </div>
                 ))
               ) : (
                 <div className="flex h-32 flex-col items-center justify-center text-center opacity-40">
                   <MessageSquare size={24} className="mb-2" />
-                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                  <p className="text-base font-bold uppercase tracking-widest text-slate-400">
                     Chưa có ghi chú nào
                   </p>
                 </div>
@@ -514,7 +514,7 @@ const ApplicationDetailPage = () => {
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="Thêm đánh giá về ứng viên..."
-                className="w-full rounded-xl border border-slate-200 bg-white p-4 text-xs font-medium text-slate-900 outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500/40 appearance-none shadow-sm min-h-[100px] resize-none transition-all placeholder:text-slate-400"
+                className="w-full rounded-xl border border-slate-200 bg-white p-4 text-base font-medium text-slate-900 outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500/40 appearance-none shadow-sm min-h-[100px] resize-none transition-all placeholder:text-slate-400"
               />
               <div className="flex justify-end mt-4">
                 <Button
@@ -531,14 +531,14 @@ const ApplicationDetailPage = () => {
 
           {/* Activity Timeline Mini */}
           <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-            <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">
+            <h3 className="text-base font-black text-slate-400 uppercase tracking-widest mb-6">
               Lịch sử hoạt động
             </h3>
             <div className="space-y-6">
               <div className="relative pl-6 before:absolute before:left-0 before:top-2 before:h-full before:w-px before:bg-slate-100">
                 <div className="absolute left-[-4px] top-1.5 h-2 w-2 rounded-full bg-emerald-500" />
-                <p className="text-xs font-bold text-slate-900">Ứng tuyển thành công</p>
-                <p className="text-[10px] text-slate-400 mt-0.5">
+                <p className="text-base font-bold text-slate-900">Ứng tuyển thành công</p>
+                <p className="text-base text-slate-400 mt-0.5">
                   {formatDate(application.applied_at || application.created_at)}
                 </p>
               </div>
@@ -549,10 +549,10 @@ const ApplicationDetailPage = () => {
                   className="relative pl-6 before:absolute before:left-0 before:top-2 before:h-full before:w-px before:bg-slate-100 last:before:hidden"
                 >
                   <div className="absolute left-[-4px] top-1.5 h-2 w-2 rounded-full bg-slate-200" />
-                  <p className="text-xs font-medium text-slate-600 leading-tight">
+                  <p className="text-base font-medium text-slate-600 leading-tight">
                     {item.notes || `Chuyển trạng thái sang ${getStatusLabel(item.new_status)}`}
                   </p>
-                  <p className="text-[10px] text-slate-400 mt-1 font-bold">
+                  <p className="text-base text-slate-400 mt-1 font-bold">
                     {formatDate(item.created_at)}
                   </p>
                 </div>

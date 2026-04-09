@@ -28,7 +28,7 @@ const SkillsSection = ({ skills = [] }) => {
               </span>
               {typeof skill === 'object' && skill.level && (
                 <span
-                  className={`text-[10px] font-semibold px-2 py-0.5 rounded uppercase tracking-wider ${
+                  className={`text-xs font-semibold px-2 py-0.5 rounded uppercase tracking-wider ${
                     skill.level === 'Expert'
                       ? 'bg-primary/10 text-primary'
                       : skill.level === 'Advanced'

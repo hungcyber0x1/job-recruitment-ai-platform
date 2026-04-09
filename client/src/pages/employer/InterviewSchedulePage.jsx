@@ -230,7 +230,7 @@ const InterviewSchedulePage = () => {
   const dayViewEvents = interviewsByDate[selectedDateStr] || [];
 
   const eventPillClass =
-    'truncate rounded-full border border-blue-100 px-2 py-0.5 text-[9px] font-black uppercase tracking-tight shadow-sm';
+    'truncate rounded-full border border-blue-100 px-2 py-0.5 text-base font-black uppercase tracking-tight shadow-sm';
 
   const handleCreateInterview = () => {
     setIsCreating(true);
@@ -258,14 +258,14 @@ const InterviewSchedulePage = () => {
           <h1 className="text-2xl font-black text-slate-900 tracking-tight text-emerald-600">
             Lịch trình phỏng vấn
           </h1>
-          <p className="text-sm font-medium text-slate-500 mt-1">
+          <p className="text-base font-medium text-slate-500 mt-1">
             Quản lý các buổi phỏng vấn và điều phối ứng viên hiệu quả.
           </p>
         </div>
         <button
           onClick={handleCreateInterview}
           disabled={isCreating}
-          className="flex items-center gap-2 rounded-2xl bg-slate-900 px-6 py-3 text-xs font-black text-white hover:bg-black transition-all shadow-xl active:scale-95 uppercase tracking-widest disabled:opacity-50"
+          className="flex items-center gap-2 rounded-2xl bg-slate-900 px-6 py-3 text-base font-black text-white hover:bg-black transition-all shadow-xl active:scale-95 uppercase tracking-widest disabled:opacity-50"
         >
           <Plus size={16} />
           {isCreating ? 'ĐANG KHỞI TẠO...' : 'TẠO BUỔI PHỎNG VẤN MỚI'}
@@ -284,7 +284,7 @@ const InterviewSchedulePage = () => {
                     key={v}
                     type="button"
                     onClick={() => handleViewChange(v)}
-                    className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all ${
+                    className={`px-4 py-1.5 text-base font-black uppercase tracking-wider rounded-lg transition-all ${
                       currentView === v
                         ? 'bg-white text-slate-900 shadow-sm'
                         : 'text-slate-400 hover:text-slate-600'
@@ -303,7 +303,7 @@ const InterviewSchedulePage = () => {
                 >
                   <ChevronLeft size={18} />
                 </button>
-                <h2 className="text-sm font-black text-slate-900 min-w-[140px] max-w-[280px] text-center tracking-tight uppercase sm:min-w-[180px]">
+                <h2 className="text-base font-black text-slate-900 min-w-[140px] max-w-[280px] text-center tracking-tight uppercase sm:min-w-[180px]">
                   {navLabel}
                 </h2>
                 <button
@@ -323,7 +323,7 @@ const InterviewSchedulePage = () => {
               {WEEKDAYS.map((d) => (
                 <div
                   key={d}
-                  className="text-center text-[10px] font-black uppercase text-slate-400 py-4 tracking-widest border-r border-slate-50 last:border-r-0"
+                  className="text-center text-base font-black uppercase text-slate-400 py-4 tracking-widest border-r border-slate-50 last:border-r-0"
                 >
                   {d}
                 </div>
@@ -351,7 +351,7 @@ const InterviewSchedulePage = () => {
                     className={`h-32 p-3 bg-white hover:bg-primary/10 transition-all cursor-pointer group relative outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-inset ${isSelected ? 'ring-2 ring-inset ring-emerald-500 bg-emerald-50/10' : ''}`}
                   >
                     <div
-                      className={`mb-2 flex h-7 w-7 shrink-0 items-center justify-center text-[11px] font-black ${isSelected ? 'rounded-full bg-emerald-600 text-white shadow-md shadow-emerald-500/30' : 'rounded-lg text-slate-400 group-hover:text-foreground'}`}
+                      className={`mb-2 flex h-7 w-7 shrink-0 items-center justify-center text-base font-black ${isSelected ? 'rounded-full bg-emerald-600 text-white shadow-md shadow-emerald-500/30' : 'rounded-lg text-slate-400 group-hover:text-foreground'}`}
                     >
                       {cell.day}
                     </div>
@@ -365,7 +365,7 @@ const InterviewSchedulePage = () => {
                         </div>
                       ))}
                       {cell.events.length > 2 && (
-                        <div className="px-1 text-[8px] font-black text-slate-400">
+                        <div className="px-1 text-base font-black text-slate-400">
                           +{cell.events.length - 2} KHÁC
                         </div>
                       )}
@@ -395,7 +395,7 @@ const InterviewSchedulePage = () => {
                     className={`min-h-[200px] p-3 bg-white hover:bg-primary/10 transition-all cursor-pointer group relative outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-inset sm:min-h-[240px] ${isSelected ? 'ring-2 ring-inset ring-emerald-500 bg-emerald-50/10' : ''}`}
                   >
                     <div
-                      className={`mb-2 flex h-7 w-7 shrink-0 items-center justify-center text-[11px] font-black ${isSelected ? 'rounded-full bg-emerald-600 text-white shadow-md shadow-emerald-500/30' : 'rounded-lg text-slate-400 group-hover:text-foreground'}`}
+                      className={`mb-2 flex h-7 w-7 shrink-0 items-center justify-center text-base font-black ${isSelected ? 'rounded-full bg-emerald-600 text-white shadow-md shadow-emerald-500/30' : 'rounded-lg text-slate-400 group-hover:text-foreground'}`}
                     >
                       {cell.day}
                     </div>
@@ -418,7 +418,7 @@ const InterviewSchedulePage = () => {
           {currentView === 'day' && (
             <div className="border-t border-slate-100 bg-white p-6">
               <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2 border-b border-slate-100 pb-4">
-                <p className="text-xs font-black uppercase tracking-widest text-slate-400">
+                <p className="text-base font-black uppercase tracking-widest text-slate-400">
                   {WEEKDAYS_LONG[parseDateStr(selectedDateStr).getDay()]}
                 </p>
                 <p className="text-lg font-black uppercase tracking-tight text-slate-900">
@@ -428,7 +428,7 @@ const InterviewSchedulePage = () => {
                 </p>
               </div>
               {dayViewEvents.length === 0 ? (
-                <p className="text-sm font-medium text-slate-500">
+                <p className="text-base font-medium text-slate-500">
                   Không có buổi phỏng vấn trong ngày này.
                 </p>
               ) : (
@@ -438,10 +438,10 @@ const InterviewSchedulePage = () => {
                       key={ev.id}
                       className={`flex items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-slate-50/80 px-4 py-3 ${ev.type === 'online' ? 'border-l-4 border-l-blue-500' : 'border-l-4 border-l-amber-500'}`}
                     >
-                      <span className="text-xs font-black uppercase tracking-tight text-slate-900">
+                      <span className="text-base font-black uppercase tracking-tight text-slate-900">
                         {ev.candidateName}
                       </span>
-                      <span className="shrink-0 text-[10px] font-bold text-slate-500">
+                      <span className="shrink-0 text-base font-bold text-slate-500">
                         {ev.timeStart} – {ev.timeEnd}
                       </span>
                     </li>
@@ -455,10 +455,10 @@ const InterviewSchedulePage = () => {
         {/* ── Right: Upcoming Interviews ── */}
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">
+            <h3 className="text-base font-black text-slate-900 uppercase tracking-widest">
               PHỎNG VẤN SẮP TỚI
             </h3>
-            <span className="h-6 w-6 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500 border border-slate-200 font-black">
+            <span className="h-6 w-6 rounded-full bg-slate-100 flex items-center justify-center text-base font-bold text-slate-500 border border-slate-200 font-black">
               {interviews.length}
             </span>
           </div>
@@ -477,27 +477,27 @@ const InterviewSchedulePage = () => {
                       {iv.candidateInitial}
                     </div>
                     <div>
-                      <p className="text-sm font-black text-slate-900 group-hover:text-emerald-600 transition-colors uppercase tracking-tight">
+                      <p className="text-base font-black text-slate-900 group-hover:text-emerald-600 transition-colors uppercase tracking-tight">
                         {iv.candidateName}
                       </p>
-                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                      <p className="text-base font-bold text-slate-500 uppercase tracking-widest">
                         {iv.candidateRole}
                       </p>
                     </div>
                   </div>
                   <span
-                    className={`shrink-0 rounded-lg px-2 py-1 text-[9px] font-black uppercase tracking-tight border ${iv.badgeClass}`}
+                    className={`shrink-0 rounded-lg px-2 py-1 text-base font-black uppercase tracking-tight border ${iv.badgeClass}`}
                   >
                     {iv.badge}
                   </span>
                 </div>
 
                 <div className="space-y-2 mb-4 bg-slate-50 p-3 rounded-xl border border-slate-100 group-hover:bg-card transition-colors duration-200 ease-out">
-                  <div className="flex items-center gap-2 text-[11px] font-black text-slate-700 uppercase tracking-tight">
+                  <div className="flex items-center gap-2 text-base font-black text-slate-700 uppercase tracking-tight">
                     <Clock size={14} className="text-emerald-500" />
                     {iv.timeStart} – {iv.timeEnd} ({iv.duration}M)
                   </div>
-                  <div className="flex items-center gap-2 text-[11px] font-black text-slate-700 uppercase tracking-tight">
+                  <div className="flex items-center gap-2 text-base font-black text-slate-700 uppercase tracking-tight">
                     {iv.type === 'online' ? (
                       <>
                         <Video size={14} className="text-blue-500" />
@@ -514,12 +514,12 @@ const InterviewSchedulePage = () => {
 
                 <div className="flex gap-2">
                   {iv.status === 'confirmed' ? (
-                    <button className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-2.5 text-[11px] font-black text-white hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/20 active:scale-95 uppercase tracking-widest">
+                    <button className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-2.5 text-base font-black text-white hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/20 active:scale-95 uppercase tracking-widest">
                       <ExternalLink size={14} />
                       THAM GIA
                     </button>
                   ) : (
-                    <button className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 py-2.5 text-[11px] font-black text-emerald-600 hover:bg-emerald-100 transition-all active:scale-95 uppercase tracking-widest">
+                    <button className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 py-2.5 text-base font-black text-emerald-600 hover:bg-emerald-100 transition-all active:scale-95 uppercase tracking-widest">
                       <CalendarPlus size={14} />
                       XÁC NHẬN
                     </button>
@@ -532,7 +532,7 @@ const InterviewSchedulePage = () => {
             ))}
           </div>
 
-          <button className="w-full flex items-center justify-center gap-2 py-3 text-[10px] font-black text-slate-400 hover:text-emerald-600 hover:bg-primary/10 rounded-2xl transition-all uppercase tracking-widest border border-dashed border-slate-200">
+          <button className="w-full flex items-center justify-center gap-2 py-3 text-base font-black text-slate-400 hover:text-emerald-600 hover:bg-primary/10 rounded-2xl transition-all uppercase tracking-widest border border-dashed border-slate-200">
             Xem tất cả <ChevronRight size={14} />
           </button>
         </div>

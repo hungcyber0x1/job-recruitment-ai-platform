@@ -67,10 +67,10 @@ const Testimonials = () => {
             transition={{ duration: 0.5 }}
             className="max-w-2xl"
           >
-            <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+            <p className="mb-3 text-sm font-bold uppercase tracking-widest text-primary">
               Phản hồi
             </p>
-            <h2 className="text-balance text-3xl font-extrabold leading-tight tracking-tight text-foreground md:text-4xl lg:text-5xl">
+            <h2 className="text-balance text-3xl font-black leading-tight tracking-tight text-foreground md:text-4xl lg:text-5xl">
               Người dùng nói gì về <span className="text-primary">HireAI</span>?
             </h2>
             <p className="mt-4 text-base font-medium text-muted-foreground">
@@ -112,7 +112,7 @@ const Testimonials = () => {
                     aria-hidden
                   />
                 </div>
-                <blockquote className="flex-1 text-[15px] font-medium leading-relaxed text-foreground/90">
+                <blockquote className="flex-1 text-base font-medium leading-relaxed text-foreground/90">
                   &ldquo;{review.content}&rdquo;
                 </blockquote>
                 <footer className="mt-6 flex items-center gap-3 border-t border-border/50 pt-6">
@@ -125,11 +125,13 @@ const Testimonials = () => {
                     className="size-12 shrink-0 rounded-full object-cover ring-2 ring-border/40"
                   />
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-foreground">{review.name}</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
+                    <p className="truncate text-base font-semibold text-foreground">
+                      {review.name}
+                    </p>
+                    <p className="mt-0.5 text-sm text-muted-foreground">
                       {review.role} · {review.company}
                     </p>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground/85">{review.location}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground/85">{review.location}</p>
                   </div>
                 </footer>
               </article>

@@ -66,7 +66,7 @@ function PartnerLogo({ p }) {
 const TrustedBy = () => {
   return (
     <div className="relative">
-      <p className="text-center text-[16px] md:text-[17px] font-medium text-slate-500/90 tracking-tight">
+      <p className="text-center text-base font-medium text-slate-500/90 tracking-tight md:text-lg">
         Được tin dùng bởi các đơn vị hàng đầu
       </p>
 

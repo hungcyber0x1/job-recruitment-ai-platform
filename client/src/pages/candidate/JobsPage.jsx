@@ -191,7 +191,7 @@ const JobsPage = () => {
               <h2 className="text-xl font-bold leading-tight md:text-2xl">
                 Nâng tầm sự nghiệp với công nghệ AI cá nhân hóa
               </h2>
-              <p className="mt-3 text-sm text-white/90">
+              <p className="mt-3 text-base text-white/90">
                 Hồ sơ của bạn đã hoàn thiện {profileCompletion.completion}%.{' '}
                 {profileCompletion.completion < 100
                   ? 'Hãy cập nhật thêm kỹ năng để tăng cơ hội kết nối với nhà tuyển dụng.'
@@ -219,14 +219,14 @@ const JobsPage = () => {
         <div className="grid gap-4 sm:grid-cols-2">
           <Card className="rounded-2xl hover-lift app-panel-hover border-slate-200/60">
             <CardContent className="p-6">
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <p className="text-base font-bold text-slate-500 uppercase tracking-wider">
                 Động lực sự nghiệp
               </p>
               <div className="flex items-baseline gap-2 mt-1">
                 <p className="text-3xl font-bold text-slate-900">{careerMomentum}%</p>
-                <p className="text-xs font-bold text-emerald-500">↑2%</p>
+                <p className="text-base font-bold text-emerald-500">↑2%</p>
               </div>
-              <p className="mt-2 text-xs font-semibold text-emerald-600 flex items-center gap-1">
+              <p className="mt-2 text-base font-semibold text-emerald-600 flex items-center gap-1">
                 <Sparkles size={12} />
                 {careerMomentum > 0 ? 'Hoạt động tích cực' : 'Bắt đầu ngay hôm nay'}
               </p>
@@ -240,7 +240,7 @@ const JobsPage = () => {
           <Card className="rounded-2xl hover-lift app-panel-hover border-slate-200/60">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <p className="text-base font-bold text-slate-500 uppercase tracking-wider">
                   Tối ưu hồ sơ
                 </p>
                 <div className="h-6 w-6 rounded-lg bg-emerald-50 flex items-center justify-center">
@@ -250,7 +250,7 @@ const JobsPage = () => {
               <p className="mt-1 text-3xl font-bold text-slate-900">
                 {profileCompletion.completion}%
               </p>
-              <p className="mt-2 text-xs font-medium text-slate-500">
+              <p className="mt-2 text-base font-medium text-slate-500">
                 {profileCompletion.missingItems?.length
                   ? `Cần thêm ${profileCompletion.missingItems.length} dự án`
                   : 'Đã đủ thông tin'}
@@ -286,7 +286,7 @@ const JobsPage = () => {
                 <Icon className="h-6 w-6 group-hover:scale-110 transition-transform" />
               </div>
               <div>
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">
+                <p className="text-base font-bold text-slate-500 uppercase tracking-widest leading-none">
                   {label}
                 </p>
                 <p className="text-lg font-bold text-slate-900 mt-1">{value}</p>
@@ -302,7 +302,10 @@ const JobsPage = () => {
           <div>
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-bold text-foreground">Việc làm ưu tiên từ AI</h2>
-              <Link to="#all-jobs" className="text-sm font-medium text-emerald-600 hover:underline">
+              <Link
+                to="#all-jobs"
+                className="text-base font-medium text-emerald-600 hover:underline"
+              >
                 Xem tất cả
               </Link>
             </div>
@@ -328,18 +331,18 @@ const JobsPage = () => {
                           <span className="font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
                             {getJobTitle(job)}
                           </span>
-                          <span className="rounded-lg bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold text-emerald-600 uppercase tracking-wider">
+                          <span className="rounded-lg bg-emerald-500/10 px-2.5 py-1 text-base font-bold text-emerald-600 uppercase tracking-wider">
                             MATCH {score}%
                           </span>
                         </div>
-                        <p className="text-sm font-medium text-slate-500 mt-0.5">
+                        <p className="text-base font-medium text-slate-500 mt-0.5">
                           {getCompanyName(job)} · {job.location || 'Hà Nội, Việt Nam'}
                         </p>
                         <div className="flex items-center gap-3 mt-1.5">
-                          <p className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
+                          <p className="text-base font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
                             {job.salary_range || '$2,500 - $4,000'}
                           </p>
-                          <p className="text-xs text-slate-400">
+                          <p className="text-base text-slate-400">
                             {formatTimeAgo(job.created_at || job.posted_at)}
                           </p>
                         </div>
@@ -414,7 +417,7 @@ const JobsPage = () => {
         <Card className="h-fit rounded-xl">
           <CardContent className="p-6">
             <h2 className="text-lg font-bold text-foreground">Lộ trình 90 ngày</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-base text-muted-foreground">
               Tiến độ kế hoạch: {roadmapProgress}%
             </p>
             <ul className="mt-6 space-y-4">
@@ -423,15 +426,15 @@ const JobsPage = () => {
                   {t.done ? (
                     <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-500" />
                   ) : t.inProgress ? (
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-600 text-xs font-bold">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-600 text-base font-bold">
                       i
                     </span>
                   ) : (
                     <span className="h-5 w-5 shrink-0 rounded-full border-2 border-muted-foreground/30" />
                   )}
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-foreground">{t.label}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-base font-medium text-foreground">{t.label}</p>
+                    <p className="text-base text-muted-foreground">
                       {t.done ? 'ĐÃ HOÀN THÀNH' : t.inProgress ? 'ĐANG THỰC HIỆN' : 'CHƯA BẮT ĐẦU'}
                     </p>
                   </div>
@@ -482,7 +485,7 @@ const JobsPage = () => {
                 <h3 className="mt-4 font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
                   {title}
                 </h3>
-                <p className="mt-2 text-sm text-slate-500 leading-relaxed font-medium">{desc}</p>
+                <p className="mt-2 text-base text-slate-500 leading-relaxed font-medium">{desc}</p>
               </CardContent>
             </Card>
           </Link>

@@ -63,19 +63,19 @@ const BlogCard = ({ post, index }) => (
           alt=""
           className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
         />
-        <span className="absolute top-3 left-3 px-2.5 py-1 bg-background/90 backdrop-blur-sm text-foreground rounded-md text-[11px] font-semibold border border-border/40">
+        <span className="absolute top-3 left-3 px-2.5 py-1 bg-background/90 backdrop-blur-sm text-foreground rounded-md text-xs font-semibold border border-border/40">
           {post.category}
         </span>
       </div>
       <div className="p-5 flex-1 flex flex-col min-h-0">
-        <h3 className="text-base font-semibold text-foreground leading-snug mb-2 line-clamp-2 group-hover:text-primary/90 transition-colors">
+        <h3 className="text-lg font-bold text-foreground leading-snug mb-2 line-clamp-2 group-hover:text-primary/90 transition-colors">
           {post.title}
         </h3>
-        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 mb-4 flex-1 min-h-0">
+        <p className="text-base text-muted-foreground font-medium leading-relaxed line-clamp-2 mb-4 flex-1 min-h-0">
           {post.excerpt}
         </p>
         <div className="flex items-center justify-between mt-auto pt-3 border-t border-border/40">
-          <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
             <span className="flex items-center gap-1.5">
               <Calendar size={12} strokeWidth={1.5} /> {post.date}
             </span>
@@ -181,10 +181,8 @@ const BlogSection = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           >
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-              Bản tin
-            </p>
-            <h2 className="text-3xl md:text-5xl font-bold text-foreground tracking-tight leading-[1.1]">
+            <p className="text-sm font-bold text-primary uppercase tracking-widest mb-3">Bản tin</p>
+            <h2 className="text-3xl md:text-4xl font-black text-foreground tracking-tight leading-[1.1]">
               Bản tin nghề nghiệp <span className="text-primary">HireAI</span>
             </h2>
           </motion.div>
@@ -192,7 +190,7 @@ const BlogSection = () => {
           <div className="flex items-center gap-4 shrink-0">
             <Link
               to="/blog"
-              className="hidden sm:flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className="hidden sm:flex items-center gap-2 text-base font-semibold text-muted-foreground hover:text-foreground transition-colors"
             >
               Xem tất cả <ArrowRight size={14} strokeWidth={2} />
             </Link>

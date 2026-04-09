@@ -16,12 +16,14 @@ import { Link, useSearchParams } from 'react-router-dom';
 
 import adminService from '../../services/adminService';
 import AdminLayout from '../../layouts/AdminLayout';
+import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import useDebounce from '../../hooks/useDebounce';
 
 const AVATAR_COLORS = ['bg-emerald-500', 'bg-amber-500', 'bg-slate-500', 'bg-emerald-600'];
 
 const UsersPage = () => {
+  const { user: currentUser } = useAuth();
   const { showNotification } = useNotification();
   const [searchParams, setSearchParams] = useSearchParams();
   const [users, setUsers] = useState([]);
@@ -211,13 +213,13 @@ const UsersPage = () => {
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Quản lý người dùng</h1>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-base text-slate-500">
               Theo dõi và quản trị thông tin người dùng trên hệ thống RecruitAI
             </p>
           </div>
           <Link
             to="/admin/users/new"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 text-white font-semibold text-sm hover:bg-emerald-400 transition-colors shrink-0"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 text-white font-semibold text-base hover:bg-emerald-400 transition-colors shrink-0"
           >
             <UserPlus size={18} />+ Thêm người dùng
           </Link>
@@ -231,11 +233,11 @@ const UsersPage = () => {
               <div key={card.label} className="p-5 rounded-2xl bg-white border border-slate-200">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                    <p className="text-base font-medium text-slate-500 uppercase tracking-wide">
                       {card.label}
                     </p>
                     <p className="mt-2 text-2xl font-bold text-slate-900">{card.value}</p>
-                    <p className="mt-1.5 flex items-center gap-1 text-xs font-medium text-emerald-400">
+                    <p className="mt-1.5 flex items-center gap-1 text-base font-medium text-emerald-400">
                       <TrendingUp size={14} />
                       {card.change}
                     </p>
@@ -261,7 +263,7 @@ const UsersPage = () => {
                 setInputValue(e.target.value);
                 setPage(1);
               }}
-              className="w-full h-12 pl-11 pr-4 rounded-xl bg-white border border-slate-200 text-slate-900 placeholder:text-slate-500 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50"
+              className="w-full h-12 pl-11 pr-4 rounded-xl bg-white border border-slate-200 text-slate-900 placeholder:text-slate-500 text-base font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50"
             />
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -271,7 +273,7 @@ const UsersPage = () => {
                 setRoleFilter(e.target.value);
                 setPage(1);
               }}
-              className="h-12 px-4 rounded-xl bg-white border border-slate-200 text-slate-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/50 cursor-pointer"
+              className="h-12 px-4 rounded-xl bg-white border border-slate-200 text-slate-900 text-base font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/50 cursor-pointer"
             >
               <option value="all">Tất cả vai trò</option>
               <option value="admin">Admin</option>
@@ -281,7 +283,7 @@ const UsersPage = () => {
             <button
               type="button"
               onClick={() => setRoleFilter('admin')}
-              className={`h-12 px-4 rounded-xl border text-sm font-medium transition-colors ${
+              className={`h-12 px-4 rounded-xl border text-base font-medium transition-colors ${
                 roleFilter === 'admin'
                   ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400'
                   : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
@@ -292,7 +294,7 @@ const UsersPage = () => {
             <button
               type="button"
               onClick={() => setRoleFilter('employer')}
-              className={`h-12 px-4 rounded-xl border text-sm font-medium transition-colors ${
+              className={`h-12 px-4 rounded-xl border text-base font-medium transition-colors ${
                 roleFilter === 'employer'
                   ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400'
                   : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
@@ -303,7 +305,7 @@ const UsersPage = () => {
             <button
               type="button"
               onClick={() => setRoleFilter('candidate')}
-              className={`h-12 px-4 rounded-xl border text-sm font-medium transition-colors ${
+              className={`h-12 px-4 rounded-xl border text-base font-medium transition-colors ${
                 roleFilter === 'candidate'
                   ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400'
                   : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
@@ -317,7 +319,7 @@ const UsersPage = () => {
                 setStatusFilter(e.target.value);
                 setPage(1);
               }}
-              className="h-12 px-4 rounded-xl bg-white border border-slate-200 text-slate-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/50 cursor-pointer"
+              className="h-12 px-4 rounded-xl bg-white border border-slate-200 text-slate-900 text-base font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/50 cursor-pointer"
             >
               <option value="all">Tất cả trạng thái</option>
               <option value="active">Hoạt động</option>
@@ -369,7 +371,7 @@ const UsersPage = () => {
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
                               <div
-                                className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-slate-900 shrink-0 ${getAvatarColor(index)}`}
+                                className={`w-10 h-10 rounded-full flex items-center justify-center text-base font-bold text-slate-900 shrink-0 ${getAvatarColor(index)}`}
                               >
                                 {getInitials(user)}
                               </div>
@@ -379,24 +381,24 @@ const UsersPage = () => {
                                     `${user.first_name || ''} ${user.last_name || ''}`.trim() ||
                                     'N/A'}
                                 </p>
-                                <p className="text-sm text-slate-500">{user.email}</p>
+                                <p className="text-base text-slate-500">{user.email}</p>
                               </div>
                             </div>
                           </td>
                           <td className="px-6 py-4">
                             <span
-                              className={`inline-flex px-3 py-1 rounded-lg border text-xs font-semibold ${getRoleBadgeClass(user.role)}`}
+                              className={`inline-flex px-3 py-1 rounded-lg border text-base font-semibold ${getRoleBadgeClass(user.role)}`}
                             >
                               {getRoleLabel(user.role)}
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-sm text-slate-600">
+                          <td className="px-6 py-4 text-base text-slate-600">
                             {user.created_at
                               ? new Date(user.created_at).toLocaleDateString('vi-VN')
                               : '—'}
                           </td>
                           <td className="px-6 py-4">
-                            <span className="inline-flex items-center gap-1.5 text-sm">
+                            <span className="inline-flex items-center gap-1.5 text-base">
                               <span
                                 className={`w-2 h-2 rounded-full shrink-0 ${getStatusDotClass(user.status)}`}
                               />
@@ -408,8 +410,13 @@ const UsersPage = () => {
                               {user.status === 'active' ? (
                                 <button
                                   onClick={() => handleStatusUpdate(user.id, 'banned')}
-                                  className="p-2 rounded-lg text-red-400 hover:bg-destructive/100/10 transition-colors"
-                                  title="Khóa tài khoản"
+                                  disabled={currentUser?.id != null && user.id === currentUser.id}
+                                  className="p-2 rounded-lg text-red-400 hover:bg-destructive/100/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                                  title={
+                                    currentUser?.id != null && user.id === currentUser.id
+                                      ? 'Không thể khóa chính tài khoản đang đăng nhập'
+                                      : 'Khóa tài khoản'
+                                  }
                                 >
                                   <Ban size={18} />
                                 </button>
@@ -434,7 +441,7 @@ const UsersPage = () => {
               {/* Phân trang */}
               {pagination.pages > 0 && (
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border bg-muted/25 px-6 py-4">
-                  <p className="text-sm text-slate-500">
+                  <p className="text-base text-slate-500">
                     Hiển thị {start}-{end} trong {pagination.total.toLocaleString('vi-VN')} người
                     dùng
                   </p>
@@ -454,7 +461,7 @@ const UsersPage = () => {
                           key={p}
                           type="button"
                           onClick={() => setPage(p)}
-                          className={`min-w-[36px] h-9 rounded-lg text-sm font-semibold transition-colors ${
+                          className={`min-w-[36px] h-9 rounded-lg text-base font-semibold transition-colors ${
                             page === p
                               ? 'bg-emerald-500 text-white'
                               : 'border border-slate-200 text-slate-500 hover:bg-muted/55 hover:text-foreground'
@@ -470,7 +477,7 @@ const UsersPage = () => {
                         <button
                           type="button"
                           onClick={() => setPage(pagination.pages)}
-                          className={`min-w-[36px] h-9 rounded-lg text-sm font-semibold border border-slate-200 text-slate-500 hover:bg-muted/55 hover:text-foreground ${
+                          className={`min-w-[36px] h-9 rounded-lg text-base font-semibold border border-slate-200 text-slate-500 hover:bg-muted/55 hover:text-foreground ${
                             page === pagination.pages
                               ? 'bg-emerald-500 text-white border-emerald-500'
                               : ''

@@ -81,11 +81,11 @@ const MessagesPage = () => {
               key={module.title}
               className="rounded-[28px] border border-slate-100 bg-white p-6 shadow-[0_18px_45px_rgba(15,23,42,0.06)]"
             >
-              <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">
+              <p className="text-base font-black uppercase tracking-[0.22em] text-slate-400">
                 Message workspace
               </p>
               <h1 className="mt-3 text-xl font-black text-slate-950">{module.title}</h1>
-              <p className="mt-2 text-sm leading-6 text-slate-600">{module.description}</p>
+              <p className="mt-2 text-base leading-6 text-slate-600">{module.description}</p>
             </div>
           ))}
         </div>
@@ -132,18 +132,18 @@ const MessagesPage = () => {
                       >
                         {chat.name}
                       </p>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                      <span className="text-base font-bold text-slate-400 uppercase tracking-tighter">
                         {chat.time}
                       </span>
                     </div>
                     <p
-                      className={`text-xs font-medium truncate max-w-[160px] ${activeChat === chat.id ? 'text-primary-400' : 'text-slate-400'}`}
+                      className={`text-base font-medium truncate max-w-[160px] ${activeChat === chat.id ? 'text-primary-400' : 'text-slate-400'}`}
                     >
                       {chat.lastMsg}
                     </p>
                   </div>
                   {chat.unread > 0 && (
-                    <div className="w-5 h-5 bg-primary-600 text-white rounded-lg flex items-center justify-center text-[10px] font-black">
+                    <div className="w-5 h-5 bg-primary-600 text-white rounded-lg flex items-center justify-center text-base font-black">
                       {chat.unread}
                     </div>
                   )}
@@ -166,7 +166,7 @@ const MessagesPage = () => {
                     <div
                       className={`w-1.5 h-1.5 rounded-full ${chats[activeChat].online ? 'bg-green-500' : 'bg-slate-300'}`}
                     ></div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    <span className="text-base font-bold text-slate-400 uppercase tracking-widest">
                       {chats[activeChat].online ? 'Đang hoạt động' : 'Ngoại tuyến'}
                     </span>
                   </div>
@@ -188,7 +188,7 @@ const MessagesPage = () => {
             {/* Messages Container */}
             <div className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar">
               <div className="flex justify-center mb-10">
-                <Badge variant="gray" className="text-[10px] font-black px-6">
+                <Badge variant="gray" className="text-base font-black px-6">
                   HÔM NAY, 12:30 PM
                 </Badge>
               </div>
@@ -196,7 +196,7 @@ const MessagesPage = () => {
               {/* Sample Messages */}
               <div className="flex justify-start gap-4 max-w-[80%]">
                 <Avatar name={chats[activeChat].name} size="sm" className="rounded-xl shrink-0" />
-                <div className="p-5 bg-white rounded-[24px] rounded-tl-none border border-slate-100 shadow-sm text-sm font-medium text-slate-700 leading-relaxed">
+                <div className="p-5 bg-white rounded-[24px] rounded-tl-none border border-slate-100 shadow-sm text-base font-medium text-slate-700 leading-relaxed">
                   Chào bạn, sau khi xem xét hồ sơ, chúng tôi thấy bạn rất tiềm năng cho vị trí
                   Senior Frontend. Bạn có thể dành chút thời gian phỏng vấn ngắn qua Video Call
                   không?
@@ -204,7 +204,7 @@ const MessagesPage = () => {
               </div>
 
               <div className="flex justify-end gap-4 ml-auto max-w-[80%]">
-                <div className="p-5 bg-primary-600 rounded-[24px] rounded-tr-none text-white shadow-lg shadow-primary-100 text-sm font-medium leading-relaxed">
+                <div className="p-5 bg-primary-600 rounded-[24px] rounded-tr-none text-white shadow-lg shadow-primary-100 text-base font-medium leading-relaxed">
                   Dạ vâng, cảm ơn anh đã phản hồi. Em có thể phỏng vấn vào sáng mai lúc 9:00 được
                   không ạ?
                 </div>
@@ -212,7 +212,7 @@ const MessagesPage = () => {
 
               <div className="flex justify-start gap-4 max-w-[80%]">
                 <Avatar name={chats[activeChat].name} size="sm" className="rounded-xl shrink-0" />
-                <div className="p-5 bg-white rounded-[24px] rounded-tl-none border border-slate-100 shadow-sm text-sm font-medium text-slate-700 leading-relaxed">
+                <div className="p-5 bg-white rounded-[24px] rounded-tl-none border border-slate-100 shadow-sm text-base font-medium text-slate-700 leading-relaxed">
                   {chats[activeChat].lastMsg}
                 </div>
               </div>
@@ -232,7 +232,7 @@ const MessagesPage = () => {
                 <input
                   type="text"
                   placeholder="Nhập tin nhắn..."
-                  className="flex-grow py-4 px-4 text-sm font-medium outline-none placeholder:text-slate-300"
+                  className="flex-grow py-4 px-4 text-base font-medium outline-none placeholder:text-slate-300"
                 />
                 <button className="p-2.5 text-slate-300 hover:text-amber-500 transition-colors duration-200 ease-out">
                   <Smile size={20} />

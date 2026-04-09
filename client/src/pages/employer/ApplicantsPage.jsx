@@ -73,23 +73,25 @@ function ApplicantCard({ app, onStatusChange, isDragging, aiScreeningEnabled, on
       {/* Header */}
       <div className="flex items-center gap-3 mb-3">
         {/* Avatar */}
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-600 to-teal-700 text-sm font-bold text-white uppercase">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-600 to-teal-700 text-base font-bold text-white uppercase">
           {app.name?.charAt(0) ?? '?'}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-slate-900 truncate">{app.name || 'Ứng viên'}</p>
-          <p className="text-[11px] text-slate-500 truncate">{app.role || app.jobTitle || '—'}</p>
+          <p className="text-base font-semibold text-slate-900 truncate">
+            {app.name || 'Ứng viên'}
+          </p>
+          <p className="text-base text-slate-500 truncate">{app.role || app.jobTitle || '—'}</p>
         </div>
         {/* Match score badge */}
         <span
-          className={`shrink-0 flex items-center gap-1 rounded-lg border px-2 py-0.5 text-[11px] font-bold ${getMatchBg(score)} ${getMatchColor(score)}`}
+          className={`shrink-0 flex items-center gap-1 rounded-lg border px-2 py-0.5 text-base font-bold ${getMatchBg(score)} ${getMatchColor(score)}`}
         >
           MATCH {score}%
         </span>
       </div>
 
       {/* Applied time */}
-      <p className="text-[11px] text-slate-600 mb-3">
+      <p className="text-base text-slate-600 mb-3">
         {app.appliedDate ? `${app.appliedDate}` : 'Vừa nộp'}
         {app.statusNote && <span className="text-slate-500 ml-1">• {app.statusNote}</span>}
       </p>
@@ -100,7 +102,7 @@ function ApplicantCard({ app, onStatusChange, isDragging, aiScreeningEnabled, on
           {app.skills.slice(0, 3).map((skill) => (
             <span
               key={skill}
-              className="rounded-md bg-slate-50 border border-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500"
+              className="rounded-md bg-slate-50 border border-slate-100 px-2 py-0.5 text-base font-medium text-slate-500"
             >
               {skill}
             </span>
@@ -218,8 +220,8 @@ function KanbanColumn({ column, apps, onStatusChange, aiScreeningEnabled, onBook
       {/* Column header */}
       <div className="flex items-center gap-2.5 mb-3 px-1">
         <div className={`h-2 w-2 rounded-full ${column.accent}`} />
-        <span className="text-sm font-semibold text-slate-900">{column.label}</span>
-        <span className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-slate-100 px-2 text-[11px] font-bold text-slate-500">
+        <span className="text-base font-semibold text-slate-900">{column.label}</span>
+        <span className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-slate-100 px-2 text-base font-bold text-slate-500">
           {apps.length}
         </span>
         <button className="h-6 w-6 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-950 hover:bg-muted/35 transition-all">
@@ -242,7 +244,7 @@ function KanbanColumn({ column, apps, onStatusChange, aiScreeningEnabled, onBook
             ))}
             {apps.length === 0 && (
               <div className="flex flex-col items-center justify-center py-10 rounded-xl border-2 border-dashed border-slate-200 text-center">
-                <p className="text-xs text-slate-400">Kéo thả ứng viên vào đây</p>
+                <p className="text-base text-slate-400">Kéo thả ứng viên vào đây</p>
               </div>
             )}
           </div>
@@ -423,7 +425,7 @@ const ApplicantsPage = () => {
       {/* ── Header ── */}
       <div className="mb-6">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-xs text-slate-500 mb-3">
+        <div className="flex items-center gap-2 text-base text-slate-500 mb-3">
           <span className="hover:text-emerald-600 cursor-pointer transition-colors">
             Chiến dịch
           </span>
@@ -439,24 +441,24 @@ const ApplicantsPage = () => {
               Pipeline Tuyển Dụng
             </h1>
             <div className="flex items-center gap-3 mt-1.5">
-              <span className="flex items-center gap-1.5 text-xs text-slate-500">
+              <span className="flex items-center gap-1.5 text-base text-slate-500">
                 <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                 Đang hoạt động
               </span>
-              <span className="text-xs text-slate-600">•</span>
-              <span className="text-xs text-slate-500">{totalActive} ứng viên ứng tuyển</span>
+              <span className="text-base text-slate-600">•</span>
+              <span className="text-base text-slate-500">{totalActive} ứng viên ứng tuyển</span>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowOnlyHighMatch(!showOnlyHighMatch)}
-              className={`flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition-all shadow-sm ${showOnlyHighMatch ? 'bg-emerald-50 border-emerald-500 text-emerald-600' : 'bg-white border-slate-200 text-slate-600 hover:bg-muted/35'}`}
+              className={`flex items-center gap-2 rounded-xl border px-4 py-2 text-base font-semibold transition-all shadow-sm ${showOnlyHighMatch ? 'bg-emerald-50 border-emerald-500 text-emerald-600' : 'bg-white border-slate-200 text-slate-600 hover:bg-muted/35'}`}
             >
               <Filter size={14} />
               {showOnlyHighMatch ? 'Chỉ High Match' : 'Lọc Match Score'}
             </button>
-            <button className="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/20">
+            <button className="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-base font-bold text-white hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/20">
               <Users size={14} />
               Thêm ứng viên
             </button>
@@ -470,7 +472,7 @@ const ApplicantsPage = () => {
         <select
           value={selectedJob}
           onChange={(e) => setSelectedJob(e.target.value)}
-          className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500/40 appearance-none cursor-pointer shadow-sm min-w-[180px]"
+          className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-base text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500/40 appearance-none cursor-pointer shadow-sm min-w-[180px]"
         >
           <option value="all">Tất cả công việc</option>
           {jobs.map((job) => (
@@ -487,20 +489,20 @@ const ApplicantsPage = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Tìm ứng viên..."
-            className="rounded-xl border border-slate-200 bg-white pl-9 pr-4 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500/40 w-52 transition-all shadow-sm"
+            className="rounded-xl border border-slate-200 bg-white pl-9 pr-4 py-2 text-base text-slate-900 outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500/40 w-52 transition-all shadow-sm"
           />
         </div>
 
         <div className="ml-auto flex items-center gap-2">
           <button
             onClick={handleExport}
-            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-500 hover:text-foreground transition-all shadow-sm"
+            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-base font-semibold text-slate-500 hover:text-foreground transition-all shadow-sm"
           >
             <Download size={13} />
             Xuất CSV
           </button>
           {aiScreeningEnabled && (
-            <div className="flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-bold text-blue-600">
+            <div className="flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-base font-bold text-blue-600">
               <Sparkles size={12} />
               {filtered.filter((a) => a.status === 'screening').length} AI Screening
             </div>
@@ -556,7 +558,7 @@ const ApplicantsPage = () => {
       {/* Empty indicator for rejected */}
       {!loading && filtered.filter((a) => a.status === 'rejected').length > 0 && (
         <div className="mt-4 rounded-2xl border border-red-100 bg-red-50 px-5 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-red-600">
+          <div className="flex items-center gap-2 text-base text-red-600">
             <XCircle size={15} />
             <span>
               <strong className="font-bold">
@@ -565,7 +567,7 @@ const ApplicantsPage = () => {
               ứng viên đã bị từ chối
             </span>
           </div>
-          <button className="text-xs text-slate-500 hover:text-foreground transition-colors font-medium">
+          <button className="text-base text-slate-500 hover:text-foreground transition-colors font-medium">
             Xem tất cả
           </button>
         </div>

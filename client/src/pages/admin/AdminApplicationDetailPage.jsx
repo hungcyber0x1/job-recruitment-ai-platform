@@ -229,11 +229,11 @@ const AdminApplicationDetailPage = () => {
               key={module.title}
               className="rounded-3xl border border-border bg-card p-6 shadow-sm"
             >
-              <p className="text-[11px] font-black uppercase tracking-[0.22em] text-muted-foreground">
+              <p className="text-base font-black uppercase tracking-[0.22em] text-muted-foreground">
                 Application oversight
               </p>
               <h2 className="mt-3 text-xl font-black text-foreground">{module.title}</h2>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">{module.description}</p>
+              <p className="mt-2 text-base leading-6 text-muted-foreground">{module.description}</p>
             </div>
           ))}
         </div>
@@ -276,7 +276,7 @@ const AdminApplicationDetailPage = () => {
                   <div>
                     <h1 className="text-2xl font-black text-foreground">{candidate.name}</h1>
                     <p className="text-lg font-bold text-secondary">{candidate.role}</p>
-                    <div className="mt-3 flex flex-wrap items-center gap-4 text-sm font-medium text-muted-foreground">
+                    <div className="mt-3 flex flex-wrap items-center gap-4 text-base font-medium text-muted-foreground">
                       <span className="flex items-center gap-1.5">
                         <Mail size={16} /> {candidate.email}
                       </span>
@@ -293,7 +293,7 @@ const AdminApplicationDetailPage = () => {
                   <div className="mb-2 inline-flex items-center gap-2 rounded-xl bg-secondary/10 px-4 py-2 font-bold text-secondary">
                     <Star size={16} fill="currentColor" /> {candidate.matchScore}% Match
                   </div>
-                  <p className="text-xs font-bold text-muted-foreground">
+                  <p className="text-base font-bold text-muted-foreground">
                     Nộp lúc: {candidate.appliedDate}
                   </p>
                 </div>
@@ -304,13 +304,13 @@ const AdminApplicationDetailPage = () => {
               <div className="mb-6 flex flex-wrap items-center gap-3">
                 <Link
                   to={application.user_id ? `/admin/users/${application.user_id}` : '/admin/users'}
-                  className="rounded-xl border border-border bg-muted px-4 py-2 text-sm font-bold text-muted-foreground hover:bg-card"
+                  className="rounded-xl border border-border bg-muted px-4 py-2 text-base font-bold text-muted-foreground hover:bg-card"
                 >
                   Hồ sơ ứng viên
                 </Link>
                 <Link
                   to={application.job_id ? `/admin/jobs/${application.job_id}` : '/admin/jobs'}
-                  className="rounded-xl border border-border bg-muted px-4 py-2 text-sm font-bold text-muted-foreground hover:bg-card"
+                  className="rounded-xl border border-border bg-muted px-4 py-2 text-base font-bold text-muted-foreground hover:bg-card"
                 >
                   Tin tuyển dụng
                 </Link>
@@ -320,7 +320,7 @@ const AdminApplicationDetailPage = () => {
                       ? `/admin/companies/${application.employer_id}`
                       : '/admin/companies'
                   }
-                  className="rounded-xl border border-border bg-muted px-4 py-2 text-sm font-bold text-muted-foreground hover:bg-card"
+                  className="rounded-xl border border-border bg-muted px-4 py-2 text-base font-bold text-muted-foreground hover:bg-card"
                 >
                   Hồ sơ công ty
                 </Link>
@@ -339,13 +339,13 @@ const AdminApplicationDetailPage = () => {
                         <p className="mb-2 font-medium italic text-muted-foreground">
                           {experience.company}
                         </p>
-                        <p className="text-sm leading-relaxed text-muted-foreground">
+                        <p className="text-base leading-relaxed text-muted-foreground">
                           {experience.description || experience.desc}
                         </p>
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-muted-foreground">Chưa có dữ liệu kinh nghiệm.</p>
+                    <p className="text-base text-muted-foreground">Chưa có dữ liệu kinh nghiệm.</p>
                   )}
                 </div>
 
@@ -364,7 +364,7 @@ const AdminApplicationDetailPage = () => {
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-muted-foreground">Chưa có dữ liệu học vấn.</p>
+                    <p className="text-base text-muted-foreground">Chưa có dữ liệu học vấn.</p>
                   )}
                 </div>
 
@@ -375,13 +375,13 @@ const AdminApplicationDetailPage = () => {
                       candidate.skills.map((skill, index) => (
                         <span
                           key={`skill-${index}`}
-                          className="rounded bg-muted px-3 py-1 text-sm font-bold text-muted-foreground"
+                          className="rounded bg-muted px-3 py-1 text-base font-bold text-muted-foreground"
                         >
                           {typeof skill === 'string' ? skill : skill.name}
                         </span>
                       ))
                     ) : (
-                      <p className="text-sm text-muted-foreground">Chưa có dữ liệu kỹ năng.</p>
+                      <p className="text-base text-muted-foreground">Chưa có dữ liệu kỹ năng.</p>
                     )}
                   </div>
                 </div>
@@ -391,7 +391,7 @@ const AdminApplicationDetailPage = () => {
 
           <div className="space-y-8">
             <Card className="border border-border bg-card p-6 shadow-card">
-              <label className="mb-3 block text-xs font-bold uppercase tracking-widest text-muted-foreground">
+              <label className="mb-3 block text-base font-bold uppercase tracking-widest text-muted-foreground">
                 Trạng thái hồ sơ
               </label>
               <select
@@ -406,7 +406,7 @@ const AdminApplicationDetailPage = () => {
                   </option>
                 ))}
               </select>
-              <p className="mb-4 text-sm text-muted-foreground">
+              <p className="mb-4 text-base text-muted-foreground">
                 Trạng thái hiện tại:{' '}
                 <span className="font-semibold text-foreground">{getStatusLabel(status)}</span>
               </p>
@@ -440,19 +440,19 @@ const AdminApplicationDetailPage = () => {
                   noteItems.map((item) => (
                     <div key={item.id} className="rounded-xl bg-muted p-3">
                       <div className="mb-1 flex items-center justify-between">
-                        <span className="text-xs font-bold text-secondary">
+                        <span className="text-base font-bold text-secondary">
                           {[item.first_name, item.last_name].filter(Boolean).join(' ') ||
                             'Hệ thống'}
                         </span>
-                        <span className="text-[10px] text-muted-foreground">
+                        <span className="text-base text-muted-foreground">
                           {formatTimeAgo(item.created_at)}
                         </span>
                       </div>
-                      <p className="text-sm text-muted-foreground">{item.notes}</p>
+                      <p className="text-base text-muted-foreground">{item.notes}</p>
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-muted-foreground">Chưa có ghi chú đánh giá nào.</p>
+                  <p className="text-base text-muted-foreground">Chưa có ghi chú đánh giá nào.</p>
                 )}
               </div>
 
@@ -461,7 +461,7 @@ const AdminApplicationDetailPage = () => {
                   value={note}
                   onChange={(event) => setNote(event.target.value)}
                   placeholder="Viết ghi chú nội bộ..."
-                  className="h-20 w-full resize-none rounded-xl border border-border bg-muted p-3 pr-16 text-sm font-medium outline-none transition-all focus:border-secondary focus-visible:ring-2 focus-visible:ring-secondary/10"
+                  className="h-20 w-full resize-none rounded-xl border border-border bg-muted p-3 pr-16 text-base font-medium outline-none transition-all focus:border-secondary focus-visible:ring-2 focus-visible:ring-secondary/10"
                 />
                 <button
                   type="button"
@@ -479,8 +479,8 @@ const AdminApplicationDetailPage = () => {
               <div className="relative ml-3 space-y-6 border-l-2 border-border">
                 <div className="relative pl-6">
                   <div className="absolute -left-[9px] top-0 h-4 w-4 rounded-full border-4 border-secondary/20 bg-card" />
-                  <p className="text-sm font-bold text-foreground">Nộp hồ sơ</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
+                  <p className="text-base font-bold text-foreground">Nộp hồ sơ</p>
+                  <p className="mt-0.5 text-base text-muted-foreground">
                     {formatDate(application.applied_at || application.created_at)}
                   </p>
                 </div>
@@ -488,21 +488,21 @@ const AdminApplicationDetailPage = () => {
                 {history.map((item) => (
                   <div key={item.id} className="relative pl-6">
                     <div className="absolute -left-[9px] top-0 h-4 w-4 rounded-full border-4 border-accent/20 bg-card" />
-                    <p className="text-sm font-bold text-foreground">
+                    <p className="text-base font-bold text-foreground">
                       {getStatusLabel(item.new_status)}
                     </p>
-                    <p className="mt-0.5 text-sm text-muted-foreground">
+                    <p className="mt-0.5 text-base text-muted-foreground">
                       {item.notes ||
                         `Cập nhật từ ${item.old_status || 'ban đầu'} sang ${item.new_status}`}
                     </p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
+                    <p className="mt-0.5 text-base text-muted-foreground">
                       {formatDate(item.created_at)} ({formatTimeAgo(item.created_at)})
                     </p>
                   </div>
                 ))}
 
                 {!history.length ? (
-                  <p className="pl-6 text-sm text-muted-foreground">
+                  <p className="pl-6 text-base text-muted-foreground">
                     Chưa có cập nhật nào sau khi nhận hồ sơ.
                   </p>
                 ) : null}

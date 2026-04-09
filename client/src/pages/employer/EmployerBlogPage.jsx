@@ -78,7 +78,7 @@ const EmployerBlogPage = () => {
             <BookOpen className="size-7 text-emerald-600" />
             Blog thương hiệu
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 text-base text-muted-foreground">
             Đăng bài dưới tên công ty trên{' '}
             <Link to="/blog" className="font-medium text-emerald-600 hover:underline">
               blog công khai
@@ -101,7 +101,7 @@ const EmployerBlogPage = () => {
           </div>
         ) : (
           <div className="data-table-scroll">
-            <table className="data-table text-sm">
+            <table className="data-table text-base">
               <thead>
                 <tr>
                   <th className="px-4 py-3">Tiêu đề</th>
@@ -115,7 +115,7 @@ const EmployerBlogPage = () => {
                   <tr key={row.id}>
                     <td className="max-w-xs px-4 py-3">
                       <p className="font-medium text-foreground line-clamp-2">{row.title}</p>
-                      <p className="mt-0.5 text-xs text-muted-foreground font-mono">{row.slug}</p>
+                      <p className="mt-0.5 text-base text-muted-foreground font-mono">{row.slug}</p>
                     </td>
                     <td className="px-4 py-3">
                       {row.is_published ? (
@@ -124,7 +124,7 @@ const EmployerBlogPage = () => {
                         <span className="text-amber-600">Nháp</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground whitespace-nowrap text-xs">
+                    <td className="px-4 py-3 text-muted-foreground whitespace-nowrap text-base">
                       {formatWhen(row)}
                     </td>
                     <td className="px-4 py-3 text-right">

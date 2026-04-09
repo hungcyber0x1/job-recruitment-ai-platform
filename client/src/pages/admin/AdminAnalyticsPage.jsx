@@ -60,11 +60,11 @@ const ChartTooltip = ({ active, payload, label, valueSuffix }) => {
   const n = Number(payload[0]?.value);
   return (
     <div className="rounded-xl border border-slate-200/90 bg-white px-3.5 py-2.5 shadow-lg shadow-slate-200/50">
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</p>
+      <p className="text-base font-semibold uppercase tracking-wide text-slate-400">{label}</p>
       <p className="mt-1 text-base font-bold tabular-nums text-slate-900">
         {Number.isFinite(n) ? n.toLocaleString('vi-VN') : '—'}
         {valueSuffix ? (
-          <span className="text-sm font-semibold text-slate-500"> {valueSuffix}</span>
+          <span className="text-base font-semibold text-slate-500"> {valueSuffix}</span>
         ) : null}
       </p>
     </div>
@@ -226,7 +226,7 @@ const AdminAnalyticsPage = () => {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-slate-900">Phân tích hệ thống chuyên sâu</h1>
-              <p className="text-sm text-slate-500">
+              <p className="text-base text-slate-500">
                 Dữ liệu tổng hợp từ 30 ngày qua trên toàn hệ thống AI
               </p>
             </div>
@@ -238,7 +238,7 @@ const AdminAnalyticsPage = () => {
               placeholder="Tìm kiếm dữ liệu..."
               value={searchData}
               onChange={(e) => setSearchData(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder:text-slate-500 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+              className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-base text-slate-900 placeholder:text-slate-500 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             />
           </div>
         </div>
@@ -253,7 +253,7 @@ const AdminAnalyticsPage = () => {
                   key={f.id}
                   type="button"
                   onClick={() => setTimeFilter(f.id)}
-                  className={`rounded-xl border px-4 py-2 text-sm font-semibold transition-all ${
+                  className={`rounded-xl border px-4 py-2 text-base font-semibold transition-all ${
                     timeFilter === f.id
                       ? 'border-emerald-500/50 bg-emerald-500/20 text-emerald-400'
                       : 'border-slate-200 bg-white text-slate-500 hover:text-foreground'
@@ -279,13 +279,13 @@ const AdminAnalyticsPage = () => {
                       <Icon size={20} className={item.iconColor} />
                     </div>
                     <span
-                      className={`flex items-center gap-0.5 text-xs font-bold ${item.up ? 'text-emerald-400' : 'text-red-400'}`}
+                      className={`flex items-center gap-0.5 text-base font-bold ${item.up ? 'text-emerald-400' : 'text-red-400'}`}
                     >
                       {item.up ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
                       {item.trend}
                     </span>
                   </div>
-                  <p className="mt-2 text-xs font-medium uppercase tracking-wider text-slate-500">
+                  <p className="mt-2 text-base font-medium uppercase tracking-wider text-slate-500">
                     {item.label}
                   </p>
                   <p className="mt-1 text-lg font-bold text-slate-900">{item.value}</p>
@@ -299,7 +299,7 @@ const AdminAnalyticsPage = () => {
           <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm">
             <div className="border-b border-slate-100 bg-gradient-to-br from-emerald-50/40 to-white px-5 py-4">
               <h3 className="text-base font-black text-slate-900">Người dùng mới theo tháng</h3>
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-base text-slate-500">
                 Đăng ký trong 12 tháng gần nhất
                 {userGrowthSummary.hasApiRows ? (
                   <>
@@ -387,7 +387,7 @@ const AdminAnalyticsPage = () => {
           <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm">
             <div className="border-b border-slate-100 bg-gradient-to-br from-sky-50/50 to-white px-5 py-4">
               <h3 className="text-base font-black text-slate-900">Tin tuyển dụng tạo theo tháng</h3>
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-base text-slate-500">
                 Số tin đăng trong 12 tháng gần nhất
                 {jobTrendSummary.hasApiRows ? (
                   <>
@@ -471,7 +471,7 @@ const AdminAnalyticsPage = () => {
             <div className="space-y-4">
               {AI_ACCURACY_ITEMS.map((item) => (
                 <div key={item.label}>
-                  <div className="mb-1.5 flex justify-between text-sm">
+                  <div className="mb-1.5 flex justify-between text-base">
                     <span className="text-slate-600">{item.label}</span>
                     <span className="font-semibold text-slate-900">{item.value}%</span>
                   </div>
@@ -490,7 +490,7 @@ const AdminAnalyticsPage = () => {
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-base font-bold text-slate-900">Mật độ tuyển dụng (Heatmap)</h3>
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-semibold text-slate-500">Thấp</span>
+                <span className="text-base font-semibold text-slate-500">Thấp</span>
                 <div className="flex gap-0.5">
                   {[1, 2, 3, 4, 5].map((i) => (
                     <div
@@ -500,19 +500,19 @@ const AdminAnalyticsPage = () => {
                     />
                   ))}
                 </div>
-                <span className="text-[10px] font-semibold text-slate-500">Cao</span>
+                <span className="text-base font-semibold text-slate-500">Cao</span>
               </div>
             </div>
             <div className="rounded-xl border border-slate-200 bg-white p-4">
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <p className="text-base font-semibold uppercase tracking-wider text-slate-500">
                     Giờ cao điểm
                   </p>
                   <p className="mt-1 font-medium text-slate-900">14:00 - 16:00</p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <p className="text-base font-semibold uppercase tracking-wider text-slate-500">
                     Ngày bận rộn
                   </p>
                   <p className="mt-1 font-medium text-slate-900">Thứ 3 & Thứ 4</p>
@@ -520,7 +520,7 @@ const AdminAnalyticsPage = () => {
               </div>
               <a
                 href="#heatmap-detail"
-                className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-400 hover:text-emerald-300"
+                className="mt-4 inline-flex items-center gap-1.5 text-base font-semibold text-emerald-400 hover:text-emerald-300"
               >
                 Xem chi tiết bản đồ
                 <span aria-hidden>→</span>
@@ -533,7 +533,7 @@ const AdminAnalyticsPage = () => {
         <div className="flex justify-end">
           <button
             type="button"
-            className="flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-600"
+            className="flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2.5 text-base font-semibold text-white hover:bg-emerald-600"
           >
             <Download size={18} />
             Xuất báo cáo

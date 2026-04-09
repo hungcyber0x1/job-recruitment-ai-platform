@@ -63,7 +63,7 @@ function SectionCard({ icon: Icon, title, children }) {
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
           <Icon size={16} />
         </div>
-        <h2 className="text-sm font-bold text-slate-900 tracking-tight uppercase">{title}</h2>
+        <h2 className="text-base font-bold text-slate-900 tracking-tight uppercase">{title}</h2>
       </div>
       <div className="p-6">{children}</div>
     </div>
@@ -73,7 +73,7 @@ function SectionCard({ icon: Icon, title, children }) {
 function FormField({ label, required, children }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">
+      <label className="text-base font-bold text-slate-500 uppercase tracking-widest ml-1">
         {label}
         {required && <span className="ml-1 text-emerald-500">*</span>}
       </label>
@@ -83,10 +83,10 @@ function FormField({ label, required, children }) {
 }
 
 const inputClass =
-  'w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/10 shadow-sm';
+  'w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/10 shadow-sm';
 
 const selectClass =
-  'w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition-all focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/10 appearance-none cursor-pointer shadow-sm';
+  'w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 outline-none transition-all focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/10 appearance-none cursor-pointer shadow-sm';
 
 // ─────────────────────────────────────────────
 // Main component
@@ -280,7 +280,7 @@ const PostJobPage = () => {
   if (pageLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="text-sm font-medium text-slate-500">Đang tải dữ liệu...</div>
+        <div className="text-base font-medium text-slate-500">Đang tải dữ liệu...</div>
       </div>
     );
   }
@@ -290,7 +290,7 @@ const PostJobPage = () => {
       {/* ── Header ── */}
       <div className="mb-8">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-xs text-slate-500 mb-4">
+        <div className="flex items-center gap-2 text-base text-slate-500 mb-4">
           <span
             className="hover:text-emerald-400 cursor-pointer transition-colors"
             onClick={() => navigate('/employer/jobs')}
@@ -306,14 +306,14 @@ const PostJobPage = () => {
         {/* Title row */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-emerald-600 mb-3">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-base font-bold uppercase tracking-[0.15em] text-emerald-600 mb-3">
               <Sparkles size={10} />
               MẪU TUYỂN DỤNG MỚI
             </div>
             <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
               Tạo tin tuyển dụng AI
             </h1>
-            <p className="mt-1.5 text-sm text-slate-400 max-w-xl">
+            <p className="mt-1.5 text-base text-slate-400 max-w-xl">
               Hệ thống AI của chúng tôi sẽ tự động phân tích mô tả của bạn để tìm kiếm và xếp hạng
               các ứng viên tiềm năng nhất.
             </p>
@@ -325,7 +325,7 @@ const PostJobPage = () => {
               type="button"
               onClick={handleSaveDraft}
               disabled={loading}
-              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-600 transition-all hover:bg-muted/35 disabled:opacity-50 shadow-sm shadow-slate-200/50 active:scale-95"
+              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-base font-bold text-slate-600 transition-all hover:bg-muted/35 disabled:opacity-50 shadow-sm shadow-slate-200/50 active:scale-95"
             >
               <Save size={15} />
               Lưu bản nháp
@@ -333,7 +333,7 @@ const PostJobPage = () => {
             <button
               type="button"
               onClick={handlePreviewToggle}
-              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-600 transition-all hover:bg-muted/35 shadow-sm shadow-slate-200/50 active:scale-95"
+              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-base font-bold text-slate-600 transition-all hover:bg-muted/35 shadow-sm shadow-slate-200/50 active:scale-95"
             >
               Xem trước tin
             </button>
@@ -439,7 +439,7 @@ const PostJobPage = () => {
                     min={todayYmdLocal()}
                     className={inputClass}
                   />
-                  <p className="mt-1.5 text-xs font-medium text-slate-500">
+                  <p className="mt-1.5 text-base font-medium text-slate-500">
                     Tùy chọn. Để trống nếu không giới hạn. Sau hạn, ứng viên không thể nộp đơn.
                   </p>
                 </FormField>
@@ -494,7 +494,7 @@ const PostJobPage = () => {
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
                   <Zap size={14} />
                 </div>
-                <h2 className="text-sm font-bold text-slate-900 uppercase tracking-tight">
+                <h2 className="text-base font-bold text-slate-900 uppercase tracking-tight">
                   Cấu hình AI Screening
                 </h2>
               </div>
@@ -515,8 +515,8 @@ const PostJobPage = () => {
                       <CheckSquare size={12} className="text-white" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-slate-900">{item.label}</p>
-                      <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed font-medium">
+                      <p className="text-base font-bold text-slate-900">{item.label}</p>
+                      <p className="text-base text-slate-500 mt-0.5 leading-relaxed font-medium">
                         {item.desc}
                       </p>
                     </div>
@@ -525,7 +525,7 @@ const PostJobPage = () => {
 
                 {/* AI threshold slider */}
                 <div className="pt-2">
-                  <div className="flex justify-between text-[11px] text-slate-500 mb-2">
+                  <div className="flex justify-between text-base text-slate-500 mb-2">
                     <span className="uppercase tracking-wider font-bold">Ngưỡng AI Phê duyệt</span>
                   </div>
                   <div className="flex items-center gap-3">
@@ -535,7 +535,7 @@ const PostJobPage = () => {
                         style={{ width: '75%' }}
                       />
                     </div>
-                    <span className="text-sm font-black text-slate-900 tabular-nums">75%</span>
+                    <span className="text-base font-black text-slate-900 tabular-nums">75%</span>
                   </div>
                 </div>
               </div>
@@ -545,7 +545,7 @@ const PostJobPage = () => {
             <div className="rounded-2xl border border-emerald-100 bg-emerald-50/30 overflow-hidden shadow-sm">
               <div className="flex items-center gap-2 px-5 py-4 border-b border-emerald-100/50">
                 <Sparkles size={14} className="text-emerald-600" />
-                <h2 className="text-xs font-black uppercase tracking-widest text-emerald-600">
+                <h2 className="text-base font-black uppercase tracking-widest text-emerald-600">
                   MẸO TỪ AI
                 </h2>
               </div>
@@ -558,9 +558,9 @@ const PostJobPage = () => {
                           className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${item.done ? 'bg-emerald-500' : 'bg-slate-600'}`}
                         />
                         <div>
-                          <p className="text-xs font-medium text-slate-300">{item.label}</p>
+                          <p className="text-base font-medium text-slate-300">{item.label}</p>
                           {item.tip && (
-                            <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
+                            <p className="text-base text-slate-500 mt-0.5 leading-relaxed">
                               {item.tip}
                             </p>
                           )}
@@ -568,7 +568,7 @@ const PostJobPage = () => {
                       </div>
                     ))}
                     <div className="pt-2 border-t border-emerald-100">
-                      <p className="text-xs text-slate-500 font-medium">
+                      <p className="text-base text-slate-500 font-medium">
                         Điểm JD hiện tại:{' '}
                         <span
                           className={`font-black ${aiScoreColor.replace('text-emerald-400', 'text-emerald-600')}`}
@@ -579,7 +579,7 @@ const PostJobPage = () => {
                     </div>
                   </div>
                 ) : (
-                  <p className="text-xs italic text-slate-400 leading-relaxed">
+                  <p className="text-base italic text-slate-400 leading-relaxed">
                     "Tiêu đề công việc có từ 'Senior' và mức lương rõ ràng thường thu hút số lượng
                     ứng viên chất lượng cao hơn 45%."
                   </p>
@@ -589,7 +589,7 @@ const PostJobPage = () => {
                   type="button"
                   onClick={handleOptimizeTitle}
                   disabled={isOptimizing}
-                  className="mt-4 w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 py-2.5 text-xs font-semibold text-emerald-600 hover:bg-emerald-500/20 transition-all disabled:opacity-50"
+                  className="mt-4 w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 py-2.5 text-base font-semibold text-emerald-600 hover:bg-emerald-500/20 transition-all disabled:opacity-50"
                 >
                   <SlidersHorizontal size={12} />
                   {isOptimizing ? 'Đang phân tích...' : 'Tối ưu hóa tiêu đề ngay'}
@@ -601,7 +601,7 @@ const PostJobPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3.5 text-sm font-black text-white hover:bg-emerald-700 active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-lg shadow-emerald-500/20"
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3.5 text-base font-black text-white hover:bg-emerald-700 active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-lg shadow-emerald-500/20"
             >
               {loading ? (
                 'Đang lưu...'
@@ -612,7 +612,7 @@ const PostJobPage = () => {
                 </>
               )}
             </button>
-            <p className="text-center text-[11px] text-slate-600 px-2">
+            <p className="text-center text-base text-slate-600 px-2">
               Bằng việc đăng tuyển, bạn đồng ý với{' '}
               <span className="text-emerald-500/70">Điều khoản</span> và{' '}
               <span className="text-emerald-500/70">Chính sách riêng tư</span> của chúng tôi.
@@ -625,7 +625,7 @@ const PostJobPage = () => {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="bg-white rounded-[2rem] w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-300">
             <div className="flex items-center justify-between px-8 py-5 border-b border-slate-100 bg-slate-50/50">
-              <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">
+              <h3 className="text-base font-black text-slate-900 uppercase tracking-widest">
                 Xem trước hiển thị với ứng viên
               </h3>
               <button
@@ -637,13 +637,13 @@ const PostJobPage = () => {
             </div>
             <div className="flex-1 overflow-y-auto p-8 bg-white space-y-8 custom-scrollbar">
               <div className="space-y-4">
-                <div className="inline-flex rounded-lg bg-emerald-50 px-3 py-1 text-[10px] font-black uppercase text-emerald-600">
+                <div className="inline-flex rounded-lg bg-emerald-50 px-3 py-1 text-base font-black uppercase text-emerald-600">
                   PREVIEW MODE
                 </div>
                 <h2 className="text-4xl font-black text-slate-900 tracking-tight">
                   {formData.title || 'Tiêu đề công việc'}
                 </h2>
-                <div className="flex flex-wrap gap-4 text-sm font-bold text-slate-500 uppercase">
+                <div className="flex flex-wrap gap-4 text-base font-bold text-slate-500 uppercase">
                   <span className="flex items-center gap-1.5">
                     <MapPin size={14} /> {formData.location || 'Địa điểm'}
                   </span>
@@ -657,7 +657,7 @@ const PostJobPage = () => {
               <div className="grid gap-8 md:grid-cols-[1fr_250px]">
                 <div className="space-y-6">
                   <div className="space-y-3">
-                    <h4 className="text-sm font-black text-slate-900 uppercase">
+                    <h4 className="text-base font-black text-slate-900 uppercase">
                       Chi tiết công việc
                     </h4>
                     <p className="text-slate-600 whitespace-pre-wrap leading-relaxed">
@@ -665,7 +665,7 @@ const PostJobPage = () => {
                     </p>
                   </div>
                   <div className="space-y-3">
-                    <h4 className="text-sm font-black text-slate-900 uppercase">
+                    <h4 className="text-base font-black text-slate-900 uppercase">
                       Yêu cầu ứng viên
                     </h4>
                     <p className="text-slate-600 whitespace-pre-wrap leading-relaxed">
@@ -675,7 +675,7 @@ const PostJobPage = () => {
                 </div>
                 <div className="space-y-6">
                   <div className="rounded-2xl bg-slate-50 p-5 border border-slate-100">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                    <p className="text-base font-black text-slate-400 uppercase tracking-widest mb-1">
                       Mức lương
                     </p>
                     <p className="text-xl font-black text-emerald-600">

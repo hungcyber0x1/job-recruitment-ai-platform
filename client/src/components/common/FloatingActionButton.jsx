@@ -9,7 +9,7 @@ const FloatingActionButton = () => {
   return (
     <>
       {/* Main FAB */}
-      <div className="fixed bottom-8 right-8 z-50">
+      <div className="fixed bottom-8 right-8 z-[9998]">
         <div className="relative">
           {/* Tooltip */}
           {showTooltip && !isOpen && (

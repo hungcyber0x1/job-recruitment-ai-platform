@@ -60,7 +60,7 @@ const HowItWorks = () => {
               <div className="section-accent-line" />
               <p className="text-sm font-bold text-primary uppercase tracking-widest">Quy trình</p>
             </div>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-foreground tracking-[-0.04em] leading-[0.92]">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-foreground tracking-tight leading-[1.08]">
               Quy trình tìm việc với <span className="text-primary">HireAI</span>
             </h2>
             <p className="text-muted-foreground font-medium text-base leading-relaxed">
@@ -124,8 +124,8 @@ const HowItWorks = () => {
                     />
                   </div>
 
-                  <h3 className="text-lg font-bold text-foreground mb-3">{step.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
+                  <h3 className="text-xl font-bold text-foreground mb-3">{step.title}</h3>
+                  <p className="text-base text-muted-foreground font-medium leading-relaxed">
                     {step.description}
                   </p>
                 </div>

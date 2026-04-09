@@ -50,7 +50,7 @@ const CandidateHeader = ({ onMenuClick }) => {
           </div>
           <div>
             <span className="text-lg font-bold">HireAI</span>
-            <p className="text-xs text-muted-foreground hidden md:block">Ứng viên</p>
+            <p className="text-base text-muted-foreground hidden md:block">Ứng viên</p>
           </div>
         </div>
 
@@ -75,7 +75,7 @@ const CandidateHeader = ({ onMenuClick }) => {
             <DropdownMenuContent align="end" className="w-80">
               <DropdownMenuLabel>Thông báo</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <div className="p-4 text-center text-sm text-muted-foreground">
+              <div className="p-4 text-center text-base text-muted-foreground">
                 Chưa có thông báo mới
               </div>
             </DropdownMenuContent>
@@ -96,10 +96,10 @@ const CandidateHeader = ({ onMenuClick }) => {
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">
+                  <p className="text-base font-medium leading-none">
                     {user?.fullName || `${user?.first_name} ${user?.last_name}` || 'Ứng viên'}
                   </p>
-                  <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                  <p className="text-base leading-none text-muted-foreground">{user?.email}</p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />

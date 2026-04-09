@@ -1,4 +1,5 @@
 import api from './api';
+import { API_TIMEOUT_AI_CV_MS } from '../config';
 
 const publicToolsService = {
   salaryEstimate: (body) => api.post('public/tools/salary-estimate', body),
@@ -9,10 +10,9 @@ const publicToolsService = {
     return api.post('public/tools/cv-preview', fd, {
       headers: { 'Content-Type': 'multipart/form-data' },
       onUploadProgress,
+      timeout: API_TIMEOUT_AI_CV_MS,
     });
   },
-
-  interviewHint: (body) => api.post('public/tools/interview-hint', body),
 };
 
 export default publicToolsService;

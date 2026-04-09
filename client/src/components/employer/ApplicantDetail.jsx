@@ -102,7 +102,7 @@ const ApplicantDetail = ({ applicant, onUpdateStatus }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               <div className="space-y-6">
                 <div>
-                  <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-2">
+                  <p className="text-xs font-black text-slate-300 uppercase tracking-widest mb-2">
                     Vị trí ứng tuyển
                   </p>
                   <p className="font-black text-slate-900 text-lg leading-tight">
@@ -110,7 +110,7 @@ const ApplicantDetail = ({ applicant, onUpdateStatus }) => {
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-2">
+                  <p className="text-xs font-black text-slate-300 uppercase tracking-widest mb-2">
                     Ngày ứng tuyển
                   </p>
                   <p className="font-bold text-slate-600 flex items-center gap-2">
@@ -120,7 +120,7 @@ const ApplicantDetail = ({ applicant, onUpdateStatus }) => {
                 </div>
               </div>
               <div className="p-8 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col justify-center">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 text-center">
+                <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 text-center">
                   Xử lý hồ sơ
                 </p>
                 <div className="flex gap-4">
@@ -150,7 +150,7 @@ const ApplicantDetail = ({ applicant, onUpdateStatus }) => {
               size={120}
             />
             <div className="relative z-10">
-              <div className="bg-emerald-600 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest w-fit mb-4 text-white">
+              <div className="bg-emerald-600 px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest w-fit mb-4 text-white">
                 AI Ranking
               </div>
               <h4 className="text-3xl font-black mb-2 text-emerald-600">92% Phù hợp</h4>
@@ -161,7 +161,7 @@ const ApplicantDetail = ({ applicant, onUpdateStatus }) => {
 
               <div className="space-y-4">
                 <div>
-                  <div className="flex justify-between text-[10px] font-black uppercase tracking-widest mb-2 text-slate-400">
+                  <div className="flex justify-between text-xs font-black uppercase tracking-widest mb-2 text-slate-400">
                     <span>Kỹ năng chuyên môn</span>
                     <span className="text-slate-900">95%</span>
                   </div>
@@ -170,7 +170,7 @@ const ApplicantDetail = ({ applicant, onUpdateStatus }) => {
                   </div>
                 </div>
                 <div>
-                  <div className="flex justify-between text-[10px] font-black uppercase tracking-widest mb-2 text-slate-400">
+                  <div className="flex justify-between text-xs font-black uppercase tracking-widest mb-2 text-slate-400">
                     <span>Kinh nghiệm nghành</span>
                     <span className="text-slate-900">88%</span>
                   </div>
@@ -183,19 +183,19 @@ const ApplicantDetail = ({ applicant, onUpdateStatus }) => {
           </Card>
 
           <Card className="p-8 border border-slate-200 bg-white shadow-sm rounded-2xl">
-            <h4 className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-6">
+            <h4 className="text-xs font-black text-slate-300 uppercase tracking-widest mb-6">
               Lịch sử tương tác
             </h4>
             <div className="space-y-6 relative before:absolute before:left-4 before:top-2 before:bottom-2 before:w-px before:bg-slate-100">
               <div className="pl-10 relative">
                 <div className="absolute left-2.5 top-1.5 w-3 h-3 rounded-full bg-primary border-2 border-white shadow-sm"></div>
                 <p className="text-xs font-black text-slate-900">Đã xem hồ sơ</p>
-                <p className="text-[10px] text-slate-400 font-bold">Hôm nay, 10:45 AM</p>
+                <p className="text-xs text-slate-400 font-bold">Hôm nay, 10:45 AM</p>
               </div>
               <div className="pl-10 relative">
                 <div className="absolute left-2.5 top-1.5 w-3 h-3 rounded-full bg-slate-200 border-2 border-white"></div>
                 <p className="text-xs font-black text-slate-400">Ứng tuyển thành công</p>
-                <p className="text-[10px] text-slate-300 font-bold">2 ngày trước</p>
+                <p className="text-xs text-slate-300 font-bold">2 ngày trước</p>
               </div>
             </div>
           </Card>

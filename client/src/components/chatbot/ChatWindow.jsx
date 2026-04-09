@@ -29,7 +29,7 @@ const ChatWindow = ({ messages, isLoading, onSendMessage, onClearHistory }) => {
             <h3 className="font-black text-slate-900 leading-tight">HireAI Smart Assistant</h3>
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">
+              <span className="text-xs uppercase font-bold text-slate-400 tracking-widest">
                 Active Model v4.0
               </span>
             </div>

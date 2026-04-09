@@ -96,7 +96,7 @@ function MatchBadge({ score }) {
         : 'bg-slate-50 text-slate-500 border-slate-200';
   return (
     <span
-      className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[10px] font-black uppercase tracking-tight ${color} shadow-sm`}
+      className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-base font-black uppercase tracking-tight ${color} shadow-sm`}
     >
       <Sparkles size={10} />
       {score}% Match
@@ -131,12 +131,12 @@ function CandidateCard({ candidate, onSave, saved, onUnlock }) {
               <p className="font-black text-slate-900 text-lg tracking-tight group-hover:text-emerald-600 transition-colors leading-tight">
                 {candidate.name}
               </p>
-              <p className="text-[11px] font-black text-emerald-600 uppercase tracking-widest mt-1">
+              <p className="text-base font-black text-emerald-600 uppercase tracking-widest mt-1">
                 {candidate.role}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-4 mt-3 text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+          <div className="flex items-center gap-4 mt-3 text-base font-bold text-slate-400 uppercase tracking-tighter">
             <span className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 rounded-lg border border-slate-100">
               <Briefcase size={12} className="text-slate-300" />
               {candidate.experience}
@@ -156,13 +156,13 @@ function CandidateCard({ candidate, onSave, saved, onUnlock }) {
           {(candidate.skills || []).slice(0, 2).map((s) => (
             <span
               key={s}
-              className="rounded-lg bg-slate-50 border border-slate-100 px-2 py-1 text-[9px] font-black text-slate-400 tracking-widest"
+              className="rounded-lg bg-slate-50 border border-slate-100 px-2 py-1 text-base font-black text-slate-400 tracking-widest"
             >
               {s}
             </span>
           ))}
           {candidate.extraSkillCount > 0 && (
-            <span className="rounded-lg bg-slate-50 border border-slate-100 px-2 py-1 text-[9px] font-black text-slate-300">
+            <span className="rounded-lg bg-slate-50 border border-slate-100 px-2 py-1 text-base font-black text-slate-300">
               +{candidate.extraSkillCount}
             </span>
           )}
@@ -170,14 +170,14 @@ function CandidateCard({ candidate, onSave, saved, onUnlock }) {
       </div>
 
       {/* Bio */}
-      <p className="text-xs leading-relaxed text-slate-500 font-medium line-clamp-2 bg-slate-50/50 p-3 rounded-2xl border border-slate-50 group-hover:bg-card transition-colors duration-200 ease-out">
+      <p className="text-base leading-relaxed text-slate-500 font-medium line-clamp-2 bg-slate-50/50 p-3 rounded-2xl border border-slate-50 group-hover:bg-card transition-colors duration-200 ease-out">
         {candidate.bio}
       </p>
 
       {/* Salary + Actions */}
       <div className="flex items-center justify-between gap-2 mt-auto pt-4 border-t border-slate-50">
         <div>
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+          <p className="text-base font-black text-slate-400 uppercase tracking-widest">
             KỲ VỌNG LƯƠNG
           </p>
           <p className="text-base font-black text-slate-900 mt-0.5 tracking-tight group-hover:text-emerald-600 transition-colors">
@@ -198,7 +198,7 @@ function CandidateCard({ candidate, onSave, saved, onUnlock }) {
           {candidate.isUnlocked ? (
             <Link
               to={`/employer/messages?candidateName=${encodeURIComponent(candidate.name)}`}
-              className="flex items-center gap-2 rounded-2xl bg-emerald-600 px-5 h-11 text-xs font-black text-white hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/20 active:scale-95 uppercase tracking-widest"
+              className="flex items-center gap-2 rounded-2xl bg-emerald-600 px-5 h-11 text-base font-black text-white hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/20 active:scale-95 uppercase tracking-widest"
             >
               Hồ sơ
             </Link>
@@ -206,7 +206,7 @@ function CandidateCard({ candidate, onSave, saved, onUnlock }) {
             <button
               type="button"
               onClick={() => onUnlock(candidate.id)}
-              className="flex items-center gap-2 rounded-2xl bg-slate-900 px-5 h-11 text-xs font-black text-white hover:bg-black transition-all shadow-xl active:scale-95 uppercase tracking-widest"
+              className="flex items-center gap-2 rounded-2xl bg-slate-900 px-5 h-11 text-base font-black text-white hover:bg-black transition-all shadow-xl active:scale-95 uppercase tracking-widest"
             >
               <Lock size={12} className="text-slate-400" />
               Mở khóa
@@ -289,13 +289,13 @@ const SearchCandidatesPage = () => {
           <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-tight">
             Tìm kiếm ứng viên
           </h1>
-          <p className="text-sm font-medium text-slate-500">
+          <p className="text-base font-medium text-slate-500">
             Khám phá <span className="text-emerald-600 font-bold">50,000+</span> tài năng hàng đầu
             trong hệ thống
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-black text-slate-500 hover:text-foreground transition-all shadow-sm">
+          <button className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-base font-black text-slate-500 hover:text-foreground transition-all shadow-sm">
             TÀI KHOẢN: <span className="text-emerald-600">PREMIUM</span>
           </button>
         </div>
@@ -313,7 +313,7 @@ const SearchCandidatesPage = () => {
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             placeholder="Tên ứng viên, vị trí..."
-            className="w-full h-14 rounded-2xl bg-slate-50/50 border border-slate-100 pl-12 pr-4 text-sm text-slate-900 font-bold outline-none placeholder:text-slate-400 focus:bg-white focus:border-emerald-500 transition-all"
+            className="w-full h-14 rounded-2xl bg-slate-50/50 border border-slate-100 pl-12 pr-4 text-base text-slate-900 font-bold outline-none placeholder:text-slate-400 focus:bg-white focus:border-emerald-500 transition-all"
           />
         </div>
         <div className="relative group">
@@ -326,7 +326,7 @@ const SearchCandidatesPage = () => {
             value={skillQuery}
             onChange={(e) => setSkillQuery(e.target.value)}
             placeholder="Kỹ năng chính..."
-            className="w-full h-14 rounded-2xl bg-slate-50/50 border border-slate-100 pl-12 pr-4 text-sm text-slate-900 font-bold outline-none placeholder:text-slate-400 focus:bg-white focus:border-emerald-500 transition-all"
+            className="w-full h-14 rounded-2xl bg-slate-50/50 border border-slate-100 pl-12 pr-4 text-base text-slate-900 font-bold outline-none placeholder:text-slate-400 focus:bg-white focus:border-emerald-500 transition-all"
           />
         </div>
         <div className="relative group">
@@ -339,10 +339,10 @@ const SearchCandidatesPage = () => {
             value={locationQuery}
             onChange={(e) => setLocationQuery(e.target.value)}
             placeholder="Địa điểm làm việc..."
-            className="w-full h-14 rounded-2xl bg-slate-50/50 border border-slate-100 pl-12 pr-4 text-sm text-slate-900 font-bold outline-none placeholder:text-slate-400 focus:bg-white focus:border-emerald-500 transition-all"
+            className="w-full h-14 rounded-2xl bg-slate-50/50 border border-slate-100 pl-12 pr-4 text-base text-slate-900 font-bold outline-none placeholder:text-slate-400 focus:bg-white focus:border-emerald-500 transition-all"
           />
         </div>
-        <button className="flex h-14 items-center justify-center gap-3 rounded-2xl bg-emerald-600 px-8 text-sm font-black text-white hover:bg-emerald-700 active:scale-[0.98] transition-all shadow-lg shadow-emerald-500/20 shrink-0 uppercase tracking-widest">
+        <button className="flex h-14 items-center justify-center gap-3 rounded-2xl bg-emerald-600 px-8 text-base font-black text-white hover:bg-emerald-700 active:scale-[0.98] transition-all shadow-lg shadow-emerald-500/20 shrink-0 uppercase tracking-widest">
           <Search size={18} />
           Tìm kiếm
         </button>
@@ -352,7 +352,7 @@ const SearchCandidatesPage = () => {
       <div className="flex items-center gap-3 flex-wrap">
         <button
           onClick={handleAdvancedFilter}
-          className="flex items-center gap-2 rounded-2xl border border-primary/25 bg-primary/10 px-5 py-2.5 text-xs font-black text-emerald-600 hover:bg-primary/15 transition-colors duration-200 ease-out shadow-sm"
+          className="flex items-center gap-2 rounded-2xl border border-primary/25 bg-primary/10 px-5 py-2.5 text-base font-black text-emerald-600 hover:bg-primary/15 transition-colors duration-200 ease-out shadow-sm"
         >
           <SlidersHorizontal size={14} />
           BỘ LỌC NÂNG CAO
@@ -364,7 +364,7 @@ const SearchCandidatesPage = () => {
         ].map(({ label, opts }) => (
           <div key={label} className="relative group">
             <select
-              className="h-10 rounded-xl border border-slate-200 bg-white pl-4 pr-10 text-[11px] font-black uppercase tracking-tight text-slate-600 outline-none appearance-none cursor-pointer hover:border-emerald-300 hover:text-emerald-600 hover:bg-primary/10 transition-all shadow-sm"
+              className="h-10 rounded-xl border border-slate-200 bg-white pl-4 pr-10 text-base font-black uppercase tracking-tight text-slate-600 outline-none appearance-none cursor-pointer hover:border-emerald-300 hover:text-emerald-600 hover:bg-primary/10 transition-all shadow-sm"
               onChange={(e) => label === 'Kinh nghiệm' && setSelectedLevel(e.target.value)}
             >
               {opts.map((o) => (
@@ -395,14 +395,14 @@ const SearchCandidatesPage = () => {
 
       {/* ── Result count & sort ── */}
       <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-        <p className="text-sm font-medium text-slate-500">
+        <p className="text-base font-medium text-slate-500">
           Đã tìm thấy{' '}
           <span className="font-black text-slate-900 border-b-2 border-emerald-500">
             {filteredCandidates.length.toLocaleString()}
           </span>{' '}
           kết hợp phù hợp với yêu cầu
         </p>
-        <div className="flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-slate-400">
+        <div className="flex items-center gap-3 text-base font-black uppercase tracking-widest text-slate-400">
           SẮP XẾP:
           <button
             onClick={() => setSortBy('match')}
@@ -438,7 +438,7 @@ const SearchCandidatesPage = () => {
               setSkillQuery('');
               setLocationQuery('');
             }}
-            className="mt-8 rounded-2xl bg-slate-900 px-8 py-3.5 text-xs font-black text-white hover:bg-black transition-all shadow-xl active:scale-95 uppercase tracking-widest"
+            className="mt-8 rounded-2xl bg-slate-900 px-8 py-3.5 text-base font-black text-white hover:bg-black transition-all shadow-xl active:scale-95 uppercase tracking-widest"
           >
             XÓA TẤT CẢ BỘ LỌC
           </button>

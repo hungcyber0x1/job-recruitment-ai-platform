@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   Bell,
   Bookmark,
@@ -8,7 +8,6 @@ import {
   Briefcase,
   Calendar,
   Check,
-  ChevronRight,
   Clock,
   FileText,
   Lightbulb,
@@ -21,6 +20,7 @@ import {
   User,
   X,
 } from 'lucide-react';
+import { resolveMediaUrl } from '@/utils/mediaUrl';
 import { useAuth } from '../context/AuthContext';
 import applicationService from '../services/applicationService';
 import { Button } from '@/components/ui/button';
@@ -67,7 +67,12 @@ const SIDEBAR_NAV = [
   },
 ];
 
-const SidebarContent = () => {
+const isCandidateNavActive = (pathname, path) => {
+  if (path === '/candidate/dashboard') return pathname === '/candidate/dashboard';
+  return pathname === path || pathname.startsWith(`${path}/`);
+};
+
+const SidebarContent = ({ onMobileClose }) => {
   const location = useLocation();
   const { user, logout } = useAuth();
 
@@ -76,90 +81,83 @@ const SidebarContent = () => {
     window.location.href = '/login';
   };
 
-  const isActive = (path) => {
-    if (path === '/candidate/dashboard') return location.pathname === '/candidate/dashboard';
-    return location.pathname.startsWith(path);
-  };
+  const displayName =
+    user?.fullName || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'Ứng viên';
+  const avatarSrc = resolveMediaUrl(user?.avatar_url) || undefined;
 
   return (
-    <div className="flex flex-col h-full bg-white text-slate-900">
-      {/* Logo AI Recruit */}
-      <div className="p-5 border-b border-border">
-        <Link to="/candidate/dashboard" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400">
-            <span className="text-lg font-bold leading-none">A</span>
-          </div>
-          <span className="text-lg font-bold text-foreground">AI Recruit</span>
-        </Link>
+    <div className="z-50 flex h-full flex-col border-r border-border bg-[hsl(var(--nav-bg))] text-foreground dark:border-slate-800 dark:bg-slate-950">
+      <div className="border-b border-border bg-gradient-to-br from-primary/[0.07] via-primary/[0.02] to-transparent px-5 py-5 dark:from-primary/12 dark:via-primary/5 dark:to-transparent">
+        <div className="flex items-start justify-between gap-2">
+          <Link
+            to="/candidate/dashboard"
+            className="group flex min-w-0 flex-1 items-center gap-3"
+            onClick={() => onMobileClose?.()}
+          >
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition-transform group-hover:scale-[1.03]">
+              <User className="h-6 w-6" aria-hidden />
+            </div>
+            <span className="min-w-0 truncate text-lg font-black tracking-tight text-foreground">
+              Ứng viên
+              <span className="text-primary"> Hub</span>
+            </span>
+          </Link>
+          {onMobileClose ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="shrink-0 text-muted-foreground lg:hidden"
+              onClick={onMobileClose}
+              aria-label="Đóng menu"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          ) : null}
+        </div>
       </div>
 
-      {/* User profile block */}
-      <div className="p-4 border-b border-border">
-        <Link
-          to="/candidate/profile"
-          className="flex items-center gap-3 p-3 rounded-2xl border border-transparent hover:border-emerald-100 hover:bg-primary/10 hover:shadow-sm transition-all duration-300 group"
-        >
-          <Avatar className="h-10 w-10 rounded-xl border-2 border-white shadow-sm group-hover:scale-105 transition-transform">
-            <AvatarImage src={user?.avatar_url} alt={user?.fullName} />
-            <AvatarFallback className="bg-emerald-500/10 text-emerald-600 text-sm font-bold">
-              {user?.fullName?.charAt(0) || user?.first_name?.charAt(0) || 'U'}
-            </AvatarFallback>
-          </Avatar>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-bold text-slate-900 truncate group-hover:text-emerald-700 transition-colors">
-              {user?.fullName ||
-                `${user?.first_name || ''} ${user?.last_name || ''}`.trim() ||
-                'Ứng viên'}
-            </p>
-            <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-wider">
-              Free Account
-            </p>
-          </div>
-          <div className="h-8 w-8 rounded-lg flex items-center justify-center text-slate-400 group-hover:text-emerald-500 group-hover:bg-card transition-colors duration-200 ease-out">
-            <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
-          </div>
-        </Link>
-      </div>
-
-      {/* Navigation */}
       <ScrollArea className="flex-1 px-3 py-4">
         <nav className="flex flex-col gap-6">
           {SIDEBAR_NAV.map((group) => (
             <div key={group.title}>
-              <h3 className="px-3 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              <h3 className="mb-2 px-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">
                 {group.title}
               </h3>
               <div className="space-y-0.5">
                 {group.items.map((item) => {
                   const Icon = item.icon;
-                  const active = isActive(item.path);
+                  const active = isCandidateNavActive(location.pathname, item.path);
                   return (
-                    <Link
+                    <NavLink
                       key={item.path + item.label}
                       to={item.path}
+                      end={item.path === '/candidate/dashboard'}
+                      onClick={() => onMobileClose?.()}
                       className={cn(
-                        'flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 group relative',
+                        'group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-base font-medium transition-all duration-200',
                         active
-                          ? 'bg-emerald-500/10 text-emerald-700 shadow-sm shadow-emerald-500/5'
-                          : 'text-slate-500 hover:bg-primary/10 hover:text-emerald-600'
+                          ? 'bg-primary/10 text-primary shadow-sm ring-1 ring-primary/10 dark:bg-primary/15 dark:text-primary dark:ring-primary/20'
+                          : 'text-muted-foreground hover:bg-muted/90 hover:text-foreground dark:hover:bg-slate-800/80 dark:hover:text-slate-100'
                       )}
                     >
-                      <Icon
-                        size={18}
-                        className={cn(
-                          'shrink-0 transition-all duration-300 group-hover:scale-110',
-                          active
-                            ? 'text-emerald-600'
-                            : 'text-slate-400 group-hover:text-emerald-500'
-                        )}
-                      />
-                      <span className="transition-transform duration-200 group-hover:translate-x-0.5">
-                        {item.label}
-                      </span>
                       {active && (
-                        <div className="absolute left-0 w-1 h-5 bg-emerald-500 rounded-r-full" />
+                        <span
+                          className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-primary shadow-[0_0_12px_hsl(var(--primary)_/_0.45)]"
+                          aria-hidden
+                        />
                       )}
-                    </Link>
+                      <Icon
+                        size={20}
+                        className={cn(
+                          'shrink-0 transition-transform duration-200 group-hover:scale-105',
+                          active
+                            ? 'text-primary'
+                            : 'text-muted-foreground/80 group-hover:text-primary'
+                        )}
+                        aria-hidden
+                      />
+                      <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                    </NavLink>
                   );
                 })}
               </div>
@@ -168,19 +166,45 @@ const SidebarContent = () => {
         </nav>
       </ScrollArea>
 
-      {/* Footer logout */}
-      <div className="p-4 border-t border-border">
+      <div className="border-t border-border p-4">
+        <Link
+          to="/candidate/profile"
+          className="group mb-3 flex items-center gap-3 rounded-2xl border border-border bg-card/70 p-3.5 shadow-sm transition-all hover:border-primary/30 hover:bg-primary/[0.06] dark:bg-slate-900/50 dark:hover:bg-primary/10"
+          onClick={() => onMobileClose?.()}
+        >
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-background shadow-sm transition-transform group-hover:scale-[1.02] dark:bg-slate-800 dark:border-slate-700">
+            {avatarSrc ? (
+              <img src={avatarSrc} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <span className="text-base font-bold text-primary">
+                {(displayName.charAt(0) || 'U').toUpperCase()}
+              </span>
+            )}
+          </div>
+          <div className="min-w-0 flex-1 text-left">
+            <p className="truncate text-base font-semibold text-foreground transition-colors group-hover:text-primary">
+              {displayName}
+            </p>
+            <p className="truncate text-xs font-bold uppercase tracking-widest text-primary">
+              Tài khoản ứng viên
+            </p>
+          </div>
+        </Link>
         <Button
           variant="ghost"
-          className="w-full justify-start text-muted-foreground hover:text-foreground"
+          className="h-11 w-full justify-start rounded-xl text-muted-foreground hover:bg-muted/90 hover:text-foreground dark:hover:bg-slate-800/80"
           onClick={handleLogout}
         >
-          <LogOut className="mr-2 h-4 w-4" />
+          <LogOut className="mr-2 h-4 w-4 shrink-0" />
           Đăng xuất
         </Button>
       </div>
     </div>
   );
+};
+
+SidebarContent.propTypes = {
+  onMobileClose: PropTypes.func,
 };
 
 const formatNotificationTime = (dateStr) => {
@@ -259,14 +283,14 @@ const CandidateLayout = ({ children }) => {
   return (
     <div className="min-h-screen bg-background flex">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 border-r border-border bg-white z-20">
+      <aside className="z-20 hidden w-64 lg:fixed lg:inset-y-0 lg:flex lg:flex-col">
         <SidebarContent />
       </aside>
 
       {/* Mobile overlay */}
       {isMobileSidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-40 bg-slate-900/20 backdrop-blur-md lg:hidden"
           onClick={() => setIsMobileSidebarOpen(false)}
           aria-hidden
         />
@@ -275,33 +299,11 @@ const CandidateLayout = ({ children }) => {
       {/* Mobile Sidebar */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-border transition-transform duration-200 lg:hidden',
+          'fixed inset-y-0 left-0 z-50 w-64 transition-transform duration-300 lg:hidden',
           isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
-        <div className="flex items-center justify-between p-4 border-b border-border">
-          <Link
-            to="/candidate/dashboard"
-            className="flex items-center gap-3"
-            onClick={() => setIsMobileSidebarOpen(false)}
-          >
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400 font-bold">
-              A
-            </div>
-            <span className="font-bold text-foreground">AI Recruit</span>
-          </Link>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-muted-foreground"
-            onClick={() => setIsMobileSidebarOpen(false)}
-          >
-            <X className="h-5 w-5" />
-          </Button>
-        </div>
-        <div className="pt-2">
-          <SidebarContent />
-        </div>
+        <SidebarContent onMobileClose={() => setIsMobileSidebarOpen(false)} />
       </aside>
 
       {/* Main content */}
@@ -318,7 +320,7 @@ const CandidateLayout = ({ children }) => {
             <Menu className="h-5 w-5" />
           </Button>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">
+            <p className="text-base font-semibold text-slate-800 dark:text-slate-200 truncate">
               {getPageTitle()}
             </p>
           </div>
@@ -401,25 +403,25 @@ const CandidateLayout = ({ children }) => {
                     <Bell size={16} className="text-primary" />
                     <h3 className="font-bold text-slate-800 dark:text-slate-200">Thông báo</h3>
                     {unreadCount > 0 && (
-                      <span className="bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                      <span className="bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 text-base font-bold px-1.5 py-0.5 rounded-full">
                         {unreadCount}
                       </span>
                     )}
                   </div>
                   <Link
                     to="/candidate/notifications"
-                    className="text-xs font-medium text-primary hover:text-primary/80"
+                    className="text-base font-medium text-primary hover:text-primary/80"
                   >
                     Xem tất cả
                   </Link>
                 </div>
                 <div className="max-h-[320px] overflow-y-auto">
                   {notificationsLoading ? (
-                    <div className="p-8 text-center text-slate-400 text-sm">Đang tải...</div>
+                    <div className="p-8 text-center text-slate-400 text-base">Đang tải...</div>
                   ) : notifications.length === 0 ? (
                     <div className="p-8 text-center text-slate-400">
                       <Bell size={32} className="mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">Chưa có thông báo mới</p>
+                      <p className="text-base">Chưa có thông báo mới</p>
                     </div>
                   ) : (
                     <div className="divide-y divide-slate-50 dark:divide-slate-800">
@@ -453,7 +455,7 @@ const CandidateLayout = ({ children }) => {
                             <div className="min-w-0 flex-1">
                               <h4
                                 className={cn(
-                                  'text-sm',
+                                  'text-base',
                                   !n.isRead
                                     ? 'font-bold text-slate-900 dark:text-white'
                                     : 'font-medium text-slate-700 dark:text-slate-300'
@@ -461,10 +463,10 @@ const CandidateLayout = ({ children }) => {
                               >
                                 {n.title}
                               </h4>
-                              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
+                              <p className="text-base text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
                                 {n.message}
                               </p>
-                              <p className="text-[10px] text-slate-400 mt-1.5">
+                              <p className="text-base text-slate-400 mt-1.5">
                                 {formatNotificationTime(n.time)}
                               </p>
                             </div>
@@ -489,7 +491,7 @@ const CandidateLayout = ({ children }) => {
                 >
                   <Avatar className="h-8 w-8 shadow-sm">
                     <AvatarImage src={user?.avatar_url} alt={displayName} />
-                    <AvatarFallback className="bg-emerald-500/10 text-emerald-600 text-sm font-bold">
+                    <AvatarFallback className="bg-emerald-500/10 text-emerald-600 text-base font-bold">
                       {displayName.charAt(0) || 'U'}
                     </AvatarFallback>
                   </Avatar>
@@ -498,8 +500,8 @@ const CandidateLayout = ({ children }) => {
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{displayName}</p>
-                    <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                    <p className="text-base font-medium leading-none">{displayName}</p>
+                    <p className="text-base leading-none text-muted-foreground">{user?.email}</p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />

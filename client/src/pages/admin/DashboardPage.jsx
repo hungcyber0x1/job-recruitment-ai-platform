@@ -241,43 +241,43 @@ const DashboardPage = () => {
         {/* Trung tâm Điều hành Nền tảng */}
         <section>
           <h1 className="text-2xl font-bold text-slate-900 mb-1">Trung tâm Điều hành Nền tảng</h1>
-          <p className="text-slate-500 text-sm mb-6">
+          <p className="text-slate-500 text-base mb-6">
             Chào mừng trở lại, hệ thống đang hoạt động ổn định.
           </p>
 
           <div className="flex flex-wrap items-center gap-4 mb-6">
             <Link
               to="/admin/moderation"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-500 text-white font-semibold text-sm hover:bg-emerald-600 transition-all hover:shadow-lg hover:shadow-emerald-500/25 active:scale-95"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-500 text-white font-semibold text-base hover:bg-emerald-600 transition-all hover:shadow-lg hover:shadow-emerald-500/25 active:scale-95"
             >
               Kiểm duyệt
               <ArrowRight size={16} />
             </Link>
             <Link
               to="/admin/service-health"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-500 text-white font-semibold text-sm hover:bg-emerald-600 transition-all hover:shadow-lg hover:shadow-emerald-500/25 active:scale-95"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-500 text-white font-semibold text-base hover:bg-emerald-600 transition-all hover:shadow-lg hover:shadow-emerald-500/25 active:scale-95"
             >
               Sức khỏe hệ thống
               <ArrowRight size={16} />
             </Link>
             <Link
               to="/admin/feature-flags"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-100 text-slate-900 font-semibold text-sm hover:bg-muted/60 transition-colors duration-200 ease-out active:scale-95"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-100 text-slate-900 font-semibold text-base hover:bg-muted/60 transition-colors duration-200 ease-out active:scale-95"
             >
               Bản đồ tính năng
             </Link>
 
             <div className="ml-auto flex items-center gap-4">
               <div className="px-5 py-3 rounded-xl bg-white border border-slate-200">
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                <p className="text-base font-bold text-slate-500 uppercase tracking-wider">
                   Sức khỏe nền tảng
                 </p>
                 <p className="text-2xl font-bold text-emerald-400">
-                  {platformHealth}% <span className="text-sm text-emerald-500">↑0.5%</span>
+                  {platformHealth}% <span className="text-base text-emerald-500">↑0.5%</span>
                 </p>
               </div>
               <div className="px-5 py-3 rounded-xl bg-white border border-slate-200">
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                <p className="text-base font-bold text-slate-500 uppercase tracking-wider">
                   Trạng thái tải AI
                 </p>
                 <p className="text-xl font-bold text-emerald-400">BÌNH THƯỜNG</p>
@@ -299,9 +299,9 @@ const DashboardPage = () => {
                 >
                   <div className="flex items-start justify-between">
                     <Icon className="h-8 w-8 text-slate-400 group-hover:text-emerald-500 transition-colors shrink-0" />
-                    <span className={`text-xs font-semibold ${m.subColor}`}>{m.sub}</span>
+                    <span className={`text-base font-semibold ${m.subColor}`}>{m.sub}</span>
                   </div>
-                  <p className="text-xs font-medium text-slate-500 mt-2 uppercase tracking-wide">
+                  <p className="text-base font-medium text-slate-500 mt-2 uppercase tracking-wide">
                     {m.label}
                   </p>
                   <p className="text-xl font-bold text-slate-900 mt-1">{m.value}</p>
@@ -318,7 +318,7 @@ const DashboardPage = () => {
               <h2 className="text-lg font-bold text-slate-900">Module Chức năng</h2>
               <Link
                 to="/admin/analytics"
-                className="text-sm font-semibold text-emerald-500 hover:text-emerald-600 transition-colors"
+                className="text-base font-semibold text-emerald-500 hover:text-emerald-600 transition-colors"
               >
                 Xem tất cả
               </Link>
@@ -339,7 +339,7 @@ const DashboardPage = () => {
                       <h3 className="font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">
                         {mod.title}
                       </h3>
-                      <p className="text-sm text-slate-500 mt-0.5">{mod.desc}</p>
+                      <p className="text-base text-slate-500 mt-0.5">{mod.desc}</p>
                     </div>
                   </Link>
                 );
@@ -399,7 +399,7 @@ const DashboardPage = () => {
                         ? `${(totalApplicants / 1000).toFixed(1)}k`
                         : totalApplicants}
                     </p>
-                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
+                    <p className="text-base font-medium text-slate-500 uppercase tracking-wider">
                       Ứng viên
                     </p>
                   </div>
@@ -428,7 +428,7 @@ const DashboardPage = () => {
                     color: PIPELINE_CHART_COLORS[3],
                   },
                 ].map((item) => (
-                  <div key={item.label} className="flex items-center justify-between text-sm">
+                  <div key={item.label} className="flex items-center justify-between text-base">
                     <div className="flex items-center gap-2">
                       <span
                         className="w-2.5 h-2.5 rounded-full shrink-0"

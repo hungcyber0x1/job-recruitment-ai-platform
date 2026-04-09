@@ -51,11 +51,11 @@ const LandingFooter = () => {
               <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-[0_4px_14px_rgba(16,185,129,0.25)]">
                 <span className="text-white font-black text-xl">H</span>
               </div>
-              <span className="text-xl font-bold text-white tracking-tight">
+              <span className="text-lg font-black text-white tracking-tight sm:text-xl">
                 HireAI<span className="text-primary">.</span>
               </span>
             </Link>
-            <p className="text-slate-500 text-sm leading-relaxed max-w-md">
+            <p className="max-w-md text-base font-medium leading-relaxed text-slate-500">
               HireAI kết nối nhân tài và cơ hội việc làm bằng AI: gợi ý việc khớp kỹ năng, phân tích
               CV và đồng hành phát triển sự nghiệp — dành cho ứng viên và doanh nghiệp tại Việt Nam.
             </p>
@@ -88,7 +88,7 @@ const LandingFooter = () => {
           <div className="lg:col-span-5 grid grid-cols-2 sm:grid-cols-4 gap-8">
             {footerColumns.map((col) => (
               <div key={col.title}>
-                <h4 className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400 mb-4">
+                <h4 className="mb-4 text-sm font-bold uppercase tracking-widest text-slate-400">
                   {col.title}
                 </h4>
                 <ul className="space-y-2.5">
@@ -96,7 +96,7 @@ const LandingFooter = () => {
                     <li key={link.label}>
                       <Link
                         to={link.path}
-                        className="text-sm font-medium text-slate-500 hover:text-white transition-colors"
+                        className="text-base font-medium text-slate-500 hover:text-white transition-colors"
                       >
                         {link.label}
                       </Link>
@@ -108,25 +108,25 @@ const LandingFooter = () => {
           </div>
 
           <div className="lg:col-span-3">
-            <h4 className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400 mb-4">
+            <h4 className="mb-4 text-sm font-bold uppercase tracking-widest text-slate-400">
               Liên hệ
             </h4>
             <div className="space-y-3">
               <a href="#" className="flex items-start gap-3 group">
                 <MapPin size={14} className="text-primary/80 mt-0.5 shrink-0" />
-                <span className="text-sm font-medium text-slate-500 group-hover:text-slate-300">
+                <span className="text-base font-medium text-slate-500 group-hover:text-slate-300">
                   Quận 1, TP. Hồ Chí Minh
                 </span>
               </a>
               <a href="tel:+842873001234" className="flex items-start gap-3 group">
                 <Phone size={14} className="text-primary/80 mt-0.5 shrink-0" />
-                <span className="text-sm font-medium text-slate-500 group-hover:text-slate-300">
+                <span className="text-base font-medium text-slate-500 group-hover:text-slate-300">
                   +84 28 7300 1234
                 </span>
               </a>
               <a href="mailto:contact@hireai.vn" className="flex items-start gap-3 group">
                 <Mail size={14} className="text-primary/80 mt-0.5 shrink-0" />
-                <span className="text-sm font-medium text-slate-500 group-hover:text-slate-300">
+                <span className="text-base font-medium text-slate-500 group-hover:text-slate-300">
                   contact@hireai.vn
                 </span>
               </a>
@@ -135,10 +135,10 @@ const LandingFooter = () => {
         </div>
 
         <div className="py-6 border-t border-white/[0.06] flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-xs font-medium text-slate-600 text-center sm:text-left">
+          <p className="text-center text-sm font-medium text-slate-500 sm:text-left">
             © {new Date().getFullYear()} HireAI.vn — Đường tới thành công sự nghiệp
           </p>
-          <p className="text-xs text-slate-600">Thiết kế giao diện theo chuẩn HireAI</p>
+          <p className="text-sm font-medium text-slate-500">Thiết kế giao diện theo chuẩn HireAI</p>
         </div>
       </div>
     </footer>

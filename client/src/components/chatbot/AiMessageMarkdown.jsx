@@ -19,7 +19,7 @@ function parseInline(raw, keyBase = 'i') {
         out.push(
           <code
             key={key()}
-            className="rounded bg-slate-100 px-1 py-0.5 text-[12px] font-mono text-slate-800"
+            className="rounded bg-slate-100 px-1 py-0.5 text-sm font-mono text-slate-800"
           >
             {text.slice(i + 1, end)}
           </code>
@@ -108,7 +108,7 @@ function renderBlock(lines, blockIdx) {
     return (
       <blockquote
         key={`bq-${blockIdx}`}
-        className="my-2 border-l-2 border-emerald-300/80 pl-3 text-[13px] text-slate-600 italic"
+        className="my-2 border-l-2 border-emerald-300/80 pl-3 text-base text-slate-600 italic"
       >
         {renderParagraphLines(inner.split(/\r?\n/), `qb-${blockIdx}`)}
       </blockquote>
@@ -120,7 +120,7 @@ function renderBlock(lines, blockIdx) {
     return (
       <ul
         key={`ul-${blockIdx}`}
-        className="my-2.5 list-disc space-y-1.5 pl-4 text-[14px] leading-relaxed text-slate-700 marker:text-emerald-600"
+        className="my-2.5 list-disc space-y-1.5 pl-4 text-base leading-relaxed text-slate-700 marker:text-emerald-600"
       >
         {lines.map((line, li) => (
           <li key={li} className="pl-0.5">
@@ -136,7 +136,7 @@ function renderBlock(lines, blockIdx) {
     return (
       <ol
         key={`ol-${blockIdx}`}
-        className="my-2.5 list-decimal space-y-1.5 pl-4 text-[14px] leading-relaxed text-slate-700 marker:font-medium marker:text-slate-500"
+        className="my-2.5 list-decimal space-y-1.5 pl-4 text-base leading-relaxed text-slate-700 marker:font-medium marker:text-slate-500"
       >
         {lines.map((line, li) => (
           <li key={li} className="pl-0.5">
@@ -162,7 +162,7 @@ function renderParagraphLines(lineArr, keyBase) {
     }
   });
   return (
-    <p className="mb-3 last:mb-0 text-[14px] leading-[1.65] text-slate-700" key={keyBase}>
+    <p className="mb-3 last:mb-0 text-base leading-[1.65] text-slate-700" key={keyBase}>
       {nodes}
     </p>
   );
@@ -189,7 +189,7 @@ function splitBlocks(text) {
 export default function AiMessageMarkdown({ text }) {
   const blocks = splitBlocks(text);
   if (!blocks.length) {
-    return <p className="text-[14px] text-slate-700">&nbsp;</p>;
+    return <p className="text-base text-slate-700">&nbsp;</p>;
   }
 
   return (

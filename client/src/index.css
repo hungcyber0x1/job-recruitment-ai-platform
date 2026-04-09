@@ -101,6 +101,8 @@
   }
 
   html {
+    /* Cỡ rem gốc ~8% lớn hơn 16px — toàn bộ text-/spacing dùng rem dễ đọc hơn */
+    font-size: 108%;
     scroll-behavior: smooth;
     scroll-margin-top: 6rem;
     -webkit-font-smoothing: antialiased;
@@ -199,7 +201,7 @@ h6 {
   }
 
   .data-table {
-    @apply w-full border-collapse text-left text-sm;
+    @apply w-full border-collapse text-left text-base;
   }
 
   .data-table thead tr {
@@ -207,7 +209,7 @@ h6 {
   }
 
   .data-table thead th {
-    @apply px-5 py-3.5 text-start align-middle text-xs font-bold uppercase tracking-wider text-secondary-foreground/90;
+    @apply px-5 py-3.5 text-start align-middle text-sm font-bold uppercase tracking-wider text-secondary-foreground/90;
   }
 
   .data-table tbody {
@@ -779,7 +781,7 @@ h6 {
     box-shadow: 0 8px 32px -12px rgba(0, 0, 0, 0.03);
   }
 
-  /* Trang công cụ AI công khai (/ai-cv-scanner, /ai-interview, /salary-predictor) */
+  /* Trang công cụ AI công khai (/ai-cv-scanner, /salary-predictor) */
   .ai-tool-panel {
     @apply rounded-2xl border border-border/50 bg-card text-foreground shadow-[0_12px_40px_-8px_rgba(15,23,42,0.08)] dark:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.35)];
   }

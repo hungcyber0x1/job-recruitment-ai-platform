@@ -52,7 +52,7 @@ const NotificationDropdown = ({ isOpen, onClose, notifications = [] }) => {
           <div className="flex items-center gap-2">
             <Bell size={16} className="text-primary-600" />
             <h3 className="font-bold text-slate-800">Thông báo</h3>
-            <span className="bg-primary-100 text-primary-600 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+            <span className="bg-primary-100 text-primary-600 text-xs font-bold px-1.5 py-0.5 rounded-full">
               {displayNotifications.filter((n) => !n.isRead).length}
             </span>
           </div>
@@ -101,9 +101,7 @@ const NotificationDropdown = ({ isOpen, onClose, notifications = [] }) => {
                       <p className="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2">
                         {notification.message}
                       </p>
-                      <p className="text-[10px] text-slate-400 mt-2 font-medium">
-                        {notification.time}
-                      </p>
+                      <p className="text-xs text-slate-400 mt-2 font-medium">{notification.time}</p>
                     </div>
                   </div>
                 </div>

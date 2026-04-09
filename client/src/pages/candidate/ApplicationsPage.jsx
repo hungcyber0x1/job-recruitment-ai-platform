@@ -127,7 +127,7 @@ const ApplicationsPage = () => {
         <div className="space-y-6">
           <div>
             <h1 className="text-xl font-bold text-foreground">Đơn ứng tuyển của tôi</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-base text-muted-foreground">
               Bạn đang có {activeCount} đơn ứng tuyển đang hoạt động. Tiếp tục cố gắng nhé!
             </p>
           </div>
@@ -176,7 +176,7 @@ const ApplicationsPage = () => {
                 )}
               >
                 <p className="text-2xl font-bold">{item.value}</p>
-                <p className="mt-1 text-[10px] font-bold uppercase tracking-wider opacity-80 leading-none">
+                <p className="mt-1 text-base font-bold uppercase tracking-wider opacity-80 leading-none">
                   {item.label}
                 </p>
               </button>
@@ -191,7 +191,7 @@ const ApplicationsPage = () => {
                 type="button"
                 onClick={() => setActiveTab(id)}
                 className={cn(
-                  'px-4 py-2 text-sm font-bold transition-all relative',
+                  'px-4 py-2 text-base font-bold transition-all relative',
                   activeTab === id
                     ? 'text-emerald-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-emerald-500 after:rounded-full'
                     : 'text-slate-400 hover:text-slate-600'
@@ -224,7 +224,7 @@ const ApplicationsPage = () => {
                 <h3 className="text-lg font-semibold text-foreground">
                   Không tìm thấy đơn ứng tuyển nào
                 </h3>
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="mt-2 text-base text-muted-foreground">
                   Thử đổi bộ lọc hoặc khám phá việc làm để ứng tuyển.
                 </p>
                 <Button asChild className="mt-6 rounded-lg" variant="outline">
@@ -260,10 +260,10 @@ const ApplicationsPage = () => {
                             <h3 className="font-semibold text-foreground">
                               {app.job_title || app.job?.title}
                             </h3>
-                            <p className="mt-1 text-sm text-muted-foreground">
+                            <p className="mt-1 text-base text-muted-foreground">
                               {app.company_name || app.company?.name}
                             </p>
-                            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-base text-muted-foreground">
                               <span>Ứng tuyển: {formatDate(app.applied_at || app.created_at)}</span>
                               {typeof app.match_score === 'number' && (
                                 <span className="text-emerald-600 font-medium">
@@ -278,7 +278,7 @@ const ApplicationsPage = () => {
                           {config && (
                             <span
                               className={cn(
-                                'inline-flex items-center gap-1.5 rounded-lg px-3 py-1 text-[10px] font-bold uppercase tracking-wider',
+                                'inline-flex items-center gap-1.5 rounded-lg px-3 py-1 text-base font-bold uppercase tracking-wider',
                                 app.status === 'interviewing'
                                   ? 'bg-emerald-500/10 text-emerald-700'
                                   : app.status === 'offered' || app.status === 'hired'
@@ -331,7 +331,7 @@ const ApplicationsPage = () => {
                   </BarChart>
                 </ChartSurface>
               </div>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="mt-1 text-base text-muted-foreground">
                 Dựa trên {totalCount} đơn ứng tuyển trong hệ thống.
               </p>
             </CardContent>
@@ -340,7 +340,7 @@ const ApplicationsPage = () => {
           <Card className="rounded-xl border bg-card shadow-sm">
             <CardContent className="p-6">
               <h3 className="font-semibold text-foreground">Gợi ý từ AI</h3>
-              <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+              <ul className="mt-4 space-y-2 text-base text-muted-foreground">
                 <li className="flex gap-2">
                   <span className="text-emerald-500">•</span>
                   Hoàn thiện đầy đủ các dự án thực tế để tăng điểm tin cậy.
@@ -366,7 +366,7 @@ const ApplicationsPage = () => {
           <Card className="overflow-hidden rounded-xl border-0 bg-primary text-white">
             <CardContent className="p-6">
               <h3 className="font-semibold">Mở khóa tính năng Premium</h3>
-              <p className="mt-2 text-sm text-white/90">
+              <p className="mt-2 text-base text-white/90">
                 Xem ai đã xem hồ sơ của bạn và nhận phân tích chi tiết từ AI.
               </p>
               <Button

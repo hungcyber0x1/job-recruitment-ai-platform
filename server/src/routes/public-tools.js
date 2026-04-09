@@ -21,11 +21,4 @@ router.post(
   PublicToolsController.cvPreview.bind(PublicToolsController)
 );
 
-router.post(
-  '/interview-hint',
-  aiLimiter,
-  publicToolsLimiter,
-  PublicToolsController.interviewHint.bind(PublicToolsController)
-);
-
 module.exports = router;

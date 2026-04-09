@@ -120,7 +120,7 @@ const CandidateDashboard = ({ stats, recentApplications }) => {
               size={120}
             />
             <div className="relative z-10">
-              <div className="mb-4 w-fit rounded-full bg-white/20 px-3 py-1 text-[10px] font-black uppercase tracking-widest">
+              <div className="mb-4 w-fit rounded-full bg-white/20 px-3 py-1 text-xs font-black uppercase tracking-widest">
                 Gợi ý bởi AI
               </div>
               <h4 className="mb-4 text-xl font-black">Hoàn thiện hồ sơ để tăng 80% cơ hội.</h4>

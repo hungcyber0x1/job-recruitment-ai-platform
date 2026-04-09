@@ -49,11 +49,11 @@ const ModernFooter = () => {
               <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
                 <span className="text-white font-black text-xl">H</span>
               </div>
-              <span className="text-xl font-bold text-white tracking-tight">
+              <span className="text-lg font-black text-white tracking-tight sm:text-xl">
                 HireAI<span className="text-primary">.</span>
               </span>
             </Link>
-            <p className="text-slate-500 text-sm leading-relaxed max-w-xs">
+            <p className="max-w-xs text-base font-medium leading-relaxed text-slate-500">
               Kiến tạo tương lai nghề nghiệp bằng sức mạnh của Trí tuệ nhân tạo. Kết nối nhân tài
               với cơ hội xứng tầm.
             </p>
@@ -74,7 +74,7 @@ const ModernFooter = () => {
           {/* Link columns */}
           {footerLinks.map((col) => (
             <div key={col.title} className="space-y-4">
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+              <h4 className="text-sm font-bold uppercase tracking-widest text-slate-400">
                 {col.title}
               </h4>
               <ul className="space-y-3">
@@ -82,7 +82,7 @@ const ModernFooter = () => {
                   <li key={link.label}>
                     <Link
                       to={link.path}
-                      className="text-sm font-medium text-slate-500 hover:text-white transition-colors"
+                      className="text-base font-medium text-slate-500 hover:text-white transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -94,20 +94,18 @@ const ModernFooter = () => {
 
           {/* Contact */}
           <div className="space-y-4">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-              Liên hệ
-            </h4>
+            <h4 className="text-sm font-bold uppercase tracking-widest text-slate-400">Liên hệ</h4>
             <div className="space-y-3">
               <a
                 href="#"
-                className="flex items-start gap-3 text-sm font-medium text-slate-500 hover:text-slate-300 transition-colors"
+                className="flex items-start gap-3 text-base font-medium text-slate-500 hover:text-slate-300 transition-colors"
               >
                 <MapPin className="size-4 text-primary mt-0.5 shrink-0" aria-hidden />
                 Quận 1, TP. Hồ Chí Minh
               </a>
               <a
                 href="tel:+842873001234"
-                className="flex items-start gap-3 text-sm font-medium text-slate-500 hover:text-slate-300 transition-colors"
+                className="flex items-start gap-3 text-base font-medium text-slate-500 hover:text-slate-300 transition-colors"
               >
                 <Phone className="size-4 text-primary mt-0.5 shrink-0" aria-hidden />
                 +84 28 7300 1234
@@ -125,19 +123,19 @@ const ModernFooter = () => {
 
         {/* Bottom bar */}
         <div className="py-6 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-slate-500">
+          <p className="text-sm font-medium text-slate-500">
             © {new Date().getFullYear()} HireAI. Phát triển tại Việt Nam.
           </p>
           <div className="flex items-center gap-6">
             <Link
               to="/privacy"
-              className="text-sm text-slate-500 hover:text-slate-300 transition-colors"
+              className="text-sm font-medium text-slate-500 hover:text-slate-300 transition-colors"
             >
               Chính sách bảo mật
             </Link>
             <Link
               to="/terms"
-              className="text-sm text-slate-500 hover:text-slate-300 transition-colors"
+              className="text-sm font-medium text-slate-500 hover:text-slate-300 transition-colors"
             >
               Điều khoản sử dụng
             </Link>

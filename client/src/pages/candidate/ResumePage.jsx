@@ -152,7 +152,7 @@ const ResumePage = () => {
       <Card className="mb-8 rounded-xl border bg-card shadow-sm">
         <CardContent className="p-6">
           <h2 className="text-2xl font-bold text-foreground">Xin chào, {displayName}!</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2 text-base text-muted-foreground">
             Quản lý và cập nhật hồ sơ năng lực của bạn để gây ấn tượng với nhà tuyển dụng.
           </p>
           <div
@@ -206,7 +206,7 @@ const ResumePage = () => {
           </h3>
           <Link
             to="/candidate/resume"
-            className="text-sm font-medium text-emerald-600 hover:underline"
+            className="text-base font-medium text-emerald-600 hover:underline"
           >
             Xem tất cả
           </Link>
@@ -224,7 +224,7 @@ const ResumePage = () => {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium text-foreground">{cv.name}</p>
-                    <p className="text-xs text-muted-foreground">Cập nhật: {cv.date}</p>
+                    <p className="text-base text-muted-foreground">Cập nhật: {cv.date}</p>
                   </div>
                 </div>
                 <div className="mt-4 flex gap-2">
@@ -271,7 +271,7 @@ const ResumePage = () => {
                 disabled={isUploading}
               />
               <Plus className="h-10 w-10 text-slate-300 group-hover:text-emerald-500 transition-all duration-300 group-hover:scale-110" />
-              <span className="mt-2 text-sm font-bold text-slate-400 group-hover:text-emerald-600 transition-colors uppercase tracking-wider">
+              <span className="mt-2 text-base font-bold text-slate-400 group-hover:text-emerald-600 transition-colors uppercase tracking-wider">
                 Tải hồ sơ khác
               </span>
             </label>
@@ -329,20 +329,20 @@ const ResumePage = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
                 <CardContent className="p-5">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-600">
+                  <p className="text-base font-bold uppercase tracking-widest text-emerald-600">
                     {proj.category || 'Dự án nổi bật'}
                   </p>
                   <h4 className="mt-2 font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
                     {proj.title}
                   </h4>
-                  <p className="mt-2 line-clamp-2 text-sm text-slate-500 font-medium leading-relaxed">
+                  <p className="mt-2 line-clamp-2 text-base text-slate-500 font-medium leading-relaxed">
                     {proj.description}
                   </p>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {(proj.tags || []).map((tag) => (
                       <span
                         key={tag}
-                        className="rounded-lg bg-slate-50 border border-slate-100 px-2.5 py-1 text-[10px] font-bold text-slate-500 group-hover:bg-primary/10 group-hover:text-emerald-600 group-hover:border-emerald-100 transition-all"
+                        className="rounded-lg bg-slate-50 border border-slate-100 px-2.5 py-1 text-base font-bold text-slate-500 group-hover:bg-primary/10 group-hover:text-emerald-600 group-hover:border-emerald-100 transition-all"
                       >
                         {tag}
                       </span>
@@ -354,7 +354,7 @@ const ResumePage = () => {
           ) : (
             <Card className="flex min-h-[200px] flex-col items-center justify-center rounded-xl border-2 border-dashed border-muted-foreground/25 bg-muted/30 text-center sm:col-span-2 lg:col-span-3">
               <Briefcase className="h-10 w-10 text-muted-foreground/50" />
-              <p className="mt-2 text-sm font-medium text-muted-foreground">
+              <p className="mt-2 text-base font-medium text-muted-foreground">
                 Chưa có dự án tiêu biểu nào được thêm.
               </p>
               <Button variant="link" className="text-emerald-600" asChild>
@@ -389,7 +389,7 @@ const ResumePage = () => {
                 </div>
                 <div className="min-w-0 flex-1">
                   <h4 className="font-semibold text-foreground">{cert.name || cert.title}</h4>
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="mt-1 text-base text-muted-foreground">
                     {cert.issuer || cert.organization || cert.school}
                     {cert.year ? ` • ${cert.year}` : ''}
                   </p>
@@ -398,7 +398,7 @@ const ResumePage = () => {
                       href={cert.url || cert.link}
                       target="_blank"
                       rel="noreferrer"
-                      className="mt-2 inline-flex items-center text-sm font-medium text-emerald-600 hover:underline"
+                      className="mt-2 inline-flex items-center text-base font-medium text-emerald-600 hover:underline"
                     >
                       Xem chi tiết
                     </a>
@@ -411,7 +411,7 @@ const ResumePage = () => {
       </section>
 
       {/* Footer */}
-      <footer className="flex flex-wrap items-center justify-between gap-4 border-t pt-8 text-sm text-muted-foreground">
+      <footer className="flex flex-wrap items-center justify-between gap-4 border-t pt-8 text-base text-muted-foreground">
         <div className="flex items-center gap-2">
           <FileText className="h-4 w-4" />
           Hồ sơ năng lực

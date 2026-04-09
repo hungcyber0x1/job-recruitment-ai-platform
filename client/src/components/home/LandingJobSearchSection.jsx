@@ -107,12 +107,12 @@ const LandingJobSearchSection = () => {
           className="text-center max-w-3xl mx-auto mb-10"
         >
           <h2
-            className="text-3xl md:text-5xl font-extrabold tracking-tight leading-[1.1] mb-3"
+            className="text-3xl md:text-4xl font-black tracking-tight leading-[1.12] mb-3"
             style={{ color: 'hsl(var(--landing-ink))' }}
           >
             Việc làm mới <span className="text-primary">dành cho bạn</span>
           </h2>
-          <p className="font-medium" style={{ color: 'hsl(var(--landing-body))' }}>
+          <p className="text-base font-medium" style={{ color: 'hsl(var(--landing-body))' }}>
             Tìm theo từ khóa và khu vực — kết quả được cá nhân hóa bởi AI.
           </p>
         </motion.div>
@@ -131,7 +131,7 @@ const LandingJobSearchSection = () => {
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
                 placeholder="Chức danh, từ khóa…"
-                className="w-full bg-transparent border-none focus:outline-none focus:ring-0 text-foreground font-medium placeholder:text-muted-foreground/70"
+                className="w-full bg-transparent border-none focus:outline-none focus:ring-0 text-base text-foreground font-medium placeholder:text-muted-foreground/70"
               />
             </label>
             <label className="flex-1 flex items-center gap-3 px-4 py-3 min-h-[52px] rounded-xl bg-muted/30 sm:border-l border-border/50">
@@ -139,7 +139,7 @@ const LandingJobSearchSection = () => {
               <select
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                className="w-full bg-transparent border-none focus:outline-none focus:ring-0 text-foreground font-medium cursor-pointer appearance-none bg-[length:1rem] bg-[right_0.15rem_center] bg-no-repeat pr-8"
+                className="w-full bg-transparent border-none focus:outline-none focus:ring-0 text-base text-foreground font-medium cursor-pointer appearance-none bg-[length:1rem] bg-[right_0.15rem_center] bg-no-repeat pr-8"
                 style={{
                   backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
                 }}
@@ -166,13 +166,13 @@ const LandingJobSearchSection = () => {
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between mb-6">
             <div>
               <h3
-                className="text-lg md:text-xl font-bold"
+                className="text-xl md:text-2xl font-bold"
                 style={{ color: 'hsl(var(--landing-ink))' }}
               >
                 {searchMode ? 'Kết quả gợi ý' : 'Việc làm nổi bật'}
               </h3>
               <p
-                className="text-sm font-medium mt-1"
+                className="text-base font-medium mt-1"
                 style={{ color: 'hsl(var(--landing-faint))' }}
               >
                 {searchMode
@@ -182,7 +182,7 @@ const LandingJobSearchSection = () => {
             </div>
             <Link
               to={jobsListUrl}
-              className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline shrink-0"
+              className="inline-flex items-center gap-2 text-base font-bold text-primary hover:underline shrink-0"
             >
               Xem tất cả kết quả
               <ArrowRight className="size-4" aria-hidden />
@@ -202,13 +202,13 @@ const LandingJobSearchSection = () => {
             </div>
           ) : previewJobs.length === 0 ? (
             <div
-              className="rounded-2xl border border-dashed border-border/70 bg-muted/20 px-6 py-12 text-center text-sm"
+              className="rounded-2xl border border-dashed border-border/70 bg-muted/20 px-6 py-12 text-center text-base"
               style={{ color: 'hsl(var(--landing-body))' }}
             >
               {loadError ? (
                 <>
                   <p className="font-semibold text-amber-800 dark:text-amber-200">{loadError}</p>
-                  <p className="mt-3 text-xs text-muted-foreground max-w-lg mx-auto">
+                  <p className="mt-3 text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
                     Trang chủ gọi <code className="rounded bg-muted px-1">GET /api/jobs</code> qua
                     gateway Express. Đảm bảo API đang chạy (mặc định cổng 5000) và Vite proxy{' '}
                     <code className="rounded bg-muted px-1">/api</code> trỏ đúng.
@@ -222,7 +222,7 @@ const LandingJobSearchSection = () => {
               ) : (
                 <>
                   <p className="font-medium">Chưa có tin tuyển dụng để hiển thị.</p>
-                  <p className="mt-3 text-xs text-muted-foreground max-w-xl mx-auto leading-relaxed">
+                  <p className="mt-3 text-sm text-muted-foreground max-w-xl mx-auto leading-relaxed">
                     Có bảng <strong>jobs</strong> trong MySQL vẫn có thể trống, hoặc toàn bộ tin
                     đang ở trạng thái <strong>draft / pending</strong>. Trang này chỉ lấy tin{' '}
                     <strong>published</strong>. Thêm tin và xuất bản từ tài khoản nhà tuyển dụng,
@@ -244,7 +244,7 @@ const LandingJobSearchSection = () => {
 
         <div className="mb-8 text-center md:text-left">
           <h3
-            className="text-xl md:text-2xl font-bold"
+            className="text-2xl md:text-3xl font-black tracking-tight"
             style={{ color: 'hsl(var(--landing-ink))' }}
           >
             Các nhóm ngành nổi bật
@@ -273,13 +273,13 @@ const LandingJobSearchSection = () => {
                     <Icon className="size-7" strokeWidth={1.5} aria-hidden />
                   </div>
                   <p
-                    className="text-sm font-bold leading-snug mb-2"
+                    className="text-base font-bold leading-snug mb-2"
                     style={{ color: 'hsl(var(--landing-ink))' }}
                   >
                     {g.name}
                   </p>
                   <p
-                    className="text-xs font-medium tabular-nums"
+                    className="text-sm font-medium tabular-nums"
                     style={{ color: 'hsl(var(--landing-faint))' }}
                   >
                     {g.count} việc làm

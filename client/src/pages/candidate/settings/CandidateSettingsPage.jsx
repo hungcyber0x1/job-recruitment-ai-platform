@@ -256,7 +256,7 @@ const CandidateSettingsPage = () => {
     <div className="min-h-screen bg-muted/30 pb-16">
       <div className="mb-6">
         <h1 className="text-xl font-bold text-foreground">Cài đặt tài khoản ứng viên</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1 text-base text-muted-foreground">
           Bảo mật đăng nhập, thông báo và hiển thị hồ sơ.
         </p>
       </div>
@@ -273,7 +273,7 @@ const CandidateSettingsPage = () => {
                   </AvatarFallback>
                 </Avatar>
                 <p className="mt-3 font-semibold text-foreground">{displayName}</p>
-                <p className="text-sm text-muted-foreground line-clamp-2">{jobTitle}</p>
+                <p className="text-base text-muted-foreground line-clamp-2">{jobTitle}</p>
               </div>
             </CardContent>
           </Card>
@@ -284,7 +284,7 @@ const CandidateSettingsPage = () => {
                 type="button"
                 onClick={() => setActiveSection(id)}
                 className={cn(
-                  'flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm font-medium transition-colors',
+                  'flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-base font-medium transition-colors',
                   activeSection === id
                     ? 'bg-primary/15 text-primary'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
@@ -302,7 +302,7 @@ const CandidateSettingsPage = () => {
             <Card className="rounded-xl border bg-card shadow-sm">
               <CardContent className="p-6">
                 <h2 className="text-lg font-semibold text-foreground">Đăng nhập & bảo mật</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="mt-1 text-base text-muted-foreground">
                   Email đăng nhập và mật khẩu cục bộ (nếu có).
                 </p>
                 <div className="mt-6 space-y-6">
@@ -312,9 +312,11 @@ const CandidateSettingsPage = () => {
                         <User className="h-5 w-5" />
                       </div>
                       <div>
-                        <p className="text-xs font-medium text-muted-foreground">Email đăng nhập</p>
+                        <p className="text-base font-medium text-muted-foreground">
+                          Email đăng nhập
+                        </p>
                         <p className="font-medium text-foreground">{user?.email || '—'}</p>
-                        <p className="mt-1 text-xs text-muted-foreground">
+                        <p className="mt-1 text-base text-muted-foreground">
                           Đổi email cần xác minh — liên hệ hỗ trợ nếu bạn cần cập nhật.
                         </p>
                       </div>
@@ -326,8 +328,8 @@ const CandidateSettingsPage = () => {
                         <Lock className="h-5 w-5" />
                       </div>
                       <div>
-                        <p className="text-xs font-medium text-muted-foreground">Mật khẩu</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-base font-medium text-muted-foreground">Mật khẩu</p>
+                        <p className="text-base text-muted-foreground">
                           {hasLocalPassword
                             ? `Cập nhật lần cuối: ${formatPasswordHint(me?.password_updated_at || user?.password_updated_at)}`
                             : 'Bạn đang đăng nhập bằng mạng xã hội — không có mật khẩu cục bộ.'}
@@ -355,7 +357,7 @@ const CandidateSettingsPage = () => {
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <h2 className="text-lg font-semibold text-foreground">Cài đặt thông báo</h2>
-                    <p className="mt-1 text-sm text-muted-foreground">
+                    <p className="mt-1 text-base text-muted-foreground">
                       Chọn kênh nhận tin từ nền tảng (lưu ngay khi bật/tắt).
                     </p>
                   </div>
@@ -365,11 +367,11 @@ const CandidateSettingsPage = () => {
                   <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border bg-muted/30 p-4">
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                        <span className="text-sm font-semibold">@</span>
+                        <span className="text-base font-semibold">@</span>
                       </div>
                       <div>
                         <p className="font-medium text-foreground">Thông báo qua email</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-base text-muted-foreground">
                           Việc làm phù hợp, cập nhật đơn ứng tuyển và lời mời phỏng vấn
                         </p>
                       </div>
@@ -387,7 +389,7 @@ const CandidateSettingsPage = () => {
                       </div>
                       <div>
                         <p className="font-medium text-foreground">Thông báo đẩy (Push)</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-base text-muted-foreground">
                           Chuẩn bị cho Web Push — bật sẵn tùy chọn; triển khai gửi push sau.
                         </p>
                       </div>
@@ -409,7 +411,7 @@ const CandidateSettingsPage = () => {
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <h2 className="text-lg font-semibold text-foreground">Quyền riêng tư hồ sơ</h2>
-                    <p className="mt-1 text-sm text-muted-foreground">
+                    <p className="mt-1 text-base text-muted-foreground">
                       Kiểm soát mức độ nhà tuyển dụng có thể khám phá hồ sơ của bạn.
                     </p>
                   </div>
@@ -428,12 +430,12 @@ const CandidateSettingsPage = () => {
                     )}
                   >
                     {profileVisibility === 'public' && (
-                      <span className="absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600 text-xs text-white">
+                      <span className="absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600 text-base text-white">
                         ✓
                       </span>
                     )}
                     <h3 className="font-semibold text-foreground">Công khai</h3>
-                    <p className="mt-2 text-sm text-muted-foreground">
+                    <p className="mt-2 text-base text-muted-foreground">
                       Nhà tuyển dụng có thể tìm thấy và xem hồ sơ trong tìm kiếm ứng viên (khi tính
                       năng được bật).
                     </p>
@@ -451,7 +453,7 @@ const CandidateSettingsPage = () => {
                   >
                     <span className="absolute right-4 top-4">
                       {profileVisibility === 'private' ? (
-                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600 text-xs text-white">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600 text-base text-white">
                           ✓
                         </span>
                       ) : (
@@ -459,7 +461,7 @@ const CandidateSettingsPage = () => {
                       )}
                     </span>
                     <h3 className="font-semibold text-foreground">Riêng tư hơn</h3>
-                    <p className="mt-2 text-sm text-muted-foreground">
+                    <p className="mt-2 text-base text-muted-foreground">
                       Hạn chế hiển thị công khai; thông tin vẫn gửi kèm khi bạn nộp đơn ứng tuyển.
                     </p>
                   </button>
@@ -472,7 +474,7 @@ const CandidateSettingsPage = () => {
             <Card className="rounded-xl border bg-card shadow-sm">
               <CardContent className="p-6">
                 <h2 className="text-lg font-semibold text-foreground">Kết nối mạng xã hội</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="mt-1 text-base text-muted-foreground">
                   Đăng nhập nhanh bằng Google, Facebook hoặc GitHub (theo cấu hình server).
                 </p>
                 <div className="mt-6 space-y-4">
@@ -502,7 +504,7 @@ const CandidateSettingsPage = () => {
                           </div>
                           <div>
                             <p className="font-medium text-foreground">{meta.label}</p>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-base text-muted-foreground">
                               {linked ? 'Đã liên kết với tài khoản này' : 'Chưa liên kết'}
                             </p>
                           </div>
@@ -538,13 +540,13 @@ const CandidateSettingsPage = () => {
                     );
                   })}
                   {!oauthProviders.google && !oauthProviders.facebook && !oauthProviders.github && (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-base text-muted-foreground">
                       Chưa bật OAuth trên server. Thêm biến môi trường Google / Facebook / GitHub để
                       hiện nút liên kết.
                     </p>
                   )}
                   {me?.oauth_provider && !hasLocalPassword && (
-                    <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+                    <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-base text-amber-900">
                       Bạn chỉ đăng nhập qua mạng xã hội. Để hủy liên kết, trước tiên cần đặt mật
                       khẩu cục bộ (liên hệ hỗ trợ hoặc dùng luồng đặt mật khẩu khi có).
                     </p>

@@ -167,7 +167,7 @@ const AdminApplicationsPage = () => {
       <div className="space-y-6 text-slate-900">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Quản lý Ứng tuyển</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-base text-slate-500">
             Theo dõi đơn ứng tuyển và pipeline tuyển dụng
           </p>
         </div>
@@ -177,12 +177,12 @@ const AdminApplicationsPage = () => {
           <div className="lg:col-span-2 rounded-2xl border border-slate-200 bg-white p-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">
+                <h3 className="text-base font-semibold text-slate-500 uppercase tracking-wide">
                   Lưu lượng ứng tuyển (7 ngày qua)
                 </h3>
                 <p className="mt-2 text-2xl font-bold text-slate-900">
                   {trafficTotal.toLocaleString('vi-VN')}
-                  <span className="ml-2 text-sm font-semibold text-emerald-400">
+                  <span className="ml-2 text-base font-semibold text-emerald-400">
                     {trafficChange}
                   </span>
                 </p>
@@ -191,7 +191,7 @@ const AdminApplicationsPage = () => {
                 type="button"
                 onClick={handleExportApplications}
                 disabled={exporting}
-                className="flex items-center gap-2 rounded-lg border border-emerald-500/50 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-400 hover:bg-emerald-500/20 disabled:opacity-50"
+                className="flex items-center gap-2 rounded-lg border border-emerald-500/50 bg-emerald-500/10 px-4 py-2 text-base font-semibold text-emerald-400 hover:bg-emerald-500/20 disabled:opacity-50"
               >
                 <Download size={16} />
                 {exporting ? 'Đang xuất...' : 'Xuất báo cáo'}
@@ -204,7 +204,7 @@ const AdminApplicationsPage = () => {
                     className="w-full rounded-t bg-emerald-500/60 hover:bg-emerald-500/80 transition-colors min-h-[4px]"
                     style={{ height: `${(val / 200) * 100}%` }}
                   />
-                  <span className="text-[10px] font-medium text-slate-500">{weekDays[i]}</span>
+                  <span className="text-base font-medium text-slate-500">{weekDays[i]}</span>
                 </div>
               ))}
             </div>
@@ -218,7 +218,7 @@ const AdminApplicationsPage = () => {
                   className="rounded-2xl border border-slate-200 bg-white p-4 flex flex-col items-center justify-center text-center"
                 >
                   <Icon className="text-slate-500 mb-2" size={24} />
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <p className="text-base font-bold text-slate-500 uppercase tracking-wider">
                     {card.label}
                   </p>
                   <p className="mt-1 text-2xl font-bold text-slate-900">{card.value}</p>
@@ -236,7 +236,7 @@ const AdminApplicationsPage = () => {
                 key={tab.id}
                 type="button"
                 onClick={() => setStatusFilter(tab.id)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-4 py-2 rounded-lg text-base font-medium transition-colors ${
                   statusFilter === tab.id
                     ? 'bg-emerald-500 text-white'
                     : 'border border-border text-muted-foreground transition-colors duration-200 ease-out hover:bg-muted/40 hover:text-foreground'
@@ -251,7 +251,7 @@ const AdminApplicationsPage = () => {
             placeholder="Tìm ứng viên, việc làm hoặc công ty…"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            className="w-full min-w-[220px] max-w-md rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 sm:w-auto"
+            className="w-full min-w-[220px] max-w-md rounded-lg border border-border bg-background px-3 py-2 text-base text-foreground placeholder:text-muted-foreground focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 sm:w-auto"
           />
         </div>
 
@@ -308,7 +308,7 @@ const AdminApplicationsPage = () => {
                                   >
                                     {app.candidate_name || 'Ứng viên'}
                                   </Link>
-                                  <p className="text-xs text-slate-500 mt-0.5">
+                                  <p className="text-base text-slate-500 mt-0.5">
                                     {app.candidate_email || '—'}
                                   </p>
                                 </div>
@@ -330,14 +330,14 @@ const AdminApplicationsPage = () => {
                                     style={{ width: `${score}%` }}
                                   />
                                 </div>
-                                <span className="text-sm font-semibold text-slate-900">
+                                <span className="text-base font-semibold text-slate-900">
                                   {score}%
                                 </span>
                               </div>
                             </td>
                             <td className="px-6 py-4">
                               <span
-                                className={`inline-flex items-center rounded-lg border px-2.5 py-1 text-xs font-semibold ${statusStyle}`}
+                                className={`inline-flex items-center rounded-lg border px-2.5 py-1 text-base font-semibold ${statusStyle}`}
                               >
                                 {STATUS_LABELS[app.status] || app.status}
                               </span>
@@ -361,7 +361,7 @@ const AdminApplicationsPage = () => {
 
               {totalCount > 0 && (
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border bg-muted/25 px-6 py-4">
-                  <p className="text-sm text-slate-500 uppercase tracking-wide">
+                  <p className="text-base text-slate-500 uppercase tracking-wide">
                     Hiển thị {(page - 1) * limit + 1}-{Math.min(page * limit, totalCount)} trên{' '}
                     {totalCount.toLocaleString('vi-VN')} ứng viên
                   </p>
@@ -379,7 +379,7 @@ const AdminApplicationsPage = () => {
                         key={p}
                         type="button"
                         onClick={() => setPage(p)}
-                        className={`min-w-[36px] h-9 rounded-lg text-sm font-semibold ${
+                        className={`min-w-[36px] h-9 rounded-lg text-base font-semibold ${
                           page === p
                             ? 'bg-emerald-500 text-white'
                             : 'border border-slate-200 text-slate-500 hover:bg-muted/55 hover:text-foreground'

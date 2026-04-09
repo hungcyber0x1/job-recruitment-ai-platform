@@ -388,36 +388,36 @@ const EmployerSettingsPage = () => {
             </div>
             <form onSubmit={handleAddMember} className="space-y-4">
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                <label className="text-base font-black uppercase tracking-widest text-slate-400">
                   Họ và tên
                 </label>
                 <input
                   value={inviteForm.name}
                   onChange={(ev) => setInviteForm((p) => ({ ...p, name: ev.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                   placeholder="Nguyễn Văn A"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                <label className="text-base font-black uppercase tracking-widest text-slate-400">
                   Email
                 </label>
                 <input
                   type="email"
                   value={inviteForm.email}
                   onChange={(ev) => setInviteForm((p) => ({ ...p, email: ev.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                   placeholder="a@congty.vn"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                <label className="text-base font-black uppercase tracking-widest text-slate-400">
                   Vai trò
                 </label>
                 <select
                   value={inviteForm.role}
                   onChange={(ev) => setInviteForm((p) => ({ ...p, role: ev.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                 >
                   <option value="Admin">Admin</option>
                   <option value="Recruiter">Recruiter</option>
@@ -428,13 +428,13 @@ const EmployerSettingsPage = () => {
                 <button
                   type="button"
                   onClick={() => setInviteOpen(false)}
-                  className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-muted/35"
+                  className="rounded-xl border border-slate-200 px-5 py-2.5 text-base font-bold text-slate-600 hover:bg-muted/35"
                 >
                   Hủy
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-emerald-700"
+                  className="rounded-xl bg-emerald-600 px-5 py-2.5 text-base font-bold text-white hover:bg-emerald-700"
                 >
                   Thêm
                 </button>
@@ -446,7 +446,7 @@ const EmployerSettingsPage = () => {
 
       <div className="mb-10">
         <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Cài đặt hệ thống</h1>
-        <p className="text-sm font-medium text-slate-500 mt-1">
+        <p className="text-base font-medium text-slate-500 mt-1">
           Quản lý cấu hình tài khoản, đội ngũ và các tính năng AI bổ trợ.
         </p>
       </div>
@@ -461,7 +461,7 @@ const EmployerSettingsPage = () => {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`group flex w-full items-center gap-3.5 rounded-full px-4 py-3.5 text-left text-[13px] font-bold transition-all ${
+                className={`group flex w-full items-center gap-3.5 rounded-full px-4 py-3.5 text-left text-base font-bold transition-all ${
                   isActive
                     ? 'bg-emerald-50 text-emerald-700 shadow-sm ring-1 ring-emerald-100'
                     : 'text-slate-600 hover:bg-muted/35 hover:text-foreground'
@@ -483,7 +483,7 @@ const EmployerSettingsPage = () => {
             <button
               type="button"
               onClick={handleLogout}
-              className="group flex w-full items-center gap-3.5 rounded-full px-4 py-3.5 text-left text-[13px] font-bold text-red-500/80 transition-all hover:bg-destructive/10 hover:text-red-600"
+              className="group flex w-full items-center gap-3.5 rounded-full px-4 py-3.5 text-left text-base font-bold text-red-500/80 transition-all hover:bg-destructive/10 hover:text-red-600"
             >
               <LogOut size={18} className="transition-transform group-hover:-translate-x-0.5" />
               Đăng xuất
@@ -498,13 +498,13 @@ const EmployerSettingsPage = () => {
                 <h2 className="text-xl font-bold leading-none tracking-tight text-slate-900">
                   Thông tin tài khoản
                 </h2>
-                <p className="mt-2 text-xs font-medium text-slate-500">
+                <p className="mt-2 text-base font-medium text-slate-500">
                   Quản lý thông tin cá nhân và định danh công ty
                 </p>
               </div>
               <div className="p-8">
                 {profileLoading ? (
-                  <p className="text-sm text-slate-500">Đang tải hồ sơ…</p>
+                  <p className="text-base text-slate-500">Đang tải hồ sơ…</p>
                 ) : (
                   <div className="flex flex-col items-start gap-10 sm:flex-row">
                     <button
@@ -524,7 +524,7 @@ const EmployerSettingsPage = () => {
                     </button>
                     <div className="grid flex-grow grid-cols-1 gap-6 sm:grid-cols-2">
                       <div className="space-y-2">
-                        <label className="pl-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        <label className="pl-1 text-base font-black uppercase tracking-widest text-slate-400">
                           Họ và tên
                         </label>
                         <input
@@ -533,11 +533,11 @@ const EmployerSettingsPage = () => {
                           onChange={(e) =>
                             setAccountForm((p) => ({ ...p, fullName: e.target.value }))
                           }
-                          className="w-full rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                          className="w-full rounded-xl border border-slate-200 bg-white px-5 py-3 text-base text-slate-900 outline-none transition-all placeholder:text-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="pl-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        <label className="pl-1 text-base font-black uppercase tracking-widest text-slate-400">
                           Chức vụ
                         </label>
                         <input
@@ -546,12 +546,12 @@ const EmployerSettingsPage = () => {
                           onChange={(e) =>
                             setAccountForm((p) => ({ ...p, jobTitle: e.target.value }))
                           }
-                          className="w-full rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                          className="w-full rounded-xl border border-slate-200 bg-white px-5 py-3 text-base text-slate-900 outline-none transition-all placeholder:text-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                           placeholder="Trưởng phòng Tuyển dụng"
                         />
                       </div>
                       <div className="space-y-2 sm:col-span-2">
-                        <label className="pl-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        <label className="pl-1 text-base font-black uppercase tracking-widest text-slate-400">
                           Tên công ty
                         </label>
                         <input
@@ -560,7 +560,7 @@ const EmployerSettingsPage = () => {
                           onChange={(e) =>
                             setAccountForm((p) => ({ ...p, companyName: e.target.value }))
                           }
-                          className="w-full rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                          className="w-full rounded-xl border border-slate-200 bg-white px-5 py-3 text-base text-slate-900 outline-none transition-all placeholder:text-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                         />
                       </div>
                     </div>
@@ -577,12 +577,12 @@ const EmployerSettingsPage = () => {
                   <h2 className="text-xl font-bold leading-none tracking-tight text-slate-900">
                     Đội ngũ (Recruiter Team)
                   </h2>
-                  <p className="mt-2 text-xs font-medium text-slate-500">{teamCountLabel}</p>
+                  <p className="mt-2 text-base font-medium text-slate-500">{teamCountLabel}</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setInviteOpen(true)}
-                  className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.02] hover:bg-emerald-700 active:scale-[0.98]"
+                  className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-base font-bold uppercase tracking-widest text-white shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.02] hover:bg-emerald-700 active:scale-[0.98]"
                 >
                   <Plus size={16} /> Thêm thành viên
                 </button>
@@ -591,16 +591,16 @@ const EmployerSettingsPage = () => {
                 <table className="data-table">
                   <thead>
                     <tr>
-                      <th className="px-8 py-4 text-[11px] font-bold uppercase tracking-widest">
+                      <th className="px-8 py-4 text-base font-bold uppercase tracking-widest">
                         Thành viên
                       </th>
-                      <th className="px-8 py-4 text-[11px] font-bold uppercase tracking-widest">
+                      <th className="px-8 py-4 text-base font-bold uppercase tracking-widest">
                         Vai trò
                       </th>
-                      <th className="px-8 py-4 text-[11px] font-bold uppercase tracking-widest">
+                      <th className="px-8 py-4 text-base font-bold uppercase tracking-widest">
                         Trạng thái
                       </th>
-                      <th className="px-8 py-4 pr-12 text-end text-[11px] font-bold uppercase tracking-widest">
+                      <th className="px-8 py-4 pr-12 text-end text-base font-bold uppercase tracking-widest">
                         Thao tác
                       </th>
                     </tr>
@@ -610,21 +610,19 @@ const EmployerSettingsPage = () => {
                       <tr key={member.id} className="group">
                         <td className="px-8 py-5">
                           <div className="flex items-center gap-4">
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-[12px] font-bold text-slate-700 shadow-sm transition-all group-hover:border-emerald-300">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-base font-bold text-slate-700 shadow-sm transition-all group-hover:border-emerald-300">
                               {member.avatar}
                             </div>
                             <div>
-                              <p className="text-sm font-bold text-slate-900 transition-colors group-hover:text-emerald-600">
+                              <p className="text-base font-bold text-slate-900 transition-colors group-hover:text-emerald-600">
                                 {member.name}
                               </p>
-                              <p className="text-[12px] font-medium text-slate-400">
-                                {member.email}
-                              </p>
+                              <p className="text-base font-medium text-slate-400">{member.email}</p>
                             </div>
                           </div>
                         </td>
                         <td className="px-8 py-5">
-                          <span className="rounded-lg border border-slate-200 bg-slate-100 px-3 py-1 text-[11px] font-bold uppercase tracking-tight text-slate-600">
+                          <span className="rounded-lg border border-slate-200 bg-slate-100 px-3 py-1 text-base font-bold uppercase tracking-tight text-slate-600">
                             {member.role}
                           </span>
                         </td>
@@ -633,7 +631,7 @@ const EmployerSettingsPage = () => {
                             <div
                               className={`h-2 w-2 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.4)] ${member.status === 'Mời' ? 'bg-amber-500' : 'bg-emerald-500'}`}
                             />
-                            <span className="text-sm font-bold text-slate-600">
+                            <span className="text-base font-bold text-slate-600">
                               {member.status}
                             </span>
                           </div>
@@ -663,11 +661,11 @@ const EmployerSettingsPage = () => {
                   <h2 className="flex items-center gap-3 text-xl font-bold tracking-tight text-slate-900">
                     <Sparkles size={22} className="text-emerald-500" /> Cấu hình AI Recruiter
                   </h2>
-                  <p className="mt-2 text-xs font-medium text-slate-500">
+                  <p className="mt-2 text-base font-medium text-slate-500">
                     Tối ưu hóa quy trình sàng lọc ứng viên bằng trí tuệ nhân tạo
                   </p>
                 </div>
-                <span className="w-fit rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-emerald-600">
+                <span className="w-fit rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-base font-black uppercase tracking-widest text-emerald-600">
                   GÓI PRO
                 </span>
               </div>
@@ -678,8 +676,8 @@ const EmployerSettingsPage = () => {
                       <Cpu size={20} />
                     </div>
                     <div className="space-y-1">
-                      <p className="text-[14px] font-bold text-slate-900">Tự động chấm điểm CV</p>
-                      <p className="text-[12px] font-medium leading-relaxed text-slate-500">
+                      <p className="text-base font-bold text-slate-900">Tự động chấm điểm CV</p>
+                      <p className="text-base font-medium leading-relaxed text-slate-500">
                         AI sẽ tự động phân tích và chấm điểm độ phù hợp của CV với JD.
                       </p>
                     </div>
@@ -705,8 +703,8 @@ const EmployerSettingsPage = () => {
                       <MessageSquare size={20} />
                     </div>
                     <div className="space-y-1">
-                      <p className="text-[14px] font-bold text-slate-900">AI Chatbot Sơ loại</p>
-                      <p className="text-[12px] font-medium leading-relaxed text-slate-500">
+                      <p className="text-base font-bold text-slate-900">AI Chatbot Sơ loại</p>
+                      <p className="text-base font-medium leading-relaxed text-slate-500">
                         Tự động trả lời câu hỏi cơ bản và đặt lịch hẹn phỏng vấn.
                       </p>
                     </div>
@@ -733,14 +731,14 @@ const EmployerSettingsPage = () => {
                 <h2 className="text-xl font-bold leading-none tracking-tight text-slate-900">
                   Bảo mật & Mật khẩu
                 </h2>
-                <p className="mt-2 text-xs font-medium text-slate-500">
+                <p className="mt-2 text-base font-medium text-slate-500">
                   Cập nhật mật khẩu và xác thực 2 lớp để bảo vệ tài khoản
                 </p>
               </div>
               <div className="grid grid-cols-1 gap-10 p-8 lg:grid-cols-2">
                 <form className="space-y-6" onSubmit={handleUpdatePassword}>
                   <div className="space-y-2">
-                    <label className="pl-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                    <label className="pl-1 text-base font-black uppercase tracking-widest text-slate-400">
                       Mật khẩu hiện tại
                     </label>
                     <input
@@ -749,26 +747,26 @@ const EmployerSettingsPage = () => {
                       onChange={(e) =>
                         setPasswords((prev) => ({ ...prev, current: e.target.value }))
                       }
-                      className="w-full rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-5 py-3 text-base text-slate-900 outline-none transition-all placeholder:text-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                       placeholder="••••••••"
                       autoComplete="current-password"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="pl-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                    <label className="pl-1 text-base font-black uppercase tracking-widest text-slate-400">
                       Mật khẩu mới
                     </label>
                     <input
                       type="password"
                       value={passwords.new}
                       onChange={(e) => setPasswords((prev) => ({ ...prev, new: e.target.value }))}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-5 py-3 text-base text-slate-900 outline-none transition-all placeholder:text-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                       placeholder="••••••••"
                       autoComplete="new-password"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="pl-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                    <label className="pl-1 text-base font-black uppercase tracking-widest text-slate-400">
                       Xác nhận mật khẩu mới
                     </label>
                     <input
@@ -777,7 +775,7 @@ const EmployerSettingsPage = () => {
                       onChange={(e) =>
                         setPasswords((prev) => ({ ...prev, confirm: e.target.value }))
                       }
-                      className="w-full rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-5 py-3 text-base text-slate-900 outline-none transition-all placeholder:text-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                       placeholder="••••••••"
                       autoComplete="new-password"
                     />
@@ -798,14 +796,14 @@ const EmployerSettingsPage = () => {
                   <h3 className="text-base font-bold uppercase tracking-tighter text-slate-900">
                     Xác thực 2 lớp (2FA)
                   </h3>
-                  <p className="mt-3 px-4 text-[12px] font-semibold leading-relaxed text-slate-500">
+                  <p className="mt-3 px-4 text-base font-semibold leading-relaxed text-slate-500">
                     Tăng cường bảo mật bằng cách yêu cầu mã xác thực từ điện thoại mỗi khi bạn đăng
                     nhập từ thiết bị lạ.
                   </p>
                   <button
                     type="button"
                     onClick={handleEnable2FA}
-                    className="mt-7 rounded-xl bg-emerald-600 px-8 py-3 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.05] hover:bg-emerald-700 active:scale-95"
+                    className="mt-7 rounded-xl bg-emerald-600 px-8 py-3 text-base font-black uppercase tracking-widest text-white shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.05] hover:bg-emerald-700 active:scale-95"
                   >
                     Kích hoạt ngay
                   </button>
@@ -820,7 +818,7 @@ const EmployerSettingsPage = () => {
                 <h2 className="text-xl font-bold leading-none tracking-tight text-slate-900">
                   Thông báo
                 </h2>
-                <p className="mt-2 text-xs font-medium text-slate-500">
+                <p className="mt-2 text-base font-medium text-slate-500">
                   Chọn kênh và loại thông báo bạn muốn nhận
                 </p>
               </div>
@@ -857,8 +855,8 @@ const EmployerSettingsPage = () => {
                     className="flex items-center justify-between gap-4 rounded-xl border border-slate-100 bg-slate-50/50 p-5 transition-all hover:border-emerald-100 hover:bg-card"
                   >
                     <div>
-                      <p className="text-sm font-bold text-slate-900">{row.title}</p>
-                      <p className="mt-1 text-xs font-medium text-slate-500">{row.desc}</p>
+                      <p className="text-base font-bold text-slate-900">{row.title}</p>
+                      <p className="mt-1 text-base font-medium text-slate-500">{row.desc}</p>
                     </div>
                     <button
                       type="button"
@@ -892,7 +890,7 @@ const EmployerSettingsPage = () => {
                   else if (activeTab === 'ai') handleResetAi();
                   else if (activeTab === 'notifications') handleResetNotif();
                 }}
-                className="rounded-xl border border-slate-200 bg-white px-8 py-3.5 text-[13px] font-bold uppercase tracking-widest text-slate-500 transition-all hover:bg-muted/35 hover:text-foreground active:scale-[0.98]"
+                className="rounded-xl border border-slate-200 bg-white px-8 py-3.5 text-base font-bold uppercase tracking-widest text-slate-500 transition-all hover:bg-muted/35 hover:text-foreground active:scale-[0.98]"
               >
                 Hủy bỏ
               </button>
@@ -905,7 +903,7 @@ const EmployerSettingsPage = () => {
                   else if (activeTab === 'ai') handleSaveAi();
                   else if (activeTab === 'notifications') handleSaveNotif();
                 }}
-                className="rounded-xl bg-emerald-600 px-12 py-3.5 text-[13px] font-bold uppercase tracking-widest text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-40"
+                className="rounded-xl bg-emerald-600 px-12 py-3.5 text-base font-bold uppercase tracking-widest text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-40"
               >
                 Lưu thay đổi
               </button>

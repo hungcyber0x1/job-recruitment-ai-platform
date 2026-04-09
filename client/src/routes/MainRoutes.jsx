@@ -28,7 +28,6 @@ export default function MainRoutes() {
       <Route path="/contact" element={renderLazyPage(P.ContactPage)} />
       <Route path="/chat" element={renderAuthLazyPage(P.ChatPage)} />
       <Route path="/ai-cv-scanner" element={renderLazyPage(P.AICVScannerPage)} />
-      <Route path="/ai-interview" element={renderLazyPage(P.AIInterviewPage)} />
       <Route path="/salary-predictor" element={renderLazyPage(P.SalaryPredictorPage)} />
       <Route path="/categories" element={renderLazyPage(P.CategoriesPage)} />
       <Route path="/career" element={renderLazyPage(P.CareerPage)} />

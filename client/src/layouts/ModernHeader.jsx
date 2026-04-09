@@ -170,7 +170,7 @@ const ModernHeader = () => {
               H
             </span>
           </div>
-          <span className="text-xl font-black tracking-tight text-foreground">
+          <span className="text-lg font-black tracking-tight text-foreground sm:text-xl">
             HireAI<span className="text-primary">.</span>
           </span>
         </Link>
@@ -185,11 +185,11 @@ const ModernHeader = () => {
                 key={link.path}
                 to={link.path}
                 className={cn(
-                  'relative flex items-center gap-2 px-4 py-2.5 text-[15px] font-semibold rounded-xl',
+                  'relative flex items-center gap-2 px-4 py-2.5 text-base font-semibold rounded-xl',
                   'transition-[color,background-color] duration-200 ease-out',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2',
                   active
-                    ? 'text-primary bg-primary/10'
+                    ? 'text-primary bg-primary/10 font-bold'
                     : 'text-slate-600 dark:text-slate-400 hover:text-foreground dark:hover:text-slate-200 hover:bg-muted/55 dark:hover:bg-slate-800/60'
                 )}
                 aria-current={active ? 'page' : undefined}
@@ -211,13 +211,13 @@ const ModernHeader = () => {
             <>
               <Link
                 to="/login"
-                className="hidden sm:block text-sm font-semibold px-4 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:text-primary hover:bg-primary/5 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2"
+                className="hidden sm:block text-base font-semibold px-4 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:text-primary hover:bg-primary/5 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2"
               >
                 Đăng nhập
               </Link>
               <Link
                 to="/register"
-                className="inline-flex items-center justify-center px-6 py-2.5 rounded-xl text-sm font-bold bg-primary text-white shadow-lg shadow-primary/25 hover:shadow-primary/35 hover:-translate-y-0.5 active:scale-[0.98] transition-[transform,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2"
+                className="inline-flex items-center justify-center px-6 py-2.5 rounded-xl text-base font-bold bg-primary text-white shadow-lg shadow-primary/25 hover:shadow-primary/35 hover:-translate-y-0.5 active:scale-[0.98] transition-[transform,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2"
               >
                 Đăng ký
               </Link>
@@ -244,9 +244,11 @@ const ModernHeader = () => {
                   <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900">
                     <div className="flex items-center gap-2">
                       <Bell size={16} className="text-primary" />
-                      <h3 className="font-bold text-slate-800 dark:text-slate-200">Thông báo</h3>
+                      <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">
+                        Thông báo
+                      </h3>
                       {notifications.filter((n) => !n.isRead).length > 0 && (
-                        <span className="bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                        <span className="bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 text-xs font-bold px-1.5 py-0.5 rounded-full">
                           {notifications.filter((n) => !n.isRead).length}
                         </span>
                       )}
@@ -257,7 +259,7 @@ const ModernHeader = () => {
                           ? '/employer/messages'
                           : '/candidate/notifications'
                       }
-                      className="text-xs font-medium text-primary hover:text-primary/80"
+                      className="text-sm font-semibold text-primary hover:text-primary/80"
                     >
                       Xem tất cả
                     </Link>
@@ -268,7 +270,7 @@ const ModernHeader = () => {
                     ) : notifications.length === 0 ? (
                       <div className="p-8 text-center text-slate-400">
                         <Bell size={32} className="mx-auto mb-2 opacity-50" />
-                        <p className="text-sm">Chưa có thông báo mới</p>
+                        <p className="text-base font-medium">Chưa có thông báo mới</p>
                       </div>
                     ) : (
                       <div className="divide-y divide-slate-50 dark:divide-slate-800">
@@ -310,18 +312,18 @@ const ModernHeader = () => {
                               <div className="min-w-0 flex-1">
                                 <h4
                                   className={cn(
-                                    'text-sm',
+                                    'text-base',
                                     !n.isRead
                                       ? 'font-bold text-slate-900 dark:text-white'
-                                      : 'font-medium text-slate-700 dark:text-slate-300'
+                                      : 'font-semibold text-slate-700 dark:text-slate-300'
                                   )}
                                 >
                                   {n.title}
                                 </h4>
-                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
+                                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
                                   {n.message}
                                 </p>
-                                <p className="text-[10px] text-slate-400 mt-1.5">
+                                <p className="text-xs font-medium text-slate-400 mt-1.5">
                                   {formatNotificationTime(n.time)}
                                 </p>
                               </div>
@@ -351,10 +353,10 @@ const ModernHeader = () => {
                   <div className="mb-2 flex items-center gap-3 px-3 py-4">
                     <UserAvatarWithStatus size="md" src={avatarSrc} name={displayName} />
                     <div className="min-w-0">
-                      <p className="truncate font-black tracking-tight text-foreground">
+                      <p className="truncate text-base font-black tracking-tight text-foreground">
                         {displayName}
                       </p>
-                      <p className="truncate text-xs font-medium text-muted-foreground">
+                      <p className="truncate text-sm font-medium text-muted-foreground">
                         {user?.email}
                       </p>
                     </div>
@@ -366,7 +368,7 @@ const ModernHeader = () => {
                       className="flex items-center gap-3 py-3 rounded-xl cursor-pointer"
                     >
                       <LayoutDashboard size={18} className="text-muted-foreground" />
-                      <span className="font-bold text-sm">Bảng điều khiển</span>
+                      <span className="text-base font-bold">Bảng điều khiển</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
@@ -384,7 +386,7 @@ const ModernHeader = () => {
                       className="flex items-center gap-3 py-3 rounded-xl cursor-pointer"
                     >
                       <Settings size={18} className="text-muted-foreground" />
-                      <span className="font-bold text-sm">Cài đặt</span>
+                      <span className="text-base font-bold">Cài đặt</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-border/50 mx-1" />
@@ -393,7 +395,7 @@ const ModernHeader = () => {
                     className="flex items-center gap-3 py-3 rounded-xl cursor-pointer text-red-500 focus:text-red-500 focus:bg-red-50"
                   >
                     <LogOut size={18} />
-                    <span className="font-bold text-sm">Đăng xuất</span>
+                    <span className="text-base font-bold">Đăng xuất</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -437,10 +439,10 @@ const ModernHeader = () => {
                     to={link.path}
                     onClick={() => setMobileMenuOpen(false)}
                     className={cn(
-                      'flex items-center gap-4 px-4 py-3.5 rounded-xl text-base font-semibold transition-colors',
+                      'flex items-center gap-4 px-4 py-3.5 rounded-xl text-base transition-colors',
                       active
-                        ? 'bg-primary/10 text-primary'
-                        : 'text-slate-600 dark:text-slate-400 hover:bg-muted/55 dark:hover:bg-slate-800/60 hover:text-foreground'
+                        ? 'bg-primary/10 text-primary font-bold'
+                        : 'text-slate-600 dark:text-slate-400 font-semibold hover:bg-muted/55 dark:hover:bg-slate-800/60 hover:text-foreground'
                     )}
                     aria-current={active ? 'page' : undefined}
                   >
@@ -466,14 +468,14 @@ const ModernHeader = () => {
                 <Link
                   to="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="py-3.5 text-center font-semibold border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-muted/35 dark:hover:bg-slate-800/60 transition-colors"
+                  className="py-3.5 text-center text-base font-semibold border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-muted/35 dark:hover:bg-slate-800/60 transition-colors"
                 >
                   Đăng nhập
                 </Link>
                 <Link
                   to="/register"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="py-3.5 text-center font-bold bg-primary text-white rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-shadow"
+                  className="py-3.5 text-center text-base font-bold bg-primary text-white rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-shadow"
                 >
                   Đăng ký
                 </Link>

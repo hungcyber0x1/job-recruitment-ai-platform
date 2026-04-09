@@ -175,7 +175,7 @@ const NotificationsPage = () => {
             </div>
             <h1 className="text-xl font-bold text-foreground">Thông báo</h1>
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">Cập nhật trạng thái hồ sơ của bạn</p>
+          <p className="mt-1 text-base text-muted-foreground">Cập nhật trạng thái hồ sơ của bạn</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="relative">
@@ -200,13 +200,13 @@ const NotificationsPage = () => {
             key={tab.id}
             type="button"
             onClick={() => setActiveTab(tab.id)}
-            className={`relative px-4 py-3 text-sm font-medium transition-colors ${
+            className={`relative px-4 py-3 text-base font-medium transition-colors ${
               activeTab === tab.id ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             {tab.label}
             {tab.id === 'unread' && unreadCount > 0 && (
-              <span className="ml-1.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5 text-xs font-medium text-white">
+              <span className="ml-1.5 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5 text-base font-medium text-white">
                 {unreadCount}
               </span>
             )}
@@ -257,7 +257,7 @@ const NotificationsPage = () => {
         <div className="mt-8 flex justify-center">
           <button
             type="button"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+            className="inline-flex items-center gap-1.5 text-base font-medium text-primary hover:underline"
           >
             Xem tất cả thông báo cũ hơn
             <ChevronDown className="h-4 w-4" />
@@ -284,7 +284,7 @@ function NotificationCard({ notification, onAction }) {
           <div className="relative shrink-0">
             {_type === 'message' ? (
               <Avatar className="h-12 w-12 rounded-full border-2 border-background">
-                <AvatarFallback className="bg-primary/20 text-sm font-semibold text-primary">
+                <AvatarFallback className="bg-primary/20 text-base font-semibold text-primary">
                   {(sender_name || 'U').charAt(0)}
                 </AvatarFallback>
               </Avatar>
@@ -320,14 +320,14 @@ function NotificationCard({ notification, onAction }) {
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <h4 className="font-semibold text-foreground">{title}</h4>
-              <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1.5 text-base text-muted-foreground">
                 {isUnread && _type !== 'message' && (
                   <span className="h-2 w-2 rounded-full bg-primary" />
                 )}
                 {timeStr}
               </span>
             </div>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{message}</p>
+            <p className="mt-2 text-base leading-relaxed text-muted-foreground">{message}</p>
 
             {_type === 'message' && (
               <div className="mt-4 flex flex-wrap gap-2">
@@ -358,7 +358,7 @@ function NotificationCard({ notification, onAction }) {
             )}
 
             {_type === 'interview' && confirmed && (
-              <p className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600">
+              <p className="mt-3 inline-flex items-center gap-1.5 text-base font-medium text-emerald-600">
                 <span className="flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500/20">
                   ✓
                 </span>

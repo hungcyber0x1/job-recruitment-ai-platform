@@ -104,13 +104,13 @@ const CareerSuggestionsPage = () => {
     <div className="min-h-screen bg-muted/30 pb-16">
       {/* Header */}
       <div className="mb-8">
-        <p className="text-xs font-medium uppercase tracking-wider text-primary">
+        <p className="text-base font-medium uppercase tracking-wider text-primary">
           ← AI POWERED INSIGHTS
         </p>
         <h1 className="mt-2 text-2xl font-bold text-foreground md:text-3xl">
           Gợi ý nghề nghiệp <span className="text-primary">thông minh</span>
         </h1>
-        <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
+        <p className="mt-3 max-w-2xl text-base text-muted-foreground">
           Dựa trên phân tích sâu chuỗi kỹ năng, kinh nghiệm thực tế và xu hướng thị trường, AI của
           chúng tôi đã tìm thấy những vị trí phù hợp nhất dành riêng cho bạn.
         </p>
@@ -120,11 +120,11 @@ const CareerSuggestionsPage = () => {
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex gap-4">
           <Card className="rounded-xl border bg-card px-5 py-4 shadow-sm">
-            <p className="text-xs font-medium text-muted-foreground">GỢI Ý MỚI</p>
+            <p className="text-base font-medium text-muted-foreground">GỢI Ý MỚI</p>
             <p className="text-2xl font-bold text-foreground">{newCount}</p>
           </Card>
           <Card className="rounded-xl border bg-card px-5 py-4 shadow-sm">
-            <p className="text-xs font-medium text-muted-foreground">ĐỘ CHÍNH XÁC</p>
+            <p className="text-base font-medium text-muted-foreground">ĐỘ CHÍNH XÁC</p>
             <p className="text-2xl font-bold text-emerald-600">{accuracy}%</p>
           </Card>
         </div>
@@ -184,7 +184,7 @@ const CareerSuggestionsPage = () => {
                       </div>
                     )}
                     {job.hot && (
-                      <span className="absolute bottom-2 left-2 rounded bg-red-500 px-2 py-0.5 text-xs font-medium text-white">
+                      <span className="absolute bottom-2 left-2 rounded bg-red-500 px-2 py-0.5 text-base font-medium text-white">
                         HOT JOB
                       </span>
                     )}
@@ -193,7 +193,7 @@ const CareerSuggestionsPage = () => {
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <h3 className="text-lg font-semibold text-foreground">{job.title}</h3>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-base text-muted-foreground">
                           {job.company} • {job.location}
                         </p>
                       </div>
@@ -217,11 +217,11 @@ const CareerSuggestionsPage = () => {
                               d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                             />
                           </svg>
-                          <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-foreground">
+                          <span className="absolute inset-0 flex items-center justify-center text-base font-bold text-foreground">
                             {job.matchScore}%
                           </span>
                         </div>
-                        <span className="text-[10px] font-medium text-muted-foreground">
+                        <span className="text-base font-medium text-muted-foreground">
                           MATCH SCORE
                         </span>
                       </div>
@@ -229,11 +229,11 @@ const CareerSuggestionsPage = () => {
 
                     {job.whyFit && job.whyFit.length > 0 && (
                       <div className="mt-4">
-                        <p className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                        <p className="flex items-center gap-1.5 text-base font-medium text-foreground">
                           <Sparkles className="h-4 w-4 text-primary" />
                           Tại sao bạn phù hợp?
                         </p>
-                        <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-muted-foreground">
+                        <ul className="mt-2 list-inside list-disc space-y-1 text-base text-muted-foreground">
                           {job.whyFit.map((item, i) => (
                             <li key={i}>{item}</li>
                           ))}
@@ -243,7 +243,7 @@ const CareerSuggestionsPage = () => {
 
                     {job.skills && job.skills.length > 0 && (
                       <div className="mt-4">
-                        <p className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                        <p className="flex items-center gap-1.5 text-base font-medium text-foreground">
                           <Sparkles className="h-4 w-4 text-primary" />
                           Kỹ năng tương đồng
                         </p>
@@ -251,7 +251,7 @@ const CareerSuggestionsPage = () => {
                           {job.skills.map((skill) => (
                             <span
                               key={skill}
-                              className="rounded-md bg-muted px-2.5 py-1 text-xs font-medium text-primary"
+                              className="rounded-md bg-muted px-2.5 py-1 text-base font-medium text-primary"
                             >
                               {skill}
                             </span>
@@ -294,7 +294,7 @@ const CareerSuggestionsPage = () => {
             </div>
             <div>
               <h3 className="font-semibold text-foreground">Lịch sử tìm kiếm của bạn</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-base text-muted-foreground">
                 Xem lại các vị trí bạn đã quan tâm trước đây
               </p>
             </div>
@@ -305,7 +305,7 @@ const CareerSuggestionsPage = () => {
         </CardContent>
       </Card>
 
-      <footer className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t pt-8 text-sm text-muted-foreground">
+      <footer className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t pt-8 text-base text-muted-foreground">
         <div className="flex items-center gap-2">
           <Rocket className="h-4 w-4" />
           AI Career © {new Date().getFullYear()}

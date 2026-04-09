@@ -18,7 +18,7 @@ const ApplicantList = ({ applicants, onUpdateStatus }) => {
     <div className="overflow-x-auto">
       <table className="w-full text-left">
         <thead>
-          <tr className="border-b border-border bg-muted text-[10px] font-black uppercase tracking-widest text-txt-light">
+          <tr className="border-b border-border bg-muted text-xs font-black uppercase tracking-widest text-txt-light">
             <th className="px-8 py-5">Ứng viên</th>
             <th className="px-8 py-5">CV và liên hệ</th>
             <th className="px-8 py-5">Ngày ứng tuyển</th>
@@ -41,7 +41,7 @@ const ApplicantList = ({ applicants, onUpdateStatus }) => {
                     <div className="font-bold text-foreground transition-colors group-hover:text-secondary">
                       {applicant.first_name} {applicant.last_name}
                     </div>
-                    <div className="mt-1 text-[10px] font-black uppercase tracking-widest text-txt-light">
+                    <div className="mt-1 text-xs font-black uppercase tracking-widest text-txt-light">
                       {applicant.current_job_title || 'Ứng viên'}
                     </div>
                   </div>

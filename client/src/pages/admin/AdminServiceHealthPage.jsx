@@ -205,18 +205,18 @@ const AdminServiceHealthPage = () => {
           <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-emerald-500/10 blur-3xl" />
           <div className="relative flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0 space-y-3">
-              <span className="inline-flex w-fit items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-800 dark:text-emerald-300">
+              <span className="inline-flex w-fit items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1 text-base font-bold uppercase tracking-[0.18em] text-emerald-800 dark:text-emerald-300">
                 <HeartPulse size={14} className="shrink-0" strokeWidth={2.5} />
                 Service health
               </span>
               <h1 className="text-2xl font-black tracking-tight text-foreground sm:text-3xl">
                 Theo dõi sức khỏe hệ thống
               </h1>
-              <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
+              <p className="max-w-2xl text-base leading-relaxed text-muted-foreground">
                 Tổng hợp health check từ gateway và các module để nhanh chóng phát hiện điểm nghẽn
                 trước khi ảnh hưởng ứng viên và nhà tuyển dụng.
               </p>
-              <p className="text-xs font-medium text-muted-foreground">
+              <p className="text-base font-medium text-muted-foreground">
                 Cập nhật lần cuối:{' '}
                 <span className="font-bold text-foreground">{formatTime(refreshedAt)}</span>
               </p>
@@ -226,19 +226,19 @@ const AdminServiceHealthPage = () => {
                 type="button"
                 onClick={() => fetchHealth()}
                 disabled={loading}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-bold text-foreground shadow-sm transition hover:bg-muted/60 disabled:opacity-60"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-base font-bold text-foreground shadow-sm transition hover:bg-muted/60 disabled:opacity-60"
               >
                 <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
                 Làm mới
               </button>
               <div className="rounded-2xl border border-border/80 bg-background/80 px-5 py-4 text-center shadow-inner backdrop-blur-sm sm:min-w-[140px]">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                <p className="text-base font-bold uppercase tracking-wider text-muted-foreground">
                   Điểm tổng quan
                 </p>
                 <p className="mt-1 text-3xl font-black tabular-nums text-emerald-600 dark:text-emerald-400">
                   {loading ? '…' : `${healthSummary.score}%`}
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="mt-1 text-base text-muted-foreground">
                   {healthSummary.operational}/{healthSummary.total} thành phần ổn định
                 </p>
               </div>
@@ -279,7 +279,7 @@ const AdminServiceHealthPage = () => {
               ].map(({ key, n, label, Icon, cls }) => (
                 <span
                   key={key}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ${cls}`}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-base font-bold ${cls}`}
                 >
                   <Icon size={14} strokeWidth={2.5} />
                   {n} {label}
@@ -315,7 +315,7 @@ const AdminServiceHealthPage = () => {
                           <Icon size={22} strokeWidth={2} />
                         </div>
                         <span
-                          className={`shrink-0 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-wide ${meta.badge}`}
+                          className={`shrink-0 rounded-full px-3 py-1 text-base font-black uppercase tracking-wide ${meta.badge}`}
                         >
                           {meta.label}
                         </span>
@@ -323,10 +323,10 @@ const AdminServiceHealthPage = () => {
                       <h2 className="mt-4 text-lg font-black tracking-tight text-foreground">
                         {service.name}
                       </h2>
-                      <p className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/80">
+                      <p className="mt-1 text-base font-semibold uppercase tracking-wider text-muted-foreground/80">
                         {service.hint}
                       </p>
-                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      <p className="mt-2 text-base leading-relaxed text-muted-foreground">
                         {service.detail}
                       </p>
                     </div>
@@ -340,7 +340,7 @@ const AdminServiceHealthPage = () => {
         </div>
 
         <div>
-          <h2 className="text-sm font-black uppercase tracking-[0.15em] text-muted-foreground">
+          <h2 className="text-base font-black uppercase tracking-[0.15em] text-muted-foreground">
             Phạm vi giám sát
           </h2>
           <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -356,7 +356,7 @@ const AdminServiceHealthPage = () => {
                   </div>
                   <div className="min-w-0">
                     <h3 className="font-bold text-foreground">{module.title}</h3>
-                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                    <p className="mt-1 text-base leading-relaxed text-muted-foreground">
                       {module.description}
                     </p>
                   </div>
@@ -369,7 +369,7 @@ const AdminServiceHealthPage = () => {
         <div className="overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm">
           <div className="border-b border-border/60 bg-muted/30 px-5 py-4 sm:px-6">
             <h2 className="text-lg font-black text-foreground">Tóm tắt vận hành</h2>
-            <p className="mt-0.5 text-sm text-muted-foreground">
+            <p className="mt-0.5 text-base text-muted-foreground">
               Chỉ số nhanh từ gateway và hàng đợi AI hiện tại.
             </p>
           </div>
@@ -396,7 +396,7 @@ const AdminServiceHealthPage = () => {
             ].map((row) => (
               <div key={row.label} className="flex flex-col justify-center bg-card p-5 sm:p-6">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  <span className="text-base font-bold uppercase tracking-wider text-muted-foreground">
                     {row.label}
                   </span>
                   {row.ok ? (
@@ -408,7 +408,7 @@ const AdminServiceHealthPage = () => {
                 <p className="mt-2 text-2xl font-black capitalize tabular-nums text-foreground">
                   {row.value}
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground">{row.sub}</p>
+                <p className="mt-1 text-base text-muted-foreground">{row.sub}</p>
               </div>
             ))}
           </div>

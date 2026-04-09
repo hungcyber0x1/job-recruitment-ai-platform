@@ -105,7 +105,7 @@ const ApplicationForm = ({ job, onClose }) => {
 
         <div className="p-4 bg-yellow-50 rounded-xl flex items-center gap-3 border border-yellow-100/50">
           <Info size={18} className="text-yellow-600 shrink-0" />
-          <p className="text-[11px] text-yellow-700 font-medium">
+          <p className="text-sm text-yellow-700 font-medium">
             HireAI khuyến nghị bạn nên cập nhật đầy đủ các dự án trong hồ sơ cá nhân để tăng 50% tỉ
             lệ matching.
           </p>

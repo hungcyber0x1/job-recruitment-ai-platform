@@ -110,11 +110,11 @@ const AdminCompanyDetailPage = () => {
               key={module.title}
               className="rounded-3xl border border-border bg-card p-6 shadow-sm"
             >
-              <p className="text-[11px] font-black uppercase tracking-[0.22em] text-muted-foreground">
+              <p className="text-base font-black uppercase tracking-[0.22em] text-muted-foreground">
                 Company governance
               </p>
               <h2 className="mt-3 text-xl font-black text-foreground">{module.title}</h2>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">{module.description}</p>
+              <p className="mt-2 text-base leading-6 text-muted-foreground">{module.description}</p>
             </div>
           ))}
         </div>
@@ -142,7 +142,7 @@ const AdminCompanyDetailPage = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-black text-foreground">{company.company_name}</h1>
-                <div className="mt-3 flex flex-wrap gap-4 text-sm font-semibold text-muted-foreground">
+                <div className="mt-3 flex flex-wrap gap-4 text-base font-semibold text-muted-foreground">
                   <span className="flex items-center gap-1.5">
                     <MapPin size={16} /> {company.location || 'Không rõ'}
                   </span>
@@ -159,13 +159,13 @@ const AdminCompanyDetailPage = () => {
 
             <div className="grid min-w-[260px] grid-cols-2 gap-3">
               <div className="rounded-2xl border border-border bg-muted p-4">
-                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <p className="text-base font-bold uppercase tracking-wide text-muted-foreground">
                   Việc làm
                 </p>
                 <p className="mt-2 text-2xl font-black text-foreground">{company.job_count || 0}</p>
               </div>
               <div className="rounded-2xl border border-border bg-muted p-4">
-                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <p className="text-base font-bold uppercase tracking-wide text-muted-foreground">
                   Ứng tuyển
                 </p>
                 <p className="mt-2 text-2xl font-black text-foreground">
@@ -173,7 +173,7 @@ const AdminCompanyDetailPage = () => {
                 </p>
               </div>
               <div className="rounded-2xl border border-border bg-muted p-4">
-                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <p className="text-base font-bold uppercase tracking-wide text-muted-foreground">
                   Lĩnh vực
                 </p>
                 <p className="mt-2 text-xl font-black text-foreground">
@@ -181,7 +181,7 @@ const AdminCompanyDetailPage = () => {
                 </p>
               </div>
               <div className="rounded-2xl border border-border bg-muted p-4">
-                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <p className="text-base font-bold uppercase tracking-wide text-muted-foreground">
                   Tạo lúc
                 </p>
                 <p className="mt-2 text-xl font-black text-foreground">
@@ -196,41 +196,41 @@ const AdminCompanyDetailPage = () => {
           <Card className="space-y-4 p-6 lg:col-span-2">
             <div>
               <h2 className="text-lg font-black text-foreground">Mô tả công ty</h2>
-              <p className="mt-3 whitespace-pre-line text-sm leading-7 text-muted-foreground">
+              <p className="mt-3 whitespace-pre-line text-base leading-7 text-muted-foreground">
                 {company.company_description || 'Chưa có mô tả.'}
               </p>
             </div>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="rounded-2xl border border-border bg-muted p-4">
-                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <p className="text-base font-bold uppercase tracking-wide text-muted-foreground">
                   Website
                 </p>
-                <p className="mt-2 break-all text-sm font-semibold text-foreground">
+                <p className="mt-2 break-all text-base font-semibold text-foreground">
                   {company.company_website || 'Không rõ'}
                 </p>
               </div>
               <div className="rounded-2xl border border-border bg-muted p-4">
-                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <p className="text-base font-bold uppercase tracking-wide text-muted-foreground">
                   Quy mô công ty
                 </p>
-                <p className="mt-2 text-sm font-semibold text-foreground">
+                <p className="mt-2 text-base font-semibold text-foreground">
                   {company.company_size || 'Không rõ'}
                 </p>
               </div>
               <div className="rounded-2xl border border-border bg-muted p-4">
-                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <p className="text-base font-bold uppercase tracking-wide text-muted-foreground">
                   Chủ tài khoản
                 </p>
-                <p className="mt-2 text-sm font-semibold text-foreground">
+                <p className="mt-2 text-base font-semibold text-foreground">
                   {[company.first_name, company.last_name].filter(Boolean).join(' ') || 'Không rõ'}
                 </p>
               </div>
               <div className="rounded-2xl border border-border bg-muted p-4">
-                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <p className="text-base font-bold uppercase tracking-wide text-muted-foreground">
                   Số điện thoại
                 </p>
-                <p className="mt-2 text-sm font-semibold text-foreground">
+                <p className="mt-2 text-base font-semibold text-foreground">
                   {company.phone || company.user_phone || 'Không rõ'}
                 </p>
               </div>
@@ -246,7 +246,7 @@ const AdminCompanyDetailPage = () => {
               <Briefcase className="text-secondary" size={18} />
               <div>
                 <p className="font-bold text-foreground">Xem việc làm</p>
-                <p className="text-sm text-muted-foreground">Tất cả tin của công ty này</p>
+                <p className="text-base text-muted-foreground">Tất cả tin của công ty này</p>
               </div>
             </Link>
             <Link
@@ -256,7 +256,7 @@ const AdminCompanyDetailPage = () => {
               <Users className="text-secondary" size={18} />
               <div>
                 <p className="font-bold text-foreground">Xem ứng tuyển</p>
-                <p className="text-sm text-muted-foreground">Hồ sơ ứng tuyển liên quan</p>
+                <p className="text-base text-muted-foreground">Hồ sơ ứng tuyển liên quan</p>
               </div>
             </Link>
             {company.company_website ? (
@@ -269,7 +269,7 @@ const AdminCompanyDetailPage = () => {
                 <Globe className="text-secondary" size={18} />
                 <div>
                   <p className="font-bold text-foreground">Mở website</p>
-                  <p className="text-sm text-muted-foreground">Truy cập website công ty</p>
+                  <p className="text-base text-muted-foreground">Truy cập website công ty</p>
                 </div>
               </a>
             ) : null}

@@ -126,7 +126,7 @@ const AICVScannerPage = () => {
         {fileError && (
           <div
             role="alert"
-            className="mb-6 flex items-start gap-3 rounded-2xl border border-destructive/25 bg-destructive/5 px-4 py-3 text-sm font-medium text-destructive"
+            className="mb-6 flex items-start gap-3 rounded-2xl border border-destructive/25 bg-destructive/5 px-4 py-3 text-base font-medium text-destructive"
           >
             <XCircle className="mt-0.5 size-5 shrink-0" aria-hidden />
             {fileError}
@@ -145,15 +145,15 @@ const AICVScannerPage = () => {
                     aria-hidden
                   />
                 </div>
-                <h3 className="mb-2 text-xl font-bold text-foreground">
+                <h3 className="mb-2 text-xl font-bold text-foreground md:text-2xl">
                   AI đang phân tích CV của bạn…
                 </h3>
-                <p className="mb-6 font-medium text-muted-foreground">
+                <p className="mb-6 text-base font-medium text-muted-foreground">
                   Quá trình này thường mất vài giây.
                 </p>
                 <div className="mx-auto max-w-md space-y-2">
                   <Progress value={progress} className="h-2" />
-                  <p className="text-xs font-semibold tabular-nums text-muted-foreground">
+                  <p className="text-sm font-bold tabular-nums text-muted-foreground">
                     {Math.round(progress)}%
                   </p>
                 </div>
@@ -188,12 +188,12 @@ const AICVScannerPage = () => {
                         <FileText className="size-8" strokeWidth={1.5} />
                       </div>
                       <div>
-                        <p className="text-lg font-bold text-foreground">{file.name}</p>
-                        <p className="mt-1 text-sm font-medium text-muted-foreground">
+                        <p className="text-lg font-bold text-foreground md:text-xl">{file.name}</p>
+                        <p className="mt-1 text-base font-medium text-muted-foreground">
                           {(file.size / 1024 / 1024).toFixed(2)} MB
                         </p>
                       </div>
-                      <Badge variant="secondary" className="font-semibold">
+                      <Badge variant="secondary" className="text-sm font-bold">
                         Sẵn sàng phân tích
                       </Badge>
                     </div>
@@ -203,13 +203,13 @@ const AICVScannerPage = () => {
                         <Upload className="size-8" strokeWidth={1.5} />
                       </div>
                       <div>
-                        <p className="mb-2 text-xl font-bold text-foreground">
+                        <p className="mb-2 text-xl font-bold text-foreground md:text-2xl">
                           Kéo thả file CV vào đây
                         </p>
-                        <p className="mb-6 text-muted-foreground">
+                        <p className="mb-6 text-base font-medium text-muted-foreground">
                           Hoặc chọn file PDF (tối đa 5MB)
                         </p>
-                        <Button size="lg" className="pointer-events-none">
+                        <Button size="lg" className="pointer-events-none text-base font-bold">
                           Tải CV lên
                         </Button>
                       </div>
@@ -218,11 +218,11 @@ const AICVScannerPage = () => {
                 </div>
 
                 <div className="mt-8 border-t border-border/60 pt-8">
-                  <h4 className="mb-4 flex items-center gap-2 font-bold text-foreground">
+                  <h4 className="mb-4 flex items-center gap-2 text-lg font-bold text-foreground md:text-xl">
                     <CheckCircle2 className="text-primary" size={20} strokeWidth={2} />
                     Lý do nên dùng công cụ này
                   </h4>
-                  <ul className="ml-6 list-disc space-y-2 font-medium text-muted-foreground">
+                  <ul className="ml-6 list-disc space-y-2 text-base font-medium text-muted-foreground">
                     <li>CV thân thiện với hệ thống quét ATS</li>
                     <li>Gợi ý từ khóa và cấu trúc nội dung</li>
                     <li>File chỉ dùng cho phiên phân tích; không gắn với tài khoản ứng viên</li>
@@ -235,14 +235,21 @@ const AICVScannerPage = () => {
           <div className="ai-tool-panel p-8 md:p-10">
             <div className="mb-8 flex flex-col gap-4 border-b border-border/60 pb-6 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="text-xl font-bold text-foreground">Kết quả phân tích</h2>
-                <p className="mt-1 text-sm font-medium text-muted-foreground">File: {file?.name}</p>
+                <h2 className="text-xl font-bold text-foreground md:text-2xl">Kết quả phân tích</h2>
+                <p className="mt-1 text-base font-medium text-muted-foreground">
+                  File: {file?.name}
+                </p>
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button variant="outline" size="sm" onClick={resetScan}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-base font-bold"
+                  onClick={resetScan}
+                >
                   Quét CV khác
                 </Button>
-                <Button size="sm" asChild className="gap-1.5">
+                <Button size="sm" asChild className="gap-1.5 text-base font-bold">
                   <Link to="/jobs">Xem việc làm phù hợp</Link>
                 </Button>
               </div>
@@ -250,22 +257,26 @@ const AICVScannerPage = () => {
 
             <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div className="rounded-xl border border-border/40 bg-muted/50 p-6 text-center">
-                <p className="mb-1 text-sm font-medium text-muted-foreground">Điểm ATS</p>
-                <p className="text-4xl font-extrabold tabular-nums text-primary">{result.score}</p>
-                <p className="mt-1 text-xs text-muted-foreground">trên 100</p>
+                <p className="mb-1 text-sm font-semibold text-muted-foreground">Điểm ATS</p>
+                <p className="text-4xl font-black tabular-nums text-primary md:text-5xl">
+                  {result.score}
+                </p>
+                <p className="mt-1 text-sm font-medium text-muted-foreground">trên 100</p>
               </div>
               <div className="rounded-xl border border-border/40 bg-muted/50 p-6 text-center">
-                <p className="mb-1 text-sm font-medium text-muted-foreground">Từ khóa tìm thấy</p>
-                <p className="text-4xl font-extrabold tabular-nums text-primary">
+                <p className="mb-1 text-sm font-semibold text-muted-foreground">Từ khóa tìm thấy</p>
+                <p className="text-4xl font-black tabular-nums text-primary md:text-5xl">
                   {result.keywordsFound}
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="mt-1 text-sm font-medium text-muted-foreground">
                   Thiếu ~{result.missingKeywords} nhóm từ gợi ý
                 </p>
               </div>
               <div className="rounded-xl border border-border/40 bg-muted/50 p-6 text-center">
-                <p className="mb-1 text-sm font-medium text-muted-foreground">Định dạng</p>
-                <p className="text-xl font-bold text-foreground">{result.formatScore}</p>
+                <p className="mb-1 text-sm font-semibold text-muted-foreground">Định dạng</p>
+                <p className="text-xl font-bold text-foreground md:text-2xl">
+                  {result.formatScore}
+                </p>
               </div>
             </div>
 
@@ -273,10 +284,10 @@ const AICVScannerPage = () => {
               <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {result.strengths?.length > 0 && (
                   <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-5">
-                    <p className="mb-3 text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                    <p className="mb-3 text-xs font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
                       Điểm mạnh (AI)
                     </p>
-                    <ul className="list-disc space-y-1.5 pl-4 text-sm font-medium text-foreground/90">
+                    <ul className="list-disc space-y-1.5 pl-4 text-base font-medium text-foreground/90">
                       {result.strengths.map((t, i) => (
                         <li key={i}>{t}</li>
                       ))}
@@ -285,10 +296,10 @@ const AICVScannerPage = () => {
                 )}
                 {result.weaknesses?.length > 0 && (
                   <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-5">
-                    <p className="mb-3 text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-400">
+                    <p className="mb-3 text-xs font-bold uppercase tracking-widest text-amber-800 dark:text-amber-400">
                       Cần cải thiện (AI)
                     </p>
-                    <ul className="list-disc space-y-1.5 pl-4 text-sm font-medium text-foreground/90">
+                    <ul className="list-disc space-y-1.5 pl-4 text-base font-medium text-foreground/90">
                       {result.weaknesses.map((t, i) => (
                         <li key={i}>{t}</li>
                       ))}
@@ -299,7 +310,7 @@ const AICVScannerPage = () => {
             )}
 
             <div>
-              <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-foreground">
+              <h3 className="mb-4 flex items-center gap-2 text-xl font-bold text-foreground md:text-2xl">
                 <AlertCircle className="text-primary" size={20} strokeWidth={2} />
                 Gợi ý cải thiện từ AI
               </h3>
@@ -312,7 +323,7 @@ const AICVScannerPage = () => {
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/20 text-sm font-bold text-primary">
                       {i + 1}
                     </span>
-                    <p className="font-medium text-foreground">{s}</p>
+                    <p className="text-base font-medium text-foreground">{s}</p>
                   </div>
                 ))}
               </div>

@@ -46,7 +46,7 @@ const ChatMessage = ({ message }) => {
           )}
         </div>
         <p
-          className={`text-[10px] font-bold text-slate-300 mt-2 tracking-widest uppercase ${isAi ? 'text-left' : 'text-right'}`}
+          className={`text-xs font-bold text-slate-300 mt-2 tracking-widest uppercase ${isAi ? 'text-left' : 'text-right'}`}
         >
           {isAi ? 'HireAI Assistant' : 'You'} • {timestamp || 'Bây giờ'}
         </p>

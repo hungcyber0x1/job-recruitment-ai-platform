@@ -148,7 +148,7 @@ function RecruiterNotes({ initialNotes, onPersist }) {
   const save = () => onPersist(editingNotes);
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">
+      <p className="text-base font-black uppercase tracking-widest text-slate-400 mb-3">
         GHI CHÚ TUYỂN DỤNG
       </p>
       <textarea
@@ -157,12 +157,12 @@ function RecruiterNotes({ initialNotes, onPersist }) {
         onBlur={save}
         rows={4}
         placeholder="Ghi chú về ứng viên..."
-        className="w-full resize-none bg-slate-50/50 rounded-xl border border-slate-100 p-3 text-xs text-slate-700 placeholder:text-slate-300 outline-none leading-relaxed focus:border-emerald-200 transition-all"
+        className="w-full resize-none bg-slate-50/50 rounded-xl border border-slate-100 p-3 text-base text-slate-700 placeholder:text-slate-300 outline-none leading-relaxed focus:border-emerald-200 transition-all"
       />
       <button
         type="button"
         onClick={save}
-        className="mt-3 w-full flex items-center justify-center gap-2 rounded-xl border border-slate-200 py-2.5 text-xs font-bold text-slate-500 hover:text-foreground hover:bg-muted/35 transition-colors duration-200 ease-out"
+        className="mt-3 w-full flex items-center justify-center gap-2 rounded-xl border border-slate-200 py-2.5 text-base font-bold text-slate-500 hover:text-foreground hover:bg-muted/35 transition-colors duration-200 ease-out"
       >
         + THÊM GHI CHÚ
       </button>
@@ -270,7 +270,7 @@ const MessagesPage = () => {
             <button
               key={k}
               onClick={() => setActiveTab(k)}
-              className={`flex-1 rounded-xl py-2 text-xs font-bold transition-colors duration-200 ease-out ${
+              className={`flex-1 rounded-xl py-2 text-base font-bold transition-colors duration-200 ease-out ${
                 activeTab === k
                   ? 'bg-primary/10 text-emerald-600 border border-primary/20 shadow-sm'
                   : 'text-slate-500 hover:bg-muted/40 hover:text-foreground'
@@ -306,22 +306,20 @@ const MessagesPage = () => {
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="text-sm font-bold text-slate-900 truncate">{chat.name}</p>
-                  <span className="text-[10px] font-medium text-slate-400 shrink-0">
-                    {chat.time}
-                  </span>
+                  <p className="text-base font-bold text-slate-900 truncate">{chat.name}</p>
+                  <span className="text-base font-medium text-slate-400 shrink-0">{chat.time}</span>
                 </div>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="rounded-lg bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-600 border border-emerald-100">
+                  <span className="rounded-lg bg-emerald-50 px-2 py-0.5 text-base font-bold text-emerald-600 border border-emerald-100">
                     {chat.tag}
                   </span>
                   {chat.unread > 0 && (
-                    <span className="ml-auto h-5 w-5 rounded-full bg-emerald-600 text-[10px] font-black text-white flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/20">
+                    <span className="ml-auto h-5 w-5 rounded-full bg-emerald-600 text-base font-black text-white flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/20">
                       {chat.unread}
                     </span>
                   )}
                 </div>
-                <p className="text-[12px] text-slate-500 truncate mt-1">{chat.lastMessage}</p>
+                <p className="text-base text-slate-500 truncate mt-1">{chat.lastMessage}</p>
               </div>
             </button>
           ))}
@@ -349,7 +347,7 @@ const MessagesPage = () => {
                 <div
                   className={`h-2 w-2 rounded-full ${activeConversation.online ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]' : 'bg-slate-300'}`}
                 />
-                <p className="text-[12px] text-slate-500 font-medium">
+                <p className="text-base text-slate-500 font-medium">
                   {activeConversation.online ? 'Đang trực tuyến' : 'Ngoại tuyến'} • Ứng tuyển{' '}
                   {activeConversation.appliedPosition}
                 </p>
@@ -357,7 +355,7 @@ const MessagesPage = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-2 rounded-xl bg-slate-50 border border-slate-200 px-4 py-2 text-xs font-bold text-slate-700 hover:bg-card hover:shadow-sm transition-colors duration-200 ease-out">
+            <button className="flex items-center gap-2 rounded-xl bg-slate-50 border border-slate-200 px-4 py-2 text-base font-bold text-slate-700 hover:bg-card hover:shadow-sm transition-colors duration-200 ease-out">
               <Eye size={14} className="text-slate-400" />
               HỒ SƠ
             </button>
@@ -377,7 +375,7 @@ const MessagesPage = () => {
         {/* Messages */}
         <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 bg-slate-50/30">
           <div className="flex justify-center">
-            <span className="rounded-full bg-white border border-slate-200 px-5 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest shadow-sm">
+            <span className="rounded-full bg-white border border-slate-200 px-5 py-1.5 text-base font-bold text-slate-400 uppercase tracking-widest shadow-sm">
               HÔM NAY
             </span>
           </div>
@@ -397,15 +395,15 @@ const MessagesPage = () => {
                       <FileText size={18} />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-slate-900 truncate">{msg.file.name}</p>
-                      <p className="text-[11px] font-medium text-slate-400 uppercase tracking-tight">
+                      <p className="text-base font-bold text-slate-900 truncate">{msg.file.name}</p>
+                      <p className="text-base font-medium text-slate-400 uppercase tracking-tight">
                         {msg.file.size}
                       </p>
                     </div>
                   </div>
                 )}
                 <div
-                  className={`rounded-2xl px-5 py-3.5 text-sm leading-relaxed shadow-sm ${
+                  className={`rounded-2xl px-5 py-3.5 text-base leading-relaxed shadow-sm ${
                     msg.sender === 'me'
                       ? 'rounded-br-sm bg-emerald-600 text-white font-medium'
                       : 'rounded-bl-sm bg-white border border-slate-200 text-slate-700'
@@ -413,7 +411,7 @@ const MessagesPage = () => {
                 >
                   {msg.text}
                 </div>
-                <div className="flex items-center gap-1.5 px-1 text-[10px] font-bold text-slate-400 uppercase">
+                <div className="flex items-center gap-1.5 px-1 text-base font-bold text-slate-400 uppercase">
                   <span>{msg.time}</span>
                   {msg.sender === 'me' && <CheckCheck size={12} className="text-emerald-500" />}
                 </div>
@@ -433,7 +431,7 @@ const MessagesPage = () => {
           ].map(({ label, icon: Icon }) => (
             <button
               key={label}
-              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-[11px] font-bold text-slate-500 hover:border-emerald-300 hover:text-emerald-600 hover:bg-primary/10 transition-colors duration-200 ease-out shadow-sm group"
+              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-base font-bold text-slate-500 hover:border-emerald-300 hover:text-emerald-600 hover:bg-primary/10 transition-colors duration-200 ease-out shadow-sm group"
             >
               <Icon
                 size={12}
@@ -459,7 +457,7 @@ const MessagesPage = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Nhập tin nhắn của bạn..."
-                className="flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400 py-1"
+                className="flex-1 bg-transparent text-base text-slate-900 outline-none placeholder:text-slate-400 py-1"
               />
             </div>
             <button
@@ -486,11 +484,11 @@ const MessagesPage = () => {
             <p className="font-extrabold text-slate-900 text-xl tracking-tight leading-tight">
               {activeConversation.name}
             </p>
-            <p className="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-lg px-2 py-0.5 mt-2 uppercase tracking-wide">
+            <p className="text-base font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-lg px-2 py-0.5 mt-2 uppercase tracking-wide">
               {activeConversation.appliedPosition}
             </p>
             <div className="flex items-center gap-2.5 mt-6 w-full">
-              <button className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 text-xs font-bold text-white hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/20 active:scale-95">
+              <button className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 text-base font-bold text-white hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/20 active:scale-95">
                 KẾT NỐI
               </button>
               <button className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 hover:text-amber-500 hover:border-amber-200 transition-all shadow-sm">
@@ -502,7 +500,7 @@ const MessagesPage = () => {
           <div className="space-y-5">
             {/* Recruitment info */}
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 border-b border-slate-50 pb-2">
+              <p className="text-base font-black uppercase tracking-widest text-slate-400 mb-4 border-b border-slate-50 pb-2">
                 THÔNG TIN TUYỂN DỤNG
               </p>
               <div className="space-y-4">
@@ -520,14 +518,14 @@ const MessagesPage = () => {
                   {
                     label: 'Trạng thái:',
                     value: activeConversation.status,
-                    valueClass: `inline-block rounded-lg px-2 py-1 text-[10px] font-black uppercase tracking-tight ${statusColor(activeConversation.status)}`,
+                    valueClass: `inline-block rounded-lg px-2 py-1 text-base font-black uppercase tracking-tight ${statusColor(activeConversation.status)}`,
                   },
                 ].map(({ label, value, valueClass }) => (
                   <div key={label} className="flex flex-col gap-1">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                    <span className="text-base font-bold text-slate-400 uppercase tracking-tighter">
                       {label}
                     </span>
-                    <span className={`text-sm ${valueClass}`}>{value}</span>
+                    <span className={`text-base ${valueClass}`}>{value}</span>
                   </div>
                 ))}
               </div>
@@ -542,7 +540,7 @@ const MessagesPage = () => {
             {/* Shared files */}
             {activeConversation.sharedFiles?.length > 0 && (
               <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 px-1">
+                <p className="text-base font-black uppercase tracking-widest text-slate-400 mb-4 px-1">
                   FILE ĐÃ CHIA SẺ ({activeConversation.sharedFiles.length})
                 </p>
                 <div className="space-y-3">
@@ -557,10 +555,10 @@ const MessagesPage = () => {
                         <FileText size={16} />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[12px] font-bold text-slate-900 truncate pr-2">
+                        <p className="text-base font-bold text-slate-900 truncate pr-2">
                           {file.name}
                         </p>
-                        <p className="text-[10px] font-medium text-slate-400 uppercase">
+                        <p className="text-base font-medium text-slate-400 uppercase">
                           {file.size}
                         </p>
                       </div>

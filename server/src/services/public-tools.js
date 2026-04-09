@@ -1,6 +1,3 @@
-const AIService = require('./ai');
-const logger = require('../utils/logger');
-
 function hashStr(s) {
   let h = 0;
   const str = String(s || '');
@@ -39,40 +36,6 @@ function computeSalaryEstimate({ title, experience, location, industry }) {
   };
 }
 
-async function generateInterviewHint({ question, role, level }) {
-  const q = String(question || '').trim();
-  if (!q) {
-    throw new Error('Thiếu nội dung câu hỏi');
-  }
-  const prompt = `Bạn là huấn luyện viên phỏng vấn tuyển dụng trên nền tảng tuyển dụng HireAI (ứng viên đang chuẩn bị ứng tuyển / phỏng vấn vòng doanh nghiệp tại Việt Nam).
-
-Câu hỏi phỏng vấn: "${q}"
-Lĩnh vực / vai trò ứng viên: ${String(role || 'tổng quát')}.
-Mức kinh nghiệm: ${String(level || 'mid')}.
-
-Nhiệm vụ: đưa gợi ý thực tế, súc tích, giúp ứng viên trả lời tự tin và gắn với JD / kinh nghiệm. Tránh văn mẫu rỗng.
-
-Trả về CHỈ JSON hợp lệ (không markdown):
-{
-  "hints": ["gợi ý ngắn 1", "gợi ý ngắn 2", "gợi ý ngắn 3"],
-  "framework": "1-2 câu: khung trả lời (STAR hoặc luận điểm rõ ràng)"
-}`;
-
-  try {
-    const response = await AIService.generateContent(prompt);
-    const cleaned = AIService.cleanJsonResponse(response);
-    const data = JSON.parse(cleaned);
-    return {
-      hints: Array.isArray(data.hints) ? data.hints.slice(0, 5) : [],
-      framework: typeof data.framework === 'string' ? data.framework : '',
-    };
-  } catch (e) {
-    logger.error('public interview hint AI error:', e);
-    throw new Error('INTERVIEW_HINT_FAILED');
-  }
-}
-
 module.exports = {
   computeSalaryEstimate,
-  generateInterviewHint,
 };

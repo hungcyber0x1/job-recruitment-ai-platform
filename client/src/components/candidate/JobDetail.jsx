@@ -79,7 +79,7 @@ const JobDetail = ({ job, onApply }) => {
             <div className="flex flex-wrap items-center gap-4">
               <Badge
                 variant="indigo"
-                className="px-6 py-2 text-[10px] font-black uppercase tracking-widest"
+                className="px-6 py-2 text-xs font-black uppercase tracking-widest"
               >
                 {job.type || 'full-time'}
               </Badge>
@@ -135,7 +135,7 @@ const JobDetail = ({ job, onApply }) => {
               >
                 <Send size={18} /> Ứng tuyển ngay
               </Button>
-              <p className="mt-6 text-[10px] font-black uppercase tracking-widest text-slate-300">
+              <p className="mt-6 text-xs font-black uppercase tracking-widest text-slate-300">
                 Hạn nộp:{' '}
                 {job.deadline ? new Date(job.deadline).toLocaleDateString('vi-VN') : 'Không có'}
               </p>
@@ -146,7 +146,7 @@ const JobDetail = ({ job, onApply }) => {
                 className="absolute -right-4 -top-4 opacity-10 transition-transform duration-700 group-hover:scale-110"
                 size={120}
               />
-              <div className="mb-4 w-fit rounded-full bg-white/20 px-3 py-1 text-[10px] font-black uppercase tracking-widest">
+              <div className="mb-4 w-fit rounded-full bg-white/20 px-3 py-1 text-xs font-black uppercase tracking-widest">
                 AI Insight
               </div>
               <h4 className="mb-4 text-lg font-black">85% Phù hợp</h4>

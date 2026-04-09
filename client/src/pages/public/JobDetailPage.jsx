@@ -166,13 +166,13 @@ const JobDetailPage = () => {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center bg-slate-50/50 px-6 py-20 text-center">
         <Building className="mb-4 size-14 text-slate-300" aria-hidden />
-        <p className="text-lg font-semibold text-slate-800">Không tìm thấy tin tuyển dụng</p>
-        <p className="mt-2 max-w-sm text-sm text-slate-500">
+        <p className="text-xl font-bold text-slate-800">Không tìm thấy tin tuyển dụng</p>
+        <p className="mt-2 max-w-sm text-base font-medium text-slate-500 leading-relaxed">
           Liên kết có thể đã hết hạn hoặc tin đã gỡ. Quay lại danh sách việc làm để tiếp tục.
         </p>
         <Link
           to="/jobs"
-          className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-md shadow-primary/25 transition hover:opacity-95"
+          className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-3 text-base font-bold text-white shadow-md shadow-primary/25 transition hover:opacity-95"
         >
           Xem việc làm <ArrowRight className="size-4" aria-hidden />
         </Link>
@@ -192,13 +192,13 @@ const JobDetailPage = () => {
   const linkedInShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(jobPageUrl)}`;
 
   const socialSharePillClass =
-    'inline-flex items-center justify-center rounded-full border border-slate-700/90 bg-white px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.08em] text-slate-800 shadow-[0_1px_0_rgba(15,23,42,0.08),0_1px_2px_rgba(15,23,42,0.06)] transition hover:border-slate-900 hover:bg-muted/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-2';
+    'inline-flex items-center justify-center rounded-full border border-slate-700/90 bg-white px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-slate-800 shadow-[0_1px_0_rgba(15,23,42,0.08),0_1px_2px_rgba(15,23,42,0.06)] transition hover:border-slate-900 hover:bg-muted/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-2';
 
   return (
     <>
       <div className="bg-gradient-to-b from-slate-50 to-white pb-20 pt-6 md:pt-8">
         <div className="container mx-auto max-w-6xl px-6">
-          <nav className="mb-6 text-sm text-slate-500" aria-label="Breadcrumb">
+          <nav className="mb-6 text-base text-slate-500" aria-label="Breadcrumb">
             <ol className="flex flex-wrap items-center gap-x-2 gap-y-1">
               <li>
                 <Link to="/" className="font-medium transition hover:text-primary">
@@ -242,25 +242,25 @@ const JobDetailPage = () => {
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                   <Badge
                     variant="primary"
-                    className="rounded-lg px-3 py-1 text-[11px] font-semibold uppercase tracking-wider"
+                    className="rounded-lg px-3 py-1 text-xs font-bold uppercase tracking-wider"
                   >
                     {formatJobTypeVi(job.type)}
                   </Badge>
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-emerald-700">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50/90 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-700">
                     <ShieldCheck size={13} className="shrink-0" aria-hidden /> Đã xác minh
                   </span>
                   {isExpired && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-red-700">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-red-700">
                       Đã hết hạn ứng tuyển
                     </span>
                   )}
                 </div>
 
-                <h1 className="mb-5 text-3xl font-bold leading-tight tracking-tight text-slate-900 md:text-4xl lg:text-[2.25rem]">
+                <h1 className="mb-5 text-3xl font-black leading-tight tracking-tight text-slate-900 md:text-4xl lg:text-5xl">
                   {job.title}
                 </h1>
 
-                <div className="flex flex-col gap-4 text-sm text-slate-600 sm:flex-row sm:flex-wrap sm:items-start sm:gap-x-10 sm:gap-y-4">
+                <div className="flex flex-col gap-4 text-base text-slate-600 sm:flex-row sm:flex-wrap sm:items-start sm:gap-x-10 sm:gap-y-4">
                   <span className="inline-flex items-center gap-2 font-semibold text-slate-700">
                     <Building size={18} className="shrink-0 text-primary" aria-hidden />
                     {companyName}
@@ -288,7 +288,7 @@ const JobDetailPage = () => {
                     </span>
                     {job.deadline && deadlineDate && !Number.isNaN(deadlineDate.getTime()) && (
                       <span
-                        className={`pl-[26px] text-xs font-medium leading-snug ${isExpired ? 'text-red-600/90' : 'text-slate-500'}`}
+                        className={`pl-[26px] text-sm font-medium leading-snug ${isExpired ? 'text-red-600/90' : 'text-slate-500'}`}
                       >
                         Hạn chót:{' '}
                         {deadlineDate.toLocaleDateString('vi-VN', {
@@ -307,7 +307,7 @@ const JobDetailPage = () => {
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                   <Button
                     variant={isExpired ? 'secondary' : 'primary'}
-                    className={`rounded-2xl px-8 py-4 text-base font-semibold ${isExpired ? 'cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-400 shadow-none' : 'group shadow-md shadow-primary/20'}`}
+                    className={`rounded-2xl px-8 py-4 text-base font-bold ${isExpired ? 'cursor-not-allowed border border-slate-200 bg-slate-100 text-slate-400 shadow-none' : 'group shadow-md shadow-primary/20'}`}
                     onClick={() => !isExpired && setIsApplyModalOpen(true)}
                     disabled={isExpired}
                   >
@@ -324,7 +324,7 @@ const JobDetailPage = () => {
                     type="button"
                     variant="outline"
                     onClick={handleShare}
-                    className="flex items-center justify-center gap-2 rounded-2xl border-slate-200 bg-white px-8 py-4 text-base font-semibold text-slate-700 shadow-sm transition hover:border-primary/30 hover:bg-muted/35"
+                    className="flex items-center justify-center gap-2 rounded-2xl border-slate-200 bg-white px-8 py-4 text-base font-bold text-slate-700 shadow-sm transition hover:border-primary/30 hover:bg-muted/35"
                   >
                     <Share2 size={18} aria-hidden /> Chia sẻ
                   </Button>
@@ -354,17 +354,17 @@ const JobDetailPage = () => {
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
             <div className="space-y-10 lg:col-span-2">
               <Card className="rounded-3xl border border-slate-200/70 bg-white p-8 shadow-sm md:p-10">
-                <h2 className="mb-6 flex items-center gap-3 border-b border-slate-100 pb-4 text-lg font-semibold tracking-tight text-slate-900 md:text-xl">
+                <h2 className="mb-6 flex items-center gap-3 border-b border-slate-100 pb-4 text-xl font-bold tracking-tight text-slate-900 md:text-2xl">
                   <span className="h-6 w-1 shrink-0 rounded-full bg-primary" aria-hidden />
                   Mô tả công việc
                 </h2>
-                <div className="prose prose-slate max-w-none whitespace-pre-line text-[15px] leading-relaxed text-slate-600">
+                <div className="prose prose-slate max-w-none whitespace-pre-line text-base leading-relaxed text-slate-600">
                   {job.description?.trim()
                     ? job.description
                     : 'Nhà tuyển dụng chưa cập nhật mô tả chi tiết cho vị trí này.'}
                 </div>
 
-                <h2 className="mb-6 mt-14 flex items-center gap-3 border-b border-slate-100 pb-4 text-lg font-semibold tracking-tight text-slate-900 md:text-xl">
+                <h2 className="mb-6 mt-14 flex items-center gap-3 border-b border-slate-100 pb-4 text-xl font-bold tracking-tight text-slate-900 md:text-2xl">
                   <span className="h-6 w-1 shrink-0 rounded-full bg-primary" aria-hidden />
                   Yêu cầu ứng viên
                 </h2>
@@ -378,13 +378,13 @@ const JobDetailPage = () => {
                         <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                           <CheckCircle size={15} aria-hidden />
                         </div>
-                        <p className="text-[15px] font-medium leading-relaxed text-slate-600">
+                        <p className="text-base font-medium leading-relaxed text-slate-600">
                           {req}
                         </p>
                       </div>
                     ))
                   ) : (
-                    <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 px-4 py-6 text-center text-sm text-slate-500">
+                    <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 px-4 py-6 text-center text-base font-medium text-slate-500">
                       Nhà tuyển dụng chưa bổ sung yêu cầu chi tiết.
                     </p>
                   )}
@@ -392,7 +392,7 @@ const JobDetailPage = () => {
               </Card>
 
               <Card className="rounded-3xl border border-slate-200/70 bg-white p-8 shadow-sm md:p-10">
-                <h2 className="mb-6 flex items-center gap-3 border-b border-slate-100 pb-4 text-lg font-semibold tracking-tight text-slate-900 md:text-xl">
+                <h2 className="mb-6 flex items-center gap-3 border-b border-slate-100 pb-4 text-xl font-bold tracking-tight text-slate-900 md:text-2xl">
                   <span className="h-6 w-1 shrink-0 rounded-full bg-primary" aria-hidden />
                   Quyền lợi
                 </h2>
@@ -405,7 +405,7 @@ const JobDetailPage = () => {
                       <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
                         <Zap size={18} aria-hidden />
                       </span>
-                      <span className="text-sm font-medium leading-snug text-slate-700">
+                      <span className="text-base font-medium leading-snug text-slate-700">
                         {item}
                       </span>
                     </div>
@@ -422,13 +422,13 @@ const JobDetailPage = () => {
                   aria-hidden
                 />
                 <div className="relative z-10">
-                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/70">
+                  <p className="mb-1 text-sm font-bold uppercase tracking-widest text-white/70">
                     Mức lương (tham khảo)
                   </p>
-                  <p className="mb-2 text-3xl font-bold tracking-tight md:text-[2rem]">
+                  <p className="mb-2 text-3xl font-black tracking-tight md:text-4xl">
                     {formatSalaryRange(job.salary_min, job.salary_max)}
                   </p>
-                  <p className="mb-8 text-xs font-medium text-white/75">
+                  <p className="mb-8 text-sm font-medium text-white/80">
                     Gross / tháng · có thể thỏa thuận
                   </p>
                   <div className="mb-6 h-px bg-white/15" />
@@ -438,10 +438,10 @@ const JobDetailPage = () => {
                         <DollarSign size={20} aria-hidden />
                       </div>
                       <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/60">
+                        <p className="text-xs font-bold uppercase tracking-widest text-white/60">
                           Hình thức trả lương
                         </p>
-                        <p className="mt-0.5 text-sm font-semibold">
+                        <p className="mt-0.5 text-base font-semibold">
                           Theo hợp đồng lao động (Gross)
                         </p>
                       </div>
@@ -451,10 +451,10 @@ const JobDetailPage = () => {
                         <Users size={20} aria-hidden />
                       </div>
                       <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/60">
+                        <p className="text-xs font-bold uppercase tracking-widest text-white/60">
                           Kinh nghiệm
                         </p>
-                        <p className="mt-0.5 text-sm font-semibold">
+                        <p className="mt-0.5 text-base font-semibold">
                           {experienceLine || 'Đang cập nhật'}
                         </p>
                       </div>
@@ -468,16 +468,16 @@ const JobDetailPage = () => {
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                     <Sparkles size={20} aria-hidden />
                   </div>
-                  <h3 className="text-base font-semibold text-slate-900">Gợi ý từ HireAI</h3>
+                  <h3 className="text-lg font-bold text-slate-900">Gợi ý từ HireAI</h3>
                 </div>
-                <p className="mb-6 text-sm leading-relaxed text-slate-600">
+                <p className="mb-6 text-base font-medium leading-relaxed text-slate-600">
                   So khớp nhanh hồ sơ của bạn với mô tả công việc — chat với trợ lý để nhận gợi ý
                   ứng tuyển và từ khóa phù hợp.
                 </p>
                 <Link to="/chat" className="block">
                   <Button
                     variant="ghost"
-                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary/25 bg-primary/[0.04] py-3 text-sm font-semibold text-primary transition hover:bg-primary/[0.08]"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary/25 bg-primary/[0.04] py-3 text-base font-bold text-primary transition hover:bg-primary/[0.08]"
                   >
                     <MessageSquare size={18} aria-hidden /> Mở trợ lý tư vấn
                   </Button>
@@ -485,11 +485,11 @@ const JobDetailPage = () => {
               </Card>
 
               <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8 text-white shadow-lg">
-                <h3 className="mb-4 flex items-center gap-2 text-base font-semibold">
+                <h3 className="mb-4 flex items-center gap-2 text-lg font-bold">
                   <Info size={18} className="shrink-0 text-emerald-400/90" aria-hidden /> Về nhà
                   tuyển dụng
                 </h3>
-                <p className="mb-6 text-sm leading-relaxed text-slate-400">
+                <p className="mb-6 text-base font-medium leading-relaxed text-slate-400">
                   {job.company_description ||
                     job.employer?.company_description ||
                     'Thông tin doanh nghiệp đang được cập nhật.'}
@@ -497,7 +497,7 @@ const JobDetailPage = () => {
                 {employerId && (
                   <Link
                     to={`/companies/${employerId}`}
-                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-400/95 transition hover:text-emerald-300"
+                    className="inline-flex items-center gap-1.5 text-base font-bold text-emerald-400/95 transition hover:text-emerald-300"
                   >
                     Xem trang công ty <ArrowRight size={14} aria-hidden />
                   </Link>

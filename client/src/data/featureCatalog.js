@@ -47,14 +47,6 @@ export const fallbackFeatureCatalog = {
       enabled: true,
     },
     {
-      id: 'ai-interview',
-      title: 'AI Interview',
-      description:
-        'Role-based interview practice with AI hints for recruitment-style behavioral and technical questions.',
-      path: '/ai-interview',
-      enabled: true,
-    },
-    {
       id: 'salary-predictor',
       title: 'Salary Predictor',
       description:

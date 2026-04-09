@@ -24,7 +24,7 @@ export default function ChartSurface({
   children,
 }) {
   return (
-    <div className={cn('w-full min-w-0', className)}>
+    <div className={cn('w-full min-w-0', className)} style={{ minHeight: minChartHeight }}>
       <ResponsiveContainer
         width="100%"
         height="100%"

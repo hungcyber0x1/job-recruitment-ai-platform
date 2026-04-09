@@ -122,21 +122,21 @@ const SavedCandidatesPage = () => {
           <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-tight">
             Ứng viên đã lưu
           </h1>
-          <p className="text-sm font-medium text-slate-500 mt-1">
+          <p className="text-base font-medium text-slate-500 mt-1">
             Quản lý các hồ sơ tiềm năng bạn đã đánh dấu để cân nhắc.
           </p>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={handleFilter}
-            className="flex h-11 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 text-xs font-black text-slate-600 hover:border-emerald-200 hover:text-emerald-600 transition-all shadow-sm active:scale-95"
+            className="flex h-11 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 text-base font-black text-slate-600 hover:border-emerald-200 hover:text-emerald-600 transition-all shadow-sm active:scale-95"
           >
             <Filter size={14} />
             LỌC
           </button>
           <button
             onClick={handleCreateFolder}
-            className="flex h-11 items-center gap-2 rounded-2xl bg-emerald-600 px-5 text-xs font-black text-white hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/20 active:scale-95"
+            className="flex h-11 items-center gap-2 rounded-2xl bg-emerald-600 px-5 text-base font-black text-white hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/20 active:scale-95"
           >
             <FolderPlus size={14} />
             TẠO THƯ MỤC MỚI
@@ -153,7 +153,7 @@ const SavedCandidatesPage = () => {
               setActiveFolder(folder.id);
               setCurrentPage(1);
             }}
-            className={`relative flex items-center gap-2 px-6 py-4 text-xs font-black transition-all ${
+            className={`relative flex items-center gap-2 px-6 py-4 text-base font-black transition-all ${
               activeFolder === folder.id
                 ? 'text-emerald-600 after:absolute after:bottom-0 after:inset-x-0 after:h-1 after:bg-emerald-600 after:rounded-full'
                 : 'text-slate-400 hover:text-foreground hover:bg-muted/35 rounded-xl'
@@ -161,7 +161,7 @@ const SavedCandidatesPage = () => {
           >
             {folder.name.toUpperCase()}
             <span
-              className={`rounded-lg px-2 py-0.5 text-[10px] font-black tabular-nums transition-all ${
+              className={`rounded-lg px-2 py-0.5 text-base font-black tabular-nums transition-all ${
                 activeFolder === folder.id
                   ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/20'
                   : 'bg-slate-100 text-slate-500'
@@ -187,7 +187,7 @@ const SavedCandidatesPage = () => {
           </p>
           <Link
             to="/employer/search-candidates"
-            className="mt-8 flex items-center gap-2 rounded-2xl bg-slate-900 border border-slate-800 px-8 py-3.5 text-xs font-black text-white hover:bg-black transition-all shadow-xl active:scale-95 uppercase tracking-widest"
+            className="mt-8 flex items-center gap-2 rounded-2xl bg-slate-900 border border-slate-800 px-8 py-3.5 text-base font-black text-white hover:bg-black transition-all shadow-xl active:scale-95 uppercase tracking-widest"
           >
             <Plus size={16} />
             Tìm ứng viên mới
@@ -214,7 +214,7 @@ const SavedCandidatesPage = () => {
                         {candidate.name}
                       </p>
                       <p
-                        className={`text-[11px] font-black uppercase tracking-widest mt-0.5 ${candidate.roleColor.replace('text-emerald-400', 'text-emerald-600').replace('text-pink-400', 'text-pink-600').replace('text-blue-400', 'text-blue-600').replace('text-amber-400', 'text-amber-600')}`}
+                        className={`text-base font-black uppercase tracking-widest mt-0.5 ${candidate.roleColor.replace('text-emerald-400', 'text-emerald-600').replace('text-pink-400', 'text-pink-600').replace('text-blue-400', 'text-blue-600').replace('text-amber-400', 'text-amber-600')}`}
                       >
                         {candidate.role}
                       </p>
@@ -227,7 +227,7 @@ const SavedCandidatesPage = () => {
                       <BookmarkCheck size={16} fill="currentColor" />
                     </button>
                   </div>
-                  <div className="flex flex-wrap items-center gap-4 mt-3 text-[11px] font-bold text-slate-500">
+                  <div className="flex flex-wrap items-center gap-4 mt-3 text-base font-bold text-slate-500">
                     <span className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">
                       <Briefcase size={12} className="text-slate-400" />
                       {(candidate.experience || 'N/A').toUpperCase()}
@@ -245,7 +245,7 @@ const SavedCandidatesPage = () => {
                 {(candidate.skills || []).map((s) => (
                   <span
                     key={s}
-                    className="rounded-lg bg-emerald-50/50 border border-emerald-100 px-3 py-1 text-[10px] font-black text-emerald-700 uppercase tracking-widest"
+                    className="rounded-lg bg-emerald-50/50 border border-emerald-100 px-3 py-1 text-base font-black text-emerald-700 uppercase tracking-widest"
                   >
                     {s}
                   </span>
@@ -270,7 +270,7 @@ const SavedCandidatesPage = () => {
                 </button>
                 <Link
                   to={`/employer/applications/${candidate.id}`}
-                  className="flex-1 h-12 flex items-center justify-center rounded-2xl bg-emerald-600 text-xs font-black text-white hover:bg-emerald-700 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 active:scale-95 transition-all uppercase tracking-widest"
+                  className="flex-1 h-12 flex items-center justify-center rounded-2xl bg-emerald-600 text-base font-black text-white hover:bg-emerald-700 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 active:scale-95 transition-all uppercase tracking-widest"
                 >
                   XEM HỒ SƠ CHI TIẾT
                 </Link>
@@ -295,7 +295,7 @@ const SavedCandidatesPage = () => {
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`flex h-11 w-11 items-center justify-center rounded-2xl text-xs font-black transition-all ${
+                className={`flex h-11 w-11 items-center justify-center rounded-2xl text-base font-black transition-all ${
                   page === currentPage
                     ? 'bg-slate-900 text-white shadow-lg'
                     : 'text-slate-400 hover:text-foreground hover:bg-muted/35'

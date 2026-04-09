@@ -86,7 +86,7 @@ const AdminProfilePage = () => {
 
   const inputClass =
     'w-full h-12 px-4 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 transition-all font-medium';
-  const labelClass = 'block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1';
+  const labelClass = 'block text-base font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1';
 
   return (
     <AdminLayout>
@@ -97,7 +97,7 @@ const AdminProfilePage = () => {
             <h1 className="text-2xl font-black text-slate-900 uppercase tracking-tight">
               Hồ sơ cá nhân
             </h1>
-            <p className="text-sm text-slate-500 mt-1 font-medium">
+            <p className="text-base text-slate-500 mt-1 font-medium">
               Quản lý thông tin tài khoản quản trị của bạn.
             </p>
           </div>
@@ -153,16 +153,16 @@ const AdminProfilePage = () => {
               <h2 className="text-xl font-bold text-slate-900">
                 {user?.first_name} {user?.last_name}
               </h2>
-              <p className="text-sm font-bold text-emerald-500 uppercase tracking-widest mt-1">
+              <p className="text-base font-bold text-emerald-500 uppercase tracking-widest mt-1">
                 {user?.role === 'admin' ? 'Quản trị viên hệ thống' : user?.role}
               </p>
 
               <div className="mt-8 pt-8 border-t border-slate-100 space-y-4">
-                <div className="flex items-center gap-3 text-slate-500 text-sm font-medium px-4">
+                <div className="flex items-center gap-3 text-slate-500 text-base font-medium px-4">
                   <Mail size={16} className="text-slate-400 shrink-0" />
                   <span className="truncate">{user?.email}</span>
                 </div>
-                <div className="flex items-center gap-3 text-slate-500 text-sm font-medium px-4">
+                <div className="flex items-center gap-3 text-slate-500 text-base font-medium px-4">
                   <Shield size={16} className="text-slate-400 shrink-0" />
                   <span>ID: #{user?.id ? String(user.id).slice(-6) : 'N/A'}</span>
                 </div>
@@ -172,12 +172,12 @@ const AdminProfilePage = () => {
             <div className="bg-emerald-600 rounded-3xl p-8 text-white shadow-lg shadow-emerald-200/50 overflow-hidden relative">
               <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
               <h3 className="text-lg font-bold mb-2">Bảo mật tài khoản</h3>
-              <p className="text-sm text-emerald-100 font-medium leading-relaxed">
+              <p className="text-base text-emerald-100 font-medium leading-relaxed">
                 Đảm bảo mật khẩu của bạn là duy nhất và không được sử dụng ở nơi khác.
               </p>
               <Button
                 variant="secondary"
-                className="w-full mt-6 bg-white text-emerald-600 hover:bg-primary/10 border-none rounded-xl font-bold uppercase tracking-wider text-xs"
+                className="w-full mt-6 bg-white text-emerald-600 hover:bg-primary/10 border-none rounded-xl font-bold uppercase tracking-wider text-base"
                 onClick={() => navigate('/admin/settings')}
               >
                 Cập nhật bảo mật
@@ -189,7 +189,7 @@ const AdminProfilePage = () => {
           <div className="lg:col-span-2">
             <div className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
               <div className="bg-slate-50/50 px-8 py-6 border-b border-slate-100">
-                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">
+                <h3 className="text-base font-bold text-slate-900 uppercase tracking-widest">
                   Thông tin cá nhân
                 </h3>
               </div>
@@ -293,7 +293,7 @@ const AdminProfilePage = () => {
                   <Button
                     type="submit"
                     disabled={loading}
-                    className="h-14 px-10 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl shadow-lg shadow-emerald-500/20 font-bold uppercase tracking-widest text-xs transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+                    className="h-14 px-10 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl shadow-lg shadow-emerald-500/20 font-bold uppercase tracking-widest text-base transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
                   >
                     <Save className="mr-3 h-4 w-4" />
                     {loading ? 'Đang lưu...' : 'Lưu hồ sơ'}

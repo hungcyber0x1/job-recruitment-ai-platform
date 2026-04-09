@@ -19,7 +19,6 @@ export const AboutPage = React.lazy(() => import('../pages/public/AboutPage.jsx'
 export const ContactPage = React.lazy(() => import('../pages/public/ContactPage.jsx'));
 export const ChatPage = React.lazy(() => import('../pages/public/ChatPage.jsx'));
 export const AICVScannerPage = React.lazy(() => import('../pages/public/AICVScannerPage.jsx'));
-export const AIInterviewPage = React.lazy(() => import('../pages/public/AIInterviewPage.jsx'));
 export const SalaryPredictorPage = React.lazy(
   () => import('../pages/public/SalaryPredictorPage.jsx')
 );

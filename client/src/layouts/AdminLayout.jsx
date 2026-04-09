@@ -1,59 +1,87 @@
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { Bell, BookOpen, Home, LayoutDashboard, Search, HelpCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import NotificationDropdown from './NotificationDropdown';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/utils';
 import { ADMIN_NAV_GROUPS } from '@/config/adminNavigation';
+import { resolveMediaUrl } from '@/utils/mediaUrl';
 
-const SidebarContent = ({ items, user }) => {
+const isAdminNavActive = (pathname, path) => {
+  if (path === '/admin/dashboard') return pathname === '/admin/dashboard';
+  return pathname === path || pathname.startsWith(`${path}/`);
+};
+
+const SidebarContent = ({ items, user, onMobileClose }) => {
   const location = useLocation();
+  const adminName =
+    user?.first_name && user?.last_name
+      ? `${user.first_name} ${user.last_name}`
+      : user?.name || 'Quản trị viên';
+  const avatarSrc = resolveMediaUrl(user?.avatar_url) || undefined;
 
   return (
-    <div className="flex flex-col h-full bg-white text-foreground border-r border-border z-50 w-64">
-      {/* Logo */}
-      <div className="p-6 border-b border-border flex items-center gap-3">
-        <Link to="/admin/dashboard" className="flex items-center gap-3 group">
-          <div className="w-9 h-9 bg-emerald-500 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-500/30">
-            <LayoutDashboard className="text-white w-5 h-5" />
+    <div className="z-50 flex h-full w-64 flex-col border-r border-border bg-[hsl(var(--nav-bg))] text-foreground dark:border-slate-800 dark:bg-slate-950">
+      <div className="border-b border-border bg-gradient-to-br from-primary/[0.07] via-primary/[0.02] to-transparent px-5 py-5 dark:from-primary/12 dark:via-primary/5 dark:to-transparent">
+        <Link
+          to="/admin/dashboard"
+          className="group flex items-center gap-3"
+          onClick={() => onMobileClose?.()}
+        >
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition-transform group-hover:scale-[1.03]">
+            <LayoutDashboard className="h-6 w-6" aria-hidden />
           </div>
-          <span className="font-bold text-lg tracking-tight text-emerald-600">AI Recruiter</span>
+          <span className="min-w-0 truncate text-lg font-black tracking-tight text-foreground">
+            Quản trị
+            <span className="text-primary"> Hub</span>
+          </span>
         </Link>
       </div>
 
-      {/* Navigation */}
       <ScrollArea className="flex-1 px-3 py-4">
         <nav className="flex flex-col gap-6">
           {items.map((group) => (
             <div key={group.title}>
-              <h3 className="px-3 mb-3 text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">
+              <h3 className="mb-2 px-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">
                 {group.title}
               </h3>
-              <div className="space-y-1">
+              <div className="space-y-0.5">
                 {group.items.map((item) => {
-                  const active =
-                    location.pathname === item.path ||
-                    (item.path !== '/admin/dashboard' && location.pathname.startsWith(item.path));
                   const Icon = item.icon;
+                  const active = isAdminNavActive(location.pathname, item.path);
                   return (
-                    <Link
+                    <NavLink
                       key={item.path}
                       to={item.path}
+                      end={item.path === '/admin/dashboard'}
+                      onClick={() => onMobileClose?.()}
                       className={cn(
-                        'flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200',
+                        'group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-base font-medium transition-all duration-200',
                         active
-                          ? 'bg-emerald-500/10 text-emerald-700 shadow-sm shadow-emerald-500/5'
-                          : 'text-slate-500 hover:bg-primary/10 hover:text-emerald-600'
+                          ? 'bg-primary/10 text-primary shadow-sm ring-1 ring-primary/10 dark:bg-primary/15 dark:text-primary dark:ring-primary/20'
+                          : 'text-muted-foreground hover:bg-muted/90 hover:text-foreground dark:hover:bg-slate-800/80 dark:hover:text-slate-100'
                       )}
                     >
+                      {active && (
+                        <span
+                          className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-primary shadow-[0_0_12px_hsl(var(--primary)_/_0.45)]"
+                          aria-hidden
+                        />
+                      )}
                       <Icon
-                        size={18}
-                        className="shrink-0 transition-transform duration-300 group-hover:scale-110"
+                        size={20}
+                        className={cn(
+                          'shrink-0 transition-transform duration-200 group-hover:scale-105',
+                          active
+                            ? 'text-primary'
+                            : 'text-muted-foreground/80 group-hover:text-primary'
+                        )}
+                        aria-hidden
                       />
-                      {item.label}
-                    </Link>
+                      <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                    </NavLink>
                   );
                 })}
               </div>
@@ -62,29 +90,27 @@ const SidebarContent = ({ items, user }) => {
         </nav>
       </ScrollArea>
 
-      {/* Footer - Admin profile */}
-      <div className="p-4 border-t border-border">
+      <div className="border-t border-border p-4">
         <Link
           to="/admin/profile"
-          className="flex items-center gap-3 p-4 bg-slate-50 border border-slate-100 rounded-2xl hover:bg-primary/10 hover:border-emerald-100 transition-all group"
+          className="group flex items-center gap-3 rounded-2xl border border-border bg-card/70 p-3.5 shadow-sm transition-all hover:border-primary/30 hover:bg-primary/[0.06] dark:bg-slate-900/50 dark:hover:bg-primary/10"
+          onClick={() => onMobileClose?.()}
         >
-          <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform shadow-sm">
-            {user?.avatar_url ? (
-              <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-background shadow-sm transition-transform group-hover:scale-[1.02] dark:bg-slate-800 dark:border-slate-700">
+            {avatarSrc ? (
+              <img src={avatarSrc} alt="" className="h-full w-full object-cover" />
             ) : (
-              <span className="text-sm font-bold text-emerald-600">
+              <span className="text-base font-bold text-primary">
                 {(user?.first_name?.[0] || user?.name?.[0] || 'A').toUpperCase()}
               </span>
             )}
           </div>
-          <div className="flex-1 min-w-0 text-left">
-            <p className="text-sm font-semibold text-foreground truncate group-hover:text-emerald-700 transition-colors">
-              {user?.first_name && user?.last_name
-                ? `${user.first_name} ${user.last_name}`
-                : user?.name || 'Admin Name'}
+          <div className="min-w-0 flex-1 text-left">
+            <p className="truncate text-base font-semibold text-foreground transition-colors group-hover:text-primary">
+              {adminName}
             </p>
-            <p className="text-[10px] text-emerald-500 font-bold uppercase tracking-wider">
-              Hồ sơ Quản trị
+            <p className="truncate text-xs font-bold uppercase tracking-widest text-primary">
+              Quản trị viên
             </p>
           </div>
         </Link>
@@ -112,6 +138,7 @@ SidebarContent.propTypes = {
     last_name: PropTypes.string,
     name: PropTypes.string,
   }),
+  onMobileClose: PropTypes.func,
 };
 
 const AdminLayout = ({ children }) => {
@@ -125,7 +152,7 @@ const AdminLayout = ({ children }) => {
   return (
     <div className="flex min-h-screen bg-background">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 z-50">
+      <aside className="z-50 hidden lg:fixed lg:inset-y-0 lg:flex lg:flex-col">
         <SidebarContent items={items} user={user} />
       </aside>
 
@@ -140,11 +167,15 @@ const AdminLayout = ({ children }) => {
       {/* Mobile Sidebar */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-[70] w-64 bg-white border-r border-border transition-transform duration-300 lg:hidden',
+          'fixed inset-y-0 left-0 z-[70] transition-transform duration-300 lg:hidden',
           isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
-        <SidebarContent items={items} user={user} />
+        <SidebarContent
+          items={items}
+          user={user}
+          onMobileClose={() => setIsMobileSidebarOpen(false)}
+        />
       </aside>
 
       {/* Main Content */}
@@ -167,7 +198,7 @@ const AdminLayout = ({ children }) => {
                 placeholder="Tìm kiếm hệ thống..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-11 pl-11 pr-4 rounded-xl bg-white border border-border text-foreground placeholder:text-muted-foreground text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50"
+                className="w-full h-11 pl-11 pr-4 rounded-xl bg-white border border-border text-foreground placeholder:text-muted-foreground text-base font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50"
               />
             </div>
           </div>

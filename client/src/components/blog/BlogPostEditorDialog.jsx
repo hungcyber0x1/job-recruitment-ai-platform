@@ -208,7 +208,7 @@ export default function BlogPostEditorDialog({ open, onOpenChange, mode, initial
               trình soạn không giữ nguyên.
             </p>
             {contentTab === 'visual' ? (
-              <div className="blog-editor-quill rounded-md border border-input bg-background [&_.ql-container]:min-h-[220px] [&_.ql-editor]:min-h-[220px] [&_.ql-toolbar]:rounded-t-md [&_.ql-toolbar]:border-0 [&_.ql-toolbar]:border-b [&_.ql-container]:border-0 [&_.ql-editor]:text-[15px] [&_.ql-editor]:leading-relaxed">
+              <div className="blog-editor-quill rounded-md border border-input bg-background [&_.ql-container]:min-h-[220px] [&_.ql-editor]:min-h-[220px] [&_.ql-toolbar]:rounded-t-md [&_.ql-toolbar]:border-0 [&_.ql-toolbar]:border-b [&_.ql-container]:border-0 [&_.ql-editor]:text-base [&_.ql-editor]:leading-relaxed">
                 {open ? (
                   <ReactQuill
                     key={editorKey}

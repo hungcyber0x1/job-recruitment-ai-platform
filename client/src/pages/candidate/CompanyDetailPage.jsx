@@ -88,10 +88,10 @@ const CompanyDetailPage = () => {
                   {company.name}
                 </h1>
                 <div className="flex flex-wrap items-center gap-3 text-slate-500 dark:text-slate-400 font-medium mt-2">
-                  <span className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider">
+                  <span className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3 py-1 rounded-lg text-base font-bold uppercase tracking-wider">
                     {company.industry}
                   </span>
-                  <span className="flex items-center gap-1.5 text-sm">
+                  <span className="flex items-center gap-1.5 text-base">
                     <MapPin size={16} /> {company.location}
                   </span>
                 </div>
@@ -109,7 +109,7 @@ const CompanyDetailPage = () => {
                   <Users size={20} />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  <p className="text-base font-bold text-slate-400 uppercase tracking-wider">
                     Quy mô
                   </p>
                   <p className="font-bold text-slate-900 dark:text-white">
@@ -123,7 +123,7 @@ const CompanyDetailPage = () => {
                   <Globe size={20} />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  <p className="text-base font-bold text-slate-400 uppercase tracking-wider">
                     Website
                   </p>
                   <a
@@ -231,7 +231,7 @@ const CompanyDetailPage = () => {
                     <Star key={i} size={20} fill="currentColor" />
                   ))}
                 </div>
-                <p className="text-emerald-200 font-bold text-sm uppercase tracking-wider">
+                <p className="text-emerald-200 font-bold text-base uppercase tracking-wider">
                   Dựa trên 128 đánh giá
                 </p>
               </div>
@@ -248,7 +248,7 @@ const CompanyDetailPage = () => {
                     <Star key={i} size={20} fill="currentColor" />
                   ))}
                 </div>
-                <p className="text-slate-500 font-bold text-sm uppercase tracking-wider">
+                <p className="text-slate-500 font-bold text-base uppercase tracking-wider">
                   Dựa trên 128 đánh giá
                 </p>
               </div>

@@ -134,7 +134,7 @@ const CompaniesPage = () => {
   const getStatusBadge = (company) => {
     if (company.flagged) {
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-lg border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-xs font-semibold text-red-400">
+        <span className="inline-flex items-center gap-1.5 rounded-lg border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-base font-semibold text-red-400">
           <Flag size={12} />
           ĐÃ GẮN CỜ
         </span>
@@ -142,14 +142,14 @@ const CompaniesPage = () => {
     }
     if (company.is_verified) {
       return (
-        <span className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-400">
+        <span className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-base font-semibold text-emerald-400">
           <CheckCircle size={12} />
           ĐÃ XÁC THỰC
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-amber-400">
+      <span className="inline-flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-base font-semibold text-amber-400">
         <Clock size={12} />
         CHỜ XÁC THỰC
       </span>
@@ -172,7 +172,7 @@ const CompaniesPage = () => {
         {/* Tiêu đề + Search (trong header layout đã có search, có thể chỉ cần title) */}
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Quản lý Công ty</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-base text-slate-500">
             Theo dõi và xác minh các công ty trong hệ thống RecruitAI
           </p>
         </div>
@@ -181,12 +181,12 @@ const CompaniesPage = () => {
         <div className="grid gap-4 sm:grid-cols-3">
           {statsCards.map((card) => (
             <div key={card.label} className="p-5 rounded-2xl bg-white border border-slate-200">
-              <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+              <p className="text-base font-medium text-slate-500 uppercase tracking-wide">
                 {card.label}
               </p>
               <p className="mt-2 text-2xl font-bold text-slate-900">{card.value}</p>
               <p
-                className={`mt-1.5 flex items-center gap-1 text-xs font-medium ${
+                className={`mt-1.5 flex items-center gap-1 text-base font-medium ${
                   card.changeUp ? 'text-emerald-400' : 'text-red-400'
                 }`}
               >
@@ -218,7 +218,7 @@ const CompaniesPage = () => {
                 key={tab.id}
                 type="button"
                 onClick={() => setIndustryTab(tab.id)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                className={`px-4 py-2 rounded-lg text-base font-medium transition-all duration-200 ${
                   industryTab === tab.id
                     ? 'bg-emerald-500 text-white shadow-sm'
                     : 'text-slate-500 hover:bg-primary/10 hover:text-emerald-600'
@@ -234,7 +234,7 @@ const CompaniesPage = () => {
               setVerificationFilter(e.target.value);
               setPage(1);
             }}
-            className="h-11 px-4 rounded-xl bg-white border border-slate-200 text-slate-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/50 cursor-pointer"
+            className="h-11 px-4 rounded-xl bg-white border border-slate-200 text-slate-900 text-base font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/50 cursor-pointer"
           >
             <option value="all">Mức độ xác thực</option>
             <option value="verified">Đã xác thực</option>
@@ -242,7 +242,7 @@ const CompaniesPage = () => {
           </select>
           <button
             type="button"
-            className="h-11 px-4 rounded-xl bg-white border border-slate-200 text-slate-500 hover:text-foreground flex items-center gap-2 text-sm font-medium transition-colors"
+            className="h-11 px-4 rounded-xl bg-white border border-slate-200 text-slate-500 hover:text-foreground flex items-center gap-2 text-base font-medium transition-colors"
           >
             <Filter size={18} />
             Lọc nâng cao
@@ -307,17 +307,17 @@ const CompaniesPage = () => {
                                   >
                                     {company.company_name}
                                   </Link>
-                                  <p className="text-xs text-slate-500 mt-0.5">
+                                  <p className="text-base text-slate-500 mt-0.5">
                                     {company.location || company.city || '—'}
                                   </p>
                                 </div>
                               </div>
                             </td>
-                            <td className="px-6 py-4 text-sm text-slate-600">
+                            <td className="px-6 py-4 text-base text-slate-600">
                               {company.industry || company.category_name || '—'}
                             </td>
                             <td className="px-6 py-4">{getStatusBadge(company)}</td>
-                            <td className="px-6 py-4 text-sm font-medium text-slate-900">
+                            <td className="px-6 py-4 text-base font-medium text-slate-900">
                               {company.job_count ?? company.open_jobs_count ?? 0}
                             </td>
                             <td className="px-6 py-4">
@@ -328,7 +328,7 @@ const CompaniesPage = () => {
                                     style={{ width: `${score * 10}%` }}
                                   />
                                 </div>
-                                <span className="text-sm font-semibold text-slate-900">
+                                <span className="text-base font-semibold text-slate-900">
                                   {score}
                                 </span>
                               </div>
@@ -353,7 +353,7 @@ const CompaniesPage = () => {
               {/* Phân trang */}
               {totalCompanies > 0 && (
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border bg-muted/25 px-6 py-4">
-                  <p className="text-sm text-slate-500">
+                  <p className="text-base text-slate-500">
                     Hiển thị {start}-{end} trong số {totalCompanies.toLocaleString('vi-VN')} công ty
                   </p>
                   <div className="flex items-center gap-1">
@@ -377,7 +377,7 @@ const CompaniesPage = () => {
                           key={p}
                           type="button"
                           onClick={() => setPage(p)}
-                          className={`min-w-[36px] h-9 rounded-lg text-sm font-semibold ${
+                          className={`min-w-[36px] h-9 rounded-lg text-base font-semibold ${
                             page === p
                               ? 'bg-emerald-500 text-white'
                               : 'border border-border text-muted-foreground hover:bg-muted/60 hover:text-foreground'

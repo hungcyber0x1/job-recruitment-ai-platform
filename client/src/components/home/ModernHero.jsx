@@ -223,7 +223,7 @@ const ModernHero = () => {
               className="mb-8 inline-flex items-center rounded-full border border-neutral-200/90 bg-white px-5 py-3.5 shadow-sm sm:px-7 sm:py-4 lg:mx-0 mx-auto"
             >
               <span
-                className="text-sm font-bold uppercase tracking-[0.13em] sm:text-[15px] sm:tracking-[0.15em] md:text-base"
+                className="text-sm font-bold uppercase tracking-widest"
                 style={{ color: HERO_BRAND }}
               >
                 • Tuyển dụng thông minh với AI
@@ -234,7 +234,7 @@ const ModernHero = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.05 }}
-              className="mb-9 text-balance font-extrabold leading-[1.06] tracking-[-0.035em] text-[2.35rem] sm:text-[2.85rem] sm:leading-[1.07] md:text-[3.25rem] md:leading-[1.06] lg:text-[3.4rem] lg:leading-[1.05] xl:text-[3.65rem] xl:leading-[1.04] 2xl:text-[3.95rem] 2xl:leading-[1.03]"
+              className="mb-9 text-balance text-3xl font-black leading-[1.08] tracking-tight sm:text-4xl md:text-4xl lg:text-5xl xl:text-5xl"
             >
               <span className="block" style={{ color: HERO_TEXT }}>
                 Để AI tìm kiếm công việc mơ ước cho bạn
@@ -248,7 +248,7 @@ const ModernHero = () => {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="mx-auto mb-12 max-w-2xl text-xl font-medium leading-[1.65] text-neutral-600 sm:text-[1.35rem] sm:leading-[1.68] lg:mx-0 xl:max-w-[36rem] xl:text-[1.45rem] xl:leading-[1.68] 2xl:text-[1.5rem]"
+              className="mx-auto mb-12 max-w-2xl text-base font-medium leading-relaxed text-neutral-600 md:text-lg lg:mx-0 xl:max-w-[36rem]"
             >
               AI phân tích kỹ năng trong CV của bạn và đối chiếu với yêu cầu thực tế từ nhà tuyển
               dụng — gợi ý đúng vị trí, đúng thời điểm.
@@ -262,14 +262,14 @@ const ModernHero = () => {
             >
               <Link
                 to="/jobs"
-                className="hero-btn-forest min-h-[58px] w-full px-10 py-4 text-lg font-bold sm:w-auto sm:min-h-[60px] sm:px-11 sm:py-[1.05rem] sm:text-xl"
+                className="hero-btn-forest min-h-[58px] w-full px-10 py-4 text-base font-bold sm:w-auto sm:min-h-[60px] sm:px-11 sm:py-[1.05rem]"
               >
                 Khám phá việc làm ngay
                 <AppIcon icon={ArrowRight} size="md" className="text-white" />
               </Link>
               <Link
                 to="/about"
-                className="hero-btn-secondary-mockup min-h-[58px] w-full px-10 py-4 text-lg font-bold sm:w-auto sm:min-h-[60px] sm:px-11 sm:py-[1.05rem] sm:text-xl hover:bg-[#e2e2e2]"
+                className="hero-btn-secondary-mockup min-h-[58px] w-full px-10 py-4 text-base font-bold sm:w-auto sm:min-h-[60px] sm:px-11 sm:py-[1.05rem] hover:bg-[#e2e2e2]"
               >
                 Tìm hiểu thêm
               </Link>
@@ -320,7 +320,7 @@ const ModernHero = () => {
                 transition={{ delay: 0.6, duration: 0.5 }}
                 className="absolute bottom-0 translate-y-1/2 z-20"
               >
-                <div className="px-5 py-2 rounded-full bg-white/95 backdrop-blur-md shadow-[0_8px_15px_rgba(0,0,0,0.04)] text-slate-800 text-[13px] font-bold tracking-tight flex items-center gap-2 border border-emerald-100/80">
+                <div className="px-5 py-2 rounded-full bg-white/95 backdrop-blur-md shadow-[0_8px_15px_rgba(0,0,0,0.04)] text-slate-800 text-sm font-bold tracking-tight flex items-center gap-2 border border-emerald-100/80">
                   <span className="relative inline-flex rounded-full size-[9px] bg-[#00a685]"></span>
                   <span className="pt-0.5">AI Recruiter Online</span>
                 </div>

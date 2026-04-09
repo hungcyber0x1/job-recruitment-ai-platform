@@ -22,8 +22,8 @@ const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white/95 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-xl py-2 px-3 border border-slate-100">
-        <p className="text-[13px] font-semibold text-slate-500 mb-0.5">{label}</p>
-        <p className="text-lg font-bold text-slate-900">{payload[0].value.toLocaleString()}</p>
+        <p className="text-sm font-semibold text-slate-500 mb-0.5">{label}</p>
+        <p className="text-base font-bold text-slate-900">{payload[0].value.toLocaleString()}</p>
       </div>
     );
   }
@@ -136,18 +136,16 @@ const MarketInsights = () => {
           >
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50/80 border border-emerald-100/50 w-max mb-8 shadow-sm">
               <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span className="text-[12px] font-bold text-emerald-700 tracking-wide">
-                Live Data
-              </span>
+              <span className="text-sm font-bold text-emerald-700 tracking-wide">Live Data</span>
             </div>
-            <h2 className="text-[2.75rem] lg:text-[3.25rem] font-extrabold leading-[1.1] tracking-[-0.02em]">
+            <h2 className="text-3xl lg:text-4xl font-black leading-[1.12] tracking-tight">
               <span className="text-slate-800 drop-shadow-sm">Phân tích</span>
               <br />
               <span className="text-[#3b3b98] drop-shadow-sm">xu hướng thị</span>
               <br />
               <span className="text-emerald-600 drop-shadow-sm">trường</span>
             </h2>
-            <p className="mt-6 text-[15px] font-medium leading-relaxed text-slate-500 max-w-sm">
+            <p className="mt-6 text-base font-medium leading-relaxed text-slate-500 max-w-sm">
               Cập nhật thời gian thực về mức độ tăng trưởng tuyển dụng và biến động nhu cầu nhân
               lực. AI của chúng tôi theo dõi hàng triệu điểm dữ liệu để kết nối bạn vào đúng thời
               điểm hoàn hảo nhất.
@@ -167,16 +165,16 @@ const MarketInsights = () => {
               {/* Card Header & Badge */}
               <div className="flex shrink-0 justify-between items-start pt-8 px-8 mb-2 relative z-10">
                 <div>
-                  <h3 className="text-[1.35rem] font-bold text-slate-800 tracking-tight">
+                  <h3 className="text-xl font-bold text-slate-800 tracking-tight">
                     Tăng trưởng tuyển dụng
                   </h3>
-                  <p className="text-[13px] font-medium text-slate-400 mt-1.5">
+                  <p className="text-sm font-medium text-slate-400 mt-1.5">
                     Việc làm mới mở theo tháng (2026)
                   </p>
                 </div>
                 <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-600 font-bold border border-emerald-100/50">
                   <TrendingUp size={14} className="stroke-[3]" />
-                  <span className="text-[13px]">+23%</span>
+                  <span className="text-sm">+23%</span>
                 </div>
               </div>
 
@@ -203,10 +201,10 @@ const MarketInsights = () => {
                 <TrendingUp size={22} strokeWidth={2.5} />
               </div>
               <div>
-                <h4 className="text-[1.4rem] font-extrabold text-slate-900 tracking-tight tabular-nums leading-none mb-1.5">
+                <h4 className="text-2xl font-black text-slate-900 tracking-tight tabular-nums leading-none mb-1.5">
                   +17.5%
                 </h4>
-                <p className="text-[13px] font-medium text-slate-500 leading-snug">
+                <p className="text-sm font-medium text-slate-500 leading-snug">
                   Tốc độ tăng trưởng mở mới
                 </p>
               </div>
@@ -224,10 +222,10 @@ const MarketInsights = () => {
                 <Users size={22} strokeWidth={2.5} />
               </div>
               <div>
-                <h4 className="text-[1.4rem] font-extrabold text-slate-900 tracking-tight tabular-nums leading-none mb-1.5">
+                <h4 className="text-2xl font-black text-slate-900 tracking-tight tabular-nums leading-none mb-1.5">
                   48 Giờ
                 </h4>
-                <p className="text-[13px] font-medium text-slate-500 leading-snug">
+                <p className="text-sm font-medium text-slate-500 leading-snug">
                   Thời gian trung bình có offer
                 </p>
               </div>
@@ -245,10 +243,10 @@ const MarketInsights = () => {
                 <CheckCircle2 size={22} strokeWidth={2.5} />
               </div>
               <div>
-                <h4 className="text-[1.4rem] font-extrabold text-slate-900 tracking-tight tabular-nums leading-none mb-1.5">
+                <h4 className="text-2xl font-black text-slate-900 tracking-tight tabular-nums leading-none mb-1.5">
                   96.3%
                 </h4>
-                <p className="text-[13px] font-medium text-slate-500 leading-snug">
+                <p className="text-sm font-medium text-slate-500 leading-snug">
                   Mức độ tương hợp AI Match
                 </p>
               </div>

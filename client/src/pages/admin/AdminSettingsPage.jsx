@@ -357,7 +357,7 @@ const AdminSettingsPage = () => {
   }
 
   const inputClass =
-    'w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20';
+    'w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-base text-slate-900 placeholder:text-slate-500 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20';
 
   return (
     <AdminLayout>
@@ -371,7 +371,7 @@ const AdminSettingsPage = () => {
               placeholder="Tìm kiếm cài đặt..."
               value={searchSettings}
               onChange={(e) => setSearchSettings(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder:text-slate-500 focus:border-emerald-500/50 focus:outline-none"
+              className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-base text-slate-900 placeholder:text-slate-500 focus:border-emerald-500/50 focus:outline-none"
             />
           </div>
         </div>
@@ -379,7 +379,7 @@ const AdminSettingsPage = () => {
         <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
           <div className="border-b border-slate-200 p-5">
             <h2 className="text-lg font-bold text-slate-900">Cài đặt chung</h2>
-            <p className="text-sm text-slate-500 mt-1">
+            <p className="text-base text-slate-500 mt-1">
               Quản lý các thông số cốt lõi, bảo mật và kết nối API cho nền tảng của bạn.
             </p>
           </div>
@@ -396,7 +396,7 @@ const AdminSettingsPage = () => {
                   key={tab.id}
                   type="button"
                   onClick={() => setSettingsTab(tab.id)}
-                  className={`flex items-center gap-2 px-5 py-3.5 text-sm font-semibold border-b-2 transition-all ${
+                  className={`flex items-center gap-2 px-5 py-3.5 text-base font-semibold border-b-2 transition-all ${
                     settingsTab === tab.id
                       ? 'border-emerald-500 text-emerald-400'
                       : 'border-transparent text-slate-500 hover:text-foreground'
@@ -415,19 +415,21 @@ const AdminSettingsPage = () => {
               {settingsTab === 'branding' && (
                 <>
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900 mb-3">Nhận diện thương hiệu</h3>
+                    <h3 className="text-base font-bold text-slate-900 mb-3">
+                      Nhận diện thương hiệu
+                    </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="rounded-xl border-2 border-dashed border-slate-200 bg-white p-6 text-center">
                         <Image className="mx-auto text-slate-500 mb-2" size={28} />
-                        <p className="text-xs text-slate-500">Logo nền sáng (SVG, PNG)</p>
+                        <p className="text-base text-slate-500">Logo nền sáng (SVG, PNG)</p>
                       </div>
                       <div className="rounded-xl border-2 border-dashed border-slate-200 bg-white p-6 text-center">
                         <Image className="mx-auto text-slate-500 mb-2" size={28} />
-                        <p className="text-xs text-slate-500">Logo nền tối (SVG, PNG)</p>
+                        <p className="text-base text-slate-500">Logo nền tối (SVG, PNG)</p>
                       </div>
                     </div>
                     <div className="mt-4 flex items-center gap-3">
-                      <label className="text-sm font-medium text-slate-600">Màu chủ đạo</label>
+                      <label className="text-base font-medium text-slate-600">Màu chủ đạo</label>
                       <input
                         type="text"
                         value={settings.primary_color || '#10B981'}
@@ -440,7 +442,7 @@ const AdminSettingsPage = () => {
                       />
                     </div>
                     <div className="mt-4">
-                      <label className="block text-sm font-medium text-slate-600 mb-2">
+                      <label className="block text-base font-medium text-slate-600 mb-2">
                         Tên hiển thị
                       </label>
                       <input
@@ -457,14 +459,14 @@ const AdminSettingsPage = () => {
               {settingsTab === 'email' && (
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-bold text-slate-900">Cấu hình Email SMTP</h3>
-                    <span className="rounded bg-emerald-500/20 px-2.5 py-1 text-xs font-bold text-emerald-400">
+                    <h3 className="text-base font-bold text-slate-900">Cấu hình Email SMTP</h3>
+                    <span className="rounded bg-emerald-500/20 px-2.5 py-1 text-base font-bold text-emerald-400">
                       ĐÃ KẾT NỐI
                     </span>
                   </div>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
+                      <label className="block text-base font-semibold uppercase text-slate-500 mb-1">
                         SMTP Host
                       </label>
                       <input
@@ -476,7 +478,7 @@ const AdminSettingsPage = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
+                      <label className="block text-base font-semibold uppercase text-slate-500 mb-1">
                         Cổng (Port)
                       </label>
                       <input
@@ -488,7 +490,7 @@ const AdminSettingsPage = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
+                      <label className="block text-base font-semibold uppercase text-slate-500 mb-1">
                         Email gửi
                       </label>
                       <input
@@ -500,7 +502,7 @@ const AdminSettingsPage = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
+                      <label className="block text-base font-semibold uppercase text-slate-500 mb-1">
                         Mật khẩu ứng dụng
                       </label>
                       <input
@@ -534,7 +536,7 @@ const AdminSettingsPage = () => {
                           }
                         }}
                         disabled={smtpTesting}
-                        className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 hover:bg-muted/55 disabled:opacity-50"
+                        className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-base font-semibold text-slate-900 hover:bg-muted/55 disabled:opacity-50"
                       >
                         {smtpTesting ? 'Đang kiểm tra...' : 'Kiểm tra kết nối'}
                       </button>
@@ -542,7 +544,7 @@ const AdminSettingsPage = () => {
                         type="button"
                         onClick={handleSave}
                         disabled={saving}
-                        className="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-600 disabled:opacity-50"
+                        className="rounded-xl bg-emerald-500 px-4 py-2.5 text-base font-semibold text-white hover:bg-emerald-600 disabled:opacity-50"
                       >
                         Lưu cấu hình
                       </button>
@@ -555,7 +557,7 @@ const AdminSettingsPage = () => {
                   <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4">
                     <div>
                       <p className="font-medium text-slate-900">Xác thực 2 lớp (2FA)</p>
-                      <p className="text-sm text-slate-500">Yêu cầu mã khi đăng nhập</p>
+                      <p className="text-base text-slate-500">Yêu cầu mã khi đăng nhập</p>
                     </div>
                     <button
                       type="button"
@@ -572,7 +574,7 @@ const AdminSettingsPage = () => {
                     </button>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold uppercase text-slate-500 mb-2">
+                    <label className="block text-base font-semibold uppercase text-slate-500 mb-2">
                       Chính sách mật khẩu
                     </label>
                     <select
@@ -590,7 +592,7 @@ const AdminSettingsPage = () => {
               {settingsTab === 'api' && (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
+                    <label className="block text-base font-semibold uppercase text-slate-500 mb-1">
                       API Key hiện tại
                     </label>
                     <div className="flex gap-2">
@@ -619,7 +621,7 @@ const AdminSettingsPage = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold uppercase text-slate-500 mb-1">
+                    <label className="block text-base font-semibold uppercase text-slate-500 mb-1">
                       Webhook URL
                     </label>
                     <input
@@ -644,7 +646,7 @@ const AdminSettingsPage = () => {
                         showNotification('Không thể tạo API Key mới.', 'error');
                       }
                     }}
-                    className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 hover:bg-muted/55"
+                    className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-base font-semibold text-slate-900 hover:bg-muted/55"
                   >
                     Tạo API Key mới
                   </button>
@@ -654,9 +656,9 @@ const AdminSettingsPage = () => {
 
             <div className="space-y-5">
               <div className="rounded-xl border border-slate-200 bg-white p-4">
-                <h3 className="text-sm font-bold text-slate-900 mb-3">Bảo mật tài khoản</h3>
+                <h3 className="text-base font-bold text-slate-900 mb-3">Bảo mật tài khoản</h3>
                 <div className="flex items-center justify-between py-2">
-                  <span className="text-sm text-slate-600">Xác thực 2 lớp (2FA)</span>
+                  <span className="text-base text-slate-600">Xác thực 2 lớp (2FA)</span>
                   <button
                     type="button"
                     role="switch"
@@ -672,11 +674,11 @@ const AdminSettingsPage = () => {
                   </button>
                 </div>
                 <div className="pt-2">
-                  <label className="block text-xs text-slate-500 mb-1">Chính sách mật khẩu</label>
+                  <label className="block text-base text-slate-500 mb-1">Chính sách mật khẩu</label>
                   <select
                     value={settings.password_policy}
                     onChange={(e) => updateSetting('password_policy', e.target.value)}
-                    className={`${inputClass} text-sm`}
+                    className={`${inputClass} text-base`}
                   >
                     <option value="weak">Yếu (6+ ký tự)</option>
                     <option value="medium">Trung bình (8+ ký tự)</option>
@@ -685,8 +687,8 @@ const AdminSettingsPage = () => {
                 </div>
               </div>
               <div className="rounded-xl border border-slate-200 bg-white p-4">
-                <h3 className="text-sm font-bold text-slate-900 mb-3">Tích hợp API</h3>
-                <p className="text-xs text-slate-500 mb-2">API Key & Webhook</p>
+                <h3 className="text-base font-bold text-slate-900 mb-3">Tích hợp API</h3>
+                <p className="text-base text-slate-500 mb-2">API Key & Webhook</p>
                 <button
                   type="button"
                   onClick={async () => {
@@ -701,19 +703,19 @@ const AdminSettingsPage = () => {
                       showNotification('Không thể tạo API Key mới.', 'error');
                     }
                   }}
-                  className="w-full rounded-lg border border-slate-200 bg-white py-2 text-sm font-semibold text-slate-900 hover:bg-muted/55"
+                  className="w-full rounded-lg border border-slate-200 bg-white py-2 text-base font-semibold text-slate-900 hover:bg-muted/55"
                 >
                   Tạo API Key mới
                 </button>
               </div>
               <div className="rounded-xl border border-slate-200 bg-white p-4">
-                <h3 className="text-sm font-bold text-slate-900 mb-2">Cần hỗ trợ?</h3>
-                <p className="text-xs text-slate-500 mb-3">
+                <h3 className="text-base font-bold text-slate-900 mb-2">Cần hỗ trợ?</h3>
+                <p className="text-base text-slate-500 mb-3">
                   Xem tài liệu hướng dẫn chi tiết về cấu hình hệ thống AI cho doanh nghiệp của bạn.
                 </p>
                 <a
                   href="#docs"
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-400 hover:text-emerald-300"
+                  className="inline-flex items-center gap-2 text-base font-semibold text-emerald-400 hover:text-emerald-300"
                 >
                   <ExternalLink size={16} /> Tài liệu API
                 </a>
@@ -725,7 +727,7 @@ const AdminSettingsPage = () => {
         <div className="flex justify-end gap-3">
           <button
             type="button"
-            className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-900 hover:bg-muted/55"
+            className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-base font-semibold text-slate-900 hover:bg-muted/55"
           >
             Hủy thay đổi
           </button>
@@ -733,7 +735,7 @@ const AdminSettingsPage = () => {
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-600 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2.5 text-base font-semibold text-white hover:bg-emerald-600 disabled:opacity-50"
           >
             <Save size={18} /> Lưu tất cả cài đặt
           </button>
@@ -746,7 +748,7 @@ const AdminSettingsPage = () => {
             </div>
             <div>
               <h2 className="text-lg font-bold text-slate-900">Bảo mật và truy cập</h2>
-              <p className="text-sm text-slate-500">
+              <p className="text-base text-slate-500">
                 Kiểm soát chế độ bảo trì và quyền đăng ký tài khoản.
               </p>
             </div>
@@ -755,7 +757,7 @@ const AdminSettingsPage = () => {
             <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4">
               <div>
                 <h3 className="font-semibold text-slate-900">Chế độ bảo trì</h3>
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-base text-slate-500">
                   Tạm khóa truy cập website cho người dùng.
                 </p>
               </div>
@@ -776,7 +778,7 @@ const AdminSettingsPage = () => {
             <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4">
               <div>
                 <h3 className="font-semibold text-slate-900">Cho phép đăng ký</h3>
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-base text-slate-500">
                   Người dùng có thể tự đăng ký tài khoản mới.
                 </p>
               </div>
@@ -800,7 +802,7 @@ const AdminSettingsPage = () => {
         <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm">
           <div className="border-b border-slate-200 p-6">
             <h2 className="text-xl font-bold text-slate-900">Sao lưu và khôi phục</h2>
-            <p className="mt-1 text-sm font-medium text-slate-500">
+            <p className="mt-1 text-base font-medium text-slate-500">
               Tạo bản sao lưu và khôi phục dữ liệu hệ thống khi cần.
             </p>
           </div>
@@ -815,7 +817,7 @@ const AdminSettingsPage = () => {
                   size={32}
                 />
                 <h3 className="mb-2 font-bold text-slate-900">Tạo bản sao lưu</h3>
-                <p className="text-sm font-medium text-slate-500">
+                <p className="text-base font-medium text-slate-500">
                   Tải xuống bản sao lưu dữ liệu hệ thống.
                 </p>
               </button>
@@ -826,7 +828,7 @@ const AdminSettingsPage = () => {
                   size={32}
                 />
                 <h3 className="mb-2 font-bold text-slate-900">Khôi phục dữ liệu</h3>
-                <p className="text-sm font-medium text-slate-500">
+                <p className="text-base font-medium text-slate-500">
                   Khôi phục dữ liệu từ tệp sao lưu đang có.
                 </p>
                 <input type="file" accept=".json" onChange={handleRestore} className="hidden" />
@@ -842,7 +844,7 @@ const AdminSettingsPage = () => {
             </div>
             <div>
               <h2 className="text-xl font-bold text-slate-900">Cấu hình tính năng AI</h2>
-              <p className="text-sm font-medium text-slate-500">
+              <p className="text-base font-medium text-slate-500">
                 Bật tắt các tính năng trí tuệ nhân tạo được điều khiển tại trang này.
               </p>
             </div>
@@ -856,8 +858,8 @@ const AdminSettingsPage = () => {
                 <div className="flex items-start gap-3">
                   <div className={`mt-2 h-2 w-2 shrink-0 rounded-full ${feature.color}`} />
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900">{feature.label}</h3>
-                    <p className="mt-0.5 max-w-md text-xs font-medium text-slate-500">
+                    <h3 className="text-base font-bold text-slate-900">{feature.label}</h3>
+                    <p className="mt-0.5 max-w-md text-base font-medium text-slate-500">
                       {feature.desc}
                     </p>
                   </div>
@@ -875,7 +877,7 @@ const AdminSettingsPage = () => {
                 </label>
               </div>
             ))}
-            <p className="pt-2 text-xs font-medium text-slate-500">
+            <p className="pt-2 text-base font-medium text-slate-500">
               Thay đổi sẽ có hiệu lực sau khi nhấn "Lưu thay đổi". Một số tính năng có thể cần khởi
               động lại dịch vụ.
             </p>
@@ -889,7 +891,7 @@ const AdminSettingsPage = () => {
             </div>
             <div>
               <h2 className="text-xl font-bold text-slate-900">Feature catalog</h2>
-              <p className="text-sm font-medium text-slate-500">
+              <p className="text-base font-medium text-slate-500">
                 Quản lý nội dung động cho trang tính năng và phần giới thiệu capability ở trang chủ.
               </p>
             </div>
@@ -898,7 +900,7 @@ const AdminSettingsPage = () => {
             <div className="bg-slate-50 border border-slate-200 flex items-center justify-between rounded-xl p-4">
               <div>
                 <h3 className="font-bold text-slate-900">Bật public feature catalog</h3>
-                <p className="mt-1 text-sm font-medium text-slate-500">
+                <p className="mt-1 text-base font-medium text-slate-500">
                   Tắt mục này để frontend quay về dữ liệu mặc định trong mã nguồn.
                 </p>
               </div>
@@ -918,7 +920,7 @@ const AdminSettingsPage = () => {
             </div>
 
             {catalogError ? (
-              <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm font-medium text-slate-900">
+              <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-base font-medium text-slate-900">
                 {catalogError}
               </div>
             ) : null}
@@ -927,14 +929,14 @@ const AdminSettingsPage = () => {
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <h3 className="text-base font-bold text-slate-900">Role groups</h3>
-                  <p className="text-sm font-medium text-slate-500">
+                  <p className="text-base font-medium text-slate-500">
                     Nhóm chức năng chính cho admin, employer và candidate trên trang giới thiệu.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={addRoleGroup}
-                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-900 transition-colors hover:border-emerald-500 hover:bg-primary/10"
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-base font-bold text-slate-900 transition-colors hover:border-emerald-500 hover:bg-primary/10"
                 >
                   <Plus size={16} />
                   Thêm nhóm
@@ -948,7 +950,7 @@ const AdminSettingsPage = () => {
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">
+                      <p className="text-base font-bold uppercase tracking-[0.2em] text-slate-500">
                         Role group {index + 1}
                       </p>
                       <h4 className="mt-1 text-base font-black text-foreground">
@@ -958,7 +960,7 @@ const AdminSettingsPage = () => {
                     <button
                       type="button"
                       onClick={() => removeRoleGroup(index)}
-                      className="inline-flex items-center gap-2 rounded-lg border border-destructive/20 px-3 py-2 text-sm font-bold text-destructive transition-colors hover:bg-destructive/10"
+                      className="inline-flex items-center gap-2 rounded-lg border border-destructive/20 px-3 py-2 text-base font-bold text-destructive transition-colors hover:bg-destructive/10"
                     >
                       <Trash2 size={15} />
                       Xóa
@@ -967,58 +969,60 @@ const AdminSettingsPage = () => {
 
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
-                      <label className="mb-2 block text-sm font-bold text-foreground">ID</label>
+                      <label className="mb-2 block text-base font-bold text-foreground">ID</label>
                       <input
                         type="text"
                         value={group.id}
                         onChange={(event) => updateRoleGroup(index, 'id', event.target.value)}
-                        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-base text-slate-900 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                       />
                     </div>
                     <div>
-                      <label className="mb-2 block text-sm font-bold text-foreground">
+                      <label className="mb-2 block text-base font-bold text-foreground">
                         Eyebrow
                       </label>
                       <input
                         type="text"
                         value={group.eyebrow}
                         onChange={(event) => updateRoleGroup(index, 'eyebrow', event.target.value)}
-                        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-base text-slate-900 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-bold text-foreground">Tiêu đề</label>
+                    <label className="mb-2 block text-base font-bold text-foreground">
+                      Tiêu đề
+                    </label>
                     <input
                       type="text"
                       value={group.title}
                       onChange={(event) => updateRoleGroup(index, 'title', event.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-base text-slate-900 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-bold text-foreground">
+                    <label className="mb-2 block text-base font-bold text-foreground">
                       Mô tả ngắn
                     </label>
                     <textarea
                       rows={3}
                       value={group.summary}
                       onChange={(event) => updateRoleGroup(index, 'summary', event.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 resize-none"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-base text-slate-900 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 resize-none"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-bold text-foreground">
+                    <label className="mb-2 block text-base font-bold text-foreground">
                       Danh sách ý chính, mỗi dòng một mục
                     </label>
                     <textarea
                       rows={4}
                       value={group.items.join('\n')}
                       onChange={(event) => updateRoleItems(index, event.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 resize-y"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-base text-slate-900 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 resize-y"
                     />
                   </div>
                 </div>
@@ -1029,14 +1033,14 @@ const AdminSettingsPage = () => {
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <h3 className="text-base font-bold text-slate-900">Public tools</h3>
-                  <p className="text-sm font-medium text-slate-500">
+                  <p className="text-base font-medium text-slate-500">
                     Công cụ AI hoặc landing page chia sẻ cho người dùng public.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={addPublicTool}
-                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-900 transition-colors hover:border-emerald-500 hover:bg-primary/10"
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-base font-bold text-slate-900 transition-colors hover:border-emerald-500 hover:bg-primary/10"
                 >
                   <Plus size={16} />
                   Thêm tool
@@ -1050,7 +1054,7 @@ const AdminSettingsPage = () => {
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">
+                      <p className="text-base font-bold uppercase tracking-[0.2em] text-slate-500">
                         Public tool {index + 1}
                       </p>
                       <h4 className="mt-1 text-base font-bold text-slate-900">
@@ -1060,7 +1064,7 @@ const AdminSettingsPage = () => {
                     <button
                       type="button"
                       onClick={() => removePublicTool(index)}
-                      className="inline-flex items-center gap-2 rounded-lg border border-red-500/20 px-3 py-2 text-sm font-bold text-red-500 transition-colors hover:bg-destructive/100/10"
+                      className="inline-flex items-center gap-2 rounded-lg border border-red-500/20 px-3 py-2 text-base font-bold text-red-500 transition-colors hover:bg-destructive/100/10"
                     >
                       <Trash2 size={15} />
                       Xóa
@@ -1069,51 +1073,51 @@ const AdminSettingsPage = () => {
 
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
-                      <label className="mb-2 block text-sm font-bold text-slate-900">ID</label>
+                      <label className="mb-2 block text-base font-bold text-slate-900">ID</label>
                       <input
                         type="text"
                         value={tool.id}
                         onChange={(event) => updatePublicTool(index, 'id', event.target.value)}
-                        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-base text-slate-900 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                       />
                     </div>
                     <div>
-                      <label className="mb-2 block text-sm font-bold text-slate-900">Path</label>
+                      <label className="mb-2 block text-base font-bold text-slate-900">Path</label>
                       <input
                         type="text"
                         value={tool.path}
                         onChange={(event) => updatePublicTool(index, 'path', event.target.value)}
-                        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-base text-slate-900 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-bold text-slate-900">Tiêu đề</label>
+                    <label className="mb-2 block text-base font-bold text-slate-900">Tiêu đề</label>
                     <input
                       type="text"
                       value={tool.title}
                       onChange={(event) => updatePublicTool(index, 'title', event.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-base text-slate-900 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-bold text-slate-900">Mô tả</label>
+                    <label className="mb-2 block text-base font-bold text-slate-900">Mô tả</label>
                     <textarea
                       rows={3}
                       value={tool.description}
                       onChange={(event) =>
                         updatePublicTool(index, 'description', event.target.value)
                       }
-                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 resize-none"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-base text-slate-900 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 resize-none"
                     />
                   </div>
 
                   <div className="bg-slate-50 border border-slate-200 flex items-center justify-between rounded-xl p-4">
                     <div>
                       <h5 className="font-bold text-slate-900">Hiển thị công cụ này</h5>
-                      <p className="mt-1 text-sm font-medium text-slate-500">
+                      <p className="mt-1 text-base font-medium text-slate-500">
                         Ẩn khỏi trang public nhưng vẫn giữ cấu hình trong catalog.
                       </p>
                     </div>
@@ -1139,14 +1143,14 @@ const AdminSettingsPage = () => {
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <h3 className="text-base font-bold text-slate-900">Governance signals</h3>
-                  <p className="text-sm font-medium text-slate-500">
+                  <p className="text-base font-medium text-slate-500">
                     Các điểm nhấn quản trị và vận hành xuất hiện trong capability showcase.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={addGovernanceSignal}
-                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-900 transition-colors hover:border-emerald-500 hover:bg-primary/10"
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-base font-bold text-slate-900 transition-colors hover:border-emerald-500 hover:bg-primary/10"
                 >
                   <Plus size={16} />
                   Thêm signal
@@ -1163,12 +1167,12 @@ const AdminSettingsPage = () => {
                       type="text"
                       value={signal}
                       onChange={(event) => updateGovernanceSignal(index, event.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-base text-slate-900 focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                     />
                     <button
                       type="button"
                       onClick={() => removeGovernanceSignal(index)}
-                      className="inline-flex items-center gap-2 rounded-lg border border-red-500/20 px-3 py-2 text-sm font-bold text-red-500 transition-colors hover:bg-destructive/100/10"
+                      className="inline-flex items-center gap-2 rounded-lg border border-red-500/20 px-3 py-2 text-base font-bold text-red-500 transition-colors hover:bg-destructive/100/10"
                     >
                       <Trash2 size={15} />
                       Xóa
@@ -1177,7 +1181,7 @@ const AdminSettingsPage = () => {
                 ))}
               </div>
 
-              <p className="text-xs font-medium text-slate-500">
+              <p className="text-base font-medium text-slate-500">
                 Dữ liệu từ form này sẽ được lưu lại dưới dạng JSON trong system settings để frontend
                 và gateway dùng chung.
               </p>

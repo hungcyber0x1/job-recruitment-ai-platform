@@ -35,6 +35,9 @@ function normalizeApiBaseUrl(raw) {
  */
 export const API_BASE_URL = normalizeApiBaseUrl(import.meta.env.VITE_API_URL);
 export const API_TIMEOUT = 30000; // 30 seconds
+/** Upload PDF + trích xử lý + LLM — vượt quá API_TIMEOUT thường gặp. */
+/** Server có retry + đổi model Gemini khi 503 — cần chờ lâu hơn upload thuần. */
+export const API_TIMEOUT_AI_CV_MS = 180000; // 3 minutes
 
 /**
  * URL đầy đủ cho fetch() — tránh relative dạng "api/..." gắn nhầm vào path trang (404).

@@ -147,7 +147,9 @@ const AdminHeader = ({ onMenuClick }) => {
           </div>
           <div className="hidden lg:block">
             <div className="text-lg font-semibold">{routeMeta.title}</div>
-            <p className="text-xs text-muted-foreground hidden md:block">{routeMeta.description}</p>
+            <p className="text-base text-muted-foreground hidden md:block">
+              {routeMeta.description}
+            </p>
           </div>
         </div>
 
@@ -206,10 +208,10 @@ const AdminHeader = ({ onMenuClick }) => {
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">
+                    <p className="text-base font-medium leading-none">
                       {user?.fullName || `${user?.first_name} ${user?.last_name}`}
                     </p>
-                    <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                    <p className="text-base leading-none text-muted-foreground">{user?.email}</p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />

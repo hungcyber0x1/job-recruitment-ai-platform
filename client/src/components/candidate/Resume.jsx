@@ -99,7 +99,7 @@ const Resume = ({ resume, isUploading, onUpload, onDelete }) => {
       <Card className="relative overflow-hidden border-none bg-primary p-8 text-white shadow-premium">
         <Sparkles className="absolute -bottom-6 -right-6 opacity-10" size={120} />
         <div className="relative z-10">
-          <div className="mb-3 w-fit rounded-full bg-white/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest">
+          <div className="mb-3 w-fit rounded-full bg-white/15 px-3 py-1 text-xs font-black uppercase tracking-widest">
             AI Resume
           </div>
           <h4 className="mb-2 text-xl font-black">Tối ưu CV với AI</h4>

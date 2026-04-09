@@ -61,18 +61,18 @@ const CompanyProfilePage = () => {
             </h1>
             <Badge
               variant="outline"
-              className="bg-emerald-50 text-emerald-600 border-emerald-200 uppercase tracking-widest text-[10px] px-3 py-1 font-black shadow-sm"
+              className="bg-emerald-50 text-emerald-600 border-emerald-200 uppercase tracking-widest text-base px-3 py-1 font-black shadow-sm"
             >
               CHẾ ĐỘ XEM TRƯỚC
             </Badge>
           </div>
-          <p className="text-slate-500 font-bold tracking-tight text-sm uppercase opacity-70">
+          <p className="text-slate-500 font-bold tracking-tight text-base uppercase opacity-70">
             Trình bày thương hiệu tuyển dụng chuyên nghiệp
           </p>
         </div>
         <div className="flex items-center gap-4">
           <Link to="/employer/company-profile/edit">
-            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white gap-3 rounded-2xl px-8 h-14 shadow-xl shadow-emerald-500/25 active:scale-95 transition-all text-sm font-black uppercase tracking-widest">
+            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white gap-3 rounded-2xl px-8 h-14 shadow-xl shadow-emerald-500/25 active:scale-95 transition-all text-base font-black uppercase tracking-widest">
               <Edit3 size={20} />
               Cập nhật hồ sơ
             </Button>
@@ -119,15 +119,15 @@ const CompanyProfilePage = () => {
                   {profile?.company_name || 'HỒ SƠ CHƯA ĐỊNH DANH.'}
                 </h2>
                 <div className="flex flex-wrap items-center gap-4 text-slate-500">
-                  <span className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100 text-[11px] font-black uppercase tracking-widest text-slate-600 shadow-sm">
+                  <span className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100 text-base font-black uppercase tracking-widest text-slate-600 shadow-sm">
                     <Target size={16} className="text-emerald-600" />
                     {profile?.field || 'Lĩnh vực'}
                   </span>
-                  <span className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100 text-[11px] font-black uppercase tracking-widest text-slate-600 shadow-sm">
+                  <span className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100 text-base font-black uppercase tracking-widest text-slate-600 shadow-sm">
                     <Users size={16} className="text-emerald-600" />
                     {profile?.scale || 'Quy mô'}
                   </span>
-                  <span className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100 text-[11px] font-black uppercase tracking-widest text-slate-600 shadow-sm">
+                  <span className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100 text-base font-black uppercase tracking-widest text-slate-600 shadow-sm">
                     <MapPin size={16} className="text-emerald-600" />
                     {profile?.address || 'Địa điểm'}
                   </span>
@@ -191,10 +191,10 @@ const CompanyProfilePage = () => {
                   <div className="w-14 h-14 rounded-2xl bg-white border border-slate-200 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all shadow-md group-hover:shadow-emerald-200/50 group-hover:border-emerald-200">
                     <item.icon className="text-emerald-600" size={28} />
                   </div>
-                  <h4 className="font-black text-slate-900 mb-3 uppercase text-xs tracking-widest">
+                  <h4 className="font-black text-slate-900 mb-3 uppercase text-base tracking-widest">
                     {item.title}
                   </h4>
-                  <p className="text-sm text-slate-500 font-bold leading-relaxed">{item.desc}</p>
+                  <p className="text-base text-slate-500 font-bold leading-relaxed">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -240,7 +240,7 @@ const CompanyProfilePage = () => {
                     <item.icon className="text-emerald-600" size={20} />
                   </div>
                   <div className="min-w-0 flex-1 pt-0.5">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 opacity-70 group-hover/item:text-emerald-600 transition-colors">
+                    <p className="text-base font-black text-slate-400 uppercase tracking-widest mb-1.5 opacity-70 group-hover/item:text-emerald-600 transition-colors">
                       {item.label}
                     </p>
                     {item.link ? (
@@ -248,12 +248,12 @@ const CompanyProfilePage = () => {
                         href={item.value.startsWith('http') ? item.value : `http://${item.value}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm font-black text-slate-900 hover:text-emerald-600 transition-colors flex items-center gap-2 truncate"
+                        className="text-base font-black text-slate-900 hover:text-emerald-600 transition-colors flex items-center gap-2 truncate"
                       >
                         {item.value} <ExternalLink size={14} className="shrink-0" />
                       </a>
                     ) : (
-                      <p className="text-sm font-black text-slate-900 truncate">{item.value}</p>
+                      <p className="text-base font-black text-slate-900 truncate">{item.value}</p>
                     )}
                   </div>
                 </div>
@@ -262,7 +262,7 @@ const CompanyProfilePage = () => {
 
             {/* Social Links */}
             <div className="mt-10 pt-10 border-t border-slate-100">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 opacity-70">
+              <p className="text-base font-black text-slate-400 uppercase tracking-widest mb-6 opacity-70">
                 Sự hiện diện trên mạng xã hội
               </p>
               <div className="flex gap-4">
@@ -295,7 +295,7 @@ const CompanyProfilePage = () => {
                 <span className="text-7xl font-black text-white leading-none tracking-tighter italic">
                   85
                 </span>
-                <span className="text-emerald-500 font-black mb-2 uppercase tracking-widest text-xs">
+                <span className="text-emerald-500 font-black mb-2 uppercase tracking-widest text-base">
                   / 100 ĐIỂM
                 </span>
               </div>
@@ -308,7 +308,7 @@ const CompanyProfilePage = () => {
               </div>
 
               <div className="bg-white/5 backdrop-blur-md rounded-[24px] p-6 mb-8 border border-white/10 shadow-inner">
-                <p className="text-sm font-bold text-slate-300 text-center leading-relaxed">
+                <p className="text-base font-bold text-slate-300 text-center leading-relaxed">
                   Hồ sơ đạt mức{' '}
                   <span className="text-emerald-500 font-black italic">CHUYÊN NGHIỆP</span>. Hãy bổ
                   sung thêm Video văn hóa để vươn tới 100 điểm!
@@ -316,7 +316,7 @@ const CompanyProfilePage = () => {
               </div>
 
               <Link to="/employer/company-profile/edit" className="block">
-                <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black h-14 rounded-2xl transition-all hover:scale-[1.03] active:scale-95 shadow-xl shadow-emerald-600/25 uppercase tracking-widest text-xs">
+                <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black h-14 rounded-2xl transition-all hover:scale-[1.03] active:scale-95 shadow-xl shadow-emerald-600/25 uppercase tracking-widest text-base">
                   TỐI ƯU HỒ SƠ NGAY
                 </Button>
               </Link>

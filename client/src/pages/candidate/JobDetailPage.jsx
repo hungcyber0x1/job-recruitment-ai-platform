@@ -120,7 +120,7 @@ const JobDetailPage = () => {
               </div>
               AI Insight
             </h4>
-            <p className="text-sm text-emerald-800/80 dark:text-emerald-200/80 font-medium leading-relaxed relative z-10">
+            <p className="text-base text-emerald-800/80 dark:text-emerald-200/80 font-medium leading-relaxed relative z-10">
               Dựa trên hồ sơ của bạn, chúng tôi nhận thấy các kỹ năng{' '}
               <strong className="text-emerald-900 dark:text-emerald-300 bg-white/50 dark:bg-slate-800/50 px-2 py-0.5 rounded-md">
                 {job.skills?.slice(0, 3).join(', ')}

@@ -9,6 +9,34 @@ const AIService = require('./ai');
 const VectorService = require('./vector');
 
 /**
+ * AI trả strengths/weaknesses dạng { area, description } hoặc chuỗi — chuẩn hóa để API/UI chỉ nhận string.
+ * @param {unknown[]} items
+ * @returns {string[]}
+ */
+function normalizeAnalysisBullets(items) {
+  if (!Array.isArray(items)) return [];
+  return items
+    .map((item) => {
+      if (item == null) return '';
+      if (typeof item === 'string') return item.trim();
+      if (typeof item === 'object') {
+        if (typeof item.area === 'string' && typeof item.description === 'string') {
+          return `${item.area}: ${item.description}`.trim();
+        }
+        if (typeof item.title === 'string' && typeof item.description === 'string') {
+          return `${item.title}: ${item.description}`.trim();
+        }
+        if (typeof item.action === 'string' || typeof item.reason === 'string') {
+          return [item.action, item.reason].filter(Boolean).join(' — ');
+        }
+        if (typeof item.text === 'string') return item.text.trim();
+      }
+      return '';
+    })
+    .filter(Boolean);
+}
+
+/**
  * Phân tích CV bằng AI: điểm số, gợi ý, so sánh thị trường (lưu DB theo ứng viên).
  */
 class ResumeAnalysisService {
@@ -69,6 +97,10 @@ class ResumeAnalysisService {
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 30);
 
+      const strengthLines = normalizeAnalysisBullets(analysis.strengths);
+      const weaknessLines = normalizeAnalysisBullets(analysis.weaknesses);
+      const suggestionLines = normalizeAnalysisBullets(suggestions || []);
+
       const result = await ResumeAnalysisRepository.create({
         candidate_id: candidateId,
         resume_text: finalResumeText,
@@ -78,10 +110,13 @@ class ResumeAnalysisService {
         skill_score: scores.skills,
         experience_score: scores.experience,
         education_score: scores.education,
-        strengths: analysis.strengths,
-        weaknesses: analysis.weaknesses,
+        strengths: strengthLines,
+        weaknesses: weaknessLines,
         skill_matches: extractedData.skills,
-        suggestions: suggestions,
+        suggestions:
+          suggestionLines.length > 0
+            ? suggestionLines
+            : ['Xem lại cấu trúc CV và bổ sung số liệu cụ thể.'],
         keywords: extractedData.keywords,
         role_level: extractedData.role_level,
         expires_at: expiresAt,
@@ -125,9 +160,7 @@ class ResumeAnalysisService {
     const aiResponse = await this._performComprehensiveAIAnalysis(slice);
     const scores = await this._calculateScores(aiResponse.extractedData);
     const kw = aiResponse.extractedData.keywords || [];
-    const suggestions = (aiResponse.suggestions || []).map((s) =>
-      typeof s === 'string' ? s : [s.action, s.reason].filter(Boolean).join(' — ')
-    );
+    const suggestionLines = normalizeAnalysisBullets(aiResponse.suggestions || []);
     const missingKw = Math.min(8, Math.max(0, 12 - kw.length));
 
     return {
@@ -140,40 +173,52 @@ class ResumeAnalysisService {
       missing_keywords_estimate: missingKw,
       format_label: scores.overall >= 80 ? 'Tốt' : scores.overall >= 65 ? 'Khá' : 'Cần cải thiện',
       role_level: aiResponse.extractedData.role_level,
-      strengths: aiResponse.analysis.strengths || [],
-      weaknesses: aiResponse.analysis.weaknesses || [],
+      strengths: normalizeAnalysisBullets(aiResponse.analysis.strengths || []),
+      weaknesses: normalizeAnalysisBullets(aiResponse.analysis.weaknesses || []),
       suggestions:
-        suggestions.length > 0 ? suggestions : ['Xem lại cấu trúc CV và bổ sung số liệu cụ thể.'],
+        suggestionLines.length > 0
+          ? suggestionLines
+          : ['Xem lại cấu trúc CV và bổ sung số liệu cụ thể.'],
       skills: aiResponse.extractedData.skills || [],
     };
   }
 
-  /** Trích văn bản từ file upload (hiện hỗ trợ PDF). */
+  /** Trích văn bản từ file upload (hiện hỗ trợ PDF). Nhận PDF theo byte %PDF (1024 byte đầu), không chỉ MIME. */
   async _extractTextFromFile(file) {
     try {
-      if (file.mimetype === 'application/pdf') {
-        const dataBuffer = await fs.readFile(file.path);
-        let text = '';
-        let parser = null;
-        try {
-          parser = new PDFParse({ data: dataBuffer });
-          const result = await parser.getText();
-          text = (result.text || '').trim();
-        } finally {
-          if (parser) {
-            try {
-              await parser.destroy();
-            } catch (dErr) {
-              logger.warn(`pdf-parse destroy failed: ${dErr?.message || dErr}`);
-            }
-          }
-          await fs
-            .unlink(file.path)
-            .catch((_err) => logger.warn(`Failed to delete temp file ${file.path}`));
-        }
-        return text;
+      const dataBuffer = await fs.readFile(file.path);
+      const PDF_MARKER = Buffer.from('%PDF');
+      const prefixLen = Math.min(dataBuffer.length, 1024);
+      const looksPdf =
+        file.mimetype === 'application/pdf' ||
+        dataBuffer.subarray(0, prefixLen).includes(PDF_MARKER);
+
+      if (!looksPdf) {
+        await fs
+          .unlink(file.path)
+          .catch((_err) => logger.warn(`Failed to delete temp file ${file.path}`));
+        throw new AppError('Hiện tại chỉ hỗ trợ trích xuất văn bản từ file PDF', 400);
       }
-      throw new AppError('Hiện tại chỉ hỗ trợ trích xuất văn bản từ file PDF', 400);
+
+      let text = '';
+      let parser = null;
+      try {
+        parser = new PDFParse({ data: dataBuffer });
+        const result = await parser.getText();
+        text = (result.text || '').trim();
+      } finally {
+        if (parser) {
+          try {
+            await parser.destroy();
+          } catch (dErr) {
+            logger.warn(`pdf-parse destroy failed: ${dErr?.message || dErr}`);
+          }
+        }
+        await fs
+          .unlink(file.path)
+          .catch((_err) => logger.warn(`Failed to delete temp file ${file.path}`));
+      }
+      return text;
     } catch (error) {
       logger.error('File extraction error:', error);
       throw error;
@@ -182,7 +227,11 @@ class ResumeAnalysisService {
 
   /** Một lần gọi AI: trích dữ liệu, điểm mạnh/yếu, gợi ý (hiệu quả hơn gọi lần lượt). */
   async _performComprehensiveAIAnalysis(resumeText) {
-    const prompt = `Analyze the following resume and provide a comprehensive assessment in JSON format:
+    const buildPrompt = (strictJsonHint) => {
+      const suffix = strictJsonHint
+        ? '\n\nCRITICAL: Output ONLY one valid JSON object. No markdown code fences. Close all strings and brackets.'
+        : '';
+      return `You are an ATS/career expert for Vietnamese job seekers. Analyze the resume below and return ONE JSON object.
 
 Resume:
 ${resumeText}
@@ -191,6 +240,12 @@ Tasks:
 1. Extract structured data: skills, years of experience, education, certifications, keywords, and role level.
 2. Identify 3-5 key strengths and 3-5 areas for improvement (weaknesses).
 3. Provide 3-5 specific, actionable suggestions to improve the resume.
+
+LANGUAGE (mandatory for user-facing text):
+- Write EVERY "area" and "description" inside analysis.strengths and analysis.weaknesses in clear, professional Vietnamese.
+- Write EVERY "action" and "reason" inside suggestions in Vietnamese (concise, actionable).
+- Skill names and keywords may stay in common industry English (e.g. React, AWS) when they appear on typical CVs; short labels in Vietnamese are welcome when natural.
+- Do not write strengths, weaknesses, or suggestions in English — Vietnamese only for those narrative fields.
 
 Return ONLY valid JSON with this exact structure:
 {
@@ -209,29 +264,45 @@ Return ONLY valid JSON with this exact structure:
   "suggestions": [
      {"action": "string", "reason": "string", "priority": "high|medium|low"}
   ]
-}`;
+}${suffix}`;
+    };
 
-    try {
-      const response = await AIService.generateContent(prompt);
+    const parseAiJson = (response) => {
       const cleaned = AIService.cleanJsonResponse(response);
-      const data = JSON.parse(cleaned);
+      return JSON.parse(cleaned);
+    };
 
-      return {
-        extractedData: data.extractedData || {
-          skills: [],
-          experience_years: 0,
-          education: [],
-          certifications: [],
-          keywords: [],
-          role_level: 'mid',
-        },
-        analysis: data.analysis || { strengths: [], weaknesses: [] },
-        suggestions: data.suggestions || [],
-      };
-    } catch (error) {
-      logger.error('Comprehensive AI analysis failed:', error);
-      throw new Error('AI_ANALYSIS_FAILED');
+    for (let round = 0; round < 2; round += 1) {
+      try {
+        const response = await AIService.generateContent(buildPrompt(round > 0));
+        const data = parseAiJson(response);
+
+        return {
+          extractedData: data.extractedData || {
+            skills: [],
+            experience_years: 0,
+            education: [],
+            certifications: [],
+            keywords: [],
+            role_level: 'mid',
+          },
+          analysis: data.analysis || { strengths: [], weaknesses: [] },
+          suggestions: data.suggestions || [],
+        };
+      } catch (error) {
+        const isParse = error instanceof SyntaxError;
+        if (isParse && round === 0) {
+          logger.warn(
+            'Comprehensive AI: JSON parse failed, retrying once with stricter instruction'
+          );
+          continue;
+        }
+        logger.error('Comprehensive AI analysis failed:', error);
+        throw new Error('AI_ANALYSIS_FAILED');
+      }
     }
+
+    throw new Error('AI_ANALYSIS_FAILED');
   }
 
   /** Điểm tổng hợp từ dữ liệu đã trích. */

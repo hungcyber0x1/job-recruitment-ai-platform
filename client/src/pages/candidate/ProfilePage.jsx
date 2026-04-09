@@ -105,8 +105,8 @@ const ProfilePage = () => {
                 </span>
               </div>
               <h2 className="mt-4 text-xl font-bold text-foreground">{displayName}</h2>
-              <p className="mt-1 text-sm font-medium text-primary">{title}</p>
-              <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
+              <p className="mt-1 text-base font-medium text-primary">{title}</p>
+              <ul className="mt-4 space-y-3 text-base text-muted-foreground">
                 <li className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
                   {location}
@@ -149,13 +149,13 @@ const ProfilePage = () => {
                   skillList.map((name) => (
                     <span
                       key={name}
-                      className="rounded-lg bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary"
+                      className="rounded-lg bg-primary/10 px-3 py-1.5 text-base font-medium text-primary"
                     >
                       {name}
                     </span>
                   ))
                 ) : (
-                  <p className="text-sm text-muted-foreground">Chưa có kỹ năng nào.</p>
+                  <p className="text-base text-muted-foreground">Chưa có kỹ năng nào.</p>
                 )}
               </div>
             </CardContent>
@@ -172,7 +172,7 @@ const ProfilePage = () => {
                 {languages.length > 0 ? (
                   languages.map((lang, index) => (
                     <li key={lang.id || lang.name || `lang-${index}`}>
-                      <div className="flex justify-between text-sm">
+                      <div className="flex justify-between text-base">
                         <span className="font-medium text-foreground">{lang.name || lang}</span>
                         <span className="text-muted-foreground">{lang.level || ''}</span>
                       </div>
@@ -183,7 +183,7 @@ const ProfilePage = () => {
                     </li>
                   ))
                 ) : (
-                  <p className="text-sm text-muted-foreground">Chưa cập nhật ngoại ngữ.</p>
+                  <p className="text-base text-muted-foreground">Chưa cập nhật ngoại ngữ.</p>
                 )}
               </ul>
             </CardContent>
@@ -196,7 +196,7 @@ const ProfilePage = () => {
           <Card className="rounded-xl border bg-card shadow-sm">
             <CardContent className="p-6">
               <h3 className="text-base font-semibold text-foreground">Giới thiệu bản thân</h3>
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+              <p className="mt-4 text-base leading-relaxed text-muted-foreground">
                 {profile?.bio || 'Chưa có giới thiệu bản thân.'}
               </p>
             </CardContent>
@@ -223,10 +223,10 @@ const ProfilePage = () => {
                             <h4 className="font-semibold text-foreground">
                               {exp.title || exp.position}
                             </h4>
-                            <p className="text-sm text-muted-foreground">{exp.company}</p>
+                            <p className="text-base text-muted-foreground">{exp.company}</p>
                           </div>
                           <span
-                            className={`text-sm ${i === 0 ? 'text-primary' : 'text-muted-foreground'}`}
+                            className={`text-base ${i === 0 ? 'text-primary' : 'text-muted-foreground'}`}
                           >
                             {exp.period ||
                               (exp.startDate && exp.endDate
@@ -236,7 +236,7 @@ const ProfilePage = () => {
                           </span>
                         </div>
                         {(exp.description || exp.desc) && (
-                          <ul className="mt-3 list-inside list-disc space-y-1 text-sm text-muted-foreground">
+                          <ul className="mt-3 list-inside list-disc space-y-1 text-base text-muted-foreground">
                             {(exp.description || exp.desc)
                               .split(/\n|•|\.\s+/)
                               .filter(Boolean)
@@ -250,7 +250,7 @@ const ProfilePage = () => {
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-base text-muted-foreground">
                     Chưa có thông tin. Hãy chỉnh sửa hồ sơ để thêm kinh nghiệm.
                   </p>
                 )}
@@ -273,19 +273,19 @@ const ProfilePage = () => {
                         <h4 className="font-semibold text-foreground">
                           {edu.degree || edu.major || edu.school}
                         </h4>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-base text-muted-foreground">
                           {edu.school || edu.university} |{' '}
                           {edu.period ||
                             (edu.startDate && edu.endDate ? `${edu.startDate}-${edu.endDate}` : '')}
                         </p>
                         {edu.gpa && (
-                          <p className="mt-1 text-sm text-muted-foreground">GPA: {edu.gpa}</p>
+                          <p className="mt-1 text-base text-muted-foreground">GPA: {edu.gpa}</p>
                         )}
                       </div>
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-base text-muted-foreground">
                     Chưa có thông tin. Hãy chỉnh sửa hồ sơ để thêm học vấn.
                   </p>
                 )}
@@ -296,7 +296,7 @@ const ProfilePage = () => {
       </div>
 
       {/* Footer */}
-      <footer className="mt-12 text-center text-sm text-muted-foreground">
+      <footer className="mt-12 text-center text-base text-muted-foreground">
         © {new Date().getFullYear()} Hồ sơ ứng viên. Cập nhật lần cuối: {lastUpdatedStr}
       </footer>
     </div>

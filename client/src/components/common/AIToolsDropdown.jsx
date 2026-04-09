@@ -56,7 +56,7 @@ const AIToolsDropdown = ({
           className
         )}
       >
-        <p className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
           Công cụ cho ứng viên
         </p>
         {AI_TOOLS.map((tool) => {
@@ -76,8 +76,10 @@ const AIToolsDropdown = ({
                 <AppIcon icon={Icon} size="md" className="text-primary" />
               </div>
               <span className="min-w-0 flex flex-col gap-0.5 text-left">
-                <span className="font-bold leading-snug text-foreground">{tool.label}</span>
-                <span className="text-xs font-medium leading-snug text-muted-foreground">
+                <span className="text-base font-bold leading-snug text-foreground">
+                  {tool.label}
+                </span>
+                <span className="text-sm font-medium leading-snug text-muted-foreground">
                   {tool.description}
                 </span>
               </span>
@@ -92,7 +94,7 @@ const AIToolsDropdown = ({
     <DropdownMenu>
       <DropdownMenuTrigger
         className={cn(
-          'flex items-center gap-2 px-4 py-2.5 text-[15px] font-bold rounded-xl',
+          'flex items-center gap-2 px-4 py-2.5 text-base font-bold rounded-xl',
           'text-primary hover:bg-primary/10 transition-colors duration-200',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2',
           triggerClassName
@@ -137,10 +139,10 @@ const AIToolsDropdown = ({
                     <AppIcon icon={Icon} size="sm" className="text-primary" />
                   </div>
                   <span className="min-w-0 flex flex-col gap-0.5 text-left">
-                    <span className="text-[15px] font-bold leading-snug text-foreground">
+                    <span className="text-base font-bold leading-snug text-foreground">
                       {tool.label}
                     </span>
-                    <span className="text-xs font-medium leading-snug text-muted-foreground">
+                    <span className="text-sm font-medium leading-snug text-muted-foreground">
                       {tool.description}
                     </span>
                   </span>

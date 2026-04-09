@@ -66,7 +66,7 @@ const SavedJobsPage = () => {
             </div>
             <h1 className="text-xl font-bold text-slate-900">Việc làm đã lưu</h1>
           </div>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2 text-base text-muted-foreground">
             Quản lý và theo dõi các vị trí bạn đang quan tâm.
           </p>
         </div>
@@ -83,7 +83,7 @@ const SavedJobsPage = () => {
 
       {/* Job list count */}
       <div className="mb-6">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-base text-muted-foreground">
           Đang hiển thị <span className="font-bold text-foreground">{searched.length}</span> việc
           làm phù hợp.
         </p>
@@ -146,10 +146,10 @@ const SavedJobsPage = () => {
                       <h3 className="font-semibold text-foreground">
                         {job.title || job.job?.title}
                       </h3>
-                      <p className="mt-1 text-sm text-muted-foreground">
+                      <p className="mt-1 text-base text-muted-foreground">
                         {job.company_name || job.company?.name}
                       </p>
-                      <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                      <div className="mt-2 flex flex-wrap items-center gap-4 text-base text-muted-foreground">
                         <span className="flex items-center gap-1.5">
                           <MapPin className="h-3.5 w-3.5" />
                           {job.location}
@@ -164,7 +164,7 @@ const SavedJobsPage = () => {
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-3 sm:flex-row sm:items-center">
-                    <p className="text-sm font-semibold text-foreground">
+                    <p className="text-base font-semibold text-foreground">
                       {job.salary_range || 'Thỏa thuận'}
                     </p>
                     <div className="flex gap-2">
@@ -216,7 +216,7 @@ const SavedJobsPage = () => {
               {n}
             </Button>
           ))}
-          <span className="px-2 text-sm text-muted-foreground">...</span>
+          <span className="px-2 text-base text-muted-foreground">...</span>
           <Button
             variant="outline"
             size="icon"

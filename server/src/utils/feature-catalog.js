@@ -47,14 +47,6 @@ const DEFAULT_FEATURE_CATALOG = {
       enabled: true,
     },
     {
-      id: 'ai-interview',
-      title: 'AI Interview',
-      description: 'Practice interview scenarios and receive structured guidance before applying.',
-      path: '/ai-interview',
-      settingKey: 'ai_chatbot',
-      enabled: true,
-    },
-    {
       id: 'salary-predictor',
       title: 'Salary Predictor',
       description: 'Estimate compensation direction from skills, market signals, and role profile.',

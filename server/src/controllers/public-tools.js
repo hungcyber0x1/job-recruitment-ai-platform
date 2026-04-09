@@ -38,11 +38,17 @@ class PublicToolsController {
         });
       }
 
-      if (req.file && req.file.mimetype !== 'application/pdf') {
-        return res.status(400).json({
-          success: false,
-          message: 'Phân tích AI hiện chỉ hỗ trợ file PDF. Vui lòng chuyển CV sang PDF.',
-        });
+      // Sau verify-upload-signature: tin nhị phân (pdf). MIME hay sai (octet-stream) trên Windows.
+      if (req.file) {
+        const binaryPdf = req.verifiedUploadKind === 'pdf';
+        const legacyMimePdf =
+          req.verifiedUploadKind === undefined && req.file.mimetype === 'application/pdf';
+        if (!binaryPdf && !legacyMimePdf) {
+          return res.status(400).json({
+            success: false,
+            message: 'Phân tích AI hiện chỉ hỗ trợ file PDF. Vui lòng chuyển CV sang PDF.',
+          });
+        }
       }
 
       const data = await ResumeAnalysisService.analyzeResumePreview(resumeText, req.file || null);
@@ -55,27 +61,6 @@ class PublicToolsController {
           : error.message || 'Phân tích CV thất bại';
       const code = error.statusCode || (msg.includes('PDF') ? 400 : 500);
       res.status(code).json({ success: false, message: msg });
-    }
-  }
-
-  async interviewHint(req, res) {
-    try {
-      const { question, role, level } = req.body || {};
-      const data = await PublicToolsService.generateInterviewHint({
-        question,
-        role,
-        level,
-      });
-      res.json({ success: true, data });
-    } catch (error) {
-      logger.error('public interview hint:', error);
-      const fail = error.message === 'INTERVIEW_HINT_FAILED';
-      res.status(fail ? 503 : 400).json({
-        success: false,
-        message: fail
-          ? 'Không tạo được gợi ý AI. Thử lại sau.'
-          : error.message || 'Yêu cầu không hợp lệ',
-      });
     }
   }
 }

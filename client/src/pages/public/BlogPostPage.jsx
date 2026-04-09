@@ -235,7 +235,7 @@ const BlogPostPage = () => {
   if (status === 'loading') {
     return (
       <div className="min-h-screen bg-emerald-50/30 pt-28 pb-20 dark:bg-slate-950">
-        <div className="container mx-auto max-w-3xl px-4 text-center font-serif text-muted-foreground sm:px-6">
+        <div className="container mx-auto max-w-3xl px-4 text-center text-base font-medium text-muted-foreground sm:px-6">
           Đang tải bài báo…
         </div>
       </div>
@@ -246,10 +246,12 @@ const BlogPostPage = () => {
     return (
       <div className="min-h-screen bg-emerald-50/30 pt-28 pb-20 dark:bg-slate-950">
         <div className="container mx-auto max-w-3xl px-4 text-center sm:px-6">
-          <p className="mb-6 text-muted-foreground">Không tìm thấy bài viết.</p>
+          <p className="mb-6 text-base font-medium text-muted-foreground">
+            Không tìm thấy bài viết.
+          </p>
           <Link
             to="/blog"
-            className="font-semibold text-primary underline-offset-4 hover:underline"
+            className="text-base font-bold text-primary underline-offset-4 hover:underline"
           >
             ← Quay lại mục Blog
           </Link>
@@ -272,7 +274,7 @@ const BlogPostPage = () => {
       <div className="container mx-auto max-w-3xl px-4 sm:px-6">
         <Link
           to="/blog"
-          className="mb-8 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:text-primary print:hidden"
+          className="mb-8 inline-flex items-center gap-2 text-base font-medium text-muted-foreground transition-colors hover:text-primary print:hidden"
         >
           <ArrowLeft size={16} strokeWidth={2} aria-hidden />
           Tạp chí
@@ -280,14 +282,14 @@ const BlogPostPage = () => {
 
         <article className="border-2 border-foreground/10 bg-white shadow-[0_2px_0_0_rgba(15,23,42,0.06),0_24px_60px_-20px_rgba(15,23,42,0.12)] dark:border-slate-700 dark:bg-slate-900 print:border print:shadow-none">
           <div className="border-b-2 border-foreground/90 bg-foreground/[0.03] px-4 py-3 text-center sm:px-6 print:border-foreground">
-            <p className="font-serif text-[10px] font-bold uppercase tracking-[0.45em] text-foreground/80 sm:text-[11px]">
+            <p className="font-serif text-xs font-bold uppercase tracking-[0.35em] text-foreground/80 sm:tracking-[0.4em]">
               HireAI · Phân tích &amp; nhận định
             </p>
           </div>
 
           <div className="px-5 pb-10 pt-8 sm:px-10 sm:pb-12 sm:pt-10">
             <header className="border-b border-border pb-8">
-              <div className="mb-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <div className="mb-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
                 <span className="text-primary">{post.category}</span>
                 <span className="text-border" aria-hidden>
                   |
@@ -309,12 +311,12 @@ const BlogPostPage = () => {
                 ) : null}
               </div>
 
-              <h1 className="text-balance font-serif text-3xl font-black leading-[1.12] tracking-tight text-foreground sm:text-[2.25rem] sm:leading-[1.1] md:text-[2.5rem]">
+              <h1 className="text-balance font-serif text-3xl font-black leading-[1.12] tracking-tight text-foreground sm:text-4xl md:text-4xl lg:text-5xl">
                 {post.title}
               </h1>
 
               {post.excerpt ? (
-                <p className="mt-5 font-article text-lg italic leading-relaxed text-foreground/85">
+                <p className="mt-5 font-article text-base font-medium italic leading-relaxed text-foreground/85 md:text-lg">
                   {post.excerpt}
                 </p>
               ) : null}
@@ -332,8 +334,10 @@ const BlogPostPage = () => {
                     }}
                   />
                   <div className="min-w-0">
-                    <p className="font-sans text-sm font-bold text-foreground">{post.author}</p>
-                    <p className="font-sans text-xs text-muted-foreground">{roleLine}</p>
+                    <p className="font-sans text-base font-bold text-foreground">{post.author}</p>
+                    <p className="font-sans text-sm font-medium text-muted-foreground">
+                      {roleLine}
+                    </p>
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 print:hidden">
@@ -380,7 +384,7 @@ const BlogPostPage = () => {
                     }}
                   />
                 </div>
-                <figcaption className="mt-3 font-sans text-xs text-muted-foreground">
+                <figcaption className="mt-3 font-sans text-sm font-medium text-muted-foreground">
                   Minh họa: {post.title}
                 </figcaption>
               </figure>
@@ -393,7 +397,9 @@ const BlogPostPage = () => {
 
             {related.length > 0 ? (
               <section className="mt-12 border-t border-border pt-10 print:hidden">
-                <h2 className="font-serif text-xl font-bold text-foreground">Cùng chuyên mục</h2>
+                <h2 className="font-serif text-xl font-bold text-foreground md:text-2xl">
+                  Cùng chuyên mục
+                </h2>
                 <ul className="mt-4 space-y-3">
                   {related.map((r) => (
                     <li key={r.slug || r.id}>
@@ -401,13 +407,13 @@ const BlogPostPage = () => {
                         to={`/blog/${r.slug || r.id}`}
                         className="group flex flex-col gap-1 border-b border-border/50 py-3 first:pt-0"
                       >
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-primary">
+                        <span className="text-xs font-bold uppercase tracking-widest text-primary">
                           {r.category}
                         </span>
-                        <span className="font-serif text-base font-semibold leading-snug text-foreground group-hover:underline">
+                        <span className="font-serif text-base font-bold leading-snug text-foreground group-hover:underline">
                           {r.title}
                         </span>
-                        <span className="text-xs text-muted-foreground">{r.date}</span>
+                        <span className="text-sm font-medium text-muted-foreground">{r.date}</span>
                       </Link>
                     </li>
                   ))}

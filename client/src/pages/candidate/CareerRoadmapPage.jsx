@@ -81,7 +81,7 @@ const CareerRoadmapPage = () => {
           </div>
           <div>
             <h1 className="text-xl font-bold text-foreground">Lộ trình 90 Ngày</h1>
-            <p className="text-sm text-muted-foreground">Chinh phục sự nghiệp mơ ước</p>
+            <p className="text-base text-muted-foreground">Chinh phục sự nghiệp mơ ước</p>
           </div>
         </div>
       </div>
@@ -89,7 +89,7 @@ const CareerRoadmapPage = () => {
       {/* KẾ HOẠCH HIỆN TẠI */}
       <Card className="rounded-xl border bg-card shadow-sm">
         <CardContent className="p-6">
-          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="text-base font-medium uppercase tracking-wider text-muted-foreground">
             Kế hoạch hiện tại
           </p>
           <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
@@ -97,24 +97,24 @@ const CareerRoadmapPage = () => {
               <h2 className="text-2xl font-bold text-foreground">
                 Product Designer - Senior Level
               </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="mt-1 text-base text-muted-foreground">
                 Khởi đầu từ ngày {startDate} - Còn {daysLeft} ngày nữa
               </p>
             </div>
-            <div className="flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-2 text-sm font-medium text-primary">
+            <div className="flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-2 text-base font-medium text-primary">
               <Sparkles className="h-4 w-4" />
               AI gợi ý: Cập nhật Portfolio ngay!
             </div>
           </div>
           <div className="mt-6">
-            <p className="text-sm font-medium text-foreground">Tiến độ tổng thể</p>
+            <p className="text-base font-medium text-foreground">Tiến độ tổng thể</p>
             <div className="mt-2 flex items-center gap-3">
               <Progress value={overallProgress} className="h-3 flex-1" />
-              <span className="text-sm font-semibold text-foreground">
+              <span className="text-base font-semibold text-foreground">
                 {overallProgress}% ({daysDone}/90 ngày)
               </span>
             </div>
-            <p className="mt-2 text-sm italic text-muted-foreground">
+            <p className="mt-2 text-base italic text-muted-foreground">
               Bạn đang nhanh hơn 5% so với mục tiêu đề ra. Giữ vững phong độ nhé!
             </p>
           </div>
@@ -149,11 +149,11 @@ const CareerRoadmapPage = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-foreground">{phase.title}</h3>
-                      <p className="text-sm text-muted-foreground">{phase.period}</p>
+                      <p className="text-base text-muted-foreground">{phase.period}</p>
                     </div>
                   </div>
                   <span
-                    className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                    className={`rounded-full px-3 py-1 text-base font-semibold ${
                       phase.status === 'completed'
                         ? 'bg-emerald-100 text-emerald-700'
                         : phase.status === 'in_progress'
@@ -172,7 +172,7 @@ const CareerRoadmapPage = () => {
                 {phase.tasks && phase.tasks.length > 0 && (
                   <ul className="mt-6 space-y-3">
                     {phase.tasks.map((task, i) => (
-                      <li key={i} className="flex items-center gap-3 text-sm">
+                      <li key={i} className="flex items-center gap-3 text-base">
                         {typeof task.done === 'boolean' ? (
                           task.done ? (
                             <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-500" />
@@ -193,7 +193,7 @@ const CareerRoadmapPage = () => {
                 {phase.aiTip && (
                   <div className="mt-4 flex gap-3 rounded-lg bg-primary/5 p-4">
                     <Lightbulb className="h-5 w-5 shrink-0 text-primary" />
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-base text-muted-foreground">
                       <span className="font-medium text-foreground">Gợi ý AI: </span>
                       {phase.aiTip}
                     </p>
@@ -204,8 +204,8 @@ const CareerRoadmapPage = () => {
                   <div className="mt-4 flex gap-3 rounded-lg bg-primary/5 p-4">
                     <Sparkles className="h-5 w-5 shrink-0 text-primary" />
                     <div>
-                      <p className="text-sm font-medium text-foreground">Chiến lược AI đề xuất</p>
-                      <p className="mt-1 text-sm text-muted-foreground">{phase.aiStrategy}</p>
+                      <p className="text-base font-medium text-foreground">Chiến lược AI đề xuất</p>
+                      <p className="mt-1 text-base text-muted-foreground">{phase.aiStrategy}</p>
                     </div>
                   </div>
                 )}
@@ -224,7 +224,7 @@ const CareerRoadmapPage = () => {
             </div>
             <div>
               <h3 className="font-semibold">Bạn muốn AI điều chỉnh lộ trình?</h3>
-              <p className="mt-1 text-sm text-white/90">
+              <p className="mt-1 text-base text-white/90">
                 Tôi có thể tối ưu hóa các bước dựa trên phản hồi từ nhà tuyển dụng.
               </p>
             </div>
@@ -235,7 +235,7 @@ const CareerRoadmapPage = () => {
         </CardContent>
       </Card>
 
-      <footer className="text-center text-xs text-muted-foreground">
+      <footer className="text-center text-base text-muted-foreground">
         © {new Date().getFullYear()} Career Roadmap Planner. Powered by AI Intelligence.
       </footer>
     </div>
