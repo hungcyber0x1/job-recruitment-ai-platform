@@ -1,0 +1,38 @@
+# Node
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Coverage
+coverage/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Uploads
+server/uploads/avatars/*
+server/uploads/cvs/*
+server/uploads/company-logos/*
+!server/uploads/avatars/.gitkeep
+!server/uploads/cvs/.gitkeep
+!server/uploads/company-logos/.gitkeep

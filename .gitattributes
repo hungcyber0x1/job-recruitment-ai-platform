@@ -1,0 +1,2 @@
+# Shell scripts for Linux containers (avoid CRLF breaking entrypoint)
+*.sh text eol=lf

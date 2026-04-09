@@ -1,0 +1,50 @@
+-- Seed 02: SKILLS — Kỹ năng phổ biến theo nhóm ngành
+
+INSERT INTO skills (name, category) VALUES
+-- Lập trình / CNTT
+('JavaScript', 'Công nghệ thông tin'),
+('TypeScript', 'Công nghệ thông tin'),
+('Python', 'Công nghệ thông tin'),
+('Java', 'Công nghệ thông tin'),
+('C#', 'Công nghệ thông tin'),
+('PHP', 'Công nghệ thông tin'),
+('React.js', 'Công nghệ thông tin'),
+('Vue.js', 'Công nghệ thông tin'),
+('Node.js', 'Công nghệ thông tin'),
+('Express.js', 'Công nghệ thông tin'),
+('Next.js', 'Công nghệ thông tin'),
+('MySQL', 'Công nghệ thông tin'),
+('MongoDB', 'Công nghệ thông tin'),
+('PostgreSQL', 'Công nghệ thông tin'),
+('Redis', 'Công nghệ thông tin'),
+('Docker', 'Công nghệ thông tin'),
+('Git', 'Công nghệ thông tin'),
+('REST API', 'Công nghệ thông tin'),
+('GraphQL', 'Công nghệ thông tin'),
+('AWS', 'Công nghệ thông tin'),
+('Linux', 'Công nghệ thông tin'),
+('Agile / Scrum', 'Công nghệ thông tin'),
+-- Marketing
+('SEO', 'Marketing & Truyền thông'),
+('Google Ads', 'Marketing & Truyền thông'),
+('Facebook Ads', 'Marketing & Truyền thông'),
+('Content Marketing', 'Marketing & Truyền thông'),
+('Email Marketing', 'Marketing & Truyền thông'),
+('Social Media', 'Marketing & Truyền thông'),
+('Photoshop', 'Thiết kế & Sáng tạo'),
+('Illustrator', 'Thiết kế & Sáng tạo'),
+('Figma', 'Thiết kế & Sáng tạo'),
+('UI/UX Design', 'Thiết kế & Sáng tạo'),
+-- Tài chính / Kế toán
+('Excel', 'Kế toán & Tài chính'),
+('Kế toán', 'Kế toán & Tài chính'),
+('MISA', 'Kế toán & Tài chính'),
+('SAP', 'Kế toán & Tài chính'),
+-- Kỹ năng mềm (dùng chung)
+('Giao tiếp', 'Kỹ năng mềm'),
+('Quản lý dự án', 'Kỹ năng mềm'),
+('Lãnh đạo nhóm', 'Kỹ năng mềm'),
+('Tiếng Anh', 'Ngoại ngữ'),
+('Tiếng Nhật', 'Ngoại ngữ'),
+('Tiếng Hàn', 'Ngoại ngữ')
+ON DUPLICATE KEY UPDATE name = VALUES(name);

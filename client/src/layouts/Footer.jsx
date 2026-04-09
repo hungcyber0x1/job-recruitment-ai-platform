@@ -1,0 +1,256 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, Instagram, Linkedin, Mail, MapPin, Phone, ShieldCheck } from 'lucide-react';
+
+import { Button } from '@/components/common';
+import { cn } from '@/utils/cn';
+
+const footerLinks = [
+  {
+    title: 'Sản phẩm',
+    links: [
+      { label: 'Tìm việc làm', path: '/jobs' },
+      { label: 'Công ty', path: '/companies' },
+      { label: 'Chấm điểm CV bằng AI', path: '/ai-cv-scanner' },
+      { label: 'Blog kiến thức', path: '/blog' },
+    ],
+  },
+  {
+    title: 'Khám phá',
+    links: [
+      { label: 'Về HireAI', path: '/about' },
+      { label: 'Định hướng nghề nghiệp', path: '/career' },
+      { label: 'Luyện phỏng vấn với AI', path: '/ai-interview' },
+      { label: 'Liên hệ hợp tác', path: '/contact' },
+    ],
+  },
+  {
+    title: 'Hỗ trợ',
+    links: [
+      { label: 'Chat tư vấn AI', path: '/chat' },
+      { label: 'Đăng nhập', path: '/login' },
+      { label: 'Tạo tài khoản', path: '/register' },
+      { label: 'Dành cho nhà tuyển dụng', path: '/register' },
+    ],
+  },
+];
+
+const socialLinks = [
+  {
+    label: 'Email HireAI',
+    href: 'mailto:contact@hireai.vn',
+    Icon: Mail,
+    color: 'hover:text-primary',
+  },
+  {
+    label: 'Gọi HireAI',
+    href: 'tel:+842873001234',
+    Icon: Phone,
+    color: 'hover:text-success',
+  },
+  {
+    label: 'Trang liên hệ HireAI',
+    href: '/contact',
+    Icon: Linkedin,
+    color: 'hover:text-[#0A66C2]',
+    internal: true,
+  },
+  {
+    label: 'Blog HireAI',
+    href: '/blog',
+    Icon: Instagram,
+    color: 'hover:text-[#E4405F]',
+    internal: true,
+  },
+];
+
+const Footer = () => {
+  const currentYear = new Date().getFullYear();
+
+  return (
+    <footer className="relative overflow-hidden border-t border-white/10 bg-primary pb-12 pt-24 font-sans text-slate-300">
+      <div className="absolute left-1/4 top-0 h-96 w-96 -translate-y-1/2 rounded-full bg-primary/5 blur-[120px]"></div>
+      <div className="absolute bottom-0 right-1/4 h-64 w-64 translate-y-1/2 rounded-full bg-accent/10 blur-[100px]"></div>
+
+      <div className="container relative z-10 mx-auto max-w-7xl px-6">
+        <div className="grid gap-16 border-b border-white/10 pb-20 lg:grid-cols-12">
+          <div className="space-y-10 lg:col-span-4">
+            <div className="space-y-6">
+              <Link to="/" className="group flex w-fit items-center gap-3">
+                <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-xl font-black text-white transition-all group-hover:bg-primary/20">
+                  H
+                </div>
+                <span className="text-3xl font-black tracking-tighter text-white">
+                  HireAI<span className="text-primary">.</span>
+                </span>
+              </Link>
+
+              <p className="max-w-sm text-sm leading-relaxed text-slate-400">
+                Nền tảng tuyển dụng ứng dụng AI để rút ngắn thời gian sàng lọc, tăng độ chính xác
+                khi ghép nối ứng viên và hỗ trợ ra quyết định tuyển dụng rõ ràng hơn.
+              </p>
+
+              <div className="flex w-fit items-center gap-2 rounded-full border border-success/20 bg-success/10 px-3 py-1.5 text-xs font-medium text-success">
+                <ShieldCheck size={14} />
+                Tập trung vào trải nghiệm tuyển dụng thực tế
+              </div>
+            </div>
+
+            <div className="glass-dark relative overflow-hidden rounded-3xl border border-white/5 p-6 shadow-2xl">
+              <h2 className="text-base font-bold tracking-tight text-white">
+                Nhận cập nhật sản phẩm
+              </h2>
+              <p className="mt-2 text-xs text-slate-500">
+                Theo dõi xu hướng tuyển dụng, tính năng mới và các nội dung hữu ích dành cho ứng
+                viên cũng như nhà tuyển dụng.
+              </p>
+              <form className="relative z-10 mt-4 flex gap-2">
+                <input
+                  type="email"
+                  placeholder="Email của bạn..."
+                  className="w-full rounded-2xl border border-slate-800 bg-slate-950/50 px-4 py-3 text-sm text-slate-300 shadow-inner transition-all placeholder:text-slate-600 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  aria-label="Email nhận bản tin"
+                />
+                <Button
+                  variant="primary"
+                  className="border-0 px-5 py-3 !rounded-2xl font-bold shadow-glow"
+                >
+                  <ArrowRight size={18} />
+                </Button>
+              </form>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-12 lg:col-span-8 md:grid-cols-3">
+            {footerLinks.map((column) => (
+              <div key={column.title} className="space-y-6">
+                <h3 className="bg-gradient-to-r from-white to-slate-300 bg-clip-text text-sm font-bold uppercase tracking-widest text-transparent">
+                  {column.title}
+                </h3>
+                <ul className="space-y-4">
+                  {column.links.map((link) => (
+                    <li key={`${link.label}-${link.path}`}>
+                      <Link
+                        to={link.path}
+                        className="group/link flex items-center gap-2 text-[15px] text-slate-400 transition-all hover:text-white"
+                      >
+                        <span className="h-1 w-1 -translate-x-2 rounded-full bg-primary opacity-0 transition-all duration-300 group-hover/link:translate-x-0 group-hover/link:opacity-100"></span>
+                        <span className="transition-transform duration-300 group-hover/link:translate-x-1">
+                          {link.label}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+
+            <div className="col-span-2 border-t border-white/10 pt-6 md:col-span-3">
+              <div className="grid gap-6 md:grid-cols-3">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-xl border border-slate-800 bg-slate-900 p-2.5 text-primary shadow-sm">
+                    <Mail size={16} />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-white">
+                      Email
+                    </p>
+                    <a
+                      href="mailto:contact@hireai.vn"
+                      className="text-sm text-slate-500 transition-colors hover:text-primary"
+                    >
+                      contact@hireai.vn
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="rounded-xl border border-slate-800 bg-slate-900 p-2.5 text-primary shadow-sm">
+                    <Phone size={16} />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-white">
+                      Hotline
+                    </p>
+                    <a
+                      href="tel:+842873001234"
+                      className="text-sm text-slate-500 transition-colors hover:text-primary"
+                    >
+                      +84 (28) 7300 1234
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="rounded-xl border border-slate-800 bg-slate-900 p-2.5 text-primary shadow-sm">
+                    <MapPin size={16} />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-white">
+                      Văn phòng
+                    </p>
+                    <p className="text-sm text-slate-500">Innovation Building, Quận 12, TP.HCM</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col items-center justify-between gap-8 pt-10 lg:flex-row">
+          <div className="flex flex-col items-center gap-6 md:flex-row">
+            <p className="whitespace-nowrap text-sm font-medium text-slate-400">
+              © {currentYear} HireAI Corp. Phát triển tại Việt Nam.
+            </p>
+            <div className="flex items-center gap-6 text-xs text-slate-400">
+              <Link to="/contact" className="transition-colors hover:text-primary">
+                Liên hệ
+              </Link>
+              <Link to="/about" className="transition-colors hover:text-primary">
+                Về chúng tôi
+              </Link>
+              <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1">
+                <div className="h-2 w-2 rounded-full bg-success shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                <span className="text-[10px] font-semibold uppercase tracking-widest">
+                  Hệ thống hoạt động ổn định
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {socialLinks.map(({ label, href, Icon, color, internal }) =>
+              internal ? (
+                <Link
+                  key={label}
+                  to={href}
+                  aria-label={label}
+                  className={cn(
+                    'rounded-2xl border border-white/10 bg-white/5 p-3 text-slate-400 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-glow/20',
+                    color
+                  )}
+                >
+                  <Icon size={20} />
+                </Link>
+              ) : (
+                <a
+                  key={label}
+                  href={href}
+                  aria-label={label}
+                  className={cn(
+                    'rounded-2xl border border-white/10 bg-white/5 p-3 text-slate-400 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-glow/20',
+                    color
+                  )}
+                >
+                  <Icon size={20} />
+                </a>
+              )
+            )}
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;

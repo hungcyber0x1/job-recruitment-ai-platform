@@ -1,0 +1,36 @@
+{
+    "name": "hire-ai",
+    "version": "1.0.0",
+    "description": "Website tuyển dụng tích hợp chatbot AI tư vấn và định hướng nghề nghiệp (React, Tailwind, Node/Express, MySQL)",
+    "engines": {
+        "node": ">=20.0.0 <25"
+    },
+    "scripts": {
+        "dev:client": "npm --prefix client run dev",
+        "dev:server": "npm --prefix server run dev",
+        "install:all": "npm install && npm --prefix client install && npm --prefix server install",
+        "format:client": "npm --prefix client run format",
+        "format:server": "npm --prefix server run format",
+        "format:all": "npm run format:client && npm run format:server",
+        "format:check:client": "npm --prefix client run format:check",
+        "format:check:server": "npm --prefix server run format:check",
+        "format:check:all": "npm run format:check:client && npm run format:check:server",
+        "lint:all": "npm run lint:client && npm run lint:server",
+        "lint:check:all": "npm run lint:check:client && npm run lint:check:server",
+        "lint:client": "npm --prefix client run lint",
+        "lint:check:client": "npm --prefix client run lint:check",
+        "lint:server": "npm --prefix server run lint",
+        "lint:check:server": "npm --prefix server run lint:check",
+        "test:all": "npm --prefix client run test && npm --prefix server test -- --runInBand",
+        "verify:all": "npm run format:check:all && npm run lint:check:all && npm run test:all && npm run build",
+        "ci": "npm run verify:all",
+        "build": "npm --prefix client run build"
+    },
+    "keywords": [
+        "recruitment",
+        "ai",
+        "chatbot"
+    ],
+    "author": "",
+    "license": "ISC"
+}
