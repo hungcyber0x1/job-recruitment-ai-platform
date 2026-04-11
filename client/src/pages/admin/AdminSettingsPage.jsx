@@ -124,7 +124,7 @@ const AdminSettingsPage = () => {
     default_language: 'vi',
     feature_catalog_enabled: true,
     feature_catalog_payload: '',
-    primary_color: '#10B981',
+    primary_color: '#10b981',
     smtp_host: 'smtp.gmail.com',
     smtp_port: '587',
     smtp_password: '',
@@ -432,13 +432,13 @@ const AdminSettingsPage = () => {
                       <label className="text-base font-medium text-slate-600">Màu chủ đạo</label>
                       <input
                         type="text"
-                        value={settings.primary_color || '#10B981'}
+                        value={settings.primary_color || '#10b981'}
                         onChange={(e) => updateSetting('primary_color', e.target.value)}
                         className={`${inputClass} w-32`}
                       />
                       <div
                         className="h-9 w-9 rounded-lg border border-slate-200"
-                        style={{ backgroundColor: settings.primary_color || '#10B981' }}
+                        style={{ backgroundColor: settings.primary_color || '#10b981' }}
                       />
                     </div>
                     <div className="mt-4">

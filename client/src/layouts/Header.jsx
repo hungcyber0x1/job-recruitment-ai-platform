@@ -120,8 +120,8 @@ const Header = () => {
                         <p className="font-bold text-foreground">
                           {user?.first_name} {user?.last_name}
                         </p>
-                        <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-                        <span className="mt-2 inline-block px-2 py-0.5 bg-emerald-500/10 text-emerald-700 text-xs font-black uppercase rounded">
+                        <p className="text-base text-muted-foreground truncate">{user?.email}</p>
+                        <span className="mt-2 inline-block px-2 py-0.5 bg-emerald-500/10 text-emerald-700 text-sm font-black uppercase rounded">
                           {user?.role}
                         </span>
                       </div>

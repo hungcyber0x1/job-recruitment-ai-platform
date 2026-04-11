@@ -20,7 +20,7 @@ const PremiumStatCard = ({
   return (
     <div
       className={cn(
-        'group relative bg-white/80 backdrop-blur-xl rounded-2xl p-7 border border-slate-200/50 shadow-sm hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-1 transition-all duration-500 overflow-hidden cursor-pointer',
+        'group relative bg-white/80 backdrop-blur-xl rounded-2xl p-7 border border-slate-200/50 card-premium-hover cursor-pointer overflow-hidden',
         className
       )}
     >
@@ -49,7 +49,7 @@ const PremiumStatCard = ({
           {change && (
             <div
               className={cn(
-                'flex items-center gap-1.5 px-3 py-1.5 rounded-full font-medium text-xs tracking-wide shadow-sm transition-all duration-500',
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-full font-medium text-sm tracking-wide shadow-sm transition-all duration-500',
                 isPositive
                   ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
                   : 'bg-red-50 text-red-600 border border-red-100'
@@ -66,7 +66,7 @@ const PremiumStatCard = ({
         </div>
 
         <div>
-          <h3 className="text-slate-500 text-xs font-medium mb-2 tracking-wider uppercase">
+          <h3 className="text-slate-500 text-sm font-medium mb-2 tracking-wider uppercase">
             {label}
           </h3>
           <p className="text-4xl font-semibold text-slate-800 tracking-tight">

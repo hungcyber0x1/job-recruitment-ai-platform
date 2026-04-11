@@ -36,7 +36,7 @@ const Resume = ({ resume, isUploading, onUpload, onDelete }) => {
         <h3 className="mb-2 text-xl font-black text-foreground">
           {isUploading ? 'Đang tải lên CV...' : 'Tải lên CV mới'}
         </h3>
-        <p className="mx-auto max-w-xl text-sm font-medium text-txt-muted">
+        <p className="mx-auto max-w-xl text-base font-medium text-txt-muted">
           Hỗ trợ PDF, DOC, DOCX. Hồ sơ mới sẽ được dùng cho các lần ứng tuyển tiếp theo.
         </p>
       </Card>
@@ -52,10 +52,10 @@ const Resume = ({ resume, isUploading, onUpload, onDelete }) => {
                 <h4 className="text-lg font-black text-foreground">
                   {resume.name || 'CV hiện tại'}
                 </h4>
-                <p className="text-sm font-medium text-txt-muted">
+                <p className="text-base font-medium text-txt-muted">
                   Cập nhật: {resume.updatedAt || 'Đang lưu'}
                 </p>
-                <p className="text-xs font-bold uppercase tracking-widest text-txt-light">
+                <p className="text-base font-bold uppercase tracking-widest text-txt-light">
                   {formatFileSize(resume.size)}
                 </p>
               </div>
@@ -90,7 +90,7 @@ const Resume = ({ resume, isUploading, onUpload, onDelete }) => {
             <FileText size={24} />
           </div>
           <h4 className="mb-2 text-lg font-black text-foreground">Chưa có CV nào được lưu</h4>
-          <p className="text-sm font-medium text-txt-muted">
+          <p className="text-base font-medium text-txt-muted">
             Tải lên CV để sử dụng nhanh khi ứng tuyển và phân tích hồ sơ với AI.
           </p>
         </Card>
@@ -99,11 +99,11 @@ const Resume = ({ resume, isUploading, onUpload, onDelete }) => {
       <Card className="relative overflow-hidden border-none bg-primary p-8 text-white shadow-premium">
         <Sparkles className="absolute -bottom-6 -right-6 opacity-10" size={120} />
         <div className="relative z-10">
-          <div className="mb-3 w-fit rounded-full bg-white/15 px-3 py-1 text-xs font-black uppercase tracking-widest">
+          <div className="mb-3 w-fit rounded-full bg-white/15 px-3 py-1 text-sm font-black uppercase tracking-widest">
             AI Resume
           </div>
           <h4 className="mb-2 text-xl font-black">Tối ưu CV với AI</h4>
-          <p className="max-w-2xl text-sm font-medium text-white/80">
+          <p className="max-w-2xl text-base font-medium text-white/80">
             Sau khi cập nhật CV, bạn có thể dùng các tính năng phân tích hồ sơ, gợi ý cải thiện và
             ghép việc làm.
           </p>

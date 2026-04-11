@@ -1,143 +1,105 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Star, Quote } from 'lucide-react';
 
 const reviews = [
   {
-    name: 'Phạm Minh Tuấn',
-    role: 'Software Engineer',
-    company: 'FPT Software',
-    location: 'Hà Nội',
+    name: 'Nguyễn Văn Nam',
+    role: 'Sinh viên IT - Bách Khoa',
     content:
-      'Mình tìm được công việc phù hợp chỉ sau hai tuần. Gợi ý việc làm khớp kinh nghiệm thật, không spam như các trang khác.',
+      'Nhờ HireBOT, em đã tìm được thực tập sinh phù hợp chỉ sau 1 tuần. Trợ lý AI gợi ý lộ trình học và chỉnh sửa CV rất thực tế. Rất đáng trải nghiệm!',
     rating: 5,
-    avatar: 'https://i.pravatar.cc/120?u=phamminhtuan',
+    avatar: 'https://i.pravatar.cc/150?u=1',
   },
   {
     name: 'Trần Ngọc Hà',
-    role: 'HR Manager',
-    company: 'VNG Corporation',
-    location: 'TP. Hồ Chí Minh',
+    role: 'HR Manager - VNG Corp',
     content:
-      'Đội tuyển dụng tiết kiệm thời gian sàng lọc nhờ điểm phù hợp từ AI — phỏng vấn vòng đầu đã sát người cần tuyển.',
+      'Hệ thống đánh giá ứng viên của HireBOT giúp team mình tiết kiệm 60% thời gian sàng lọc hồ sơ. AI lọc rất chuẩn các kĩ năng chuyên sâu.',
     rating: 5,
-    avatar: 'https://i.pravatar.cc/120?u=tranngochavng',
+    avatar: 'https://i.pravatar.cc/150?u=2',
   },
   {
-    name: 'Lê Hoàng Nam',
-    role: 'Product Designer',
-    company: 'Tiki',
-    location: 'TP. Hồ Chí Minh',
+    name: 'Phạm Minh Tuấn',
+    role: 'Senior Developer - Tiki',
     content:
-      'Phân tích CV chỉ ra đúng chỗ cần sửa. Sau khi chỉnh theo gợi ý, lượt gọi phỏng vấn tăng rõ rệt.',
+      'Mình thích tính năng phân tích độ fit của CV với JD. Giao diện cực kỳ thân thiện, tìm việc không còn là nỗi ám ảnh nữa.',
     rating: 5,
-    avatar: 'https://i.pravatar.cc/120?u=lehoangnamtiki',
-  },
-  {
-    name: 'Nguyễn Thu Huyền',
-    role: 'Marketing Specialist',
-    company: 'VNPAY',
-    location: 'Hà Nội',
-    content:
-      'Giao diện cực kỳ thân thiện và dễ sử dụng. Từ lúc tạo CV đến lúc apply job diễn ra rất mượt mà. Đánh giá 5 sao!',
-    rating: 5,
-    avatar: 'https://i.pravatar.cc/120?u=nguyenthuhuyen',
-  },
-  {
-    name: 'Hoàng Văn Thái',
-    role: 'Data Analyst',
-    company: 'MoMo',
-    location: 'Đà Nẵng',
-    content:
-      'Tính năng so sánh lương giúp mình tự tin hơn nhiều khi deal lương với HR. Các thông tin công ty khá chi tiết.',
-    rating: 4,
-    avatar: 'https://i.pravatar.cc/120?u=hoangvanthai',
+    avatar: 'https://i.pravatar.cc/150?u=3',
   },
 ];
 
 const Testimonials = () => {
   return (
-    <section className="isolate border-t border-border/40 bg-white py-16 md:py-24">
-      <div className="container mx-auto max-w-7xl px-4">
-        <div className="mb-10 md:mb-14">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="max-w-2xl"
-          >
-            <p className="mb-3 text-sm font-bold uppercase tracking-widest text-primary">
-              Phản hồi
-            </p>
-            <h2 className="text-balance text-3xl font-black leading-tight tracking-tight text-foreground md:text-4xl lg:text-5xl">
-              Người dùng nói gì về <span className="text-primary">HireAI</span>?
-            </h2>
-            <p className="mt-4 text-base font-medium text-muted-foreground">
-              Trải nghiệm thực tế từ ứng viên và nhà tuyển dụng đang dùng nền tảng.
-            </p>
-          </motion.div>
+    <section className="relative overflow-hidden bg-slate-50 py-24 sm:py-32">
+      {/* Decorative background elements */}
+      <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white to-transparent" />
+      <div className="absolute -left-40 top-40 h-72 w-72 rounded-full bg-primary-100/50 blur-3xl" />
+      <div className="absolute -right-40 bottom-40 h-72 w-72 rounded-full bg-emerald-100/50 blur-3xl" />
+
+      <div className="container relative mx-auto max-w-7xl px-4 2xl:px-0">
+        <div className="mx-auto mb-16 max-w-2xl text-center">
+          <h2 className="text-sm font-semibold tracking-wide text-primary uppercase">
+            Phản hồi từ người dùng
+          </h2>
+          <p className="mt-3 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+            Người dùng nói gì về{' '}
+            <span className="bg-gradient-to-r from-primary to-emerald-600 bg-clip-text text-transparent">
+              HireBOT?
+            </span>
+          </p>
+          <p className="mt-5 text-lg text-slate-600">
+            Hàng ngàn ứng viên và nhà tuyển dụng đã kết nối thành công mỗi ngày qua nền tảng của
+            chúng tôi.
+          </p>
         </div>
 
-        <ul className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 xl:gap-8">
-          {reviews.map((review, index) => (
-            <motion.li
-              key={review.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{ duration: 0.45, delay: index * 0.06, ease: [0.16, 1, 0.3, 1] }}
-              className="flex h-full min-h-0"
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+          {reviews.map((review, i) => (
+            <article
+              key={i}
+              className="group relative flex flex-col justify-between rounded-2xl border border-border/40 bg-white p-8 shadow-lg shadow-slate-200/40 transition-all duration-300 hover:shadow-xl hover:ring-2 hover:ring-primary/20 hover:border-primary/40"
             >
-              <article className="flex w-full flex-col rounded-2xl border border-border/60 bg-card p-6 shadow-sm transition-all duration-300 hover:border-primary/20 hover:shadow-[0_16px_40px_-12px_rgba(16,185,129,0.08)] md:p-7">
-                <div className="mb-4 flex items-start justify-between gap-3">
-                  <div className="flex gap-0.5" aria-label={`${review.rating} trên 5 sao`}>
-                    {[...Array(5)].map((_, j) => (
-                      <Star
-                        key={j}
-                        size={16}
-                        className={
-                          j < review.rating
-                            ? 'fill-amber-400 text-amber-400'
-                            : 'fill-muted/30 text-muted/30'
-                        }
-                        aria-hidden
-                      />
-                    ))}
-                  </div>
-                  <Quote
-                    size={22}
-                    className="shrink-0 text-primary/20"
-                    strokeWidth={1.25}
-                    aria-hidden
-                  />
+              <Quote className="absolute right-6 top-6 h-12 w-12 text-slate-100 transition-colors duration-300 group-hover:text-primary-50" />
+
+              <div className="relative z-10">
+                <div className="mb-6 flex gap-1">
+                  {[...Array(5)].map((_, j) => (
+                    <Star
+                      key={j}
+                      size={18}
+                      className={
+                        j < review.rating
+                          ? 'fill-amber-400 text-amber-400'
+                          : 'fill-slate-200 text-slate-200'
+                      }
+                    />
+                  ))}
                 </div>
-                <blockquote className="flex-1 text-base font-medium leading-relaxed text-foreground/90">
-                  &ldquo;{review.content}&rdquo;
-                </blockquote>
-                <footer className="mt-6 flex items-center gap-3 border-t border-border/50 pt-6">
+                <p className="mb-8 text-lg leading-relaxed text-slate-700">"{review.content}"</p>
+              </div>
+
+              <div className="relative z-10 flex items-center gap-4 border-t border-slate-100 pt-6 transition-colors duration-300 group-hover:border-primary-50">
+                <div className="relative">
                   <img
                     src={review.avatar}
-                    alt=""
+                    alt={review.name}
                     width={48}
                     height={48}
+                    className="rounded-full object-cover ring-2 ring-transparent transition-all duration-300 group-hover:ring-primary group-hover:ring-offset-2"
                     loading="lazy"
-                    className="size-12 shrink-0 rounded-full object-cover ring-2 ring-border/40"
                   />
-                  <div className="min-w-0">
-                    <p className="truncate text-base font-semibold text-foreground">
-                      {review.name}
-                    </p>
-                    <p className="mt-0.5 text-sm text-muted-foreground">
-                      {review.role} · {review.company}
-                    </p>
-                    <p className="mt-0.5 text-xs text-muted-foreground/85">{review.location}</p>
-                  </div>
-                </footer>
-              </article>
-            </motion.li>
+                  <div className="absolute -bottom-1 -right-1 h-3 w-3 rounded-full border-2 border-white bg-green-500" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-slate-900 group-hover:text-primary transition-colors duration-300">
+                    {review.name}
+                  </h4>
+                  <p className="text-base font-medium text-slate-500">{review.role}</p>
+                </div>
+              </div>
+            </article>
           ))}
-        </ul>
+        </div>
       </div>
     </section>
   );

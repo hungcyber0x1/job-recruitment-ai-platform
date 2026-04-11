@@ -92,7 +92,7 @@ const PublicCompanyDetailPage = () => {
                   {ini}
                 </div>
                 <div className="min-w-0">
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/15 bg-primary/[0.07] px-3 py-1 text-xs font-bold uppercase tracking-widest text-primary">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/15 bg-primary/[0.07] px-3 py-1 text-sm font-bold uppercase tracking-widest text-primary">
                     <Sparkles className="size-3" strokeWidth={2} aria-hidden />
                     {company.industry}
                   </span>
@@ -166,7 +166,7 @@ const PublicCompanyDetailPage = () => {
                 <h2 className="text-xl font-bold tracking-tight text-foreground md:text-2xl">
                   Giới thiệu
                 </h2>
-                <p className="text-sm font-medium text-muted-foreground">
+                <p className="text-base font-medium text-muted-foreground">
                   Tổng quan nhà tuyển dụng
                 </p>
               </div>
@@ -200,7 +200,7 @@ const PublicCompanyDetailPage = () => {
                     Đăng nhập ứng viên
                   </Link>
                 </Button>
-                <p className="text-sm font-medium leading-relaxed text-muted-foreground sm:max-w-md sm:text-right">
+                <p className="text-base font-medium leading-relaxed text-muted-foreground sm:max-w-md sm:text-right">
                   Sau đăng nhập, bạn có thể mở đầy đủ hồ sơ công ty trong khu vực ứng viên.{' '}
                   <Link
                     to="/register"

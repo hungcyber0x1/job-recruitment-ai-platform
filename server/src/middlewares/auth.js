@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const jwtConfig = require('../config/jwt.config');
-const UserRepository = require('../repositories/user');
+const UserRepository = require('../models/User');
 
 /**
  * Xác thực JWT token

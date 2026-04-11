@@ -23,7 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AIToolsDropdown, AppIcon } from '@/components/common';
+import { Avatar, AIToolsDropdown, AppIcon, Logo } from '@/components/common';
 
 const navLinksCenter = [
   { label: 'Việc làm', path: '/jobs', icon: Briefcase },
@@ -72,21 +72,11 @@ const LandingHeader = () => {
             : 'border border-transparent bg-transparent py-5'
         )}
       >
-        <Link to="/" className="flex items-center gap-2.5 group shrink-0">
-          <motion.div
-            whileHover={{ rotate: 12, scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex size-10 items-center justify-center rounded-xl shadow-md"
-            style={{
-              backgroundColor: '#00a685',
-              boxShadow: '0 8px 20px -6px rgba(0,166,133,0.45)',
-            }}
-          >
-            <span className="text-white font-black text-xl">H</span>
-          </motion.div>
-          <span className="text-lg font-black tracking-tight text-neutral-900 transition-colors group-hover:opacity-90 sm:text-xl">
-            HireAI<span className="text-[#00a685]">.</span>
-          </span>
+        <Link
+          to="/"
+          className="group shrink-0 transition-[transform,opacity] duration-200 hover:opacity-90 active:scale-[0.98]"
+        >
+          <Logo className="h-14 w-auto" />
         </Link>
 
         <div className="hidden lg:flex items-center justify-center gap-0.5 min-w-0">
@@ -179,7 +169,7 @@ const LandingHeader = () => {
                     <p className="text-base font-black tracking-tight text-foreground">
                       {user?.first_name} {user?.last_name}
                     </p>
-                    <p className="truncate text-sm font-medium text-muted-foreground">
+                    <p className="truncate text-base font-medium text-muted-foreground">
                       {user?.email}
                     </p>
                   </div>

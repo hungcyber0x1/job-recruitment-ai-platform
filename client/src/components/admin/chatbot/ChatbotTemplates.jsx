@@ -96,7 +96,9 @@ const ChatbotTemplates = () => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-black text-foreground">Mẫu câu hỏi gợi ý</h2>
-          <p className="text-sm text-muted-foreground">Quản lý các câu hỏi gợi ý cho người dùng</p>
+          <p className="text-base text-muted-foreground">
+            Quản lý các câu hỏi gợi ý cho người dùng
+          </p>
         </div>
         <button
           onClick={handleCreate}
@@ -135,17 +137,17 @@ const ChatbotTemplates = () => {
                       <div className="mb-2 flex items-center gap-2">
                         <h4 className="font-bold text-foreground">{template.title}</h4>
                         {!template.is_active && (
-                          <span className="rounded bg-border px-2 py-0.5 text-xs font-bold text-muted-foreground">
+                          <span className="rounded bg-border px-2 py-0.5 text-sm font-bold text-muted-foreground">
                             Tắt
                           </span>
                         )}
                       </div>
-                      <p className="text-sm leading-relaxed text-muted-foreground">
+                      <p className="text-base leading-relaxed text-muted-foreground">
                         {typeof template.content === 'string'
                           ? template.content
                           : (template.content?.content ?? template.content?.title ?? '')}
                       </p>
-                      <div className="mt-2 flex items-center gap-4 text-xs text-muted-foreground">
+                      <div className="mt-2 flex items-center gap-4 text-sm text-muted-foreground">
                         <span>Sử dụng: {template.usage_count || 0} lần</span>
                         <span>
                           Tạo: {new Date(template.created_at).toLocaleDateString('vi-VN')}

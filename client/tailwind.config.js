@@ -117,7 +117,7 @@ export default {
         'solid-sm': '1px 1px 0px 0px currentColor',
       },
       fontFamily: {
-        sans: ['Outfit', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         /** Nội dung bài viết / phong cách báo in */
         article: ['"Source Serif 4"', 'Georgia', 'Cambria', 'Times New Roman', 'serif'],
         mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],

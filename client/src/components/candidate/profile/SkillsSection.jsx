@@ -28,7 +28,7 @@ const SkillsSection = ({ skills = [] }) => {
               </span>
               {typeof skill === 'object' && skill.level && (
                 <span
-                  className={`text-xs font-semibold px-2 py-0.5 rounded uppercase tracking-wider ${
+                  className={`text-sm font-semibold px-2 py-0.5 rounded uppercase tracking-wider ${
                     skill.level === 'Expert'
                       ? 'bg-primary/10 text-primary'
                       : skill.level === 'Advanced'
@@ -45,7 +45,7 @@ const SkillsSection = ({ skills = [] }) => {
       ) : (
         <div className="p-8 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-dashed border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center text-center">
           <Zap size={24} className="text-slate-400 mb-2 opacity-50" />
-          <p className="text-slate-500 dark:text-slate-400 text-sm">Chưa cập nhật kỹ năng</p>
+          <p className="text-slate-500 dark:text-slate-400 text-base">Chưa cập nhật kỹ năng</p>
         </div>
       )}
     </div>

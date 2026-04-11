@@ -43,7 +43,7 @@ const AIPublicToolShell = ({ icon: Icon, kicker = 'Công cụ AI', title, descri
             <div className="mx-auto mb-5 flex h-[4.25rem] w-[4.25rem] items-center justify-center rounded-2xl bg-emerald-50 text-primary shadow-[0_10px_36px_-10px_rgba(16,185,129,0.35)] ring-1 ring-primary/15 dark:bg-primary/15 dark:ring-primary/25">
               <Icon className="size-9" strokeWidth={1.75} aria-hidden />
             </div>
-            <p className="mb-3 text-sm font-bold uppercase tracking-widest text-primary">
+            <p className="mb-3 text-base font-bold uppercase tracking-widest text-primary">
               {kicker}
             </p>
             <h1 className="text-balance text-3xl font-black leading-tight tracking-tight text-foreground sm:text-4xl md:text-4xl lg:text-5xl">

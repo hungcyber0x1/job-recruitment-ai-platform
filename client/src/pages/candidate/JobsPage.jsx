@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
+  ArrowRight,
   Bookmark,
   Building2,
   CheckCircle2,
@@ -11,7 +12,7 @@ import {
   TrendingUp,
   Zap,
 } from 'lucide-react';
-import { Bar, BarChart, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, Tooltip, XAxis, YAxis } from 'recharts';
 
 import ChartSurface from '@/components/charts/ChartSurface';
 import { Button } from '@/components/ui/button';
@@ -181,312 +182,443 @@ const JobsPage = () => {
           </Button>
         </div>
       </div>
-
       {/* Hero banner + 2 metric cards */}
-      <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-        <Card className="overflow-hidden rounded-xl border-0 bg-gradient-to-br from-primary to-[#0d9488] text-white">
-          <CardContent className="relative p-8">
-            <div className="absolute right-0 top-0 h-full w-1/3 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2240%22%20height%3D%22100%22%20viewBox%3D%220%200%2040%20100%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20x%3D%220%22%20y%3D%2260%22%20width%3D%228%22%20height%3D%2240%22%20fill%3D%22white%22%20fill-opacity%3D%220.15%22%2F%3E%3Crect%20x%3D%2210%22%20y%3D%2240%22%20width%3D%228%22%20height%3D%2260%22%20fill%3D%22white%22%20fill-opacity%3D%220.15%22%2F%3E%3Crect%20x%3D%2220%22%20y%3D%2220%22%20width%3D%228%22%20height%3D%2280%22%20fill%3D%22white%22%20fill-opacity%3D%220.15%22%2F%3E%3Crect%20x%3D%2230%22%20y%3D%2250%22%20width%3D%228%22%20height%3D%2250%22%20fill%3D%22white%22%20fill-opacity%3D%220.15%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-right bg-contain opacity-80" />
-            <div className="relative">
-              <h2 className="text-xl font-bold leading-tight md:text-2xl">
-                Nâng tầm sự nghiệp với công nghệ AI cá nhân hóa
-              </h2>
-              <p className="mt-3 text-base text-white/90">
-                Hồ sơ của bạn đã hoàn thiện {profileCompletion.completion}%.{' '}
-                {profileCompletion.completion < 100
-                  ? 'Hãy cập nhật thêm kỹ năng để tăng cơ hội kết nối với nhà tuyển dụng.'
-                  : 'Hồ sơ đã sẵn sàng cho những cơ hội mới!'}
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Button asChild className="rounded-lg bg-white text-[#0d9488] hover:bg-white/90">
-                  <Link to="/candidate/resume">Tối ưu CV ngay</Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="rounded-lg border-white/50 bg-transparent text-white shadow-none hover:border-white/60 hover:bg-white/10 hover:text-white"
-                >
-                  <Link to="/candidate/chat" className="gap-2">
-                    <MessageSquare className="h-4 w-4" />
-                    Trò chuyện với AI
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-8 lg:grid-cols-[1.3fr_0.7fr]">
+        <div className="relative overflow-hidden rounded-[32px] border-none bg-slate-900 p-10 text-white shadow-2xl shadow-emerald-500/10">
+          <div className="absolute right-0 top-0 h-full w-1/2 bg-gradient-to-l from-emerald-500/20 to-transparent pointer-events-none" />
+          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-emerald-500/10 blur-[100px]" />
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Card className="rounded-2xl hover-lift app-panel-hover border-slate-200/60">
-            <CardContent className="p-6">
-              <p className="text-base font-bold text-slate-500 uppercase tracking-wider">
+          <div className="relative z-10 max-w-2xl">
+            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-4 py-1.5 text-sm font-black uppercase tracking-[0.2em] text-emerald-400 border border-emerald-500/20 mb-6 font-mono">
+              <Sparkles size={14} className="animate-pulse" />
+              AI Powered Dashboard
+            </div>
+            <h2 className="text-3xl font-black leading-[1.1] tracking-tight md:text-5xl mb-6">
+              Nâng tầm sự nghiệp với <span className="text-emerald-400">AI cá nhân hóa</span>
+            </h2>
+            <p className="text-lg font-semibold text-slate-400 leading-relaxed mb-8">
+              Hồ sơ của bạn đã hoàn thiện{' '}
+              <span className="text-white font-black">{profileCompletion.completion}%</span>.
+              {profileCompletion.completion < 100
+                ? ' Hãy tối ưu hóa CV để mở khóa 85% cơ hội việc làm tiềm năng đang chờ đón.'
+                : ' Hệ thống AI đã sẵn sàng kết nối bạn với những cơ hội bứt phá nhất.'}
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <Button
+                asChild
+                className="h-12 rounded-xl bg-emerald-500 px-8 text-[15px] font-black uppercase tracking-widest text-white hover:bg-emerald-600 shadow-lg shadow-emerald-500/25 transition-all active:scale-95 border-none"
+              >
+                <Link to="/candidate/resume">Tối ưu CV ngay</Link>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                className="h-12 rounded-xl border-slate-700 bg-slate-800/50 text-white hover:bg-slate-800 hover:text-white hover:border-slate-600 transition-all active:scale-95 px-6"
+              >
+                <Link to="/candidate/chat" className="gap-2">
+                  <MessageSquare size={18} className="text-emerald-400" />
+                  Trò chuyện với AI
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-6">
+          <Card className="rounded-[28px] border border-border/40 bg-white p-8 shadow-sm transition-all hover:shadow-xl hover:shadow-slate-200/50 card-premium-hover">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-base font-black uppercase tracking-[0.2em] text-muted-foreground/50">
                 Động lực sự nghiệp
               </p>
-              <div className="flex items-baseline gap-2 mt-1">
-                <p className="text-3xl font-bold text-slate-900">{careerMomentum}%</p>
-                <p className="text-base font-bold text-emerald-500">↑2%</p>
+              <div className="px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-100/50 text-sm font-black text-emerald-600">
+                Lên 2%
               </div>
-              <p className="mt-2 text-base font-semibold text-emerald-600 flex items-center gap-1">
-                <Sparkles size={12} />
-                {careerMomentum > 0 ? 'Hoạt động tích cực' : 'Bắt đầu ngay hôm nay'}
+            </div>
+            <div className="flex items-baseline gap-2 mb-2">
+              <p className="text-4xl font-black tracking-tighter text-foreground">
+                {careerMomentum}%
               </p>
-              <Progress
-                value={careerMomentum}
-                className="mt-4 h-1.5 bg-slate-100"
-                indicatorClassName="bg-emerald-500"
+            </div>
+            <p className="text-base font-black text-emerald-600 flex items-center gap-1.5 mb-6">
+              <TrendingUp size={16} />
+              {careerMomentum > 50 ? 'Hoạt động xuất sắc' : 'Đang tăng trưởng'}
+            </p>
+            <div className="relative h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+              <div
+                className="absolute top-0 left-0 h-full bg-emerald-500 rounded-full transition-all duration-1000 shadow-[0_0_12px_rgba(16,185,129,0.3)]"
+                style={{ width: `${careerMomentum}%` }}
               />
-            </CardContent>
+            </div>
           </Card>
-          <Card className="rounded-2xl hover-lift app-panel-hover border-slate-200/60">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <p className="text-base font-bold text-slate-500 uppercase tracking-wider">
-                  Tối ưu hồ sơ
-                </p>
-                <div className="h-6 w-6 rounded-lg bg-emerald-50 flex items-center justify-center">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                </div>
+
+          <Card className="rounded-[28px] border border-border/40 bg-white p-8 shadow-sm transition-all hover:shadow-xl hover:shadow-slate-200/50 card-premium-hover">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-base font-black uppercase tracking-[0.2em] text-muted-foreground/50">
+                Tối ưu hồ sơ
+              </p>
+              <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center">
+                <CheckCircle2 size={16} className="text-emerald-500" />
               </div>
-              <p className="mt-1 text-3xl font-bold text-slate-900">
-                {profileCompletion.completion}%
-              </p>
-              <p className="mt-2 text-base font-medium text-slate-500">
-                {profileCompletion.missingItems?.length
-                  ? `Cần thêm ${profileCompletion.missingItems.length} dự án`
-                  : 'Đã đủ thông tin'}
-              </p>
-              <Progress
-                value={profileCompletion.completion}
-                className="mt-4 h-1.5 bg-slate-100"
-                indicatorClassName="bg-emerald-500"
+            </div>
+            <h3 className="text-4xl font-black tracking-tighter text-foreground mb-1">
+              {profileCompletion.completion}%
+            </h3>
+            <p className="text-base font-semibold text-muted-foreground/70 mb-6">
+              {profileCompletion.missingItems?.length
+                ? `Cần bổ sung thêm ${profileCompletion.missingItems.length} hạng mục`
+                : 'Hồ sơ đã đạt chuẩn 5 sao'}
+            </p>
+            <div className="relative h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+              <div
+                className="absolute top-0 left-0 h-full bg-emerald-500 rounded-full transition-all duration-1000"
+                style={{ width: `${profileCompletion.completion}%` }}
               />
-            </CardContent>
+            </div>
           </Card>
         </div>
       </div>
 
       {/* 4 metric cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {[
           {
             label: 'Độ sẵn sàng',
-            value: careerMomentum >= 70 ? 'Sẵn sàng' : 'Đang cải thiện',
+            value: careerMomentum >= 70 ? 'Sẵn sàng' : 'Cần tối ưu',
             icon: Sparkles,
+            color: 'text-amber-500',
+            bg: 'bg-amber-50',
+            border: 'border-amber-100',
           },
-          { label: 'Đơn đang xử lý', value: `${activeApplications.length} đơn`, icon: FileText },
-          { label: 'Độ phù hợp đề xuất', value: `${matchRate}%`, icon: TrendingUp },
-          { label: 'Thông báo mới', value: `${notifications.length} tin`, icon: MessageSquare },
-        ].map(({ label, value, icon: Icon }) => (
-          <Card
-            key={label}
-            className="rounded-2xl hover-lift app-panel-hover border-slate-200/60 group"
-          >
-            <CardContent className="flex items-center gap-4 p-5">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-400 group-hover:bg-primary/10 group-hover:text-emerald-500 transition-all duration-300">
-                <Icon className="h-6 w-6 group-hover:scale-110 transition-transform" />
+          {
+            label: 'Đơn đang xử lý',
+            value: `${activeApplications.length} đơn tuyển`,
+            icon: FileText,
+            color: 'text-blue-500',
+            bg: 'bg-blue-50',
+            border: 'border-blue-100',
+          },
+          {
+            label: 'Độ phù hợp AI',
+            value: `${matchRate}% Lương`,
+            icon: TrendingUp,
+            color: 'text-emerald-500',
+            bg: 'bg-emerald-50',
+            border: 'border-emerald-100',
+          },
+          {
+            label: 'Thông báo',
+            value: `${notifications.length} bản tin`,
+            icon: MessageSquare,
+            color: 'text-violet-500',
+            bg: 'bg-violet-50',
+            border: 'border-violet-100',
+          },
+        ].map((m, idx) => {
+          const Icon = m.icon;
+          return (
+            <div
+              key={idx}
+              className="card-premium-hover group flex items-center gap-5 rounded-2xl border border-border/40 bg-white p-6 shadow-sm shadow-slate-200/30"
+            >
+              <div
+                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border ${m.bg} ${m.border} transition-all group-hover:scale-110 group-hover:rotate-3`}
+              >
+                <Icon size={22} className={m.color} />
               </div>
-              <div>
-                <p className="text-base font-bold text-slate-500 uppercase tracking-widest leading-none">
-                  {label}
+              <div className="min-w-0">
+                <p className="text-base font-black uppercase tracking-[0.2em] text-muted-foreground/50 leading-none mb-1">
+                  {m.label}
                 </p>
-                <p className="text-lg font-bold text-slate-900 mt-1">{value}</p>
+                <p className="text-lg font-black text-foreground truncate">{m.value}</p>
               </div>
-            </CardContent>
-          </Card>
-        ))}
+            </div>
+          );
+        })}
       </div>
 
       {/* Việc làm ưu tiên từ AI + Lộ trình 90 ngày */}
-      <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
-        <div className="space-y-8">
+      <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
+        <div className="space-y-10">
           <div>
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-foreground">Việc làm ưu tiên từ AI</h2>
+            <div className="mb-6 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-1.5 w-8 bg-primary rounded-full" />
+                <h2 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+                  Việc làm ưu tiên từ AI
+                </h2>
+              </div>
               <Link
                 to="#all-jobs"
-                className="text-base font-medium text-emerald-600 hover:underline"
+                className="group flex items-center gap-1.5 text-sm font-black uppercase tracking-widest text-primary hover:text-emerald-700 transition-colors"
               >
-                Xem tất cả
+                Khám phá thêm{' '}
+                <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
-            <div className="space-y-2">
+
+            <div className="grid gap-4">
               {loading ? (
                 [1, 2, 3].map((i) => (
-                  <div key={i} className="h-24 rounded-xl border bg-muted/30 animate-pulse" />
+                  <div key={i} className="h-28 rounded-2xl border bg-muted/20 animate-pulse" />
                 ))
               ) : priorityJobs.length > 0 ? (
                 priorityJobs.map((job, i) => {
                   const score = Number(job.match_score ?? job.matchScore ?? 0);
+                  const logo = job.company_logo || job.logo;
                   return (
                     <Link
                       key={job.id ?? i}
                       to={`/candidate/jobs/${job.id}`}
-                      className="flex flex-wrap items-center gap-4 rounded-2xl border border-slate-100 bg-white p-4 transition-all hover:border-emerald-500/30 hover:shadow-md hover:-translate-y-0.5 group"
+                      className="card-premium-hover group relative flex items-center gap-6 rounded-2xl border border-border/40 bg-white p-5 shadow-sm transition-all hover:shadow-lg hover:shadow-slate-200/50"
                     >
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-400 group-hover:bg-primary/10 group-hover:text-emerald-500 transition-all">
-                        <Building2 className="h-6 w-6" />
+                      <div className="relative h-16 w-16 shrink-0 rounded-xl border border-border/40 bg-slate-50/50 p-1 transition-all group-hover:border-primary/30 group-hover:scale-105">
+                        {logo ? (
+                          <img
+                            src={logo}
+                            alt=""
+                            className="h-full w-full rounded-lg object-contain"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center rounded-lg bg-emerald-50 text-xl font-black text-emerald-600">
+                            {getCompanyName(job).charAt(0)}
+                          </div>
+                        )}
                       </div>
+
                       <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
+                        <div className="flex flex-wrap items-center gap-3 mb-1">
+                          <h3 className="text-lg font-black text-foreground group-hover:text-primary transition-colors truncate">
                             {getJobTitle(job)}
-                          </span>
-                          <span className="rounded-lg bg-emerald-500/10 px-2.5 py-1 text-base font-bold text-emerald-600 uppercase tracking-wider">
-                            MATCH {score}%
-                          </span>
+                          </h3>
+                          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-100/60 text-sm font-black text-emerald-600 uppercase tracking-widest font-mono">
+                            <Sparkles size={10} className="animate-pulse" />
+                            Match {score}%
+                          </div>
                         </div>
-                        <p className="text-base font-medium text-slate-500 mt-0.5">
-                          {getCompanyName(job)} · {job.location || 'Hà Nội, Việt Nam'}
-                        </p>
-                        <div className="flex items-center gap-3 mt-1.5">
-                          <p className="text-base font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                          <p className="text-base font-semibold text-muted-foreground/70 flex items-center gap-1.5">
+                            <Building2 size={14} className="opacity-40" />
+                            {getCompanyName(job)}
+                          </p>
+                          <p className="text-base font-semibold text-muted-foreground/50">
+                            {job.location || 'Hà Nội'}
+                          </p>
+                        </div>
+                        <div className="mt-3 flex items-center gap-5">
+                          <p className="text-base font-black text-emerald-600 bg-emerald-50 px-3 py-0.5 rounded-lg border border-emerald-100/30">
                             {job.salary_range || '$2,500 - $4,000'}
                           </p>
-                          <p className="text-base text-slate-400">
+                          <span className="text-sm font-bold text-muted-foreground/40 uppercase tracking-widest">
                             {formatTimeAgo(job.created_at || job.posted_at)}
-                          </p>
+                          </span>
                         </div>
                       </div>
-                      <button
-                        type="button"
-                        className="rounded-xl p-2.5 text-slate-400 hover:bg-primary/10 hover:text-emerald-600 transition-all hover:scale-110 active:scale-90"
-                        onClick={(e) => e.preventDefault()}
-                        aria-label="Lưu việc làm"
-                      >
-                        <Bookmark className="h-5 w-5" />
-                      </button>
+
+                      <div className="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-0 translate-x-4">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-10 w-10 rounded-xl hover:bg-emerald-50 hover:text-emerald-600 border border-transparent hover:border-emerald-100/50"
+                        >
+                          <Bookmark size={18} />
+                        </Button>
+                      </div>
                     </Link>
                   );
                 })
               ) : (
-                <Card className="rounded-xl border-dashed">
-                  <CardContent className="py-8 text-center text-muted-foreground">
-                    Chưa có gợi ý. Hoàn thiện hồ sơ để nhận việc làm phù hợp.
-                  </CardContent>
-                </Card>
+                <div className="rounded-3xl border-2 border-dashed border-border/60 bg-slate-50/50 py-12 text-center">
+                  <p className="text-base font-black text-muted-foreground uppercase tracking-widest">
+                    Chưa có gợi ý phù hợp
+                  </p>
+                  <p className="text-base font-semibold text-muted-foreground/60 mt-2">
+                    Hoàn thiện hồ sơ để AI bắt đầu đề xuất
+                  </p>
+                </div>
               )}
             </div>
           </div>
 
           {/* Phân tích dòng ứng tuyển */}
           <div>
-            <h2 className="mb-4 text-lg font-bold text-foreground">Phân tích dòng ứng tuyển</h2>
-            <div className="mb-4 flex gap-2">
-              {['7', '30'].map((d) => (
-                <Button
-                  key={d}
-                  variant={funnelRange === d ? 'default' : 'outline'}
-                  size="sm"
-                  className="rounded-lg"
-                  onClick={() => setFunnelRange(d)}
-                >
-                  {d} ngày
-                </Button>
-              ))}
+            <div className="mb-6 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-1.5 w-8 bg-primary rounded-full" />
+                <h2 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+                  Xu hướng ứng tuyển
+                </h2>
+              </div>
+              <div className="inline-flex rounded-xl bg-slate-100 p-1">
+                {['7', '30'].map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => setFunnelRange(d)}
+                    className={`px-4 py-1.5 text-sm font-black uppercase tracking-widest rounded-lg transition-all ${
+                      funnelRange === d
+                        ? 'bg-white text-primary shadow-sm'
+                        : 'text-muted-foreground/40 hover:text-muted-foreground'
+                    }`}
+                  >
+                    {d} ngày
+                  </button>
+                ))}
+              </div>
             </div>
-            <Card className="rounded-xl">
-              <CardContent className="p-6">
-                <div className="h-[220px] min-h-[200px] w-full min-w-0">
-                  <ChartSurface className="h-full" minChartHeight={200}>
-                    <BarChart
-                      data={funnelChartData}
-                      margin={{ top: 8, right: 8, left: 8, bottom: 8 }}
-                    >
-                      <XAxis
-                        dataKey="name"
-                        tick={{ fontSize: 11 }}
-                        axisLine={false}
-                        tickLine={false}
-                      />
-                      <YAxis
-                        allowDecimals={false}
-                        tick={{ fontSize: 11 }}
-                        axisLine={false}
-                        tickLine={false}
-                      />
-                      <Bar dataKey="count" fill="#10b981" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ChartSurface>
-                </div>
-              </CardContent>
+
+            <Card className="rounded-[32px] border border-border/40 bg-white p-8 shadow-sm">
+              <div className="h-[240px] w-full">
+                <ChartSurface className="h-full w-full" minChartHeight={240}>
+                  <BarChart
+                    data={funnelChartData}
+                    margin={{ top: 0, right: 0, left: -20, bottom: 0 }}
+                  >
+                    <XAxis
+                      dataKey="name"
+                      tick={{ fontSize: 10, fontWeight: 900, fill: '#94a3b8' }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      allowDecimals={false}
+                      tick={{ fontSize: 10, fontWeight: 900, fill: '#94a3b8' }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      cursor={{ fill: 'rgba(16, 185, 129, 0.05)' }}
+                      contentStyle={{
+                        border: 'none',
+                        borderRadius: '16px',
+                        boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)',
+                      }}
+                    />
+                    <Bar
+                      dataKey="count"
+                      fill="#10b981"
+                      radius={[6, 6, 0, 0]}
+                      className="hover:opacity-80 transition-opacity"
+                    />
+                  </BarChart>
+                </ChartSurface>
+              </div>
             </Card>
           </div>
         </div>
 
         {/* Lộ trình 90 ngày */}
-        <Card className="h-fit rounded-xl">
-          <CardContent className="p-6">
-            <h2 className="text-lg font-bold text-foreground">Lộ trình 90 ngày</h2>
-            <p className="mt-1 text-base text-muted-foreground">
-              Tiến độ kế hoạch: {roadmapProgress}%
-            </p>
-            <ul className="mt-6 space-y-4">
+        <aside className="space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="h-1.5 w-8 bg-primary rounded-full" />
+            <h2 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+              Tiến độ 90 ngày
+            </h2>
+          </div>
+
+          <Card className="rounded-[32px] border border-border/40 bg-white p-8 shadow-sm">
+            <div className="mb-8 text-center">
+              <div className="relative inline-flex mb-4">
+                <div className="absolute inset-0 rounded-full border-4 border-slate-50" />
+                <div
+                  className="h-28 w-28 rounded-full border-4 border-emerald-500 border-t-transparent animate-spin-slow rotate-[45deg]"
+                  style={{
+                    clipPath: `conic-gradient(from 0deg, #10b981 ${roadmapProgress}%, transparent 0)`,
+                  }}
+                />
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-3xl font-black text-foreground">{roadmapProgress}%</span>
+                  <span className="text-[9px] font-black text-muted-foreground/50 uppercase tracking-widest leading-none">
+                    Complete
+                  </span>
+                </div>
+              </div>
+              <p className="text-base font-black text-foreground">
+                {roadmapProgress >= 100 ? 'Hành trình hoàn tất!' : 'Tiếp tục phát triển'}
+              </p>
+            </div>
+
+            <ul className="space-y-5">
               {roadmapTasks.map((t, i) => (
-                <li key={i} className="flex items-center gap-3">
-                  {t.done ? (
-                    <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-500" />
-                  ) : t.inProgress ? (
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-600 text-base font-bold">
-                      i
-                    </span>
-                  ) : (
-                    <span className="h-5 w-5 shrink-0 rounded-full border-2 border-muted-foreground/30" />
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <p className="text-base font-medium text-foreground">{t.label}</p>
-                    <p className="text-base text-muted-foreground">
-                      {t.done ? 'ĐÃ HOÀN THÀNH' : t.inProgress ? 'ĐANG THỰC HIỆN' : 'CHƯA BẮT ĐẦU'}
+                <li key={i} className="group flex items-start gap-4">
+                  <div
+                    className={`mt-1 h-5 w-5 shrink-0 rounded-full border-2 flex items-center justify-center transition-colors ${
+                      t.done
+                        ? 'bg-emerald-500 border-emerald-500'
+                        : t.inProgress
+                          ? 'border-emerald-500 bg-white'
+                          : 'border-slate-200'
+                    }`}
+                  >
+                    {t.done && <CheckCircle2 size={12} className="text-white" />}
+                    {t.inProgress && (
+                      <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p
+                      className={`text-base font-black transition-colors ${t.done ? 'text-foreground' : 'text-foreground/80'}`}
+                    >
+                      {t.label}
+                    </p>
+                    <p className="text-base font-black uppercase tracking-widest text-muted-foreground/40 mt-0.5">
+                      {t.done ? 'COMPLETED' : t.inProgress ? 'IN PROGRESS' : 'PENDING'}
                     </p>
                   </div>
                 </li>
               ))}
             </ul>
-            <Button asChild className="mt-6 w-full rounded-lg" variant="outline">
+            <Button
+              asChild
+              className="mt-8 w-full h-11 rounded-xl font-black uppercase tracking-widest text-sm border-border shadow-sm active:scale-[0.98]"
+              variant="outline"
+            >
               <Link to="/candidate/career-roadmap">Xem lộ trình chi tiết</Link>
             </Button>
-          </CardContent>
-        </Card>
+          </Card>
+        </aside>
       </div>
 
       {/* 3 feature cards */}
-      <div className="grid gap-6 sm:grid-cols-3">
+      <div className="grid gap-8 sm:grid-cols-3">
         {[
           {
             title: 'AI Tư vấn nghề',
-            desc: 'Nhận phân tích điểm mạnh, yếu dựa trên dữ liệu thị trường.',
+            desc: 'Phân tích điểm mạnh, yếu và chiến lược thăng tiến sự nghiệp từ dữ liệu thị trường thực tế.',
             to: '/candidate/chat',
             icon: MessageSquare,
-            color: 'bg-amber-100 text-amber-700',
+            gradient: 'from-amber-400 to-orange-500',
           },
           {
             title: 'Việc đã lưu',
-            desc: 'Xem và quản lý các công việc bạn đã lưu để ứng tuyển sau.',
+            desc: 'Quản lý kho việc làm tiềm năng. So sánh mức lương và chế độ dựa trên phân tích AI.',
             to: '/candidate/saved-jobs',
             icon: Bookmark,
-            color: 'bg-violet-100 text-violet-700',
+            gradient: 'from-violet-400 to-fuchsia-500',
           },
           {
             title: 'Tìm việc thông minh',
-            desc: 'Lọc công việc theo mức lương và chế độ đãi ngộ AI.',
+            desc: 'Bộ lọc AI nâng cao giúp bạn tiếp cận những vị trí phù hợp 95% với kỹ năng cốt lõi.',
             to: '/candidate/jobs',
             icon: Search,
-            color: 'bg-emerald-500/10 text-emerald-600',
+            gradient: 'from-emerald-400 to-teal-500',
           },
-        ].map(({ title, desc, to, icon: Icon, color: _color }) => (
-          <Link key={to} to={to} className="group h-full">
-            <Card className="rounded-2xl hover-lift app-panel-hover border-slate-200/60 h-full overflow-hidden relative">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-500" />
-              <CardContent className="p-6 relative z-10">
-                <div
-                  className={`inline-flex h-12 w-12 items-center justify-center rounded-xl bg-white border border-slate-100 shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:shadow-md group-hover:border-emerald-100`}
-                >
-                  <Icon className="h-6 w-6 text-emerald-600 transition-colors" />
+        ].map((feat, idx) => (
+          <Link key={idx} to={feat.to} className="group flex flex-col h-full">
+            <Card className="card-premium-hover relative flex flex-col h-full overflow-hidden rounded-[32px] border border-border/40 bg-white p-8 shadow-sm transition-all hover:shadow-2xl hover:shadow-slate-200/50">
+              <div
+                className={`absolute -right-8 -top-8 h-32 w-32 rounded-full bg-gradient-to-br ${feat.gradient} opacity-[0.03] group-hover:opacity-10 transition-opacity duration-700`}
+              />
+
+              <div className="relative z-10">
+                <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 border border-border/40 shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 group-hover:bg-primary group-hover:shadow-primary/20">
+                  <feat.icon className="h-6 w-6 text-primary group-hover:text-white transition-colors" />
                 </div>
-                <h3 className="mt-4 font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
-                  {title}
+                <h3 className="text-xl font-black tracking-tight text-foreground group-hover:text-primary transition-colors mb-3">
+                  {feat.title}
                 </h3>
-                <p className="mt-2 text-base text-slate-500 leading-relaxed font-medium">{desc}</p>
-              </CardContent>
+                <p className="text-base font-semibold text-muted-foreground/70 leading-relaxed">
+                  {feat.desc}
+                </p>
+              </div>
             </Card>
           </Link>
         ))}

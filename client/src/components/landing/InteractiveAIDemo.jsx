@@ -54,7 +54,7 @@ const TypingIndicator = () => (
         />
       ))}
     </div>
-    <span className="text-muted-foreground text-xs font-medium">AI đang phân tích...</span>
+    <span className="text-muted-foreground text-sm font-medium">AI đang phân tích...</span>
   </div>
 );
 
@@ -137,14 +137,14 @@ const InteractiveAIDemo = () => {
                   <Bot size={20} className="text-primary" />
                 </div>
                 <div>
-                  <p className="text-foreground text-sm font-bold">HireAI Career Mentor</p>
-                  <p className="text-primary text-xs font-medium flex items-center gap-1.5">
+                  <p className="text-foreground text-base font-bold">HireAI Career Mentor</p>
+                  <p className="text-primary text-base font-medium flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
                     Sẵn sàng tư vấn
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 text-muted-foreground text-xs font-bold">
+              <div className="flex items-center gap-2 text-muted-foreground text-sm font-bold">
                 <Sparkles size={12} className="text-primary" />
                 GPT-4 Powered
               </div>
@@ -164,7 +164,7 @@ const InteractiveAIDemo = () => {
                     <p className="text-foreground font-bold text-lg">
                       Xin chào! Tôi là AI Career Mentor
                     </p>
-                    <p className="text-muted-foreground text-sm max-w-sm">
+                    <p className="text-muted-foreground text-base max-w-sm">
                       Hãy xem tôi tư vấn nghề nghiệp như thế nào qua cuộc trò chuyện mẫu
                     </p>
                   </div>
@@ -191,7 +191,9 @@ const InteractiveAIDemo = () => {
                         {msg.role === 'user' ? (
                           <div className="flex items-end gap-2 max-w-[85%]">
                             <div className="bg-primary/8 border border-primary/12 rounded-2xl rounded-br-sm px-5 py-3">
-                              <p className="text-foreground text-sm leading-relaxed">{msg.text}</p>
+                              <p className="text-foreground text-base leading-relaxed">
+                                {msg.text}
+                              </p>
                             </div>
                             <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
                               <User size={14} className="text-muted-foreground" />
@@ -204,7 +206,7 @@ const InteractiveAIDemo = () => {
                             </div>
                             <div className="space-y-3">
                               <div className="bg-white border border-border/40 rounded-2xl rounded-tl-sm px-5 py-3 shadow-sm">
-                                <p className="text-foreground/80 text-sm leading-relaxed">
+                                <p className="text-foreground/80 text-base leading-relaxed">
                                   {msg.text}
                                 </p>
                               </div>
@@ -222,10 +224,10 @@ const InteractiveAIDemo = () => {
                                         <detail.icon size={14} className="text-primary" />
                                       </div>
                                       <div>
-                                        <p className="text-muted-foreground text-[11px] font-bold uppercase tracking-wider">
+                                        <p className="text-muted-foreground text-base font-bold uppercase tracking-wider">
                                           {detail.label}
                                         </p>
-                                        <p className="text-foreground text-sm font-medium mt-0.5">
+                                        <p className="text-foreground text-base font-medium mt-0.5">
                                           {typeof detail.value === 'string'
                                             ? detail.value
                                             : (detail.value?.content ??
@@ -247,10 +249,10 @@ const InteractiveAIDemo = () => {
                                       transition={{ delay: i * 0.2, duration: 0.4 }}
                                       className="flex items-center gap-3"
                                     >
-                                      <div className="w-6 h-6 rounded-md bg-primary/10 text-primary flex items-center justify-center text-[10px] font-bold flex-shrink-0">
+                                      <div className="w-6 h-6 rounded-md bg-primary/10 text-primary flex items-center justify-center text-sm font-bold flex-shrink-0">
                                         {i + 1}
                                       </div>
-                                      <p className="text-foreground/80 text-sm">
+                                      <p className="text-foreground/80 text-base">
                                         {typeof step === 'string' ? step : String(step ?? '')}
                                       </p>
                                     </motion.div>
@@ -274,7 +276,7 @@ const InteractiveAIDemo = () => {
                         {suggestionChips.map((chip) => (
                           <button
                             key={chip}
-                            className="px-4 py-2 bg-primary/8 border border-primary/12 text-primary rounded-xl text-xs font-bold hover:bg-primary/15 transition-all"
+                            className="px-4 py-2 bg-primary/8 border border-primary/12 text-primary rounded-xl text-sm font-bold hover:bg-primary/15 transition-all"
                           >
                             {chip}
                           </button>

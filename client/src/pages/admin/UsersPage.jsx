@@ -133,7 +133,7 @@ const UsersPage = () => {
   };
 
   const getRoleBadgeClass = (role) => {
-    if (role === 'admin') return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+    if (role === 'admin') return 'bg-red-500/20 text-red-500 border-red-500/30';
     if (role === 'employer') return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
     return 'bg-slate-500/20 text-slate-500 border-slate-500/30';
   };
@@ -355,7 +355,7 @@ const UsersPage = () => {
                       <th className="px-6 py-4">Vai trò</th>
                       <th className="px-6 py-4">Ngày tham gia</th>
                       <th className="px-6 py-4">Trạng thái</th>
-                      <th className="px-6 py-4 text-end">Thao tác</th>
+                      <th className="px-6 py-4 !text-center">Thao tác</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -405,8 +405,8 @@ const UsersPage = () => {
                               <span className="text-slate-600">{getStatusLabel(user.status)}</span>
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-right">
-                            <div className="flex items-center justify-end gap-2">
+                          <td className="px-6 py-4 text-center">
+                            <div className="flex items-center justify-center gap-2">
                               {user.status === 'active' ? (
                                 <button
                                   onClick={() => handleStatusUpdate(user.id, 'banned')}

@@ -63,7 +63,7 @@ const ResumeMatcherModal = ({ jobId, jobTitle, onClose }) => {
             <h2 className="flex items-center gap-2 text-xl font-black text-slate-900">
               <Target className="text-primary-600" /> Phân tích độ phù hợp AI
             </h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-base text-slate-500">
               So sánh CV của bạn với vị trí{' '}
               <span className="font-bold text-slate-700">{jobTitle}</span>
             </p>
@@ -83,7 +83,7 @@ const ResumeMatcherModal = ({ jobId, jobTitle, onClose }) => {
               <p className="font-medium text-slate-500">
                 Đang phân tích CV của bạn với công việc...
               </p>
-              <p className="mt-2 text-sm text-slate-400">Việc này có thể mất vài giây</p>
+              <p className="mt-2 text-base text-slate-400">Việc này có thể mất vài giây</p>
             </div>
           ) : error ? (
             <div className="p-10 text-center">

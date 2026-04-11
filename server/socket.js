@@ -3,11 +3,11 @@
  * sự kiện chatbot (tôn trọng cài đặt feature flag từ admin).
  */
 const jwt = require('jsonwebtoken');
-const jwtConfig = require('./config/jwt.config');
-const UserRepository = require('./repositories/user');
-const SystemSettingsRepository = require('./repositories/system-settings');
-const ChatbotService = require('./services/chatbot');
-const logger = require('./utils/logger');
+const jwtConfig = require('./src/config/jwt.config');
+const UserRepository = require('./src/models/User');
+const SystemSettingsRepository = require('./src/models/SystemSettings');
+const ChatbotService = require('./src/services/chatbot');
+const logger = require('./src/utils/logger');
 
 module.exports = (io) => {
   // Chuỗi xác thực: bắt buộc token và user còn hoạt động.

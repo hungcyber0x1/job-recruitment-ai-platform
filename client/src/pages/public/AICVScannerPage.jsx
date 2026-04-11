@@ -153,7 +153,7 @@ const AICVScannerPage = () => {
                 </p>
                 <div className="mx-auto max-w-md space-y-2">
                   <Progress value={progress} className="h-2" />
-                  <p className="text-sm font-bold tabular-nums text-muted-foreground">
+                  <p className="text-base font-bold tabular-nums text-muted-foreground">
                     {Math.round(progress)}%
                   </p>
                 </div>
@@ -257,23 +257,25 @@ const AICVScannerPage = () => {
 
             <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div className="rounded-xl border border-border/40 bg-muted/50 p-6 text-center">
-                <p className="mb-1 text-sm font-semibold text-muted-foreground">Điểm ATS</p>
+                <p className="mb-1 text-base font-semibold text-muted-foreground">Điểm ATS</p>
                 <p className="text-4xl font-black tabular-nums text-primary md:text-5xl">
                   {result.score}
                 </p>
-                <p className="mt-1 text-sm font-medium text-muted-foreground">trên 100</p>
+                <p className="mt-1 text-base font-medium text-muted-foreground">trên 100</p>
               </div>
               <div className="rounded-xl border border-border/40 bg-muted/50 p-6 text-center">
-                <p className="mb-1 text-sm font-semibold text-muted-foreground">Từ khóa tìm thấy</p>
+                <p className="mb-1 text-base font-semibold text-muted-foreground">
+                  Từ khóa tìm thấy
+                </p>
                 <p className="text-4xl font-black tabular-nums text-primary md:text-5xl">
                   {result.keywordsFound}
                 </p>
-                <p className="mt-1 text-sm font-medium text-muted-foreground">
+                <p className="mt-1 text-base font-medium text-muted-foreground">
                   Thiếu ~{result.missingKeywords} nhóm từ gợi ý
                 </p>
               </div>
               <div className="rounded-xl border border-border/40 bg-muted/50 p-6 text-center">
-                <p className="mb-1 text-sm font-semibold text-muted-foreground">Định dạng</p>
+                <p className="mb-1 text-base font-semibold text-muted-foreground">Định dạng</p>
                 <p className="text-xl font-bold text-foreground md:text-2xl">
                   {result.formatScore}
                 </p>
@@ -284,7 +286,7 @@ const AICVScannerPage = () => {
               <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {result.strengths?.length > 0 && (
                   <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-5">
-                    <p className="mb-3 text-xs font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
+                    <p className="mb-3 text-base font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
                       Điểm mạnh (AI)
                     </p>
                     <ul className="list-disc space-y-1.5 pl-4 text-base font-medium text-foreground/90">
@@ -296,7 +298,7 @@ const AICVScannerPage = () => {
                 )}
                 {result.weaknesses?.length > 0 && (
                   <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-5">
-                    <p className="mb-3 text-xs font-bold uppercase tracking-widest text-amber-800 dark:text-amber-400">
+                    <p className="mb-3 text-base font-bold uppercase tracking-widest text-amber-800 dark:text-amber-400">
                       Cần cải thiện (AI)
                     </p>
                     <ul className="list-disc space-y-1.5 pl-4 text-base font-medium text-foreground/90">

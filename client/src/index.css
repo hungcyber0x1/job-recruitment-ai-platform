@@ -117,16 +117,52 @@
 }
 
 body {
-  @apply text-foreground antialiased bg-background;
-  font-family:
-    'Outfit',
-    system-ui,
-    -apple-system,
-    sans-serif;
+  @apply text-foreground antialiased;
   background-color: hsl(var(--background));
   background-image:
     radial-gradient(ellipse 80% 50% at 50% -20%, rgba(var(--primary-shadow), 0.05), transparent),
-    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(var(--primary-shadow), 0.03), transparent);
+    radial-gradient(ellipse 50% 100% at 100% 50%, rgba(var(--primary-shadow), 0.03), transparent);
+  background-attachment: fixed;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(calc(-100% - 1.5rem));
+  }
+}
+
+@keyframes marquee-reverse {
+  0% {
+    transform: translateX(calc(-100% - 1.5rem));
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 35s linear infinite;
+}
+
+.animate-marquee-reverse {
+  animation: marquee-reverse 35s linear infinite;
+}
+
+.animate-marquee:hover,
+.animate-marquee-reverse:hover {
+  animation-play-state: paused;
 }
 
 ::selection {
@@ -140,7 +176,7 @@ h4,
 h5,
 h6 {
   @apply text-foreground tracking-tight;
-  font-family: 'Outfit', system-ui, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
 @layer components {
@@ -149,7 +185,7 @@ h6 {
   }
 
   .premium-card:hover {
-    @apply border-primary/20 shadow-[0_16px_40px_-12px_rgba(var(--primary-shadow), 0.08)];
+    @apply border-primary/40 ring-2 ring-primary/10 shadow-[0_16px_40px_-12px_rgba(var(--primary-shadow), 0.12)];
   }
 
   .glass-card {
@@ -212,6 +248,15 @@ h6 {
     @apply px-5 py-3.5 text-start align-middle text-sm font-bold uppercase tracking-wider text-secondary-foreground/90;
   }
 
+  .data-table thead th.text-center {
+    text-align: center;
+  }
+
+  .data-table thead th.text-end,
+  .data-table thead th.text-right {
+    text-align: right;
+  }
+
   .data-table tbody {
     @apply divide-y divide-border bg-card;
   }
@@ -251,6 +296,26 @@ h6 {
 
   .ui-hover-text-primary {
     @apply transition-colors duration-200 ease-out hover:text-primary;
+  }
+
+  /**
+   * Unified Card Hover Effect
+   * Applies a dark green border and text highlight on hover across all cards.
+   */
+  .card-premium-hover {
+    @apply transition-all duration-300 hover:shadow-xl hover:ring-2 hover:ring-primary/20 hover:border-primary/40;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+
+  .card-premium-hover:hover {
+    box-shadow: 0 20px 40px -12px rgba(var(--primary-shadow), 0.12);
+  }
+
+  .card-premium-hover:hover h1,
+  .card-premium-hover:hover h2,
+  .card-premium-hover:hover h3,
+  .card-premium-hover:hover h4 {
+    @apply text-primary transition-colors duration-300;
   }
 }
 
@@ -333,7 +398,7 @@ h6 {
   }
 
   .app-panel:hover {
-    @apply border-emerald-500/20 shadow-[0_8px_24px_-8px_rgba(16, 185, 129, 0.06)];
+    @apply border-emerald-500/40 ring-2 ring-emerald-500/10 shadow-[0_8px_24px_-8px_rgba(16, 185, 129, 0.12)];
   }
 
   .app-header {
@@ -372,8 +437,9 @@ h6 {
   }
 
   .landing-card:hover {
-    border-color: hsl(var(--primary) / 0.2);
-    box-shadow: 0 16px 40px -12px rgba(var(--primary-shadow), 0.08);
+    border-color: hsl(var(--primary) / 0.4);
+    box-shadow: 0 16px 40px -12px rgba(var(--primary-shadow), 0.12);
+    @apply ring-2 ring-primary/10;
   }
 
   .landing-badge {

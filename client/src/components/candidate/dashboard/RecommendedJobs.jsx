@@ -22,7 +22,7 @@ const RecommendedJobs = ({ jobs }) => {
         {jobs.map((job) => (
           <Card
             key={job.id}
-            className="group relative flex cursor-pointer flex-col justify-between overflow-visible transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-md"
+            className="group relative flex cursor-pointer flex-col justify-between overflow-visible card-premium-hover"
           >
             <div className="absolute -top-3 right-6 z-10 transition-colors">
               <Badge className="flex items-center gap-1.5 bg-state-success px-3 py-1.5 text-white shadow-md hover:bg-state-success/90">
@@ -47,7 +47,7 @@ const RecommendedJobs = ({ jobs }) => {
                   <h4 className="line-clamp-1 text-lg font-bold transition-colors group-hover:text-primary">
                     {job.title}
                   </h4>
-                  <p className="mb-3 line-clamp-1 text-sm font-medium text-muted-foreground">
+                  <p className="mb-3 line-clamp-1 text-base font-medium text-muted-foreground">
                     {job.company_name}
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -73,13 +73,13 @@ const RecommendedJobs = ({ jobs }) => {
                 {['React', 'NodeJS', 'Figma'].map((skill) => (
                   <div
                     key={skill}
-                    className="z-10 flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-muted text-xs font-semibold text-muted-foreground shadow-sm"
+                    className="z-10 flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-muted text-sm font-semibold text-muted-foreground shadow-sm"
                     title={skill}
                   >
                     {skill[0]}
                   </div>
                 ))}
-                <div className="relative z-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-primary text-xs font-semibold text-primary-foreground shadow-sm">
+                <div className="relative z-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-primary text-sm font-semibold text-primary-foreground shadow-sm">
                   +3
                 </div>
               </div>

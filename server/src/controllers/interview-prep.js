@@ -1,5 +1,5 @@
 const InterviewPrepService = require('../services/interview-prep');
-const CandidateRepository = require('../repositories/candidate');
+const CandidateRepository = require('../models/Candidate');
 const logger = require('../utils/logger');
 
 /**

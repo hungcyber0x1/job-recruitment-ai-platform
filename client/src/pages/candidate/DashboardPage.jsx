@@ -192,7 +192,7 @@ export default function DashboardPage() {
           </form>
           <Button
             asChild
-            className="rounded-xl gap-2 bg-emerald-500 hover:bg-emerald-600 transition-all hover:scale-105 active:scale-95 hover:shadow-lg hover:shadow-emerald-500/20 px-6 h-11"
+            className="rounded-xl gap-2 bg-primary hover:bg-primary/90 transition-all hover:scale-105 active:scale-95 hover:shadow-lg hover:shadow-primary/20 px-6 h-11"
           >
             <Link to="/candidate/jobs">
               <Zap className="h-4 w-4" />
@@ -240,7 +240,7 @@ export default function DashboardPage() {
         </Card>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <Card className="rounded-2xl hover-lift app-panel-hover border-slate-200/60">
+          <Card className="rounded-2xl card-premium-hover border-slate-200/60">
             <CardContent className="p-6">
               <p className="text-base font-bold text-slate-500 uppercase tracking-wider">
                 Động lực sự nghiệp
@@ -260,7 +260,7 @@ export default function DashboardPage() {
               />
             </CardContent>
           </Card>
-          <Card className="rounded-2xl hover-lift app-panel-hover border-slate-200/60">
+          <Card className="rounded-2xl card-premium-hover border-slate-200/60">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <p className="text-base font-bold text-slate-500 uppercase tracking-wider">
@@ -300,10 +300,7 @@ export default function DashboardPage() {
           { label: 'Độ phù hợp đề xuất', value: `${matchRate}%`, icon: TrendingUp },
           { label: 'Thông báo mới', value: `${notifications.length} tin`, icon: MessageSquare },
         ].map(({ label, value, icon: Icon }) => (
-          <Card
-            key={label}
-            className="rounded-2xl hover-lift app-panel-hover border-slate-200/60 group"
-          >
+          <Card key={label} className="rounded-2xl card-premium-hover border-slate-200/60 group">
             <CardContent className="flex items-center gap-4 p-5">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-400 group-hover:bg-primary/10 group-hover:text-emerald-500 transition-all duration-300">
                 <Icon className="h-6 w-6 group-hover:scale-110 transition-transform" />
@@ -340,7 +337,7 @@ export default function DashboardPage() {
                   <Link
                     key={job.id ?? i}
                     to={`/candidate/jobs/${job.id}`}
-                    className="flex flex-wrap items-center gap-4 rounded-2xl border border-slate-100 bg-white p-4 transition-all hover:border-emerald-500/30 hover:shadow-md hover:-translate-y-0.5 group"
+                    className="flex flex-wrap items-center gap-4 rounded-2xl border border-slate-100 bg-white p-4 card-premium-hover group"
                   >
                     <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-400 group-hover:bg-primary/10 group-hover:text-emerald-500 transition-all">
                       <Building2 className="h-6 w-6" />
@@ -419,7 +416,7 @@ export default function DashboardPage() {
                         axisLine={false}
                         tickLine={false}
                       />
-                      <Bar dataKey="count" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="count" fill="var(--primary)" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ChartSurface>
                 </div>
@@ -489,7 +486,7 @@ export default function DashboardPage() {
           },
         ].map(({ title, desc, to, icon: Icon, color: _color }) => (
           <Link key={to} to={to} className="group h-full">
-            <Card className="rounded-2xl hover-lift app-panel-hover border-slate-200/60 h-full overflow-hidden relative">
+            <Card className="rounded-2xl card-premium-hover border-slate-200/60 h-full overflow-hidden relative">
               <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-500" />
               <CardContent className="p-6 relative z-10">
                 <div

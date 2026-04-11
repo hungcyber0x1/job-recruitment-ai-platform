@@ -40,7 +40,7 @@ const JobCategories = () => {
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="max-w-2xl space-y-5"
           >
-            <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+            <p className="text-base font-semibold text-muted-foreground uppercase tracking-wider">
               Ngành nghề
             </p>
             <h2 className="text-4xl md:text-6xl font-extrabold text-foreground leading-[0.95] tracking-tighter">
@@ -68,11 +68,10 @@ const JobCategories = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.06, type: 'spring', stiffness: 100, damping: 20 }}
               viewport={{ once: true }}
-              whileHover={{ y: -4, transition: { type: 'spring', stiffness: 200, damping: 15 } }}
             >
               <Link
                 to={`/jobs?category=${encodeURIComponent(cat.name)}`}
-                className="group landing-card spotlight-card relative p-6 bg-background rounded-2xl flex flex-col h-full"
+                className="group landing-card relative p-6 bg-background rounded-2xl flex flex-col h-full card-premium-hover shadow-sm"
                 onMouseMove={(e) => {
                   const rect = e.currentTarget.getBoundingClientRect();
                   e.currentTarget.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
@@ -92,7 +91,7 @@ const JobCategories = () => {
                     <p className="text-2xl font-extrabold tabular-nums tracking-tight leading-none text-foreground">
                       {cat.count}
                     </p>
-                    <p className="text-[10px] text-muted-foreground font-medium mt-1">
+                    <p className="text-base text-muted-foreground font-medium mt-1">
                       việc làm đang mở
                     </p>
                   </div>

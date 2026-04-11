@@ -430,7 +430,7 @@ const AdminSupportPage = () => {
                   <th className="px-5 py-4">Mức độ</th>
                   <th className="px-5 py-4">Phụ trách</th>
                   <th className="px-5 py-4">Thời gian</th>
-                  <th className="px-5 py-4 text-end">Thao tác</th>
+                  <th className="px-5 py-4 !text-center">Thao tác</th>
                 </tr>
               </thead>
               <tbody>
@@ -501,7 +501,7 @@ const AdminSupportPage = () => {
                             {new Date(ticket.created_at).toLocaleDateString('vi-VN')}
                           </span>
                         </td>
-                        <td className="px-5 py-4 text-right">
+                        <td className="px-5 py-4 text-center">
                           <button
                             type="button"
                             onClick={(e) => {

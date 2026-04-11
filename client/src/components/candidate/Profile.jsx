@@ -65,7 +65,7 @@ const Profile = ({ user, candidate, onSave }) => {
             <h2 className="mb-2 text-3xl font-black text-slate-900">
               {formData.firstName} {formData.lastName}
             </h2>
-            <p className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 md:justify-start">
+            <p className="flex items-center justify-center gap-2 text-base font-bold uppercase tracking-widest text-slate-400 md:justify-start">
               <Sparkles size={14} className="text-emerald-600" />
               Candidate Profile • ID: {user?.id || 'N/A'}
             </p>
@@ -143,7 +143,7 @@ const Profile = ({ user, candidate, onSave }) => {
                 icon={<MapPin size={18} />}
               />
               <div className="space-y-3">
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400">
+                <label className="text-sm font-black uppercase tracking-widest text-slate-400">
                   Gioi thieu ban than
                 </label>
                 <textarea

@@ -81,7 +81,7 @@ const BlogHub = () => {
                   <article.categoryIcon size={48} className="text-primary/15" />
                 </div>
                 <div className="absolute top-4 left-4">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/8 border border-primary/12 text-primary rounded-lg text-xs font-bold">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/8 border border-primary/12 text-primary rounded-lg text-sm font-bold">
                     <article.categoryIcon size={12} />
                     {article.category}
                   </span>
@@ -91,10 +91,10 @@ const BlogHub = () => {
                 <h3 className="text-foreground font-bold text-lg leading-snug group-hover:text-primary transition-colors line-clamp-2">
                   {article.title}
                 </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2">
+                <p className="text-muted-foreground text-base leading-relaxed line-clamp-2">
                   {article.excerpt}
                 </p>
-                <div className="flex items-center gap-3 pt-2 text-muted-foreground/60 text-xs font-medium">
+                <div className="flex items-center gap-3 pt-2 text-muted-foreground/60 text-sm font-medium">
                   <span className="flex items-center gap-1.5">
                     <Calendar size={12} />
                     {article.date}

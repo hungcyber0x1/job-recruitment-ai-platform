@@ -1,5 +1,6 @@
 const JobService = require('../services/job');
 const { pool } = require('../config/database.config');
+const catchAsync = require('../utils/catchAsync');
 
 /** Client (JobCard) dùng salary_range; DB có salary_min/max */
 function formatSalaryRange(job) {
@@ -35,82 +36,58 @@ class JobController {
     return rows[0].id;
   }
 
-  async getJobs(req, res, next) {
-    try {
-      const filters = {
-        category_id: req.query.category_id,
-        type: req.query.type,
-        search: req.query.search,
-        location: req.query.location,
-        limit: req.query.limit,
-        offset: req.query.offset,
-        status: req.query.status,
-      };
-      const { data: jobs, total } = await JobService.getAllJobs(filters);
-      const data = Array.isArray(jobs) ? jobs.map(formatSalaryRange) : jobs;
-      res.json({ success: true, data, total });
-    } catch (error) {
-      next(error);
-    }
-  }
+  getJobs = catchAsync(async (req, res) => {
+    const filters = {
+      category_id: req.query.category_id,
+      type: req.query.type,
+      search: req.query.search,
+      location: req.query.location,
+      limit: req.query.limit,
+      offset: req.query.offset,
+      status: req.query.status,
+    };
+    const { data: jobs, total } = await JobService.getAllJobs(filters);
+    const data = Array.isArray(jobs) ? jobs.map(formatSalaryRange) : jobs;
+    res.json({ success: true, data, total });
+  });
 
-  async getJob(req, res, next) {
-    try {
-      const job = await JobService.getJobById(req.params.id);
-      res.json({ success: true, data: formatSalaryRange(job) });
-    } catch (error) {
-      next(error);
-    }
-  }
+  getJob = catchAsync(async (req, res) => {
+    const job = await JobService.getJobById(req.params.id);
+    res.json({ success: true, data: formatSalaryRange(job) });
+  });
 
-  async getMyJobs(req, res, next) {
-    try {
-      const employerId = await this._getEmployerId(req.user.id);
-      const jobs = await JobService.getJobsByEmployer(employerId);
-      res.json({ success: true, data: jobs });
-    } catch (error) {
-      next(error);
-    }
-  }
+  getMyJobs = catchAsync(async (req, res) => {
+    const employerId = await this._getEmployerId(req.user.id);
+    const jobs = await JobService.getJobsByEmployer(employerId);
+    res.json({ success: true, data: jobs });
+  });
 
-  async createJob(req, res, next) {
-    try {
-      const employerId = await this._getEmployerId(req.user.id);
-      const jobId = await JobService.createJob(employerId, req.body);
-      res.status(201).json({ success: true, data: { id: jobId } });
-    } catch (error) {
-      next(error);
-    }
-  }
+  createJob = catchAsync(async (req, res) => {
+    const employerId = await this._getEmployerId(req.user.id);
+    const jobId = await JobService.createJob(employerId, req.body);
+    res.status(201).json({ success: true, data: { id: jobId } });
+  });
 
-  async updateJob(req, res, next) {
-    try {
-      const employerId = await this._getEmployerId(req.user.id);
-      // Verify ownership
-      const job = await JobService.getJobById(req.params.id, { allowDeleted: true });
-      if (job.employer_id !== employerId && req.user.role !== 'admin') {
-        return res.status(403).json({ success: false, message: 'Forbidden' });
-      }
-      await JobService.updateJob(req.params.id, req.body);
-      res.json({ success: true, message: 'Job updated' });
-    } catch (error) {
-      next(error);
+  updateJob = catchAsync(async (req, res) => {
+    const employerId = await this._getEmployerId(req.user.id);
+    // Verify ownership
+    const job = await JobService.getJobById(req.params.id, { allowDeleted: true });
+    if (job.employer_id !== employerId && req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Forbidden' });
     }
-  }
+    await JobService.updateJob(req.params.id, req.body);
+    res.json({ success: true, message: 'Job updated' });
+  });
 
-  async deleteJob(req, res, next) {
-    try {
-      const employerId = await this._getEmployerId(req.user.id);
-      const job = await JobService.getJobById(req.params.id, { allowDeleted: true });
-      if (job.employer_id !== employerId && req.user.role !== 'admin') {
-        return res.status(403).json({ success: false, message: 'Forbidden' });
-      }
-      await JobService.deleteJob(req.params.id);
-      res.json({ success: true, message: 'Job deleted' });
-    } catch (error) {
-      next(error);
+  deleteJob = catchAsync(async (req, res) => {
+    const employerId = await this._getEmployerId(req.user.id);
+    const job = await JobService.getJobById(req.params.id, { allowDeleted: true });
+    if (job.employer_id !== employerId && req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Forbidden' });
     }
-  }
+    await JobService.deleteJob(req.params.id);
+    res.json({ success: true, message: 'Job deleted' });
+  });
 }
 
 module.exports = new JobController();

@@ -5,6 +5,13 @@ import { Search, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/common';
 
@@ -113,48 +120,55 @@ const CompaniesPage = () => {
           </div>
 
           <form onSubmit={handleSearchSubmit}>
-            <Card className="mx-auto mt-10 max-w-4xl overflow-hidden border-border/50 bg-white/95 shadow-[0_12px_40px_-8px_rgba(15,23,42,0.1)] backdrop-blur-sm dark:bg-slate-950/90">
-              <CardContent className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:gap-2 sm:p-2">
-                <div className="relative flex flex-1 items-center rounded-xl bg-muted/60 transition-colors focus-within:bg-muted/80">
-                  <Search className="absolute left-4 size-5 text-muted-foreground" aria-hidden />
-                  <Input
-                    type="search"
-                    name="q"
-                    placeholder="Tìm kiếm tên công ty…"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="h-12 border-0 bg-transparent pl-12 text-base focus-visible:ring-0"
-                    aria-label="Tìm kiếm công ty"
-                    autoComplete="off"
-                  />
-                </div>
+            <div className="mx-auto mt-10 max-w-4xl bg-white p-2 rounded-2xl border border-slate-100 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.06)] flex flex-col sm:flex-row gap-2 dark:bg-slate-900 dark:border-slate-800">
+              <div className="relative flex flex-1 items-center rounded-xl bg-slate-50/80 transition-colors focus-within:bg-slate-100/80 dark:bg-slate-800 dark:focus-within:bg-slate-700">
+                <Search className="absolute left-4 size-5 text-slate-400" aria-hidden />
+                <Input
+                  type="search"
+                  name="q"
+                  placeholder="Tìm kiếm tên công ty..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="h-14 border-0 bg-transparent pl-12 text-base font-medium text-slate-700 placeholder:text-slate-400 focus-visible:ring-0 shadow-none dark:text-slate-200"
+                  aria-label="Tìm kiếm công ty"
+                  autoComplete="off"
+                />
+              </div>
 
-                <div className="flex w-full items-center rounded-xl bg-muted/60 sm:w-auto sm:flex-1">
-                  <Briefcase className="ml-4 size-5 shrink-0 text-muted-foreground" aria-hidden />
-                  <select
-                    name="industry"
-                    value={selectedIndustry}
-                    onChange={(e) => setSelectedIndustry(e.target.value)}
-                    className="h-12 w-full cursor-pointer border-0 bg-transparent pl-3 pr-4 text-base font-medium text-foreground outline-none"
-                    aria-label="Chọn ngành nghề"
-                  >
-                    {INDUSTRIES.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="h-12 w-full shrink-0 text-base font-bold sm:w-auto sm:px-8"
+              <div className="flex flex-1 items-center rounded-xl bg-slate-50/80 transition-colors focus-within:bg-slate-100/80 dark:bg-slate-800 dark:focus-within:bg-slate-700">
+                <Briefcase className="ml-4 size-5 shrink-0 text-slate-400" aria-hidden />
+                <Select
+                  name="industry"
+                  value={selectedIndustry}
+                  onValueChange={(val) => setSelectedIndustry(val)}
                 >
-                  Tìm kiếm
-                </Button>
-              </CardContent>
-            </Card>
+                  <SelectTrigger className="h-14 w-full border-0 bg-transparent pl-3 pr-4 text-base font-medium text-slate-700 outline-none focus:ring-0 shadow-none dark:text-slate-200">
+                    <SelectValue placeholder="Tất cả ngành nghề" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl border-slate-100 shadow-xl">
+                    <SelectItem value="all" className="text-base font-medium py-3">
+                      Tất cả ngành nghề
+                    </SelectItem>
+                    {INDUSTRIES.map((opt) => (
+                      <SelectItem
+                        key={opt.value}
+                        value={opt.value}
+                        className="text-base font-medium py-3"
+                      >
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <Button
+                type="submit"
+                className="h-14 shrink-0 px-10 text-sm font-black uppercase tracking-[0.1em] bg-emerald-50 text-emerald-950 hover:bg-emerald-100 border border-transparent rounded-xl transition-all dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50"
+              >
+                TÌM KIẾM
+              </Button>
+            </div>
           </form>
         </div>
       </section>

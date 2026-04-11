@@ -1,8 +1,8 @@
 const AIService = require('./ai');
-const CareerPathRepository = require('../repositories/career-path');
-const SkillGapRepository = require('../repositories/skill-gap');
-const CandidateRepository = require('../repositories/candidate');
-// const JobRepository = require('../repositories/job');
+const CareerPathRepository = require('../models/CareerPath');
+const SkillGapRepository = require('../models/SkillGap');
+const CandidateRepository = require('../models/Candidate');
+// const JobRepository = require('../models/Job');
 const logger = require('../utils/logger');
 
 /**

@@ -137,22 +137,22 @@ const HeroSection = () => {
                 {['PM', 'TH', 'LN', 'VD'].map((initials, i) => (
                   <div
                     key={i}
-                    className="w-10 h-10 rounded-full border-2 border-background bg-primary/10 flex items-center justify-center text-[11px] font-bold text-primary"
+                    className="w-10 h-10 rounded-full border-2 border-background bg-primary/10 flex items-center justify-center text-sm font-bold text-primary"
                   >
                     {initials}
                   </div>
                 ))}
               </div>
               <div>
-                <p className="text-foreground font-extrabold text-sm tabular-nums">
+                <p className="text-foreground font-extrabold text-base tabular-nums">
                   47,200+ ứng viên
                 </p>
-                <p className="text-muted-foreground text-xs font-medium">đã tin tưởng sử dụng</p>
+                <p className="text-muted-foreground text-base font-medium">đã tin tưởng sử dụng</p>
               </div>
               <div className="h-8 w-px bg-border" />
               <div>
-                <p className="text-foreground font-extrabold text-sm tabular-nums">94.7%</p>
-                <p className="text-muted-foreground text-xs font-medium">matching chính xác</p>
+                <p className="text-foreground font-extrabold text-base tabular-nums">94.7%</p>
+                <p className="text-muted-foreground text-base font-medium">matching chính xác</p>
               </div>
             </motion.div>
           </motion.div>
@@ -198,13 +198,13 @@ const HeroSection = () => {
                   </span>
 
                   <h3 className="text-foreground font-bold text-lg mb-2">Loa thông báo AI</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed max-w-[280px] mb-6">
+                  <p className="text-muted-foreground text-base leading-relaxed max-w-[280px] mb-6">
                     Thông báo việc làm mới, gợi ý phù hợp và cập nhật sự nghiệp được AI tổng hợp và
                     phát trực tiếp đến bạn
                   </p>
 
                   <div className="w-full bg-muted/50 rounded-xl px-4 py-3 text-left">
-                    <p className="text-foreground/80 text-sm leading-relaxed">
+                    <p className="text-foreground/80 text-base leading-relaxed">
                       <span className="text-primary font-bold">12 vị trí mới</span> phù hợp với hồ
                       sơ của bạn vừa được đăng. Xem ngay!
                     </p>

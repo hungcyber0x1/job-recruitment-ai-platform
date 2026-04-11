@@ -36,10 +36,7 @@ const ApplicationList = ({ applications = [] }) => {
         const config = getStatusConfig(application.status);
 
         return (
-          <Card
-            key={application.id}
-            className="group overflow-hidden p-0 transition-all hover:shadow-2xl hover:shadow-secondary/10"
-          >
+          <Card key={application.id} hover className="group overflow-hidden p-0">
             <div className="flex items-stretch">
               <div className={`w-2 ${config.sideClass}`} />
 
@@ -61,7 +58,7 @@ const ApplicationList = ({ applications = [] }) => {
                     <h4 className="font-bold text-foreground transition-colors group-hover:text-secondary">
                       {application.job_title}
                     </h4>
-                    <p className="mt-1 text-xs font-medium text-txt-muted">
+                    <p className="mt-1 text-base font-medium text-txt-muted">
                       {application.company_name} • {application.location || 'Đang cập nhật'}
                     </p>
                   </div>
@@ -69,7 +66,7 @@ const ApplicationList = ({ applications = [] }) => {
 
                 <div className="flex items-center gap-6">
                   <div
-                    className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-black uppercase ${config.badgeClass}`}
+                    className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-black uppercase ${config.badgeClass}`}
                   >
                     {config.icon}
                     {getStatusLabel(application.status)}

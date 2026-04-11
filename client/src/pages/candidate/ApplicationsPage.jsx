@@ -240,7 +240,7 @@ const ApplicationsPage = () => {
                 return (
                   <Card
                     key={app.id}
-                    className="rounded-2xl border border-slate-200/60 bg-white shadow-sm transition-all hover:border-emerald-500/30 hover:shadow-md group hover:-translate-y-0.5"
+                    className="card-premium-hover rounded-2xl border border-slate-200/60 bg-white group"
                   >
                     <CardContent className="p-6">
                       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

@@ -1,4 +1,4 @@
-const UserRepository = require('../repositories/user');
+const UserRepository = require('../models/User');
 
 class UserService {
   async getUserProfile(userId) {
@@ -45,6 +45,10 @@ class UserService {
       throw err;
     }
     return await UserRepository.update(userId, safeData);
+  }
+
+  async updateUserAvatar(userId, avatarUrl) {
+    return await UserRepository.update(userId, { avatar_url: avatarUrl });
   }
 
   async getAllUsers() {

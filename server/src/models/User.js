@@ -1,4 +1,32 @@
-const BaseRepository = require('./base');
+/**
+ * User Model Schema
+ *
+ * Cung cấp JSDoc type definitions cho hệ thống không dùng ORM.
+ */
+
+/**
+ * @typedef {Object} UserRow
+ * @property {number} id - Primary key, auto-increment
+ * @property {string} email - Email (unique)
+ * @property {string} password - Mật khẩu đã hash (bcrypt)
+ * @property {'admin'|'employer'|'candidate'} role - Vai trò trong hệ thống
+ * @property {string|null} first_name - Họ
+ * @property {string|null} last_name - Tên
+ * @property {string|null} avatar_url - URL ảnh đại diện
+ * @property {boolean} is_active - Tài khoản kích hoạt
+ * @property {string} created_at - ISO timestamp
+ * @property {string} updated_at - ISO timestamp
+ */
+
+/** Danh sách vai trò hợp lệ */
+const USER_ROLES = ['admin', 'employer', 'candidate'];
+
+/** Tên bảng trong database */
+const TABLE_NAME = 'users';
+
+module.exports = { USER_ROLES, TABLE_NAME };
+
+const BaseRepository = require('./Base');
 
 function mergeEmployerRow(row) {
   if (!row) return row;

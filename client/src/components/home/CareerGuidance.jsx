@@ -23,7 +23,7 @@ const features = [
 
 const CareerGuidance = () => {
   return (
-    <div className="bg-background p-8 lg:p-10 flex flex-col min-h-[480px] rounded-2xl border border-border/40 group/guidance hover:border-primary/15 transition-all duration-300">
+    <div className="bg-background p-8 lg:p-10 flex flex-col min-h-[480px] rounded-2xl border border-border/40 card-premium-hover">
       <div className="flex items-center gap-4 mb-8">
         <div className="h-12 w-12 rounded-xl bg-primary/8 text-primary border border-primary/12 flex items-center justify-center group-hover/guidance:bg-primary group-hover/guidance:text-white transition-all duration-300">
           <Compass size={22} strokeWidth={1.8} aria-hidden="true" />
@@ -32,7 +32,7 @@ const CareerGuidance = () => {
           <h3 className="text-xl font-bold text-foreground leading-tight group-hover/guidance:text-primary transition-colors">
             Định hướng nghề nghiệp
           </h3>
-          <p className="text-xs text-muted-foreground font-medium mt-0.5">
+          <p className="text-base text-muted-foreground font-medium mt-0.5">
             Lộ trình cá nhân hoá bằng AI
           </p>
         </div>
@@ -55,7 +55,7 @@ const CareerGuidance = () => {
               <h4 className="font-semibold text-foreground text-sm group-hover/item:text-primary transition-colors">
                 {f.title}
               </h4>
-              <p className="text-xs text-muted-foreground leading-relaxed mt-0.5">{f.desc}</p>
+              <p className="text-base text-muted-foreground leading-relaxed mt-0.5">{f.desc}</p>
             </div>
           </motion.div>
         ))}

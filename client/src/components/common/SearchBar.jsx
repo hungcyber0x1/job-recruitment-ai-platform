@@ -105,7 +105,7 @@ const SearchBar = ({ onSearch, className }) => {
 
       {/* Quick search tags */}
       <div className="flex flex-wrap items-center gap-3 px-4">
-        <span className="text-xs text-txt-muted font-bold tracking-tight uppercase">
+        <span className="text-sm text-txt-muted font-bold tracking-tight uppercase">
           Tìm nhanh:
         </span>
         {QUICK_SEARCHES.map((term) => (
@@ -113,7 +113,7 @@ const SearchBar = ({ onSearch, className }) => {
             key={term}
             type="button"
             onClick={() => handleQuickSearch(term)}
-            className="text-xs font-bold text-txt-muted hover:text-primary hover:bg-primary/10 px-4 py-2 rounded-full border border-secondary hover:border-primary/30 transition-all duration-300 hover-lift shadow-sm"
+            className="text-sm font-bold text-txt-muted hover:text-primary hover:bg-primary/10 px-4 py-2 rounded-full border border-secondary hover:border-primary/30 transition-all duration-300 hover-lift shadow-sm"
           >
             {term}
           </button>

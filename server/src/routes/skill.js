@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const SkillRepository = require('../repositories/skill');
+const SkillRepository = require('../models/Skill');
 const { protect, authorize } = require('../middlewares/auth');
 
 // GET /api/skills — public, list all skills (with optional search)

@@ -142,11 +142,11 @@ const ChatbotAnalytics = () => {
                 >
                   <Icon size={24} className="text-white" />
                 </div>
-                <span className="rounded-lg bg-state-success/10 px-2 py-1 text-xs font-bold text-state-success">
+                <span className="rounded-lg bg-state-success/10 px-2 py-1 text-sm font-bold text-state-success">
                   {stat.change}
                 </span>
               </div>
-              <p className="mb-1 text-sm font-medium text-muted-foreground">{stat.label}</p>
+              <p className="mb-1 text-base font-medium text-muted-foreground">{stat.label}</p>
               <p className="text-3xl font-black text-foreground">{stat.value.toLocaleString()}</p>
             </Card>
           );
@@ -194,7 +194,7 @@ const ChatbotAnalytics = () => {
                     width: `${Math.min((day.conversations / maxDailyConversations) * 100, 100)}%`,
                   }}
                 >
-                  <span className="text-xs font-bold text-white">{day.conversations}</span>
+                  <span className="text-sm font-bold text-white">{day.conversations}</span>
                 </div>
               </div>
             </div>

@@ -27,7 +27,7 @@ const CertificationsSection = ({ certifications = [] }) => {
               <h4 className="font-semibold text-slate-900 dark:text-white leading-tight mb-1">
                 {cert.name}
               </h4>
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">
+              <p className="text-base font-medium text-slate-500 dark:text-slate-400 mb-2">
                 {cert.organization} • {cert.year}
               </p>
               {cert.url && (
@@ -35,7 +35,7 @@ const CertificationsSection = ({ certifications = [] }) => {
                   href={cert.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs font-medium text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300"
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300"
                 >
                   Verify Certificate
                 </a>
@@ -47,7 +47,7 @@ const CertificationsSection = ({ certifications = [] }) => {
         {(!certifications || certifications.length === 0) && (
           <div className="col-span-full p-8 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-dashed border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center text-center">
             <Award size={24} className="text-slate-400 mb-2 opacity-50" />
-            <p className="text-slate-500 dark:text-slate-400 text-sm">Chưa cập nhật chứng chỉ</p>
+            <p className="text-slate-500 dark:text-slate-400 text-base">Chưa cập nhật chứng chỉ</p>
           </div>
         )}
       </div>

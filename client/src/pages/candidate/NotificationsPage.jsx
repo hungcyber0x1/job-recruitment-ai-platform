@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Bell,
@@ -42,6 +42,74 @@ const formatNotificationTime = (dateStr) => {
   return formatTimeAgo(dateStr);
 };
 
+function inferNotificationType(item) {
+  const t = (item.type || '').toLowerCase();
+  const title = (item.title || '').toLowerCase();
+  const msg = (item.message || '').toLowerCase();
+  if (t === 'message' || title.includes('tin nhắn') || title.includes('message')) return 'message';
+  if (title.includes('phỏng vấn') || title.includes('interview') || msg.includes('phỏng vấn'))
+    return 'interview';
+  if (title.includes('nhận hồ sơ') || title.includes('received') || msg.includes('ghi nhận'))
+    return 'profile_received';
+  if (title.includes('xét duyệt') || title.includes('review') || msg.includes('đang xem xét'))
+    return 'under_review';
+  if (title.includes('kết quả') || title.includes('result') || msg.includes('chưa phù hợp'))
+    return 'result';
+  return 'system';
+}
+
+function getSampleNotifications() {
+  return [
+    {
+      id: 's1',
+      _type: 'message',
+      title: 'Tin nhắn mới từ Chi Lan Anh - HR TechGlobal',
+      message:
+        'Chào bạn, mình đã xem qua CV của bạn cho vị trí UI Designer. Bạn có thể dành chút thời gian trao đổi thêm vào sáng mai không?',
+      created_at: new Date().toISOString(),
+      read: false,
+      sender_name: 'Chi Lan Anh',
+    },
+    {
+      id: 's2',
+      _type: 'interview',
+      title: 'Lời mời phỏng vấn - Cyber Soft JSC',
+      message:
+        'Chúc mừng! Bạn đã vượt qua vòng sơ loại. Chúng tôi trân trọng mời bạn tham dự buổi phỏng vấn chuyên môn cho vị trí Senior Frontend.',
+      created_at: new Date().toISOString(),
+      read: false,
+      confirmed: true,
+    },
+    {
+      id: 's3',
+      _type: 'profile_received',
+      title: 'Đã nhận hồ sơ - VNG Corporation',
+      message:
+        'Hồ sơ ứng tuyển vị trí Product Designer của bạn đã được hệ thống ghi nhận thành công.',
+      created_at: new Date(Date.now() - 86400000).toISOString(),
+      read: true,
+    },
+    {
+      id: 's4',
+      _type: 'under_review',
+      title: 'Đang xét duyệt - FPT Software',
+      message:
+        'Nhà tuyển dụng đang xem xét chi tiết kinh nghiệm của bạn. Kết quả sẽ có trong vòng 3-5 ngày làm việc.',
+      created_at: new Date(Date.now() - 2 * 86400000).toISOString(),
+      read: true,
+    },
+    {
+      id: 's5',
+      _type: 'result',
+      title: 'Kết quả ứng tuyển - TechOne Co.',
+      message:
+        'Cảm ơn bạn đã quan tâm. Rất tiếc hiện tại kinh nghiệm của bạn chưa phù hợp với yêu cầu của vị trí này.',
+      created_at: new Date(Date.now() - 5 * 86400000).toISOString(),
+      read: true,
+    },
+  ];
+}
+
 const NotificationsPage = () => {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
@@ -70,91 +138,24 @@ const NotificationsPage = () => {
     fetchNotifications();
   }, []);
 
-  function inferNotificationType(item) {
-    const t = (item.type || '').toLowerCase();
-    const title = (item.title || '').toLowerCase();
-    const msg = (item.message || '').toLowerCase();
-    if (t === 'message' || title.includes('tin nhắn') || title.includes('message'))
-      return 'message';
-    if (title.includes('phỏng vấn') || title.includes('interview') || msg.includes('phỏng vấn'))
-      return 'interview';
-    if (title.includes('nhận hồ sơ') || title.includes('received') || msg.includes('ghi nhận'))
-      return 'profile_received';
-    if (title.includes('xét duyệt') || title.includes('review') || msg.includes('đang xem xét'))
-      return 'under_review';
-    if (title.includes('kết quả') || title.includes('result') || msg.includes('chưa phù hợp'))
-      return 'result';
-    return 'system';
-  }
-
-  function getSampleNotifications() {
-    return [
-      {
-        id: 's1',
-        _type: 'message',
-        title: 'Tin nhắn mới từ Chi Lan Anh - HR TechGlobal',
-        message:
-          'Chào bạn, mình đã xem qua CV của bạn cho vị trí UI Designer. Bạn có thể dành chút thời gian trao đổi thêm vào sáng mai không?',
-        created_at: new Date().toISOString(),
-        read: false,
-        sender_name: 'Chi Lan Anh',
-      },
-      {
-        id: 's2',
-        _type: 'interview',
-        title: 'Lời mời phỏng vấn - Cyber Soft JSC',
-        message:
-          'Chúc mừng! Bạn đã vượt qua vòng sơ loại. Chúng tôi trân trọng mời bạn tham dự buổi phỏng vấn chuyên môn cho vị trí Senior Frontend.',
-        created_at: new Date().toISOString(),
-        read: false,
-        confirmed: true,
-      },
-      {
-        id: 's3',
-        _type: 'profile_received',
-        title: 'Đã nhận hồ sơ - VNG Corporation',
-        message:
-          'Hồ sơ ứng tuyển vị trí Product Designer của bạn đã được hệ thống ghi nhận thành công.',
-        created_at: new Date(Date.now() - 86400000).toISOString(),
-        read: true,
-      },
-      {
-        id: 's4',
-        _type: 'under_review',
-        title: 'Đang xét duyệt - FPT Software',
-        message:
-          'Nhà tuyển dụng đang xem xét chi tiết kinh nghiệm của bạn. Kết quả sẽ có trong vòng 3-5 ngày làm việc.',
-        created_at: new Date(Date.now() - 2 * 86400000).toISOString(),
-        read: true,
-      },
-      {
-        id: 's5',
-        _type: 'result',
-        title: 'Kết quả ứng tuyển - TechOne Co.',
-        message:
-          'Cảm ơn bạn đã quan tâm. Rất tiếc hiện tại kinh nghiệm của bạn chưa phù hợp với yêu cầu của vị trí này.',
-        created_at: new Date(Date.now() - 5 * 86400000).toISOString(),
-        read: true,
-      },
-    ];
-  }
-
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const filtered =
-    activeTab === 'all'
-      ? notifications
-      : activeTab === 'unread'
-        ? notifications.filter((n) => !n.read)
-        : notifications.filter((n) => n._type === 'interview' || n._type === 'message');
+  const displayList = useMemo(() => {
+    const filtered =
+      activeTab === 'all'
+        ? notifications
+        : activeTab === 'unread'
+          ? notifications.filter((n) => !n.read)
+          : notifications.filter((n) => n._type === 'interview' || n._type === 'message');
 
-  const displayList = searchQuery.trim()
-    ? filtered.filter(
-        (n) =>
-          (n.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (n.message || '').toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : filtered;
+    if (!searchQuery.trim()) return filtered;
+
+    return filtered.filter(
+      (n) =>
+        (n.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (n.message || '').toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [notifications, activeTab, searchQuery]);
 
   const handleNotificationClick = (notification) => {
     if (notification.application_id) {

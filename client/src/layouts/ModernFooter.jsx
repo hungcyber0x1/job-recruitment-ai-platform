@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, Linkedin, Instagram } from 'lucide-react';
+import { Logo } from '@/components/common';
 
 const footerLinks = [
   {
@@ -35,7 +36,7 @@ const footerLinks = [
 const socialLinks = [
   { icon: Linkedin, href: '#', label: 'LinkedIn' },
   { icon: Instagram, href: '#', label: 'Instagram' },
-  { icon: Mail, href: 'mailto:contact@hireai.vn', label: 'Email' },
+  { icon: Mail, href: 'mailto:contact@hirebot.vn', label: 'Email' },
 ];
 
 const ModernFooter = () => {
@@ -45,13 +46,11 @@ const ModernFooter = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8 py-16 lg:py-20">
           {/* Brand */}
           <div className="lg:col-span-1 space-y-6">
-            <Link to="/" className="inline-flex items-center gap-2.5">
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-                <span className="text-white font-black text-xl">H</span>
-              </div>
-              <span className="text-lg font-black text-white tracking-tight sm:text-xl">
-                HireAI<span className="text-primary">.</span>
-              </span>
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2.5 transition-opacity hover:opacity-90"
+            >
+              <Logo className="h-16 w-auto" asLink={false} />
             </Link>
             <p className="max-w-xs text-base font-medium leading-relaxed text-slate-500">
               Kiến tạo tương lai nghề nghiệp bằng sức mạnh của Trí tuệ nhân tạo. Kết nối nhân tài
@@ -123,7 +122,7 @@ const ModernFooter = () => {
 
         {/* Bottom bar */}
         <div className="py-6 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-sm font-medium text-slate-500">
+          <p className="text-base font-medium text-slate-500">
             © {new Date().getFullYear()} HireAI. Phát triển tại Việt Nam.
           </p>
           <div className="flex items-center gap-6">

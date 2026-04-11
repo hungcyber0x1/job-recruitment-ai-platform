@@ -1,6 +1,6 @@
 const ResumeAnalysisService = require('../services/resume-analysis');
-const CandidateRepository = require('../repositories/candidate');
-const SystemSettingsRepository = require('../repositories/system-settings');
+const CandidateRepository = require('../models/Candidate');
+const SystemSettingsRepository = require('../models/SystemSettings');
 const logger = require('../utils/logger');
 
 class ResumeAnalysisController {

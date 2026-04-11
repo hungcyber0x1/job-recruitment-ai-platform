@@ -106,7 +106,7 @@ const ApplicationTimeline = ({ timeline, currentStatus }) => {
                         {format(new Date(item.changed_at), 'MMM d, yyyy')}
                       </span>
                     </div>
-                    {item.notes && <p className="mt-1 text-sm text-txt-muted">{item.notes}</p>}
+                    {item.notes && <p className="mt-1 text-base text-txt-muted">{item.notes}</p>}
                   </div>
                 </div>
               );

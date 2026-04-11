@@ -96,12 +96,12 @@ const ChatWidget = () => {
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-45" />
                           <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
                         </span>
-                        <span className="text-xs font-semibold uppercase tracking-wider text-emerald-200/95">
+                        <span className="text-sm font-semibold uppercase tracking-wider text-emerald-200/95">
                           Đang hoạt động
                         </span>
                       </span>
                     </div>
-                    <p className="text-sm sm:text-xs text-slate-400 mt-1 leading-snug max-w-[18rem]">
+                    <p className="text-base sm:text-base text-slate-400 mt-1 leading-snug max-w-[18rem]">
                       Tư vấn tìm việc, CV và phỏng vấn — phản hồi theo ngữ cảnh của bạn.
                       <span className="mt-1 block text-slate-400/95">
                         Lịch sử được lưu theo tài khoản để bạn xem lại.
@@ -143,12 +143,12 @@ const ChatWidget = () => {
                       <h4 className="font-semibold text-slate-900 text-base tracking-tight">
                         Xin chào
                       </h4>
-                      <p className="text-sm text-slate-600 mt-1.5 max-w-[17rem] leading-relaxed">
+                      <p className="text-base text-slate-600 mt-1.5 max-w-[17rem] leading-relaxed">
                         Tôi là trợ lý tuyển dụng HireAI. Bạn cần gợi ý CV, việc làm hay phỏng vấn —
                         cứ nhắn hoặc chọn gợi ý nhanh bên dưới.
                       </p>
                       <div className="w-full mt-5 space-y-2">
-                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400 text-left w-full">
+                        <p className="text-base font-semibold uppercase tracking-[0.14em] text-slate-400 text-left w-full">
                           Gợi ý nhanh
                         </p>
                         <div className="flex flex-col gap-2">
@@ -158,7 +158,7 @@ const ChatWidget = () => {
                               type="button"
                               onClick={() => handleQuickPrompt(q)}
                               disabled={isLoading}
-                              className="text-left text-xs sm:text-base leading-snug px-3.5 py-2.5 rounded-xl bg-white/95 border border-slate-200/90 text-slate-700 hover:border-emerald-300/80 hover:bg-primary/10 hover:text-emerald-950 transition-colors disabled:opacity-50 disabled:pointer-events-none shadow-sm"
+                              className="text-left text-sm sm:text-base leading-snug px-3.5 py-2.5 rounded-xl bg-white/95 border border-slate-200/90 text-slate-700 hover:border-emerald-300/80 hover:bg-primary/10 hover:text-emerald-950 transition-colors disabled:opacity-50 disabled:pointer-events-none shadow-sm"
                             >
                               {q}
                             </button>
@@ -226,7 +226,7 @@ const ChatWidget = () => {
                   </button>
                 </div>
               </form>
-              <p className="mt-2.5 flex items-center justify-center gap-1.5 text-xs text-slate-400 leading-snug text-center">
+              <p className="mt-2.5 flex items-center justify-center gap-1.5 text-base text-slate-400 leading-snug text-center">
                 <ShieldCheck size={12} className="text-emerald-600/50 shrink-0" />
                 <span>Trợ lý có thể nhầm lẫn — hãy kiểm tra thông tin quan trọng.</span>
               </p>

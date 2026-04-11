@@ -5,7 +5,7 @@ const AdminController = require('../controllers/admin');
 const BlogController = require('../controllers/blog');
 const CompanyController = require('../controllers/company');
 const CategoryController = require('../controllers/category');
-const SkillRepository = require('../repositories/skill');
+const SkillRepository = require('../models/Skill');
 const { protect, authorize } = require('../middlewares/auth');
 
 const backupUpload = multer({
@@ -30,7 +30,7 @@ router.get('/chart-stats', protect, authorize('admin'), AdminController.getChart
 // Exports (MUST be before parametric :id routes to avoid shadowing)
 router.get('/logs/export', protect, authorize('admin'), async (req, res, next) => {
   try {
-    const logs = await require('../repositories/activity-log').findAll({ limit: 10000, offset: 0 });
+    const logs = await require('../models/ActivityLog').findAll({ limit: 10000, offset: 0 });
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Content-Disposition', `attachment; filename=logs-export-${Date.now()}.json`);
     res.json({ success: true, data: logs });
@@ -40,7 +40,7 @@ router.get('/logs/export', protect, authorize('admin'), async (req, res, next) =
 });
 router.get('/tickets/export', protect, authorize('admin'), async (req, res, next) => {
   try {
-    const tickets = await require('../repositories/support-ticket').findAll({
+    const tickets = await require('../models/SupportTicket').findAll({
       limit: 10000,
       offset: 0,
     });
@@ -53,7 +53,7 @@ router.get('/tickets/export', protect, authorize('admin'), async (req, res, next
 });
 router.get('/users/export', protect, authorize('admin'), async (req, res, next) => {
   try {
-    const users = await require('../repositories/user').findAllWithFilters({
+    const users = await require('../models/User').findAllWithFilters({
       limit: 10000,
       offset: 0,
     });
@@ -67,7 +67,7 @@ router.get('/users/export', protect, authorize('admin'), async (req, res, next) 
 });
 router.get('/jobs/export', protect, authorize('admin'), async (req, res, next) => {
   try {
-    const jobs = await require('../repositories/job').findAll();
+    const jobs = await require('../models/Job').findAll();
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Content-Disposition', `attachment; filename=jobs-export-${Date.now()}.json`);
     res.json({ success: true, data: jobs });
@@ -77,7 +77,7 @@ router.get('/jobs/export', protect, authorize('admin'), async (req, res, next) =
 });
 router.get('/applications/export', protect, authorize('admin'), async (req, res, next) => {
   try {
-    const applications = await require('../repositories/application').findAll({
+    const applications = await require('../models/Application').findAll({
       limit: 10000,
       offset: 0,
     });

@@ -65,7 +65,7 @@ const OAuthCallbackPage = () => {
   return (
     <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 px-6 pt-32">
       <Loading />
-      <p className="text-sm text-muted-foreground">Đang hoàn tất đăng nhập…</p>
+      <p className="text-base text-muted-foreground">Đang hoàn tất đăng nhập…</p>
     </div>
   );
 };

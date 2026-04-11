@@ -261,7 +261,7 @@ const AdminBlogPage = () => {
                       <th className="px-4 py-3">Lượt xem</th>
                       <th className="px-4 py-3">Công khai</th>
                       <th className="px-4 py-3">Cập nhật</th>
-                      <th className="px-4 py-3 text-end">Thao tác</th>
+                      <th className="px-4 py-3 !text-center">Thao tác</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -322,8 +322,8 @@ const AdminBlogPage = () => {
                         <td className="px-4 py-3 text-muted-foreground whitespace-nowrap text-base">
                           {formatWhen(row)}
                         </td>
-                        <td className="px-4 py-3 text-right">
-                          <div className="flex justify-end gap-1">
+                        <td className="px-4 py-3 text-center">
+                          <div className="flex justify-center gap-1">
                             {row.is_published && row.slug ? (
                               <Button variant="ghost" size="icon" asChild title="Xem công khai">
                                 <a

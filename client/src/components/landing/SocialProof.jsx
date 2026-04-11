@@ -81,7 +81,7 @@ const SocialProof = () => {
               <p className="text-2xl lg:text-3xl font-extrabold text-foreground tabular-nums tracking-tight">
                 {stat.value}
               </p>
-              <p className="text-muted-foreground text-xs font-medium mt-1">{stat.label}</p>
+              <p className="text-muted-foreground text-base font-medium mt-1">{stat.label}</p>
             </motion.div>
           ))}
         </motion.div>
@@ -118,15 +118,15 @@ const SocialProof = () => {
               </div>
               <div className="relative mb-6">
                 <Quote size={20} className="text-primary/15 absolute -top-1 -left-1" />
-                <p className="text-foreground/80 text-sm leading-relaxed pl-6">{item.text}</p>
+                <p className="text-foreground/80 text-base leading-relaxed pl-6">{item.text}</p>
               </div>
               <div className="flex items-center gap-3 pt-5 border-t border-border/40">
                 <div className="w-10 h-10 rounded-xl bg-primary/8 border border-primary/12 flex items-center justify-center text-primary text-sm font-bold">
                   {item.initials}
                 </div>
                 <div>
-                  <p className="text-foreground font-bold text-sm">{item.name}</p>
-                  <p className="text-muted-foreground text-xs font-medium">
+                  <p className="text-foreground font-bold text-base">{item.name}</p>
+                  <p className="text-muted-foreground text-base font-medium">
                     {item.role} · {item.company}
                   </p>
                 </div>
@@ -139,7 +139,7 @@ const SocialProof = () => {
         <div className="relative">
           <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
           <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
-          <p className="text-center text-[11px] font-semibold uppercase tracking-[0.25em] text-muted-foreground mb-8">
+          <p className="text-center text-base font-semibold uppercase tracking-[0.25em] text-muted-foreground mb-8">
             Tin tưởng bởi 1,200+ doanh nghiệp tại Việt Nam
           </p>
           <div className="overflow-hidden">

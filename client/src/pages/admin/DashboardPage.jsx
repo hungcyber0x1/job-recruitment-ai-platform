@@ -288,23 +288,41 @@ const DashboardPage = () => {
 
         {/* Key Metrics */}
         <section>
-          <h2 className="text-lg font-bold text-slate-900 mb-4">Key Metrics</h2>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {keyMetrics.map((m) => {
+          <div className="flex items-center gap-3 mb-6">
+            <div className="h-1.5 w-8 bg-primary rounded-full" />
+            <h2 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+              Chỉ số vận hành
+            </h2>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+            {keyMetrics.map((m, idx) => {
               const Icon = m.icon;
               return (
                 <div
-                  key={m.label}
-                  className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-500/30 hover:shadow-md transition-all hover:-translate-y-1 cursor-default group"
+                  key={idx}
+                  className="card-premium-hover group relative flex flex-col overflow-hidden rounded-2xl border border-border/40 bg-white p-6 shadow-sm shadow-slate-200/50"
                 >
-                  <div className="flex items-start justify-between">
-                    <Icon className="h-8 w-8 text-slate-400 group-hover:text-emerald-500 transition-colors shrink-0" />
-                    <span className={`text-base font-semibold ${m.subColor}`}>{m.sub}</span>
+                  <div className="mb-4 flex items-center justify-between">
+                    <div className="rounded-xl bg-slate-50 border border-border/40 p-2.5 transition-all group-hover:bg-primary group-hover:scale-110 group-hover:rotate-3">
+                      <Icon
+                        size={22}
+                        className="text-primary group-hover:text-white transition-colors"
+                      />
+                    </div>
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-sm font-black uppercase tracking-widest ${m.subColor} bg-emerald-50/50 border border-emerald-100/50`}
+                    >
+                      {m.sub}
+                    </span>
                   </div>
-                  <p className="text-base font-medium text-slate-500 mt-2 uppercase tracking-wide">
-                    {m.label}
-                  </p>
-                  <p className="text-xl font-bold text-slate-900 mt-1">{m.value}</p>
+                  <div>
+                    <p className="text-base font-black uppercase tracking-[0.1em] text-muted-foreground/50 mb-1">
+                      {m.label}
+                    </p>
+                    <h3 className="text-2xl font-black tracking-tight text-foreground transition-all group-hover:text-primary">
+                      {m.value}
+                    </h3>
+                  </div>
                 </div>
               );
             })}
@@ -312,47 +330,67 @@ const DashboardPage = () => {
         </section>
 
         {/* Module Chức năng + Trạng thái Pipeline */}
-        <div className="grid gap-8 xl:grid-cols-[1fr_380px]">
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-slate-900">Module Chức năng</h2>
-              <Link
-                to="/admin/analytics"
-                className="text-base font-semibold text-emerald-500 hover:text-emerald-600 transition-colors"
-              >
-                Xem tất cả
-              </Link>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {featureModules.map((mod) => {
-                const Icon = mod.icon;
-                return (
-                  <Link
-                    key={mod.title}
-                    to={mod.to}
-                    className="flex items-start gap-4 p-5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-500/40 hover:shadow-md transition-all hover:scale-[1.02] group"
-                  >
-                    <div className="p-2.5 rounded-xl bg-slate-50 text-slate-400 group-hover:bg-primary/10 group-hover:text-emerald-500 transition-colors duration-200 ease-out">
-                      <Icon size={20} />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">
-                        {mod.title}
-                      </h3>
-                      <p className="text-base text-slate-500 mt-0.5">{mod.desc}</p>
-                    </div>
-                  </Link>
-                );
-              })}
+        <div className="grid gap-10 xl:grid-cols-[1fr_400px]">
+          <section className="space-y-8">
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="h-1.5 w-8 bg-primary rounded-full" />
+                  <h2 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+                    Quản trị hệ thống
+                  </h2>
+                </div>
+                <Link
+                  to="/admin/analytics"
+                  className="group flex items-center gap-1.5 text-sm font-black uppercase tracking-widest text-primary hover:text-emerald-700 transition-colors"
+                >
+                  Phân tích chi tiết{' '}
+                  <ArrowRight
+                    size={14}
+                    className="transition-transform group-hover:translate-x-1"
+                  />
+                </Link>
+              </div>
+
+              <div className="grid gap-5 sm:grid-cols-2">
+                {featureModules.map((mod, idx) => {
+                  const Icon = mod.icon;
+                  return (
+                    <Link
+                      key={idx}
+                      to={mod.to}
+                      className="card-premium-hover group flex items-start gap-4 p-6 rounded-2xl border border-border/40 bg-white shadow-sm shadow-slate-100/30"
+                    >
+                      <div className="p-3 rounded-xl bg-slate-50 border border-border/40 text-muted-foreground/40 group-hover:bg-primary/10 group-hover:text-primary transition-all duration-300">
+                        <Icon size={24} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-lg font-black text-foreground group-hover:text-primary transition-colors">
+                          {mod.title}
+                        </h3>
+                        <p className="text-base font-semibold text-muted-foreground/70 mt-1 leading-relaxed">
+                          {mod.desc}
+                        </p>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
           </section>
 
           {/* Trạng thái Pipeline - Doughnut */}
-          <section>
-            <h2 className="text-lg font-bold text-slate-900 mb-4">Trạng thái Pipeline</h2>
-            <div className="p-6 rounded-2xl bg-white border border-slate-200">
-              <div className="relative h-64 w-full min-w-0">
-                <ChartSurface className="h-full" minChartHeight={200}>
+          <section className="space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="h-1.5 w-8 bg-primary rounded-full" />
+              <h2 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+                Dòng chảy Ứng viên
+              </h2>
+            </div>
+
+            <div className="p-8 rounded-3xl border border-border/40 bg-white shadow-sm shadow-slate-200/40">
+              <div className="relative h-64 w-full">
+                <ChartSurface className="h-full w-full" minChartHeight={256}>
                   <PieChart>
                     <Pie
                       data={
@@ -367,9 +405,9 @@ const DashboardPage = () => {
                       }
                       dataKey="value"
                       nameKey="name"
-                      innerRadius={60}
-                      outerRadius={90}
-                      paddingAngle={2}
+                      innerRadius={70}
+                      outerRadius={100}
+                      paddingAngle={5}
                       stroke="none"
                     >
                       {(pipelineChartData.length
@@ -379,33 +417,37 @@ const DashboardPage = () => {
                         <Cell
                           key={i}
                           fill={PIPELINE_CHART_COLORS[i % PIPELINE_CHART_COLORS.length]}
+                          className="hover:opacity-80 transition-opacity cursor-pointer focus:outline-none"
                         />
                       ))}
                     </Pie>
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: '#1e293b',
-                        border: '1px solid #334155',
-                        borderRadius: '12px',
+                        backgroundColor: '#fff',
+                        border: 'none',
+                        borderRadius: '16px',
+                        boxShadow:
+                          '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+                        padding: '12px 16px',
                       }}
-                      formatter={(value) => [`${value}`, '']}
+                      itemStyle={{ fontBold: true, fontSize: '14px', color: '#0f172a' }}
+                      formatter={(value) => [`${value} ứng viên`, '']}
                     />
                   </PieChart>
                 </ChartSurface>
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-slate-900">
-                      {totalApplicants >= 1000
-                        ? `${(totalApplicants / 1000).toFixed(1)}k`
-                        : totalApplicants}
-                    </p>
-                    <p className="text-base font-medium text-slate-500 uppercase tracking-wider">
-                      Ứng viên
-                    </p>
-                  </div>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <p className="text-4xl font-black tracking-tighter text-foreground">
+                    {totalApplicants >= 1000
+                      ? `${(totalApplicants / 1000).toFixed(1)}k`
+                      : totalApplicants}
+                  </p>
+                  <p className="text-base font-black uppercase tracking-[0.2em] text-muted-foreground/50">
+                    TỔNG SỐ
+                  </p>
                 </div>
               </div>
-              <div className="mt-6 space-y-3">
+
+              <div className="mt-8 space-y-4">
                 {[
                   {
                     label: 'Chờ duyệt',
@@ -427,16 +469,29 @@ const DashboardPage = () => {
                     percent: pipelineChartData[3]?.percent ?? 10,
                     color: PIPELINE_CHART_COLORS[3],
                   },
-                ].map((item) => (
-                  <div key={item.label} className="flex items-center justify-between text-base">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="w-2.5 h-2.5 rounded-full shrink-0"
-                        style={{ backgroundColor: item.color }}
-                      />
-                      <span className="text-slate-500">{item.label}</span>
+                ].map((item, idx) => (
+                  <div key={idx} className="group/item space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="h-2 w-2 rounded-full shadow-sm"
+                          style={{ backgroundColor: item.color }}
+                        />
+                        <span className="text-sm font-bold text-muted-foreground group-hover/item:text-foreground transition-colors">
+                          {item.label}
+                        </span>
+                      </div>
+                      <span className="text-sm font-black text-foreground">{item.percent}%</span>
                     </div>
-                    <span className="font-semibold text-slate-900">{item.percent}%</span>
+                    <div className="h-1.5 w-full bg-slate-50 rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-1000"
+                        style={{
+                          backgroundColor: item.color,
+                          width: `${item.percent}%`,
+                        }}
+                      />
+                    </div>
                   </div>
                 ))}
               </div>

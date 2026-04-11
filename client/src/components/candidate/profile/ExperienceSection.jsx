@@ -25,15 +25,15 @@ const ExperienceSection = ({ experiences = [] }) => {
                 <h4 className="text-lg font-bold text-slate-900 dark:text-white transition-colors">
                   {exp.title || exp.position}
                 </h4>
-                <p className="text-emerald-600 dark:text-emerald-400 font-medium text-sm mt-1">
+                <p className="text-emerald-600 dark:text-emerald-400 font-medium text-base mt-1">
                   {exp.company}
                 </p>
               </div>
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1 rounded-md shrink-0">
+              <span className="text-sm font-medium text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1 rounded-md shrink-0">
                 {exp.period || `${exp.startDate} - ${exp.endDate || 'Hiện tại'}`}
               </span>
             </div>
-            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mt-2 whitespace-pre-line bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800/60">
+            <p className="text-slate-600 dark:text-slate-400 text-base leading-relaxed mt-2 whitespace-pre-line bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800/60">
               {exp.description || exp.desc}
             </p>
           </div>
@@ -42,7 +42,7 @@ const ExperienceSection = ({ experiences = [] }) => {
         {(!experiences || experiences.length === 0) && (
           <div className="relative">
             <div className="absolute -left-[31px] top-1.5 w-3 h-3 rounded-full border-2 border-white dark:border-slate-900 bg-slate-300 dark:bg-slate-600"></div>
-            <p className="text-slate-500 dark:text-slate-400 text-sm italic">
+            <p className="text-slate-500 dark:text-slate-400 text-base italic">
               Chưa có thông tin kinh nghiệm.
             </p>
           </div>

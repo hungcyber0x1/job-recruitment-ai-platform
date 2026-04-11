@@ -102,7 +102,7 @@ const ChatPage = () => {
         <div className="w-full rounded-3xl border border-primary-200 bg-primary-50 p-10 text-center shadow-sm">
           <Sparkles className="mx-auto mb-4 text-primary-500" size={36} />
           <h1 className="text-3xl font-black text-slate-900">AI chatbot tạm thời đang tắt</h1>
-          <p className="mt-3 text-sm font-medium text-slate-600">
+          <p className="mt-3 text-base font-medium text-slate-600">
             Admin đã tạm tắt chatbot. Bạn vẫn có thể dùng các tính năng khác và quay lại sau.
           </p>
           <div className="mt-6">
@@ -124,7 +124,7 @@ const ChatPage = () => {
         <aside className="hidden w-80 flex-col border-r border-slate-200 bg-slate-50 lg:flex">
           <div className="p-6">
             <h2 className="text-xl font-black text-slate-900">Hội thoại AI</h2>
-            <p className="mb-6 mt-2 text-xs font-medium leading-relaxed text-slate-500">
+            <p className="mb-6 mt-2 text-base font-medium leading-relaxed text-slate-500">
               Lịch sử được lưu theo tài khoản để bạn xem lại.
             </p>
             <div className="relative mb-6">
@@ -145,7 +145,7 @@ const ChatPage = () => {
                 <MessageCircle size={18} />
                 Hội thoại hiện tại
               </div>
-              <Badge variant="primary" className="text-[10px]">
+              <Badge variant="primary" className="text-sm">
                 LIVE
               </Badge>
             </div>
@@ -177,13 +177,13 @@ const ChatPage = () => {
           <div className="mt-auto border-t border-slate-50 p-6">
             <div className="relative overflow-hidden rounded-3xl bg-primary p-6 text-white">
               <Sparkles size={60} className="absolute -bottom-4 -right-4 opacity-10" />
-              <p className="mb-4 text-sm font-bold">HireAI Assistant</p>
-              <p className="mb-6 text-[10px] text-white/80">
+              <p className="mb-4 text-base font-bold">HireAI Assistant</p>
+              <p className="mb-6 text-base text-white/80">
                 Chat thông qua gateway để đồng bộ auth, lịch sử và feature flags.
               </p>
               <Button
                 variant="secondary"
-                className="w-full border-none bg-white py-2 text-xs font-black text-primary"
+                className="w-full border-none bg-white py-2 text-sm font-black text-primary"
               >
                 Đang kết nối gateway
               </Button>
@@ -204,11 +204,11 @@ const ChatPage = () => {
                 <h3 className="leading-tight text-slate-900 font-black">HireAI Smart Assistant</h3>
                 <div className="flex items-center gap-2">
                   <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-500" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  <span className="text-sm font-black uppercase tracking-widest text-slate-400">
                     Gateway synced chat
                   </span>
                 </div>
-                <p className="mt-1.5 max-w-md text-xs text-slate-500 lg:hidden">
+                <p className="mt-1.5 max-w-md text-base text-slate-500 lg:hidden">
                   Lịch sử được lưu theo tài khoản để bạn xem lại.
                 </p>
               </div>
@@ -246,7 +246,7 @@ const ChatPage = () => {
                       <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 text-slate-400 transition-colors group-hover:bg-primary/10 group-hover:text-primary">
                         {suggestion.icon}
                       </div>
-                      <p className="text-sm font-bold leading-relaxed text-slate-700">
+                      <p className="text-base font-bold leading-relaxed text-slate-700">
                         {suggestion.text}
                       </p>
                     </button>
@@ -322,7 +322,7 @@ const ChatPage = () => {
                 </button>
               </div>
             </form>
-            <p className="mt-4 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+            <p className="mt-4 text-center text-base font-bold uppercase tracking-[0.2em] text-slate-400">
               AI có thể đưa ra câu trả lời không chính xác. Hãy kiểm tra lại thông tin quan trọng.
             </p>
           </div>

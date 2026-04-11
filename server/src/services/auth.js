@@ -2,7 +2,7 @@
  * Nghiệp vụ xác thực: đăng ký (transaction user + profile role), đăng nhập (bcrypt + JWT),
  * đổi mật khẩu. Token JWT chứa { id, role } — middleware protect đọc và nạp user từ DB.
  */
-const UserRepository = require('../repositories/user');
+const UserRepository = require('../models/User');
 
 const AppError = require('../utils/errorHandler');
 const bcrypt = require('bcryptjs');

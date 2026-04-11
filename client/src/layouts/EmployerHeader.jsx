@@ -3,6 +3,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Bell, Briefcase, Building2, Home, LogOut, Menu, Settings } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { Logo } from '@/components/common';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -34,12 +35,9 @@ const EmployerHeader = ({ onMenuClick }) => {
 
         {/* Logo & Title */}
         <div className="flex items-center gap-2 mr-6">
-          <div className="hidden sm:flex items-center justify-center h-9 w-9 rounded-lg bg-emerald-600 text-white">
-            <Briefcase className="h-5 w-5" />
-          </div>
-          <div>
-            <span className="text-lg font-bold">HireAI</span>
-            <p className="text-xs text-muted-foreground hidden md:block">Nhà tuyển dụng</p>
+          <Logo className="h-12 w-auto" />
+          <div className="ml-2 pl-2 border-l border-border hidden md:block">
+            <p className="text-base font-medium text-muted-foreground">Nhà tuyển dụng</p>
           </div>
         </div>
 
@@ -85,10 +83,10 @@ const EmployerHeader = ({ onMenuClick }) => {
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">
+                  <p className="text-base font-medium leading-none">
                     {user?.fullName || user?.companyName || 'Nhà tuyển dụng'}
                   </p>
-                  <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                  <p className="text-base leading-none text-muted-foreground">{user?.email}</p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />

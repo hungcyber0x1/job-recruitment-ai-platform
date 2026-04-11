@@ -45,20 +45,20 @@ const ApplicationCard = ({ application, onClick }) => {
               {application.job_title}
             </h3>
             <span
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide ${config.bg} ${config.text}`}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-bold uppercase tracking-wide ${config.bg} ${config.text}`}
             >
               <Icon size={14} />
               {config.label}
             </span>
           </div>
 
-          <p className="mb-3 flex items-center gap-2 text-sm font-medium text-txt-muted">
+          <p className="mb-3 flex items-center gap-2 text-base font-medium text-txt-muted">
             <Briefcase size={14} /> {application.company_name}
             <span className="text-border">•</span>
             <MapPin size={14} /> {application.location || 'Đang cập nhật'}
           </p>
 
-          <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-txt-light">
+          <div className="flex flex-wrap items-center gap-4 text-sm font-semibold text-txt-light">
             <span>
               Đã ứng tuyển:{' '}
               <span className="text-txt-muted">{formatDate(application.applied_at)}</span>
@@ -86,7 +86,7 @@ const ApplicationCard = ({ application, onClick }) => {
                 </div>
               ))}
             </div>
-            <p className="text-xs font-bold uppercase text-txt-light">Tiến độ</p>
+            <p className="text-base font-bold uppercase text-txt-light">Tiến độ</p>
           </div>
 
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-txt-light transition-colors group-hover:bg-secondary/10 group-hover:text-secondary">

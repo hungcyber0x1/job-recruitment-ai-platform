@@ -7,7 +7,7 @@
  * @readonly
  */
 export const AVATAR_SIZES = {
-  xs: 'w-6 h-6 text-xs',
+  xs: 'w-6 h-6 text-sm',
   sm: 'w-8 h-8 text-sm',
   md: 'w-12 h-12 text-base',
   lg: 'w-16 h-16 text-xl',
@@ -19,7 +19,7 @@ export const AVATAR_SIZES = {
  * @readonly
  */
 export const BUTTON_SIZES = {
-  sm: 'px-4 py-2 text-xs rounded-xl',
+  sm: 'px-4 py-2 text-sm rounded-xl',
   md: 'px-6 py-3 text-sm rounded-2xl',
   lg: 'px-8 py-4 text-base rounded-2xl',
 };

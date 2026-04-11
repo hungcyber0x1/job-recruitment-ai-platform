@@ -89,7 +89,7 @@ const CompanyProfile = ({ companyData, isEditable = false }) => {
               ].map((val, i) => (
                 <div key={i} className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
                   <h4 className="font-bold text-slate-900 mb-2">{val.title}</h4>
-                  <p className="text-xs text-slate-500 font-medium">{val.desc}</p>
+                  <p className="text-base text-slate-500 font-medium">{val.desc}</p>
                 </div>
               ))}
             </div>
@@ -122,7 +122,7 @@ const CompanyProfile = ({ companyData, isEditable = false }) => {
             </div>
 
             <div className="mt-10 pt-8 border-t border-slate-50">
-              <p className="text-xs font-black text-slate-300 uppercase tracking-widest mb-6 text-center">
+              <p className="text-base font-black text-slate-300 uppercase tracking-widest mb-6 text-center">
                 Mạng xã hội
               </p>
               <div className="flex justify-center gap-4">

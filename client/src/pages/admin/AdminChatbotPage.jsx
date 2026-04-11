@@ -133,7 +133,7 @@ const AdminChatbotPage = () => {
             return (
               <div
                 key={card.label}
-                className="rounded-2xl border border-slate-200 bg-white p-5 transition-colors hover:border-slate-200"
+                className="card-premium-hover rounded-2xl border border-slate-200 bg-white p-5"
               >
                 <div className="flex items-start justify-between">
                   <div className={`rounded-xl p-2.5 ${card.iconBg}`}>

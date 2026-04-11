@@ -90,19 +90,19 @@ const ChatbotConversations = () => {
           <table className="w-full">
             <thead className="border-b border-border bg-muted/50">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-wider text-muted-foreground">
+                <th className="px-6 py-4 text-left text-sm font-black uppercase tracking-wider text-muted-foreground">
                   Người dùng
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-wider text-muted-foreground">
+                <th className="px-6 py-4 text-left text-sm font-black uppercase tracking-wider text-muted-foreground">
                   Tiêu đề
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-wider text-muted-foreground">
+                <th className="px-6 py-4 text-left text-sm font-black uppercase tracking-wider text-muted-foreground">
                   Số tin nhắn
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-wider text-muted-foreground">
+                <th className="px-6 py-4 text-left text-sm font-black uppercase tracking-wider text-muted-foreground">
                   Tạo lúc
                 </th>
-                <th className="px-6 py-4 text-right text-xs font-black uppercase tracking-wider text-muted-foreground">
+                <th className="px-6 py-4 text-right text-sm font-black uppercase tracking-wider text-muted-foreground">
                   Hành động
                 </th>
               </tr>
@@ -130,7 +130,7 @@ const ChatbotConversations = () => {
                         <p className="font-bold text-foreground">
                           {conv.first_name} {conv.last_name}
                         </p>
-                        <p className="text-sm text-muted-foreground">{conv.user_email}</p>
+                        <p className="text-base text-muted-foreground">{conv.user_email}</p>
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -171,7 +171,7 @@ const ChatbotConversations = () => {
 
         {pagination.totalPages > 1 && (
           <div className="flex items-center justify-between border-t border-border px-6 py-4">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-base text-muted-foreground">
               Trang {pagination.page} / {pagination.totalPages} ({pagination.total} kết quả)
             </p>
             <div className="flex gap-2">
@@ -202,7 +202,7 @@ const ChatbotConversations = () => {
                 <h3 className="text-xl font-black text-foreground">
                   {selectedConversation.conversation.title}
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-base text-muted-foreground">
                   {selectedConversation.conversation.user_email} -{' '}
                   {selectedConversation.conversation.role}
                 </p>
@@ -239,7 +239,7 @@ const ChatbotConversations = () => {
                         </a>
                       </div>
                     )}
-                    <p className="mt-2 text-xs opacity-70">
+                    <p className="mt-2 text-base opacity-70">
                       {new Date(msg.created_at).toLocaleString('vi-VN')}
                     </p>
                   </div>

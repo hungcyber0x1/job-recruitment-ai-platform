@@ -1,4 +1,4 @@
-const CompanyRepository = require('../repositories/company');
+const CompanyRepository = require('../models/Company');
 
 class CompanyController {
   async getAllCompanies(req, res, next) {

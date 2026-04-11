@@ -1,5 +1,5 @@
 const CareerPathService = require('../services/career-path');
-const CandidateRepository = require('../repositories/candidate');
+const CandidateRepository = require('../models/Candidate');
 const logger = require('../utils/logger');
 
 /**

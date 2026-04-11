@@ -1,6 +1,6 @@
-const ApplicationRepository = require('../repositories/application');
-const JobRepository = require('../repositories/job');
-const SystemSettingsRepository = require('../repositories/system-settings');
+const ApplicationRepository = require('../models/Application');
+const JobRepository = require('../models/Job');
+const SystemSettingsRepository = require('../models/SystemSettings');
 const AppError = require('../utils/errorHandler');
 const logger = require('../utils/logger');
 

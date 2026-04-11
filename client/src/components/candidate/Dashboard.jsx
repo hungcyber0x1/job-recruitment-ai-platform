@@ -38,6 +38,7 @@ const CandidateDashboard = ({ stats, recentApplications }) => {
         {summaryCards.map((item) => (
           <Card
             key={item.label}
+            hover
             className="flex items-center gap-5 border-none p-6 shadow-xl shadow-slate-100/50"
           >
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
@@ -45,7 +46,7 @@ const CandidateDashboard = ({ stats, recentApplications }) => {
             </div>
             <div>
               <p className="text-2xl font-black text-slate-900">{item.value}</p>
-              <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
+              <p className="text-base font-bold uppercase tracking-widest text-slate-400">
                 {item.label}
               </p>
             </div>
@@ -67,10 +68,7 @@ const CandidateDashboard = ({ stats, recentApplications }) => {
           <div className="space-y-4">
             {recentApplications.length ? (
               recentApplications.map((application) => (
-                <Card
-                  key={application.id}
-                  className="group border-border p-6 transition-all hover:border-primary/20"
-                >
+                <Card key={application.id} hover className="group border-border p-6">
                   <div className="flex items-center gap-6">
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-50">
                       {application.company_logo ? (
@@ -84,10 +82,10 @@ const CandidateDashboard = ({ stats, recentApplications }) => {
                       )}
                     </div>
                     <div className="flex-grow">
-                      <h4 className="mb-1 text-xs font-bold uppercase tracking-wider text-slate-900 transition-colors group-hover:text-primary">
+                      <h4 className="mb-1 text-sm font-bold uppercase tracking-wider text-slate-900 transition-colors group-hover:text-primary">
                         {application.job_title}
                       </h4>
-                      <p className="text-xs font-medium text-slate-400">
+                      <p className="text-base font-medium text-slate-400">
                         {application.company_name} •{' '}
                         {new Date(application.applied_at).toLocaleDateString()}
                       </p>
@@ -120,11 +118,11 @@ const CandidateDashboard = ({ stats, recentApplications }) => {
               size={120}
             />
             <div className="relative z-10">
-              <div className="mb-4 w-fit rounded-full bg-white/20 px-3 py-1 text-xs font-black uppercase tracking-widest">
+              <div className="mb-4 w-fit rounded-full bg-white/20 px-3 py-1 text-sm font-black uppercase tracking-widest">
                 Gợi ý bởi AI
               </div>
               <h4 className="mb-4 text-xl font-black">Hoàn thiện hồ sơ để tăng 80% cơ hội.</h4>
-              <p className="mb-8 text-sm font-medium leading-relaxed text-white/80">
+              <p className="mb-8 text-base font-medium leading-relaxed text-white/80">
                 AI nhận thấy bạn cần bổ sung thêm kỹ năng và mô tả kinh nghiệm để khớp với nhiều vị
                 trí hơn.
               </p>
@@ -141,14 +139,14 @@ const CandidateDashboard = ({ stats, recentApplications }) => {
             <div className="space-y-6">
               <div className="flex gap-4">
                 <div className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
-                <p className="text-sm font-medium text-slate-400">
+                <p className="text-base font-medium text-slate-400">
                   Theo dõi các đơn đang ở trạng thái{' '}
                   <span className="text-white">reviewed / interviewing</span>.
                 </p>
               </div>
               <div className="flex gap-4">
                 <div className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-                <p className="text-sm font-medium text-slate-400">
+                <p className="text-base font-medium text-slate-400">
                   Cập nhật CV và profile để nhận thêm nhiều gợi ý việc làm.
                 </p>
               </div>

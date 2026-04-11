@@ -42,7 +42,7 @@ const RecentApplications = ({ applications = [] }) => {
                       <h4 className="truncate text-base font-semibold transition-colors group-hover:text-primary">
                         {app.job_title}
                       </h4>
-                      <p className="mt-0.5 truncate text-sm font-medium text-muted-foreground">
+                      <p className="mt-0.5 truncate text-base font-medium text-muted-foreground">
                         {app.company_name}
                       </p>
                     </div>
@@ -54,7 +54,7 @@ const RecentApplications = ({ applications = [] }) => {
                     >
                       {getStatusLabel(app.status)}
                     </Badge>
-                    <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                    <p className="text-base font-semibold uppercase tracking-widest text-muted-foreground">
                       {formatDate(app.applied_at)}
                     </p>
                   </div>

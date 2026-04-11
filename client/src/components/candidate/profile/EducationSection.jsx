@@ -28,17 +28,17 @@ const EducationSection = ({ education = [] }) => {
                 <h4 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
                   {edu.school}
                 </h4>
-                <span className="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1 rounded-md shrink-0">
+                <span className="text-sm font-medium text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1 rounded-md shrink-0">
                   {edu.period || `${edu.startDate} - ${edu.endDate || 'Hiện tại'}`}
                 </span>
               </div>
-              <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-3">
+              <p className="text-base font-medium text-slate-600 dark:text-slate-400 mb-3">
                 {edu.degree} - {edu.major}
               </p>
               {edu.gpa && (
                 <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1 rounded-md w-fit border border-emerald-100/50 dark:border-emerald-500/20">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  <span className="text-xs font-semibold">GPA: {edu.gpa}</span>
+                  <span className="text-sm font-semibold">GPA: {edu.gpa}</span>
                 </div>
               )}
             </div>
@@ -46,7 +46,7 @@ const EducationSection = ({ education = [] }) => {
         ))}
 
         {(!education || education.length === 0) && (
-          <p className="text-slate-500 dark:text-slate-400 text-sm italic">
+          <p className="text-slate-500 dark:text-slate-400 text-base italic">
             Chưa có thông tin học vấn.
           </p>
         )}

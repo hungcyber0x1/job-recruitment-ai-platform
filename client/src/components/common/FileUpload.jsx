@@ -104,7 +104,7 @@ const FileUpload = ({ onFileSelect, accept = '.pdf,.doc,.docx', maxSize = 5 }) =
               <p className="text-lg font-bold text-slate-900">Tải lên Resume của bạn</p>
               <p className="text-slate-500 mt-1">Kéo thả hoặc nhấn để chọn file</p>
             </div>
-            <div className="px-4 py-2 bg-slate-100 rounded-full text-xs font-medium text-slate-500">
+            <div className="px-4 py-2 bg-slate-100 rounded-full text-sm font-medium text-slate-500">
               Hỗ trợ: PDF, DOC, DOCX (Max {maxSize}MB)
             </div>
           </div>
@@ -116,7 +116,7 @@ const FileUpload = ({ onFileSelect, accept = '.pdf,.doc,.docx', maxSize = 5 }) =
               </div>
               <div className="text-left overflow-hidden">
                 <p className="font-semibold text-slate-900 truncate">{file.name}</p>
-                <p className="text-xs text-slate-500">
+                <p className="text-base text-slate-500">
                   {(file.size / (1024 * 1024)).toFixed(2)} MB
                 </p>
               </div>
@@ -135,7 +135,7 @@ const FileUpload = ({ onFileSelect, accept = '.pdf,.doc,.docx', maxSize = 5 }) =
       </div>
 
       {error && (
-        <p className="text-red-500 text-sm mt-2 flex items-center gap-1">
+        <p className="text-red-500 text-base mt-2 flex items-center gap-1">
           <span className="w-1 h-1 bg-red-500 rounded-full inline-block" />
           {error}
         </p>

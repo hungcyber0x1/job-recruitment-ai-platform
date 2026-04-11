@@ -40,14 +40,14 @@ const ApplicationDetailModal = ({ isOpen, onClose, application, history, loading
                   <h3 className="text-lg font-bold text-foreground">{application.job_title}</h3>
                   {config ? (
                     <span
-                      className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide ${config.bg} ${config.text}`}
+                      className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-bold uppercase tracking-wide ${config.bg} ${config.text}`}
                     >
                       {StatusIcon ? <StatusIcon size={14} /> : null}
                       {config.label}
                     </span>
                   ) : null}
                 </div>
-                <p className="mt-1 text-sm font-medium text-txt-muted">
+                <p className="mt-1 text-base font-medium text-txt-muted">
                   {application.company_name}
                 </p>
                 <div className="mt-4 grid gap-3 text-sm text-txt-muted sm:grid-cols-2">
@@ -94,8 +94,8 @@ const ApplicationDetailModal = ({ isOpen, onClose, application, history, loading
               <div className="flex gap-3">
                 <div className="mt-1 h-3 w-3 shrink-0 rounded-full bg-secondary" />
                 <div>
-                  <p className="text-sm font-semibold text-foreground">Đã nộp đơn ứng tuyển</p>
-                  <p className="text-sm text-txt-muted">
+                  <p className="text-base font-semibold text-foreground">Đã nộp đơn ứng tuyển</p>
+                  <p className="text-base text-txt-muted">
                     {formatDate(application.applied_at)} ({formatTimeAgo(application.applied_at)})
                   </p>
                 </div>
@@ -105,14 +105,14 @@ const ApplicationDetailModal = ({ isOpen, onClose, application, history, loading
                 <div key={item.id} className="flex gap-3">
                   <div className="mt-1 h-3 w-3 shrink-0 rounded-full bg-accent" />
                   <div>
-                    <p className="text-sm font-semibold text-foreground">
+                    <p className="text-base font-semibold text-foreground">
                       {getStatusLabel(item.new_status)}
                     </p>
-                    <p className="text-sm text-txt-muted">
+                    <p className="text-base text-txt-muted">
                       {item.notes ||
                         `Cập nhật từ "${getStatusLabel(item.old_status || 'pending')}" sang "${getStatusLabel(item.new_status)}"`}
                     </p>
-                    <p className="mt-1 text-xs text-txt-light">
+                    <p className="mt-1 text-base text-txt-light">
                       {formatDate(item.created_at)} ({formatTimeAgo(item.created_at)})
                     </p>
                   </div>
@@ -120,7 +120,7 @@ const ApplicationDetailModal = ({ isOpen, onClose, application, history, loading
               ))}
 
               {!(history || []).length ? (
-                <p className="text-sm text-txt-muted">Chưa có cập nhật mới sau khi nộp đơn.</p>
+                <p className="text-base text-txt-muted">Chưa có cập nhật mới sau khi nộp đơn.</p>
               ) : null}
             </div>
           </Card>
@@ -143,7 +143,7 @@ const ApplicationDetailModal = ({ isOpen, onClose, application, history, loading
           </div>
         </div>
       ) : (
-        <p className="text-sm text-txt-muted">Không tải được chi tiết đơn ứng tuyển.</p>
+        <p className="text-base text-txt-muted">Không tải được chi tiết đơn ứng tuyển.</p>
       )}
     </Modal>
   );

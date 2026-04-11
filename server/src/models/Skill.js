@@ -1,4 +1,22 @@
-const BaseRepository = require('./base');
+/**
+ * Skill Model Schema — see migration 007_create_skills_table.sql
+ *
+ * Cung cấp JSDoc type definitions cho hệ thống không dùng ORM.
+ */
+
+/**
+ * @typedef {Object} SkillRow
+ * @property {number} id - Primary key, auto-increment
+ * @property {string} name - Tên kỹ năng
+ * @property {string|null} category - Phân loại kỹ năng
+ */
+
+/** Tên bảng trong database */
+const TABLE_NAME = 'skills';
+
+module.exports = { TABLE_NAME };
+
+const BaseRepository = require('./Base');
 
 class SkillRepository extends BaseRepository {
   constructor() {

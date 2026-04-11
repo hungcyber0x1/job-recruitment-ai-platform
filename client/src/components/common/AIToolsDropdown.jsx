@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronDown, DollarSign, FileText, Sparkles, User } from 'lucide-react';
+import { ChevronDown, DollarSign, FileText, Sparkles } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,12 +18,6 @@ const AI_TOOLS = [
     description: 'So khớp từ khóa & ATS, gợi ý sửa CV trước khi nộp hồ sơ',
     path: '/ai-cv-scanner',
     icon: FileText,
-  },
-  {
-    label: 'Luyện phỏng vấn AI',
-    description: 'Câu hỏi theo ngành — chuẩn bị phỏng vấn tuyển dụng thật',
-    path: '/ai-interview',
-    icon: User,
   },
   {
     label: 'Dự báo lương',
@@ -56,7 +50,7 @@ const AIToolsDropdown = ({
           className
         )}
       >
-        <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+        <p className="px-3 py-1.5 text-base font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
           Công cụ cho ứng viên
         </p>
         {AI_TOOLS.map((tool) => {

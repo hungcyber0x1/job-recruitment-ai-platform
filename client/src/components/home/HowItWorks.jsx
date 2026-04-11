@@ -58,7 +58,9 @@ const HowItWorks = () => {
           >
             <div className="flex items-center gap-3">
               <div className="section-accent-line" />
-              <p className="text-sm font-bold text-primary uppercase tracking-widest">Quy trình</p>
+              <p className="text-base font-bold text-primary uppercase tracking-widest">
+                Quy trình
+              </p>
             </div>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-foreground tracking-tight leading-[1.08]">
               Quy trình tìm việc với <span className="text-primary">HireAI</span>

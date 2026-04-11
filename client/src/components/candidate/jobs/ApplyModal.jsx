@@ -78,7 +78,7 @@ const ApplyModal = ({ job, onClose, onSuccess }) => {
                   <FileText size={24} />
                 </div>
                 <p className="text-slate-900 font-bold mb-1">My_CV_Official.pdf</p>
-                <p className="text-xs text-slate-500">
+                <p className="text-base text-slate-500">
                   Nhấn để thay đổi file khác (PDF, DOC, DOCX)
                 </p>
               </div>

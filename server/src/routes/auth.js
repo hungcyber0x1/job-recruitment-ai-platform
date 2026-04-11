@@ -4,7 +4,7 @@ const AuthController = require('../controllers/auth');
 const { protect } = require('../middlewares/auth');
 const { authLimiter } = require('../middlewares/rate-limiter');
 
-const { registerValidator, loginValidator } = require('../validators/auth');
+const { registerValidator, loginValidator } = require('../validations/auth');
 const { validate } = require('../middlewares/validation');
 const oauthRoutes = require('./oauth');
 

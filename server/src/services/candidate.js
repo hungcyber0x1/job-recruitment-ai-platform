@@ -1,5 +1,5 @@
-const CandidateRepository = require('../repositories/candidate');
-const UserRepository = require('../repositories/user');
+const CandidateRepository = require('../models/Candidate');
+const UserRepository = require('../models/User');
 
 const compactObject = (payload) =>
   Object.fromEntries(

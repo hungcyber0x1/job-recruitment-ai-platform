@@ -38,7 +38,7 @@ const CandidateController = {
         return res.status(400).json({ success: false, message: 'No file uploaded' });
       }
       const avatarUrl = `/uploads/avatars/${req.file.filename}`;
-      const UserRepository = require('../repositories/user');
+      const UserRepository = require('../models/User');
       await UserRepository.update(req.user.id, { avatar_url: avatarUrl });
       res.json({
         success: true,

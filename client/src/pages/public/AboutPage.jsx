@@ -9,7 +9,7 @@ const AboutPage = () => {
           {/* Hero Section */}
           <section className="text-center max-w-4xl mx-auto mb-32 relative">
             <ScrollReveal>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-50 border border-primary-100 text-primary-600 font-bold text-xs uppercase tracking-widest mb-8">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-50 border border-primary-100 text-primary-600 font-bold text-sm uppercase tracking-widest mb-8">
                 <Sparkles size={14} />
                 Về sứ mệnh của chúng tôi
               </div>
@@ -88,7 +88,7 @@ const AboutPage = () => {
                       decimals={stat.val % 1 !== 0 ? 1 : 0}
                       className="text-4xl font-black text-primary-600"
                     />
-                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest">
+                    <p className="text-base font-black text-slate-400 uppercase tracking-widest">
                       {stat.label}
                     </p>
                   </div>
@@ -191,7 +191,7 @@ const AboutPage = () => {
                     <span className="text-6xl font-black relative z-10 opacity-20 group-hover:opacity-40 transition-opacity">
                       AI
                     </span>
-                    <p className="absolute bottom-6 left-6 font-bold text-xs uppercase tracking-widest text-primary-500">
+                    <p className="absolute bottom-6 left-6 font-bold text-base uppercase tracking-widest text-primary-500">
                       Tech First Culture
                     </p>
                   </div>

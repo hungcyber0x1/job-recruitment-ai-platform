@@ -1,5 +1,5 @@
 const { pool } = require('../config/database.config');
-const UserRepository = require('../repositories/user');
+const UserRepository = require('../models/User');
 const AuthService = require('./auth');
 const AppError = require('../utils/errorHandler');
 

@@ -19,6 +19,13 @@ import { useNotification } from '../../context/NotificationContext';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   calendarDaysLeftUntilDeadline,
   isJobApplicationDeadlinePassed,
 } from '../../utils/jobDeadline';
@@ -272,35 +279,63 @@ const ManageJobsPage = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <select
+            <Select
               value={filterType}
-              onChange={(e) => {
-                setFilterType(e.target.value);
+              onValueChange={(val) => {
+                setFilterType(val);
                 setCurrentPage(1);
               }}
-              className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-base font-bold text-slate-600 outline-none appearance-none cursor-pointer hover:border-emerald-300 hover:text-emerald-600 transition-all shadow-sm"
             >
-              <option value="all">Tất cả loại hình</option>
-              <option value="full_time">Toàn thời gian</option>
-              <option value="part_time">Bán thời gian</option>
-              <option value="contract">Hợp đồng</option>
-              <option value="remote">Từ xa</option>
-            </select>
+              <SelectTrigger className="h-10 w-[160px] rounded-xl border-slate-200 bg-white text-base font-bold text-slate-600 hover:border-emerald-300 hover:text-emerald-600 focus:ring-emerald-500/10 shadow-sm">
+                <SelectValue placeholder="Loại hình" />
+              </SelectTrigger>
+              <SelectContent className="rounded-xl border-border/50 shadow-xl">
+                <SelectItem value="all" className="text-base font-medium py-2.5">
+                  Tất cả loại hình
+                </SelectItem>
+                <SelectItem value="full_time" className="text-base font-medium py-2.5">
+                  Toàn thời gian
+                </SelectItem>
+                <SelectItem value="part_time" className="text-base font-medium py-2.5">
+                  Bán thời gian
+                </SelectItem>
+                <SelectItem value="contract" className="text-base font-medium py-2.5">
+                  Hợp đồng
+                </SelectItem>
+                <SelectItem value="remote" className="text-base font-medium py-2.5">
+                  Từ xa
+                </SelectItem>
+              </SelectContent>
+            </Select>
 
-            <select
+            <Select
               value={filterLocation}
-              onChange={(e) => {
-                setFilterLocation(e.target.value);
+              onValueChange={(val) => {
+                setFilterLocation(val);
                 setCurrentPage(1);
               }}
-              className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-base font-bold text-slate-600 outline-none appearance-none cursor-pointer hover:border-emerald-300 hover:text-emerald-600 transition-all shadow-sm"
             >
-              <option value="all">Tất cả địa điểm</option>
-              <option value="Hồ Chí Minh">TP. Hồ Chí Minh</option>
-              <option value="Hà Nội">Hà Nội</option>
-              <option value="Đà Nẵng">Đà Nẵng</option>
-              <option value="Remote">Remote</option>
-            </select>
+              <SelectTrigger className="h-10 w-[160px] rounded-xl border-slate-200 bg-white text-base font-bold text-slate-600 hover:border-emerald-300 hover:text-emerald-600 focus:ring-emerald-500/10 shadow-sm">
+                <SelectValue placeholder="Địa điểm" />
+              </SelectTrigger>
+              <SelectContent className="rounded-xl border-border/50 shadow-xl">
+                <SelectItem value="all" className="text-base font-medium py-2.5">
+                  Tất cả địa điểm
+                </SelectItem>
+                <SelectItem value="Hồ Chí Minh" className="text-base font-medium py-2.5">
+                  TP. Hồ Chí Minh
+                </SelectItem>
+                <SelectItem value="Hà Nội" className="text-base font-medium py-2.5">
+                  Hà Nội
+                </SelectItem>
+                <SelectItem value="Đà Nẵng" className="text-base font-medium py-2.5">
+                  Đà Nẵng
+                </SelectItem>
+                <SelectItem value="Remote" className="text-base font-medium py-2.5">
+                  Remote
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>

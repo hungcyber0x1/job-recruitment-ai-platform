@@ -67,16 +67,16 @@ const AICVScanner = () => {
   };
 
   return (
-    <div className="landing-card bg-background p-8 lg:p-10 flex flex-col min-h-[480px] rounded-2xl group/scanner">
+    <div className="landing-card bg-background p-8 lg:p-10 flex flex-col min-h-[480px] rounded-2xl group/scanner card-premium-hover">
       <div className="flex items-center gap-4 mb-8">
-        <div className="h-12 w-12 rounded-xl bg-primary/8 text-primary border border-primary/12 flex items-center justify-center group-hover/scanner:bg-primary group-hover/scanner:text-primary-foreground group-hover/scanner:border-primary transition-all duration-300">
+        <div className="h-12 w-12 rounded-xl bg-primary/8 text-primary border border-primary/12 flex items-center justify-center group-hover/scanner:bg-primary group-hover/scanner:text-white group-hover/scanner:border-primary transition-all duration-300">
           <ScanSearch size={22} strokeWidth={1.8} aria-hidden="true" />
         </div>
         <div>
           <h3 className="text-xl font-bold text-foreground leading-tight group-hover/scanner:text-primary transition-colors">
             Chấm điểm CV bằng AI
           </h3>
-          <p className="text-xs text-muted-foreground font-medium mt-0.5">
+          <p className="text-base text-muted-foreground font-medium mt-0.5">
             Phân tích và gợi ý cải thiện hồ sơ
           </p>
         </div>
@@ -121,10 +121,10 @@ const AICVScanner = () => {
                     <div className="h-16 w-16 bg-background border border-border/60 rounded-xl flex items-center justify-center mb-5 hover:border-primary/40 hover:shadow-[0_8px_24px_-8px_rgba(var(--primary-shadow),0.12)] transition-all duration-300 active:scale-[0.95]">
                       <Upload size={24} className="text-muted-foreground" aria-hidden="true" />
                     </div>
-                    <p className="text-sm font-semibold text-muted-foreground mb-1">
+                    <p className="text-base font-semibold text-muted-foreground mb-1">
                       Tải lên CV của bạn
                     </p>
-                    <p className="text-xs text-muted-foreground max-w-[220px] leading-relaxed">
+                    <p className="text-base text-muted-foreground max-w-[220px] leading-relaxed">
                       Kéo thả hoặc nhấn để chọn — .pdf, .docx (tối đa 5 MB)
                     </p>
                   </>
@@ -135,10 +135,10 @@ const AICVScanner = () => {
                         <File size={18} className="text-primary" />
                       </div>
                       <div className="flex-1 min-w-0 text-left">
-                        <p className="text-sm font-semibold text-foreground truncate">
+                        <p className="text-base font-semibold text-foreground truncate">
                           {file.name}
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-base text-muted-foreground">
                           {(file.size / 1024).toFixed(1)} KB
                         </p>
                       </div>
@@ -154,20 +154,20 @@ const AICVScanner = () => {
                         <X size={16} />
                       </button>
                     </div>
-                    <p className="text-sm font-semibold text-primary mb-1">Nhấn để phân tích</p>
+                    <p className="text-base font-semibold text-primary mb-1">Nhấn để phân tích</p>
                     <button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         inputRef.current?.click();
                       }}
-                      className="text-xs text-muted-foreground hover:text-primary transition-colors underline underline-offset-2"
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors underline underline-offset-2"
                     >
                       Chọn file khác
                     </button>
                   </>
                 )}
-                {error && <p className="mt-3 text-xs text-red-600 font-medium">{error}</p>}
+                {error && <p className="mt-3 text-base text-red-600 font-medium">{error}</p>}
               </div>
             ) : status === 'scanning' ? (
               <div className="flex flex-col items-center relative z-10 w-full max-w-xs">
@@ -179,7 +179,7 @@ const AICVScanner = () => {
                     transition={{ duration: 1.5, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
                   />
                 </div>
-                <p className="text-sm font-semibold text-primary">Đang phân tích CV…</p>
+                <p className="text-base font-semibold text-primary">Đang phân tích CV…</p>
               </div>
             ) : (
               <div className="w-full space-y-6 relative z-10">
@@ -189,25 +189,25 @@ const AICVScanner = () => {
                   </p>
                   <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary/8 text-primary border border-primary/12 rounded-lg">
                     <CheckCircle2 size={12} aria-hidden="true" />
-                    <span className="text-xs font-semibold">Hồ sơ tốt</span>
+                    <span className="text-sm font-semibold">Hồ sơ tốt</span>
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <div className="p-3 bg-background rounded-lg border border-border/30 text-left">
-                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+                    <p className="text-base font-semibold text-muted-foreground uppercase tracking-wider mb-1">
                       Điểm mạnh
                     </p>
-                    <p className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <p className="text-base font-medium text-muted-foreground flex items-center gap-2">
                       <span className="w-1.5 h-1.5 bg-primary rounded-full shrink-0" /> Phát triển
                       fullstack
                     </p>
                   </div>
                   <div className="p-3 bg-background rounded-lg border border-border/30 text-left">
-                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+                    <p className="text-base font-semibold text-muted-foreground uppercase tracking-wider mb-1">
                       Cần bổ sung
                     </p>
-                    <p className="text-sm font-medium text-primary flex items-center gap-2">
+                    <p className="text-base font-medium text-primary flex items-center gap-2">
                       <Sparkles size={14} aria-hidden="true" /> Thêm từ khoá về Cloud và DevOps
                     </p>
                   </div>
@@ -218,7 +218,7 @@ const AICVScanner = () => {
                     setStatus('idle');
                     removeFile();
                   }}
-                  className="landing-link text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 rounded"
+                  className="landing-link text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 rounded"
                 >
                   Thử lại với CV khác
                 </button>

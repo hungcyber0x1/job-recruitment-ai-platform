@@ -1,5 +1,5 @@
-const BlogRepository = require('../repositories/blog');
-const EmployerRepository = require('../repositories/employer');
+const BlogRepository = require('../models/Blog');
+const EmployerRepository = require('../models/Employer');
 const AppError = require('../utils/errorHandler');
 
 /** Slug bài viết: chỉ [a-z0-9], tối đa 100 ký tự, mặc định `bai-viet` — cố ý khác `utils/stringHelper.slugify` (giữ ký tự `_`). */

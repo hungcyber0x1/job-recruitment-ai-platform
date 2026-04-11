@@ -13,6 +13,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import AIPublicToolShell from '@/components/public/AIPublicToolShell';
 import publicToolsService from '@/services/publicToolsService';
 
@@ -188,18 +195,28 @@ const SalaryPredictorPage = () => {
                   <Label htmlFor="salary-exp" className="text-base font-bold text-foreground">
                     Số năm kinh nghiệm
                   </Label>
-                  <select
-                    id="salary-exp"
+                  <Select
                     value={formData.experience}
-                    onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
-                    className="h-12 w-full rounded-xl border border-border/60 bg-muted/50 px-4 text-base font-medium text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    onValueChange={(val) => setFormData({ ...formData, experience: val })}
                   >
-                    {EXPERIENCE_OPTIONS.map((o) => (
-                      <option key={o.value} value={o.value}>
-                        {o.label}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger
+                      id="salary-exp"
+                      className="h-12 w-full rounded-xl border-border/60 bg-muted/50 px-4 text-base font-medium text-foreground focus:ring-2 focus:ring-primary/20"
+                    >
+                      <SelectValue placeholder="Chọn kinh nghiệm" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl border-border/50 shadow-xl">
+                      {EXPERIENCE_OPTIONS.map((o) => (
+                        <SelectItem
+                          key={o.value}
+                          value={o.value}
+                          className="text-base font-medium py-3"
+                        >
+                          {o.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="salary-loc" className="text-base font-bold text-foreground">
@@ -210,18 +227,28 @@ const SalaryPredictorPage = () => {
                       className="absolute left-4 top-1/2 size-[18px] -translate-y-1/2 text-muted-foreground"
                       aria-hidden
                     />
-                    <select
-                      id="salary-loc"
+                    <Select
                       value={formData.location}
-                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                      className="h-12 w-full appearance-none rounded-xl border border-border/60 bg-muted/50 pl-11 pr-4 text-base font-medium text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      onValueChange={(val) => setFormData({ ...formData, location: val })}
                     >
-                      {LOCATION_OPTIONS.map((o) => (
-                        <option key={o.value} value={o.value}>
-                          {o.label}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger
+                        id="salary-loc"
+                        className="h-12 w-full rounded-xl border-border/60 bg-muted/50 pl-11 pr-4 text-base font-medium text-foreground focus:ring-2 focus:ring-primary/20"
+                      >
+                        <SelectValue placeholder="Chọn địa điểm" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl border-border/50 shadow-xl">
+                        {LOCATION_OPTIONS.map((o) => (
+                          <SelectItem
+                            key={o.value}
+                            value={o.value}
+                            className="text-base font-medium py-3"
+                          >
+                            {o.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </div>
@@ -235,18 +262,28 @@ const SalaryPredictorPage = () => {
                     className="absolute left-4 top-1/2 size-[18px] -translate-y-1/2 text-muted-foreground"
                     aria-hidden
                   />
-                  <select
-                    id="salary-ind"
+                  <Select
                     value={formData.industry}
-                    onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
-                    className="h-12 w-full appearance-none rounded-xl border border-border/60 bg-muted/50 pl-11 pr-4 text-base font-medium text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    onValueChange={(val) => setFormData({ ...formData, industry: val })}
                   >
-                    {INDUSTRY_OPTIONS.map((o) => (
-                      <option key={o.value} value={o.value}>
-                        {o.label}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger
+                      id="salary-ind"
+                      className="h-12 w-full rounded-xl border-border/60 bg-muted/50 pl-11 pr-4 text-base font-medium text-foreground focus:ring-2 focus:ring-primary/20"
+                    >
+                      <SelectValue placeholder="Chọn ngành nghề" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl border-border/50 shadow-xl">
+                      {INDUSTRY_OPTIONS.map((o) => (
+                        <SelectItem
+                          key={o.value}
+                          value={o.value}
+                          className="text-base font-medium py-3"
+                        >
+                          {o.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
@@ -318,7 +355,7 @@ const SalaryPredictorPage = () => {
                 </div>
 
                 <div className="rounded-xl border border-border/40 bg-muted/50 p-6">
-                  <p className="mb-4 text-sm font-bold text-muted-foreground">
+                  <p className="mb-4 text-base font-bold text-muted-foreground">
                     Khoảng lương phổ biến
                   </p>
                   <p className="text-xl font-black text-primary md:text-2xl">
@@ -363,7 +400,7 @@ const SalaryPredictorPage = () => {
                 </div>
               </div>
 
-              <p className="mt-6 text-center text-sm font-medium text-muted-foreground">
+              <p className="mt-6 text-center text-base font-medium text-muted-foreground">
                 * Ước lượng tham khảo; thực tế phụ thuộc công ty, quy mô và kỹ năng cụ thể.
               </p>
             </div>

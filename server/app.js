@@ -5,14 +5,14 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const helmet = require('helmet');
-const routes = require('./routes/index');
-const authRoutes = require('./routes/auth');
-const errorMiddleware = require('./middlewares/error');
-const { generalLimiter } = require('./middlewares/rate-limiter');
-const { auditMiddleware } = require('./middlewares/audit');
-const { requestIdMiddleware } = require('./middlewares/request-id');
-const { getAllowedOrigins } = require('./utils/allowedOrigins');
-const { uploadsRoot } = require('./config/paths');
+const routes = require('./src/routes/index');
+const authRoutes = require('./src/routes/auth');
+const errorMiddleware = require('./src/middlewares/error');
+const { generalLimiter } = require('./src/middlewares/rate-limiter');
+const { auditMiddleware } = require('./src/middlewares/audit');
+const { requestIdMiddleware } = require('./src/middlewares/request-id');
+const { getAllowedOrigins } = require('./src/utils/allowedOrigins');
+const { uploadsRoot } = require('./src/config/paths');
 
 const app = express();
 
@@ -20,7 +20,7 @@ app.use(requestIdMiddleware);
 
 morgan.token('req-id', (req) => req.id || '-');
 
-require('./config/swagger')(app);
+require('./src/config/swagger')(app);
 
 const allowedOrigins = getAllowedOrigins();
 

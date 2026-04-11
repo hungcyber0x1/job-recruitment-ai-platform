@@ -12,6 +12,14 @@ import {
   SlidersHorizontal,
 } from 'lucide-react';
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
 import { aiService } from '@/services';
 import categoryService from '../../services/categoryService';
 import jobService from '../../services/jobService';

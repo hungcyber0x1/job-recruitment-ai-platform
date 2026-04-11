@@ -98,7 +98,7 @@ const JobMatchingPreview = () => {
                   </div>
                   <div>
                     <p className="text-foreground font-bold text-base">{job.title}</p>
-                    <p className="text-muted-foreground text-sm font-medium">{job.company}</p>
+                    <p className="text-muted-foreground text-base font-medium">{job.company}</p>
                   </div>
                 </div>
                 <button className="p-2 text-muted-foreground/40 hover:text-primary transition-colors rounded-lg hover:bg-primary/5">
@@ -110,7 +110,7 @@ const JobMatchingPreview = () => {
                 {job.skills.map((skill) => (
                   <span
                     key={skill}
-                    className="px-2.5 py-1 bg-muted/50 border border-border/40 rounded-lg text-xs font-medium text-muted-foreground"
+                    className="px-2.5 py-1 bg-muted/50 border border-border/40 rounded-lg text-sm font-medium text-muted-foreground"
                   >
                     {skill}
                   </span>
@@ -136,12 +136,12 @@ const JobMatchingPreview = () => {
 
               <div className="flex items-center justify-between pt-4 border-t border-border/40">
                 <div
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-bold ${getMatchColor(job.matchScore)}`}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm font-bold ${getMatchColor(job.matchScore)}`}
                 >
                   <Sparkles size={12} />
                   {job.matchScore}% phù hợp
                 </div>
-                <p className="text-muted-foreground/50 text-[11px] font-medium">
+                <p className="text-muted-foreground/50 text-base font-medium">
                   AI dự đoán: <span className="text-muted-foreground">{job.salaryPrediction}</span>
                 </p>
               </div>

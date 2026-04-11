@@ -52,11 +52,11 @@ const NotificationDropdown = ({ isOpen, onClose, notifications = [] }) => {
           <div className="flex items-center gap-2">
             <Bell size={16} className="text-primary-600" />
             <h3 className="font-bold text-slate-800">Thông báo</h3>
-            <span className="bg-primary-100 text-primary-600 text-xs font-bold px-1.5 py-0.5 rounded-full">
+            <span className="bg-primary-100 text-primary-600 text-sm font-bold px-1.5 py-0.5 rounded-full">
               {displayNotifications.filter((n) => !n.isRead).length}
             </span>
           </div>
-          <button className="text-xs font-medium text-primary-600 hover:text-primary-700 transition-colors">
+          <button className="text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors">
             Đánh dấu đã đọc
           </button>
         </div>
@@ -66,7 +66,7 @@ const NotificationDropdown = ({ isOpen, onClose, notifications = [] }) => {
           {displayNotifications.length === 0 ? (
             <div className="p-8 text-center text-slate-400">
               <Bell size={32} className="mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Không có thông báo mới</p>
+              <p className="text-base">Không có thông báo mới</p>
             </div>
           ) : (
             <div className="divide-y divide-slate-50">
@@ -98,10 +98,12 @@ const NotificationDropdown = ({ isOpen, onClose, notifications = [] }) => {
                       >
                         {notification.title}
                       </h4>
-                      <p className="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2">
+                      <p className="text-base text-slate-500 mt-1 leading-relaxed line-clamp-2">
                         {notification.message}
                       </p>
-                      <p className="text-xs text-slate-400 mt-2 font-medium">{notification.time}</p>
+                      <p className="text-base text-slate-400 mt-2 font-medium">
+                        {notification.time}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -112,7 +114,7 @@ const NotificationDropdown = ({ isOpen, onClose, notifications = [] }) => {
 
         {/* Footer */}
         <div className="p-3 border-t border-slate-100 bg-slate-50/50 text-center">
-          <button className="text-xs font-semibold text-slate-600 hover:text-primary-600 transition-colors">
+          <button className="text-sm font-semibold text-slate-600 hover:text-primary-600 transition-colors">
             Xem tất cả thông báo
           </button>
         </div>

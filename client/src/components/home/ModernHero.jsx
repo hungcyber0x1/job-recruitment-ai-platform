@@ -223,7 +223,7 @@ const ModernHero = () => {
               className="mb-8 inline-flex items-center rounded-full border border-neutral-200/90 bg-white px-5 py-3.5 shadow-sm sm:px-7 sm:py-4 lg:mx-0 mx-auto"
             >
               <span
-                className="text-sm font-bold uppercase tracking-widest"
+                className="text-base font-bold uppercase tracking-widest"
                 style={{ color: HERO_BRAND }}
               >
                 • Tuyển dụng thông minh với AI
@@ -234,7 +234,7 @@ const ModernHero = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.05 }}
-              className="mb-9 text-balance text-3xl font-black leading-[1.08] tracking-tight sm:text-4xl md:text-4xl lg:text-5xl xl:text-5xl"
+              className="mb-9 text-balance text-4xl font-black leading-[1.08] tracking-tight sm:text-5xl md:text-5xl lg:text-6xl xl:text-[4.2rem]"
             >
               <span className="block" style={{ color: HERO_TEXT }}>
                 Để AI tìm kiếm công việc mơ ước cho bạn
@@ -248,7 +248,7 @@ const ModernHero = () => {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="mx-auto mb-12 max-w-2xl text-base font-medium leading-relaxed text-neutral-600 md:text-lg lg:mx-0 xl:max-w-[36rem]"
+              className="mx-auto mb-12 max-w-2xl text-lg font-medium leading-relaxed text-neutral-600 md:text-xl lg:mx-0 xl:max-w-[36rem]"
             >
               AI phân tích kỹ năng trong CV của bạn và đối chiếu với yêu cầu thực tế từ nhà tuyển
               dụng — gợi ý đúng vị trí, đúng thời điểm.

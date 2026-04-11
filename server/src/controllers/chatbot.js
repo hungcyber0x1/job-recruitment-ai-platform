@@ -1,5 +1,5 @@
 const ChatbotService = require('../services/chatbot');
-const SystemSettingsRepository = require('../repositories/system-settings');
+const SystemSettingsRepository = require('../models/SystemSettings');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');

@@ -4,9 +4,9 @@
  */
 require('dotenv').config();
 const app = require('./app');
-const { connectDB } = require('./config/database.config');
-const logger = require('./utils/logger');
-const { getAllowedOrigins } = require('./utils/allowedOrigins');
+const { connectDB } = require('./src/config/database.config');
+const logger = require('./src/utils/logger');
+const { getAllowedOrigins } = require('./src/utils/allowedOrigins');
 
 const http = require('http');
 const { Server } = require('socket.io');

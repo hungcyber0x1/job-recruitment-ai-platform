@@ -44,7 +44,7 @@ const CandidateCard = ({ candidate }) => (
     to="/employer/search-candidates"
     className="group flex-shrink-0 w-[320px] sm:w-[360px] snap-center block"
   >
-    <div className="relative h-[480px] rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.18)] transition-all duration-500">
+    <div className="relative h-[480px] rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.12)] card-premium-hover transition-all duration-500">
       {/* Background image */}
       <img
         src={candidate.image}
@@ -59,10 +59,10 @@ const CandidateCard = ({ candidate }) => (
           <ShieldCheck size={20} className="text-emerald-600" />
         </div>
         <div>
-          <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+          <p className="text-base font-medium text-muted-foreground uppercase tracking-wider">
             Trạng thái
           </p>
-          <p className="text-sm font-bold text-foreground">Đã xác minh AI</p>
+          <p className="text-base font-bold text-foreground">Đã xác minh AI</p>
         </div>
       </div>
 
@@ -72,10 +72,10 @@ const CandidateCard = ({ candidate }) => (
           <TrendingUp size={20} className="text-amber-600" />
         </div>
         <div>
-          <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+          <p className="text-base font-medium text-muted-foreground uppercase tracking-wider">
             Lương TB
           </p>
-          <p className="text-sm font-bold text-foreground">{candidate.salary}</p>
+          <p className="text-base font-bold text-foreground">{candidate.salary}</p>
         </div>
       </div>
 
@@ -84,7 +84,7 @@ const CandidateCard = ({ candidate }) => (
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2">
             <span className="size-2 rounded-full bg-emerald-500"></span>
-            <span className="text-xs font-medium text-emerald-400">{candidate.status}</span>
+            <span className="text-sm font-medium text-emerald-400">{candidate.status}</span>
           </div>
           <h3 className="text-lg font-bold text-white leading-tight drop-shadow-sm">
             {candidate.headline}
@@ -92,7 +92,7 @@ const CandidateCard = ({ candidate }) => (
         </div>
         <div className="sm:w-[200px] shrink-0 rounded-2xl bg-white/95 backdrop-blur-sm p-4 shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-xs font-medium text-muted-foreground">Độ phù hợp</span>
+            <span className="text-sm font-medium text-muted-foreground">Độ phù hợp</span>
             <span className="text-sm font-bold text-emerald-600">{candidate.match}% phù hợp</span>
           </div>
           <div className="h-2 bg-slate-200 rounded-full overflow-hidden mb-3">
@@ -105,7 +105,7 @@ const CandidateCard = ({ candidate }) => (
             {candidate.skills.map((skill) => (
               <span
                 key={skill}
-                className="text-[10px] font-medium px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600"
+                className="text-sm font-medium px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600"
               >
                 {skill}
               </span>
@@ -185,7 +185,7 @@ const FeaturedCandidates = () => {
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="max-w-2xl"
           >
-            <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-5">
+            <p className="text-base font-semibold text-primary uppercase tracking-wider mb-5">
               Ứng viên nổi bật
             </p>
             <h2 className="text-4xl md:text-6xl font-extrabold text-foreground tracking-tighter leading-[0.95]">

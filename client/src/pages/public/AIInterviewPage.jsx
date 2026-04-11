@@ -13,6 +13,13 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Sheet,
   SheetContent,
   SheetDescription,
@@ -256,33 +263,47 @@ const AIInterviewPage = () => {
                     <div className="flex flex-1 flex-col gap-6 py-6">
                       <div className="space-y-2">
                         <Label htmlFor="interview-role">Lĩnh vực</Label>
-                        <select
-                          id="interview-role"
-                          value={draftRole}
-                          onChange={(e) => setDraftRole(e.target.value)}
-                          className="h-11 w-full rounded-xl border border-border/60 bg-muted/50 px-3 text-sm font-medium text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                        >
-                          {ROLES.map((r) => (
-                            <option key={r.value} value={r.value}>
-                              {r.label}
-                            </option>
-                          ))}
-                        </select>
+                        <Select value={draftRole} onValueChange={(val) => setDraftRole(val)}>
+                          <SelectTrigger
+                            id="interview-role"
+                            className="h-11 w-full rounded-xl border-border/60 bg-muted/50 px-3 text-sm font-medium text-foreground focus:ring-2 focus:ring-primary/20"
+                          >
+                            <SelectValue placeholder="Chọn lĩnh vực" />
+                          </SelectTrigger>
+                          <SelectContent className="rounded-xl border-border/50 shadow-xl">
+                            {ROLES.map((r) => (
+                              <SelectItem
+                                key={r.value}
+                                value={r.value}
+                                className="text-sm font-medium py-3"
+                              >
+                                {r.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="interview-level">Mức độ</Label>
-                        <select
-                          id="interview-level"
-                          value={draftLevel}
-                          onChange={(e) => setDraftLevel(e.target.value)}
-                          className="h-11 w-full rounded-xl border border-border/60 bg-muted/50 px-3 text-sm font-medium text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                        >
-                          {LEVELS.map((l) => (
-                            <option key={l.value} value={l.value}>
-                              {l.label}
-                            </option>
-                          ))}
-                        </select>
+                        <Select value={draftLevel} onValueChange={(val) => setDraftLevel(val)}>
+                          <SelectTrigger
+                            id="interview-level"
+                            className="h-11 w-full rounded-xl border-border/60 bg-muted/50 px-3 text-sm font-medium text-foreground focus:ring-2 focus:ring-primary/20"
+                          >
+                            <SelectValue placeholder="Chọn mức độ" />
+                          </SelectTrigger>
+                          <SelectContent className="rounded-xl border-border/50 shadow-xl">
+                            {LEVELS.map((l) => (
+                              <SelectItem
+                                key={l.value}
+                                value={l.value}
+                                className="text-sm font-medium py-3"
+                              >
+                                {l.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
                     <SheetFooter className="gap-2 sm:flex-col sm:space-x-0">
@@ -293,7 +314,7 @@ const AIInterviewPage = () => {
                   </SheetContent>
                 </Sheet>
               </div>
-              <p className="text-sm font-medium text-muted-foreground">
+              <p className="text-base font-medium text-muted-foreground">
                 Đang chọn:{' '}
                 <span className="font-semibold text-foreground">
                   {ROLES.find((r) => r.value === role)?.label}
@@ -330,13 +351,13 @@ const AIInterviewPage = () => {
                   </div>
                   <div className="text-center">
                     <h4 className="font-bold text-foreground">Trợ lý phỏng vấn</h4>
-                    <p className="mt-1 text-xs font-medium text-muted-foreground">
+                    <p className="mt-1 text-base font-medium text-muted-foreground">
                       {ROLES.find((r) => r.value === role)?.label} ·{' '}
                       {LEVELS.find((l) => l.value === level)?.label}
                     </p>
                     <div className="mt-2 flex items-center justify-center gap-2">
                       <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
-                      <span className="text-xs font-medium text-primary">
+                      <span className="text-sm font-medium text-primary">
                         Sẵn sàng câu tiếp theo
                       </span>
                     </div>
@@ -349,17 +370,17 @@ const AIInterviewPage = () => {
 
               <div className="flex w-full flex-col border-t border-border/60 md:w-[min(100%,28rem)] md:border-l md:border-t-0">
                 <div className="flex-1 overflow-y-auto p-8">
-                  <span className="mb-4 inline-block rounded-lg bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
+                  <span className="mb-4 inline-block rounded-lg bg-muted px-2.5 py-1 text-sm font-semibold text-muted-foreground">
                     Câu hỏi {qIndex + 1}/{total}
                   </span>
                   <h3 className="mb-6 text-xl font-bold leading-snug text-foreground">
                     &quot;{current.q}&quot;
                   </h3>
                   <div className="rounded-xl border border-primary/10 bg-primary/5 p-4">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-primary">
+                    <p className="mb-2 text-base font-semibold uppercase tracking-wider text-primary">
                       Gợi ý khung trả lời
                     </p>
-                    <p className="text-sm font-medium leading-relaxed text-muted-foreground">
+                    <p className="text-base font-medium leading-relaxed text-muted-foreground">
                       {current.hint}
                     </p>
                   </div>
@@ -384,7 +405,7 @@ const AIInterviewPage = () => {
                     )}
                   </Button>
                   {aiExtraError && (
-                    <p className="mt-2 text-sm font-medium text-destructive" role="alert">
+                    <p className="mt-2 text-base font-medium text-destructive" role="alert">
                       {aiExtraError}
                     </p>
                   )}
@@ -392,17 +413,17 @@ const AIInterviewPage = () => {
                     <div className="mt-4 space-y-3 rounded-xl border border-border/60 bg-muted/30 p-4">
                       {aiExtra.framework ? (
                         <div>
-                          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          <p className="mb-1 text-base font-semibold uppercase tracking-wider text-muted-foreground">
                             Khung (AI)
                           </p>
-                          <p className="text-sm font-medium leading-relaxed text-foreground">
+                          <p className="text-base font-medium leading-relaxed text-foreground">
                             {aiExtra.framework}
                           </p>
                         </div>
                       ) : null}
                       {aiExtra.hints?.length > 0 ? (
                         <div>
-                          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          <p className="mb-2 text-base font-semibold uppercase tracking-wider text-muted-foreground">
                             Gợi ý chi tiết
                           </p>
                           <ul className="list-disc space-y-1.5 pl-4 text-sm font-medium text-foreground/90">
@@ -443,8 +464,8 @@ const AIInterviewPage = () => {
                     </Button>
                     <Button
                       type="button"
-                      variant="destructive"
-                      className="w-full sm:ml-auto sm:w-auto"
+                      variant="outline"
+                      className="w-full text-destructive hover:bg-destructive/5 hover:text-destructive sm:ml-auto sm:w-auto"
                       onClick={endSession}
                     >
                       Kết thúc phiên

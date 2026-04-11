@@ -282,14 +282,14 @@ const BlogPostPage = () => {
 
         <article className="border-2 border-foreground/10 bg-white shadow-[0_2px_0_0_rgba(15,23,42,0.06),0_24px_60px_-20px_rgba(15,23,42,0.12)] dark:border-slate-700 dark:bg-slate-900 print:border print:shadow-none">
           <div className="border-b-2 border-foreground/90 bg-foreground/[0.03] px-4 py-3 text-center sm:px-6 print:border-foreground">
-            <p className="font-serif text-xs font-bold uppercase tracking-[0.35em] text-foreground/80 sm:tracking-[0.4em]">
+            <p className="font-serif text-base font-bold uppercase tracking-[0.35em] text-foreground/80 sm:tracking-[0.4em]">
               HireAI · Phân tích &amp; nhận định
             </p>
           </div>
 
           <div className="px-5 pb-10 pt-8 sm:px-10 sm:pb-12 sm:pt-10">
             <header className="border-b border-border pb-8">
-              <div className="mb-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+              <div className="mb-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-bold uppercase tracking-widest text-muted-foreground">
                 <span className="text-primary">{post.category}</span>
                 <span className="text-border" aria-hidden>
                   |
@@ -335,14 +335,14 @@ const BlogPostPage = () => {
                   />
                   <div className="min-w-0">
                     <p className="font-sans text-base font-bold text-foreground">{post.author}</p>
-                    <p className="font-sans text-sm font-medium text-muted-foreground">
+                    <p className="font-sans text-base font-medium text-muted-foreground">
                       {roleLine}
                     </p>
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 print:hidden">
                   {shareHint ? (
-                    <span className="text-xs font-medium text-primary" role="status">
+                    <span className="text-sm font-medium text-primary" role="status">
                       {shareHint}
                     </span>
                   ) : null}
@@ -407,7 +407,7 @@ const BlogPostPage = () => {
                         to={`/blog/${r.slug || r.id}`}
                         className="group flex flex-col gap-1 border-b border-border/50 py-3 first:pt-0"
                       >
-                        <span className="text-xs font-bold uppercase tracking-widest text-primary">
+                        <span className="text-sm font-bold uppercase tracking-widest text-primary">
                           {r.category}
                         </span>
                         <span className="font-serif text-base font-bold leading-snug text-foreground group-hover:underline">

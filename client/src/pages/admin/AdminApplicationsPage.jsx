@@ -271,7 +271,7 @@ const AdminApplicationsPage = () => {
                       <th className="px-6 py-4">Vị trí</th>
                       <th className="px-6 py-4">AI Match Score</th>
                       <th className="px-6 py-4">Trạng thái</th>
-                      <th className="px-6 py-4 text-end">Thao tác</th>
+                      <th className="px-6 py-4 !text-center">Thao tác</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -342,7 +342,7 @@ const AdminApplicationsPage = () => {
                                 {STATUS_LABELS[app.status] || app.status}
                               </span>
                             </td>
-                            <td className="px-6 py-4 text-right">
+                            <td className="px-6 py-4 text-center">
                               <Link
                                 to={`/admin/applications/${app.id}`}
                                 className="inline-flex rounded-lg p-2 text-slate-500 hover:bg-muted/55 hover:text-foreground"

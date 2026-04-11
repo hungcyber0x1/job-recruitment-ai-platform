@@ -11,7 +11,7 @@ const ScoreCircle = ({ score, maxScore = 100, size = 120, label = 'Score' }) => 
 
   // Color based on percentage
   const getColor = (pct) => {
-    if (pct >= 80) return '#10B981'; // green
+    if (pct >= 80) return '#10b981'; // green
     if (pct >= 60) return '#34d399'; // blue
     if (pct >= 40) return '#F59E0B'; // orange
     return '#EF4444'; // red
@@ -49,7 +49,7 @@ const ScoreCircle = ({ score, maxScore = 100, size = 120, label = 'Score' }) => 
           {Math.round(score)}
         </text>
       </svg>
-      <p className="mt-2 text-sm font-medium text-gray-600">{label}</p>
+      <p className="mt-2 text-base font-medium text-gray-600">{label}</p>
     </div>
   );
 };

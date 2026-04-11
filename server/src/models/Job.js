@@ -1,4 +1,45 @@
-const BaseRepository = require('./base');
+/**
+ * Job Model Schema — see migration 005_create_jobs_table.sql
+ *
+ * Cung cấp JSDoc type definitions cho hệ thống không dùng ORM.
+ * Import type bằng: const { JobRow } = require('./Job.Model');
+ */
+
+/**
+ * @typedef {Object} JobRow
+ * @property {number} id - Primary key, auto-increment
+ * @property {number} employer_id - FK → employers.id
+ * @property {number|null} category_id - FK → categories.id
+ * @property {string} title - Tiêu đề vị trí tuyển dụng
+ * @property {string} description - Mô tả công việc (HTML hoặc plain text)
+ * @property {string|null} requirements - Yêu cầu ứng viên
+ * @property {string|null} benefits - Quyền lợi
+ * @property {number|null} salary_min - Lương tối thiểu (VND)
+ * @property {number|null} salary_max - Lương tối đa (VND)
+ * @property {string} currency - Đơn vị tiền tệ, mặc định 'VND'
+ * @property {string} location - Địa điểm làm việc
+ * @property {string|null} experience_required - Kinh nghiệm yêu cầu
+ * @property {string|null} education_required - Bằng cấp yêu cầu
+ * @property {'full-time'|'part-time'|'contract'|'internship'|'remote'} type - Loại hình
+ * @property {'draft'|'published'|'closed'} status - Trạng thái
+ * @property {string|null} deadline - Hạn nộp hồ sơ (ISO date)
+ * @property {number} views - Lượt xem
+ * @property {string} created_at - ISO timestamp
+ * @property {string} updated_at - ISO timestamp
+ */
+
+/** Danh sách trạng thái hợp lệ */
+const JOB_STATUSES = ['draft', 'published', 'closed'];
+
+/** Danh sách loại hình công việc hợp lệ */
+const JOB_TYPES = ['full-time', 'part-time', 'contract', 'internship', 'remote'];
+
+/** Tên bảng trong database */
+const TABLE_NAME = 'jobs';
+
+module.exports = { JOB_STATUSES, JOB_TYPES, TABLE_NAME };
+
+const BaseRepository = require('./Base');
 
 class JobRepository extends BaseRepository {
   constructor() {

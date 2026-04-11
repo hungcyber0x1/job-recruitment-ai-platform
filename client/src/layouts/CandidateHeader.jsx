@@ -14,6 +14,7 @@ import {
   User,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { Logo } from '@/components/common';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -45,12 +46,9 @@ const CandidateHeader = ({ onMenuClick }) => {
 
         {/* Logo & Title */}
         <div className="flex items-center gap-2 mr-6">
-          <div className="hidden sm:flex items-center justify-center h-9 w-9 rounded-lg bg-primary-600 text-white">
-            <Sparkles className="h-5 w-5" />
-          </div>
-          <div>
-            <span className="text-lg font-bold">HireAI</span>
-            <p className="text-base text-muted-foreground hidden md:block">Ứng viên</p>
+          <Logo className="h-12 w-auto" />
+          <div className="ml-2 pl-2 border-l border-border hidden md:block">
+            <p className="text-base font-medium text-muted-foreground">Ứng viên</p>
           </div>
         </div>
 
@@ -136,7 +134,7 @@ const CandidateHeader = ({ onMenuClick }) => {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={handleLogout}
-                className="text-destructive focus:text-destructive"
+                className="cursor-pointer text-red-500 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/30"
               >
                 <LogOut className="mr-2 h-4 w-4" />
                 Đăng xuất

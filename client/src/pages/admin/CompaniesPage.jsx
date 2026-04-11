@@ -266,7 +266,7 @@ const CompaniesPage = () => {
                       <th className="px-6 py-4">Trạng thái</th>
                       <th className="px-6 py-4">Tin đăng</th>
                       <th className="px-6 py-4">Trust Score</th>
-                      <th className="px-6 py-4 text-end">Thao tác</th>
+                      <th className="px-6 py-4 !text-center">Thao tác</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -333,7 +333,7 @@ const CompaniesPage = () => {
                                 </span>
                               </div>
                             </td>
-                            <td className="px-6 py-4 text-right">
+                            <td className="px-6 py-4 text-center">
                               <button
                                 type="button"
                                 className="p-2 rounded-lg text-slate-500 hover:bg-muted/55 hover:text-foreground"

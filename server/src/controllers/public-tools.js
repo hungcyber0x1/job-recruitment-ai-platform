@@ -1,5 +1,5 @@
 const ResumeAnalysisService = require('../services/resume-analysis');
-const SystemSettingsRepository = require('../repositories/system-settings');
+const SystemSettingsRepository = require('../models/SystemSettings');
 const PublicToolsService = require('../services/public-tools');
 const logger = require('../utils/logger');
 

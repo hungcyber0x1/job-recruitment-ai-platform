@@ -1,7 +1,7 @@
 import React, { useId, useLayoutEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, Users, CheckCircle2, ArrowUpRight } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, Tooltip } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
 
 const data = [
   { month: 'Jan', hiring: 2000 },
@@ -22,7 +22,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white/95 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-xl py-2 px-3 border border-slate-100">
-        <p className="text-sm font-semibold text-slate-500 mb-0.5">{label}</p>
+        <p className="text-base font-semibold text-slate-500 mb-0.5">{label}</p>
         <p className="text-base font-bold text-slate-900">{payload[0].value.toLocaleString()}</p>
       </div>
     );
@@ -72,7 +72,7 @@ function HiringAreaChart({ data: chartData }) {
       className="h-[260px] sm:h-[280px] w-full min-w-0 relative z-0 mt-2 px-2 pb-2"
     >
       {dims.width >= CHART_MIN_W && dims.height > 0 ? (
-        <AreaChart
+        <BarChart
           width={dims.width}
           height={dims.height}
           data={chartData}
@@ -80,8 +80,8 @@ function HiringAreaChart({ data: chartData }) {
         >
           <defs>
             <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#10b981" stopOpacity={0.25} />
-              <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+              <stop offset="0%" stopColor="#10b981" stopOpacity={0.8} />
+              <stop offset="100%" stopColor="#10b981" stopOpacity={0.2} />
             </linearGradient>
           </defs>
 
@@ -100,18 +100,16 @@ function HiringAreaChart({ data: chartData }) {
             tickCount={5}
           />
 
-          <Tooltip content={<CustomTooltip />} cursor={false} />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f1f5f9' }} />
 
-          <Area
-            type="monotone"
+          <Bar
             dataKey="hiring"
-            stroke="#10b981"
-            strokeWidth={3}
             fill={`url(#${gradId})`}
-            activeDot={{ r: 5, fill: '#fff', stroke: '#10b981', strokeWidth: 3 }}
+            radius={[4, 4, 0, 0]}
             animationDuration={1500}
+            barSize={32}
           />
-        </AreaChart>
+        </BarChart>
       ) : null}
     </div>
   );
@@ -122,7 +120,7 @@ const MarketInsights = () => {
     <section className="relative py-20 md:py-32 bg-stone-50/50 overflow-hidden font-sans">
       {/* Soft decorative background glows */}
       <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-300/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-300/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-300/5 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="container relative z-10 mx-auto max-w-7xl px-6 md:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
@@ -141,9 +139,9 @@ const MarketInsights = () => {
             <h2 className="text-3xl lg:text-4xl font-black leading-[1.12] tracking-tight">
               <span className="text-slate-800 drop-shadow-sm">Phân tích</span>
               <br />
-              <span className="text-[#3b3b98] drop-shadow-sm">xu hướng thị</span>
+              <span className="text-primary drop-shadow-sm">xu hướng thị</span>
               <br />
-              <span className="text-emerald-600 drop-shadow-sm">trường</span>
+              <span className="text-primary drop-shadow-sm">trường</span>
             </h2>
             <p className="mt-6 text-base font-medium leading-relaxed text-slate-500 max-w-sm">
               Cập nhật thời gian thực về mức độ tăng trưởng tuyển dụng và biến động nhu cầu nhân
@@ -161,14 +159,14 @@ const MarketInsights = () => {
             className="lg:col-span-6 relative w-full"
           >
             {/* The Large Chart Card */}
-            <div className="relative rounded-[2rem] bg-white shadow-[0_20px_50px_-12px_rgba(0,0,0,0.06)] overflow-hidden flex flex-col border border-slate-100/60 pb-6 min-h-0 min-w-0">
+            <div className="relative rounded-[2rem] bg-white shadow-[0_20px_50px_-12px_rgba(0,0,0,0.06)] overflow-hidden flex flex-col border border-slate-100/60 pb-6 min-h-0 min-w-0 card-premium-hover">
               {/* Card Header & Badge */}
               <div className="flex shrink-0 justify-between items-start pt-8 px-8 mb-2 relative z-10">
                 <div>
                   <h3 className="text-xl font-bold text-slate-800 tracking-tight">
                     Tăng trưởng tuyển dụng
                   </h3>
-                  <p className="text-sm font-medium text-slate-400 mt-1.5">
+                  <p className="text-base font-medium text-slate-400 mt-1.5">
                     Việc làm mới mở theo tháng (2026)
                   </p>
                 </div>
@@ -181,8 +179,8 @@ const MarketInsights = () => {
               <HiringAreaChart data={data} />
             </div>
 
-            {/* Floating Action Button exactly matching screenshot */}
-            <div className="absolute -bottom-5 -right-5 w-16 h-16 rounded-[1.25rem] bg-[#5352ed] shadow-[0_10px_30px_-5px_rgba(83,82,237,0.5)] flex items-center justify-center cursor-pointer hover:scale-105 hover:-translate-y-1 hover:shadow-[0_15px_40px_-5px_rgba(83,82,237,0.6)] transition-all duration-300 z-20">
+            {/* Floating Action Button exactly matching project brand */}
+            <div className="absolute -bottom-5 -right-5 w-16 h-16 rounded-[1.25rem] bg-primary shadow-[0_10px_30px_-5px_hsl(var(--primary)/0.5)] flex items-center justify-center cursor-pointer hover:scale-105 hover:-translate-y-1 hover:shadow-[0_15px_40px_-5px_hsl(var(--primary)/0.6)] transition-all duration-300 z-20">
               <ArrowUpRight size={26} className="text-white" strokeWidth={2.5} />
             </div>
           </motion.div>
@@ -195,7 +193,7 @@ const MarketInsights = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="bg-white rounded-[1.75rem] p-5 sm:p-6 border border-slate-100/80 shadow-[0_15px_40px_-15px_rgba(0,0,0,0.03)] flex gap-5 items-center hover:-translate-y-1 transition-transform duration-300"
+              className="bg-white rounded-[1.75rem] p-5 sm:p-6 border border-slate-100/80 shadow-[0_15px_40px_-15px_rgba(0,0,0,0.03)] flex gap-5 items-center card-premium-hover"
             >
               <div className="size-12 rounded-[14px] bg-emerald-50/80 text-emerald-500 flex items-center justify-center shrink-0">
                 <TrendingUp size={22} strokeWidth={2.5} />
@@ -204,7 +202,7 @@ const MarketInsights = () => {
                 <h4 className="text-2xl font-black text-slate-900 tracking-tight tabular-nums leading-none mb-1.5">
                   +17.5%
                 </h4>
-                <p className="text-sm font-medium text-slate-500 leading-snug">
+                <p className="text-base font-medium text-slate-500 leading-snug">
                   Tốc độ tăng trưởng mở mới
                 </p>
               </div>
@@ -216,16 +214,16 @@ const MarketInsights = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="bg-white rounded-[1.75rem] p-5 sm:p-6 border border-slate-100/80 shadow-[0_15px_40px_-15px_rgba(0,0,0,0.03)] flex gap-5 items-center hover:-translate-y-1 transition-transform duration-300"
+              className="bg-white rounded-[1.75rem] p-5 sm:p-6 border border-slate-100/80 shadow-[0_15px_40px_-15px_rgba(0,0,0,0.03)] flex gap-5 items-center card-premium-hover"
             >
-              <div className="size-12 rounded-[14px] bg-[#eef2ff] text-[#6366f1] flex items-center justify-center shrink-0">
+              <div className="size-12 rounded-[14px] bg-teal-50/80 text-teal-600 flex items-center justify-center shrink-0">
                 <Users size={22} strokeWidth={2.5} />
               </div>
               <div>
                 <h4 className="text-2xl font-black text-slate-900 tracking-tight tabular-nums leading-none mb-1.5">
                   48 Giờ
                 </h4>
-                <p className="text-sm font-medium text-slate-500 leading-snug">
+                <p className="text-base font-medium text-slate-500 leading-snug">
                   Thời gian trung bình có offer
                 </p>
               </div>
@@ -237,16 +235,16 @@ const MarketInsights = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="bg-white rounded-[1.75rem] p-5 sm:p-6 border border-slate-100/80 shadow-[0_15px_40px_-15px_rgba(0,0,0,0.03)] flex gap-5 items-center hover:-translate-y-1 transition-transform duration-300"
+              className="bg-white rounded-[1.75rem] p-5 sm:p-6 border border-slate-100/80 shadow-[0_15px_40px_-15px_rgba(0,0,0,0.03)] flex gap-5 items-center card-premium-hover"
             >
-              <div className="size-12 rounded-[14px] bg-[#f0f9ff] text-[#0ea5e9] flex items-center justify-center shrink-0">
+              <div className="size-12 rounded-[14px] bg-primary/10 text-primary flex items-center justify-center shrink-0">
                 <CheckCircle2 size={22} strokeWidth={2.5} />
               </div>
               <div>
                 <h4 className="text-2xl font-black text-slate-900 tracking-tight tabular-nums leading-none mb-1.5">
                   96.3%
                 </h4>
-                <p className="text-sm font-medium text-slate-500 leading-snug">
+                <p className="text-base font-medium text-slate-500 leading-snug">
                   Mức độ tương hợp AI Match
                 </p>
               </div>

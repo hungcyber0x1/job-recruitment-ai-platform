@@ -65,7 +65,7 @@ const MatchProgressBar = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
-          className="mt-1.5 text-xs font-bold text-emerald-600 uppercase tracking-widest"
+          className="mt-1.5 text-sm font-bold text-emerald-600 uppercase tracking-widest"
         >
           ✨ Ứng viên tiềm năng cao
         </motion.p>

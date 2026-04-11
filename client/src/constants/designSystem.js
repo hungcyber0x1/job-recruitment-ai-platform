@@ -3,7 +3,7 @@
  * Based on enterprise design specification for TrustMatch AI recruitment platform
  *
  * Color Palette (HEX values from unified green design system)
- * Primary: Green (#16A34A, #15803D, #166534)
+ * Primary: Green (#16A34A, #15803D, #065f46)
  * Accent: Teal / Mint (#14B8A6, #6EE7B7)
  * Semantics: Green, Orange, Red, Teal
  * Neutrals: Slate scale (#F8FAFC to #0F172A)
@@ -17,11 +17,11 @@ export const DESIGN_COLORS = {
     200: '#BBF7D0',
     300: '#86EFAC',
     400: '#4ADE80',
-    500: '#22C55E',
-    600: '#16A34A',
-    700: '#15803D',
-    800: '#166534',
-    900: '#14532D',
+    500: '#10b981',
+    600: '#059669',
+    700: '#047857',
+    800: '#06503c',
+    900: '#064e3b',
   },
 
   // Teal Accent (AI indicators, Explanations)
@@ -39,7 +39,7 @@ export const DESIGN_COLORS = {
   },
 
   // Semantic Colors
-  success: '#22C55E', // #10B981 green
+  success: '#10b981', // #10b981 green
   warning: '#F59E0B', // #F59E0B amber
   error: '#EF4444', // #EF4444 red
   info: '#14B8A6',
@@ -60,8 +60,8 @@ export const DESIGN_COLORS = {
 
   // Flower Theme (from existing design)
   flower: {
-    primary: '#16A34A',
-    secondary: '#15803D',
+    primary: '#10b981',
+    secondary: '#059669',
     accent: '#14B8A6',
     blush: '#F3FDF6',
     lavender: '#ECFDF5',
@@ -227,7 +227,7 @@ export const GRID = {
  */
 export const BUTTON_VARIANTS = {
   primary: {
-    base: 'bg-green-600 hover:bg-green-700 active:bg-green-800 text-white',
+    base: 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white',
     small: 'px-3 py-1.5 text-sm',
     medium: 'px-6 py-2.5 text-base',
     large: 'px-8 py-3.5 text-lg',

@@ -13,7 +13,7 @@ const PrivateRoute = ({ children, roles }) => {
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-3 bg-background">
         <Loading size="lg" />
-        <p className="text-sm text-muted-foreground">Đang kiểm tra phiên đăng nhập…</p>
+        <p className="text-base text-muted-foreground">Đang kiểm tra phiên đăng nhập…</p>
       </div>
     );
   }

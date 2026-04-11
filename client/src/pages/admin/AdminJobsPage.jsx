@@ -659,7 +659,7 @@ const AdminJobsPage = () => {
                       <th className="px-4 py-4">Ứng viên</th>
                       <th className="px-4 py-4">Rủi ro AI</th>
                       <th className="px-4 py-4">Trạng thái</th>
-                      <th className="px-4 py-4 text-end">Thao tác</th>
+                      <th className="px-4 py-4 !text-center">Thao tác</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -777,8 +777,8 @@ const AdminJobsPage = () => {
                                 </span>
                               </div>
                             </td>
-                            <td className="px-4 py-4">
-                              <div className="flex items-center justify-end gap-1">
+                            <td className="text-center px-4 py-4">
+                              <div className="flex items-center justify-center gap-1">
                                 <Link
                                   to={`/admin/jobs/${job.id}`}
                                   className="p-2 rounded-lg text-slate-500 hover:bg-muted/55 hover:text-foreground transition-colors duration-200 ease-out"

@@ -79,7 +79,7 @@ const JobDetail = ({ job, onApply }) => {
             <div className="flex flex-wrap items-center gap-4">
               <Badge
                 variant="indigo"
-                className="px-6 py-2 text-xs font-black uppercase tracking-widest"
+                className="px-6 py-2 text-sm font-black uppercase tracking-widest"
               >
                 {job.type || 'full-time'}
               </Badge>
@@ -125,7 +125,7 @@ const JobDetail = ({ job, onApply }) => {
           <div className="sticky top-32 space-y-8">
             <Card className="border-none p-8 text-center shadow-2xl shadow-indigo-100/50">
               <h4 className="mb-2 text-lg font-black text-slate-900">Sẵn sàng thử thách?</h4>
-              <p className="mb-8 text-sm font-medium text-slate-400">
+              <p className="mb-8 text-base font-medium text-slate-400">
                 Nộp hồ sơ ngay để AI matching đánh giá mức độ phù hợp của bạn.
               </p>
               <Button
@@ -135,7 +135,7 @@ const JobDetail = ({ job, onApply }) => {
               >
                 <Send size={18} /> Ứng tuyển ngay
               </Button>
-              <p className="mt-6 text-xs font-black uppercase tracking-widest text-slate-300">
+              <p className="mt-6 text-base font-black uppercase tracking-widest text-slate-300">
                 Hạn nộp:{' '}
                 {job.deadline ? new Date(job.deadline).toLocaleDateString('vi-VN') : 'Không có'}
               </p>
@@ -146,17 +146,17 @@ const JobDetail = ({ job, onApply }) => {
                 className="absolute -right-4 -top-4 opacity-10 transition-transform duration-700 group-hover:scale-110"
                 size={120}
               />
-              <div className="mb-4 w-fit rounded-full bg-white/20 px-3 py-1 text-xs font-black uppercase tracking-widest">
+              <div className="mb-4 w-fit rounded-full bg-white/20 px-3 py-1 text-sm font-black uppercase tracking-widest">
                 AI Insight
               </div>
               <h4 className="mb-4 text-lg font-black">85% Phù hợp</h4>
-              <p className="mb-6 text-xs font-medium leading-relaxed text-slate-400">
+              <p className="mb-6 text-base font-medium leading-relaxed text-slate-400">
                 Kinh nghiệm và kỹ năng hiện tại của bạn đang khớp tốt với vị trí này. AI gợi ý bổ
                 sung thêm dự án liên quan để tăng tỉ lệ qua vòng.
               </p>
               <Button
                 variant="secondary"
-                className="w-full border-none bg-white text-xs font-black text-slate-900"
+                className="w-full border-none bg-white text-sm font-black text-slate-900"
               >
                 Hỏi AI về công việc này
               </Button>

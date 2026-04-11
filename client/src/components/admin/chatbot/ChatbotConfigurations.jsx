@@ -133,7 +133,7 @@ const ChatbotConfigurations = () => {
                   <label className="block text-sm font-bold text-foreground">
                     {configKey.replace(/_/g, ' ').toUpperCase()}
                   </label>
-                  <p className="mb-2 text-xs text-muted-foreground">{config.description}</p>
+                  <p className="mb-2 text-base text-muted-foreground">{config.description}</p>
 
                   {isBoolean ? (
                     <div className="flex items-center gap-3">
@@ -175,7 +175,7 @@ const ChatbotConfigurations = () => {
                   )}
 
                   {config.updated_at && (
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-base text-muted-foreground">
                       Cập nhật lần cuối: {new Date(config.updated_at).toLocaleString('vi-VN')}
                     </p>
                   )}

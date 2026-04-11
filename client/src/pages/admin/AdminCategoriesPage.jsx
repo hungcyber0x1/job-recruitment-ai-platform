@@ -290,7 +290,7 @@ const AdminCategoriesPage = () => {
               <span className="sr-only">Biểu tượng</span>
               <span>Danh mục</span>
               <span className="text-center">Hoạt động</span>
-              <span className="text-right pr-1">Thao tác</span>
+              <span className="text-center pr-1">Thao tác</span>
             </div>
           )}
 
@@ -405,7 +405,7 @@ const AdminCategoriesPage = () => {
                           ) : null}
                         </div>
                         <div
-                          className="flex items-center justify-end gap-1 border-t border-slate-100 pt-3 sm:border-0 sm:pt-0"
+                          className="flex items-center justify-center gap-1 border-t border-slate-100 pt-3 sm:border-0 sm:pt-0"
                           onClick={(e) => e.stopPropagation()}
                           onKeyDown={(e) => e.stopPropagation()}
                           role="presentation"

@@ -25,14 +25,14 @@ const NewsletterSection = () => {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.04)_1px,transparent_0)] bg-[size:20px_20px]" />
 
           <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-400/25 text-emerald-300 text-xs font-semibold mb-5">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-400/25 text-emerald-300 text-sm font-semibold mb-5">
               <Mail size={13} aria-hidden="true" /> Cập nhật mỗi tuần
             </div>
 
             <h2 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-tight mb-3 text-balance">
               Nhận thông tin việc làm mới nhất
             </h2>
-            <p className="text-white/60 text-sm font-medium max-w-md mx-auto mb-6 leading-relaxed">
+            <p className="text-white/60 text-base font-medium max-w-md mx-auto mb-6 leading-relaxed">
               Xu hướng tuyển dụng, mức lương thị trường và cơ hội nghề nghiệp gửi thẳng inbox.
             </p>
 
@@ -74,9 +74,7 @@ const NewsletterSection = () => {
               </motion.div>
             )}
 
-            <p className="text-white/30 text-[11px] mt-3">
-              Không spam. Huỷ đăng ký bất cứ lúc nào.
-            </p>
+            <p className="text-white/30 text-base mt-3">Không spam. Huỷ đăng ký bất cứ lúc nào.</p>
           </div>
         </motion.div>
       </div>

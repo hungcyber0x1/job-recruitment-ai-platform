@@ -79,7 +79,7 @@ const ProfileHeader = ({ user, profile }) => {
 
           {/* Core Status */}
           <motion.div variants={itemVariants} className="mt-8 w-full text-center xl:text-left z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold tracking-wide mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-sm font-semibold tracking-wide mb-6">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -89,7 +89,7 @@ const ProfileHeader = ({ user, profile }) => {
 
             <div className="flex flex-col gap-5 text-left">
               <div className="space-y-1">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500">
                   Profile Completeness
                 </h3>
                 <div className="flex items-center gap-3">
@@ -107,7 +107,7 @@ const ProfileHeader = ({ user, profile }) => {
                 </div>
               </div>
               <div className="space-y-1">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500">
                   Last Updated
                 </h3>
                 <span className="text-sm text-slate-700 dark:text-slate-300">2 days ago</span>
@@ -120,7 +120,7 @@ const ProfileHeader = ({ user, profile }) => {
         <div className="w-full xl:w-[70%] p-8 md:p-10 flex flex-col justify-between relative z-10">
           <div className="max-w-4xl">
             <motion.div variants={itemVariants} className="mb-10 text-center xl:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-semibold mb-6 border border-slate-200 dark:border-slate-700">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold mb-6 border border-slate-200 dark:border-slate-700">
                 <Award size={14} className="text-amber-500" />
                 Senior Level Professional
               </div>
@@ -160,7 +160,7 @@ const ProfileHeader = ({ user, profile }) => {
                 >
                   <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
                     <item.icon size={16} />
-                    <span className="text-xs uppercase tracking-wider font-semibold">
+                    <span className="text-sm uppercase tracking-wider font-semibold">
                       {item.label}
                     </span>
                   </div>

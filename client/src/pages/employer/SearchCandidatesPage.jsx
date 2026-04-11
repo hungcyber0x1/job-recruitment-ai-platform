@@ -13,6 +13,15 @@ import {
   SlidersHorizontal,
   ChevronDown,
 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useNotification } from '../../context/NotificationContext';
 
 // ─── Mock data ───────────────────────────────────
@@ -88,131 +97,161 @@ const SALARY_OPTIONS = ['Mức lương', 'Dưới $1000', '$1000–$2000', '$200
 const LEVEL_FILTER_OPTIONS = ['Trình độ', 'Intern', 'Junior', 'Mid-level', 'Senior'];
 
 function MatchBadge({ score }) {
-  const color =
-    score >= 90
-      ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
-      : score >= 80
-        ? 'bg-amber-50 text-amber-600 border-amber-100'
-        : 'bg-slate-50 text-slate-500 border-slate-200';
+  const isHighMatch = score >= 90;
+  const isMidMatch = score >= 80;
+
   return (
-    <span
-      className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-base font-black uppercase tracking-tight ${color} shadow-sm`}
-    >
-      <Sparkles size={10} />
-      {score}% Match
-    </span>
+    <div className="relative overflow-hidden rounded-xl border border-border/40 bg-white p-1 shadow-sm transition-all group-hover:shadow-md">
+      <div className="flex items-center gap-2 px-3 py-1.5">
+        <div
+          className={`flex h-6 w-6 items-center justify-center rounded-lg ${isHighMatch ? 'bg-emerald-500' : isMidMatch ? 'bg-amber-500' : 'bg-slate-400'} text-white shadow-sm`}
+        >
+          <Sparkles size={14} className={isHighMatch ? 'animate-pulse' : ''} />
+        </div>
+        <div>
+          <p className="text-base font-black uppercase tracking-[0.1em] text-muted-foreground/60 leading-none mb-0.5">
+            Match Score
+          </p>
+          <p
+            className={`text-base font-black leading-none ${isHighMatch ? 'text-emerald-600' : isMidMatch ? 'text-amber-600' : 'text-slate-600'}`}
+          >
+            {score}%
+          </p>
+        </div>
+      </div>
+      {/* Subtle progress bar at bottom */}
+      <div className="absolute bottom-0 left-0 h-[2px] w-full bg-slate-50">
+        <div
+          className={`h-full ${isHighMatch ? 'bg-emerald-500' : isMidMatch ? 'bg-amber-500' : 'bg-slate-400'} transition-all duration-1000`}
+          style={{ width: `${score}%` }}
+        />
+      </div>
+    </div>
   );
 }
 
 function CandidateCard({ candidate, onSave, saved, onUnlock }) {
   const gradientMap = {
-    A: 'from-emerald-600 to-teal-800',
-    H: 'from-blue-600 to-indigo-800',
-    T: 'from-violet-600 to-purple-800',
-    B: 'from-amber-600 to-orange-800',
+    A: 'from-emerald-500 to-teal-700',
+    H: 'from-blue-500 to-indigo-700',
+    T: 'from-violet-500 to-purple-700',
+    B: 'from-amber-500 to-orange-700',
   };
-  const gradient = gradientMap[candidate.avatar] || 'from-slate-600 to-slate-800';
+  const gradient = gradientMap[candidate.avatar] || 'from-slate-500 to-slate-700';
 
   return (
-    <div className="rounded-[32px] border border-slate-200 bg-white p-6 flex flex-col gap-5 hover:border-emerald-200 hover:shadow-2xl transition-all group duration-300 hover:-translate-y-1">
-      {/* Header */}
-      <div className="flex items-start gap-4">
-        <div
-          className={`relative h-14 w-14 shrink-0 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center text-white font-black text-xl shadow-lg group-hover:scale-110 transition-transform duration-500`}
-        >
-          {candidate.avatar}
-          {candidate.online && (
-            <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-500" />
-          )}
+    <div className="card-premium-hover group relative flex flex-col overflow-hidden rounded-2xl border border-border/40 bg-white p-6 shadow-sm transition-all duration-300">
+      {/* Status Overlay */}
+      {candidate.online && (
+        <div className="absolute right-6 top-6 flex items-center gap-1.5 rounded-full bg-emerald-50 px-2 py-0.5 text-sm font-black uppercase tracking-widest text-emerald-600 border border-emerald-100 shadow-sm">
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+          </span>
+          Online
         </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <p className="font-black text-slate-900 text-lg tracking-tight group-hover:text-emerald-600 transition-colors leading-tight">
-                {candidate.name}
-              </p>
-              <p className="text-base font-black text-emerald-600 uppercase tracking-widest mt-1">
-                {candidate.role}
-              </p>
-            </div>
+      )}
+
+      {/* Header Profile Section */}
+      <div className="flex items-start gap-4 mb-6">
+        <div
+          className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-gradient-to-br ${gradient} p-0.5 shadow-lg group-hover:scale-110 transition-transform duration-500`}
+        >
+          <div className="flex h-full w-full items-center justify-center rounded-[14px] bg-black/10 backdrop-blur-sm text-2xl font-black text-white">
+            {candidate.avatar}
           </div>
-          <div className="flex items-center gap-4 mt-3 text-base font-bold text-slate-400 uppercase tracking-tighter">
-            <span className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 rounded-lg border border-slate-100">
-              <Briefcase size={12} className="text-slate-300" />
+        </div>
+        <div className="min-w-0 flex-1 pt-1">
+          <h3 className="line-clamp-1 text-xl font-black tracking-tight text-foreground transition-colors group-hover:text-primary">
+            {candidate.name}
+          </h3>
+          <p className="mt-1 text-base font-black uppercase tracking-[0.1em] text-primary">
+            {candidate.role}
+          </p>
+          <div className="mt-3 flex flex-wrap items-center gap-3 text-sm font-bold text-muted-foreground/60 uppercase tracking-widest">
+            <span className="flex items-center gap-1.5 bg-muted/30 px-2 py-1 rounded-md">
+              <Briefcase size={13} className="text-muted-foreground/40" />
               {candidate.experience}
             </span>
-            <span className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 rounded-lg border border-slate-100">
-              <MapPin size={12} className="text-slate-300" />
+            <span className="flex items-center gap-1.5 bg-muted/30 px-2 py-1 rounded-md">
+              <MapPin size={13} className="text-muted-foreground/40" />
               {candidate.location}
             </span>
           </div>
         </div>
       </div>
 
-      {/* Match Score */}
-      <div className="flex justify-between items-center py-1 mt-1">
+      {/* Info Tiles Grid */}
+      <div className="grid grid-cols-2 gap-4 mb-6">
         <MatchBadge score={candidate.matchScore} />
-        <div className="flex gap-1">
-          {(candidate.skills || []).slice(0, 2).map((s) => (
-            <span
-              key={s}
-              className="rounded-lg bg-slate-50 border border-slate-100 px-2 py-1 text-base font-black text-slate-400 tracking-widest"
-            >
-              {s}
-            </span>
-          ))}
-          {candidate.extraSkillCount > 0 && (
-            <span className="rounded-lg bg-slate-50 border border-slate-100 px-2 py-1 text-base font-black text-slate-300">
-              +{candidate.extraSkillCount}
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Bio */}
-      <p className="text-base leading-relaxed text-slate-500 font-medium line-clamp-2 bg-slate-50/50 p-3 rounded-2xl border border-slate-50 group-hover:bg-card transition-colors duration-200 ease-out">
-        {candidate.bio}
-      </p>
-
-      {/* Salary + Actions */}
-      <div className="flex items-center justify-between gap-2 mt-auto pt-4 border-t border-slate-50">
-        <div>
-          <p className="text-base font-black text-slate-400 uppercase tracking-widest">
-            KỲ VỌNG LƯƠNG
+        <div className="rounded-xl border border-border/40 bg-slate-50/50 p-2.5 flex flex-col justify-center">
+          <p className="text-base font-black uppercase tracking-[0.1em] text-muted-foreground/60 leading-none mb-1.5">
+            Kỳ vọng lương
           </p>
-          <p className="text-base font-black text-slate-900 mt-0.5 tracking-tight group-hover:text-emerald-600 transition-colors">
+          <p className="text-base font-black text-foreground tracking-tight">
             ${candidate.salaryMin.toLocaleString()} – ${candidate.salaryMax.toLocaleString()}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => onSave(candidate.id)}
-            className={`flex h-11 w-11 items-center justify-center rounded-2xl border transition-all active:scale-90 shadow-sm ${
-              saved
-                ? 'border-emerald-200 bg-emerald-50 text-emerald-600'
-                : 'border-slate-200 bg-white text-slate-400 hover:text-emerald-600 hover:border-emerald-200 hover:bg-primary/10'
-            }`}
+      </div>
+
+      {/* Skills Section */}
+      <div className="mb-6 flex flex-wrap gap-1.5">
+        {(candidate.skills || []).slice(0, 3).map((s) => (
+          <span
+            key={s}
+            className="rounded-lg bg-white border border-border/60 px-2.5 py-1 text-sm font-black uppercase tracking-widest text-muted-foreground shadow-sm transition-colors group-hover:border-primary/30 group-hover:text-primary/70"
           >
-            {saved ? <BookmarkCheck size={18} fill="currentColor" /> : <Bookmark size={18} />}
-          </button>
-          {candidate.isUnlocked ? (
-            <Link
-              to={`/employer/messages?candidateName=${encodeURIComponent(candidate.name)}`}
-              className="flex items-center gap-2 rounded-2xl bg-emerald-600 px-5 h-11 text-base font-black text-white hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/20 active:scale-95 uppercase tracking-widest"
-            >
-              Hồ sơ
+            {s}
+          </span>
+        ))}
+        {candidate.extraSkillCount > 0 && (
+          <span className="flex items-center justify-center rounded-lg bg-muted/40 px-2 py-1 text-sm font-black text-muted-foreground/40">
+            +{candidate.extraSkillCount}
+          </span>
+        )}
+      </div>
+
+      {/* Bio / Summary */}
+      <div className="relative mb-6">
+        <div className="absolute -left-2 top-0 h-full w-0.5 bg-muted transition-colors group-hover:bg-primary/20" />
+        <p className="line-clamp-2 pl-3 text-base font-semibold leading-relaxed text-muted-foreground/80 lowercase first-letter:uppercase italic">
+          "{candidate.bio}"
+        </p>
+      </div>
+
+      {/* Actions Footer */}
+      <div className="mt-auto flex items-center gap-3 pt-5 border-t border-border/40">
+        <Button
+          onClick={() => onSave(candidate.id)}
+          variant="outline"
+          size="icon"
+          className={`h-12 w-12 shrink-0 rounded-xl transition-all ${
+            saved
+              ? 'border-primary/20 bg-primary/10 text-primary shadow-inner'
+              : 'border-border/60 hover:border-primary/30 hover:bg-primary/5 text-muted-foreground/40'
+          }`}
+        >
+          {saved ? <BookmarkCheck size={20} fill="currentColor" /> : <Bookmark size={20} />}
+        </Button>
+
+        {candidate.isUnlocked ? (
+          <Button
+            asChild
+            className="h-12 flex-1 rounded-xl bg-slate-900 border-none text-sm font-black uppercase tracking-widest text-white hover:bg-black shadow-lg transition-all active:scale-95"
+          >
+            <Link to={`/employer/messages?candidateName=${encodeURIComponent(candidate.name)}`}>
+              Xem hồ sơ ứng viên
             </Link>
-          ) : (
-            <button
-              type="button"
-              onClick={() => onUnlock(candidate.id)}
-              className="flex items-center gap-2 rounded-2xl bg-slate-900 px-5 h-11 text-base font-black text-white hover:bg-black transition-all shadow-xl active:scale-95 uppercase tracking-widest"
-            >
-              <Lock size={12} className="text-slate-400" />
-              Mở khóa
-            </button>
-          )}
-        </div>
+          </Button>
+        ) : (
+          <Button
+            onClick={() => onUnlock(candidate.id)}
+            className="h-12 flex-1 rounded-xl bg-emerald-600 border-none text-sm font-black uppercase tracking-widest text-white hover:bg-emerald-700 shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
+          >
+            <Lock size={16} className="mr-2" />
+            Mở khóa thông tin
+          </Button>
+        )}
       </div>
     </div>
   );
@@ -357,26 +396,44 @@ const SearchCandidatesPage = () => {
           <SlidersHorizontal size={14} />
           BỘ LỌC NÂNG CAO
         </button>
-        {[
-          { label: 'Kinh nghiệm', opts: LEVEL_OPTIONS },
-          { label: 'Mức lương', opts: SALARY_OPTIONS },
-          { label: 'Trình độ', opts: LEVEL_FILTER_OPTIONS },
-        ].map(({ label, opts }) => (
-          <div key={label} className="relative group">
-            <select
-              className="h-10 rounded-xl border border-slate-200 bg-white pl-4 pr-10 text-base font-black uppercase tracking-tight text-slate-600 outline-none appearance-none cursor-pointer hover:border-emerald-300 hover:text-emerald-600 hover:bg-primary/10 transition-all shadow-sm"
-              onChange={(e) => label === 'Kinh nghiệm' && setSelectedLevel(e.target.value)}
-            >
-              {opts.map((o) => (
-                <option key={o}>{o.toUpperCase()}</option>
-              ))}
-            </select>
-            <ChevronDown
-              size={14}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-emerald-500"
-            />
-          </div>
-        ))}
+        <Select value={selectedLevel} onValueChange={(val) => setSelectedLevel(val)}>
+          <SelectTrigger className="h-10 w-[180px] rounded-xl border border-slate-200 bg-white px-4 text-base font-black uppercase tracking-tight text-slate-600 outline-none hover:border-emerald-300 hover:text-emerald-600 hover:bg-primary/5 transition-all shadow-sm">
+            <SelectValue placeholder="KINH NGHIỆM" />
+          </SelectTrigger>
+          <SelectContent>
+            {LEVEL_OPTIONS.map((o) => (
+              <SelectItem key={o} value={o}>
+                {o.toUpperCase()}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select>
+          <SelectTrigger className="h-10 w-[180px] rounded-xl border border-slate-200 bg-white px-4 text-base font-black uppercase tracking-tight text-slate-600 outline-none hover:border-emerald-300 hover:text-emerald-600 hover:bg-primary/5 transition-all shadow-sm">
+            <SelectValue placeholder="MỨC LƯƠNG" />
+          </SelectTrigger>
+          <SelectContent>
+            {SALARY_OPTIONS.map((o) => (
+              <SelectItem key={o} value={o}>
+                {o.toUpperCase()}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select>
+          <SelectTrigger className="h-10 w-[180px] rounded-xl border border-slate-200 bg-white px-4 text-base font-black uppercase tracking-tight text-slate-600 outline-none hover:border-emerald-300 hover:text-emerald-600 hover:bg-primary/5 transition-all shadow-sm">
+            <SelectValue placeholder="TRÌNH ĐỘ" />
+          </SelectTrigger>
+          <SelectContent>
+            {LEVEL_FILTER_OPTIONS.map((o) => (
+              <SelectItem key={o} value={o}>
+                {o.toUpperCase()}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <div className="ml-auto flex items-center gap-3 bg-white p-1 rounded-2xl border border-slate-200 shadow-sm">
           <button
             onClick={() => setViewMode('grid')}

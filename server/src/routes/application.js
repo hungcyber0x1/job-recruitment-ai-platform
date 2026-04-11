@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const ApplicationController = require('../controllers/application');
 const { protect, authorize } = require('../middlewares/auth');
+const { validate } = require('../middlewares/validation');
+const { updateStatusValidator } = require('../validations/application');
+const { idParamValidator } = require('../validations/common');
 
 router.get(
   '/my-applications',
@@ -39,6 +42,9 @@ router.put(
   '/:id/status',
   protect,
   authorize('employer', 'admin'),
+  idParamValidator,
+  updateStatusValidator,
+  validate,
   ApplicationController.updateStatus
 );
 router.post('/:id/notes', protect, authorize('employer', 'admin'), ApplicationController.addNote);

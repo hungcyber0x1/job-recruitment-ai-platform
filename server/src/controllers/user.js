@@ -43,11 +43,10 @@ class UserController {
         return res.status(400).json({ success: false, message: 'No file uploaded' });
       }
       const avatarUrl = `/uploads/avatars/${req.file.filename}`;
-      const UserRepository = require('../repositories/user');
-      await UserRepository.update(req.user.id, { avatar_url: avatarUrl });
+      const user = await UserService.updateUserAvatar(req.user.id, avatarUrl);
       res.json({
         success: true,
-        data: { avatar_url: avatarUrl },
+        data: { avatar_url: user.avatar_url },
         message: 'Avatar uploaded successfully',
       });
     } catch (error) {

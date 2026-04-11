@@ -9,7 +9,7 @@ import {
   isPathAllowedForRole,
 } from '../../utils/rolePaths';
 import Button from '../../components/common/Button';
-import SocialAuthButtons from '@/components/auth/SocialAuthButtons.jsx';
+import { Logo } from '@/components/common';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -25,7 +25,6 @@ const LoginPage = () => {
     fromLoc && typeof fromLoc.pathname === 'string'
       ? `${fromLoc.pathname}${fromLoc.search || ''}`
       : null;
-  const oauthReturnTo = getSafeRedirectShapeOnly(fromPath);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -68,14 +67,14 @@ const LoginPage = () => {
 
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         {/* Left Side */}
-        <div className="hidden lg:flex flex-col justify-center bg-[linear-gradient(135deg,#0b1510_0%,#0f1f17_55%,#166534_100%)] p-12 text-white relative overflow-hidden rounded-[3rem] shadow-2xl space-y-12">
+        <div className="hidden lg:flex flex-col justify-center bg-[linear-gradient(135deg,#0b1510_0%,#0f1f17_55%,#065f46_100%)] p-12 text-white relative overflow-hidden rounded-[3rem] shadow-2xl space-y-12">
           <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-5"></div>
           <div className="relative z-10">
-            <Link to="/" className="inline-block mb-12">
-              <span className="text-4xl font-black text-white">
-                HireAI<span className="text-primary">.</span>
-              </span>
-            </Link>
+            <div className="flex justify-center">
+              <Link to="/" className="inline-block mb-12 transition-opacity hover:opacity-90">
+                <Logo className="h-14 w-auto" />
+              </Link>
+            </div>
             <h1 className="text-5xl xl:text-6xl font-black text-white leading-tight mb-6 text-wrap-balance">
               Dẫn đầu xu hướng <br /> cùng{' '}
               <span className="text-primary font-extrabold">Trí tuệ nhân tạo.</span>
@@ -86,11 +85,11 @@ const LoginPage = () => {
             <div className="grid grid-cols-2 gap-6 mt-12">
               <div className="p-6 bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 shadow-xl">
                 <p className="text-3xl font-extrabold text-primary mb-1 tabular-nums">94.7%</p>
-                <p className="text-xs font-semibold text-slate-400">Matching chính xác</p>
+                <p className="text-base font-semibold text-slate-400">Matching chính xác</p>
               </div>
               <div className="p-6 bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 shadow-xl">
                 <p className="text-3xl font-extrabold text-primary mb-1 tabular-nums">8,340</p>
-                <p className="text-xs font-semibold text-slate-400">Việc làm đang mở</p>
+                <p className="text-base font-semibold text-slate-400">Việc làm đang mở</p>
               </div>
             </div>
           </div>
@@ -98,8 +97,10 @@ const LoginPage = () => {
 
         {/* Right Side: Form */}
         <div className="bg-white rounded-[40px] p-8 md:p-12 shadow-premium border border-border">
-          <div className="text-center mb-10 lg:hidden">
-            <span className="text-3xl font-black gradient-text">HireAI</span>
+          <div className="text-center mb-10 flex justify-center lg:hidden">
+            <Link to="/" className="inline-block transition-opacity hover:opacity-90">
+              <Logo className="h-8 w-auto" />
+            </Link>
           </div>
           <div className="mb-10">
             <h2 className="text-3xl font-black text-foreground mb-2 text-wrap-balance">
@@ -159,15 +160,6 @@ const LoginPage = () => {
               {loading ? 'Đang xử lý…' : 'Đăng nhập ngay'}
               <ArrowRight size={20} />
             </Button>
-
-            <div className="relative flex items-center justify-center py-4">
-              <div className="absolute inset-x-0 h-px bg-slate-100" />
-              <span className="relative bg-white px-4 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                Hoặc đăng nhập với
-              </span>
-            </div>
-
-            <SocialAuthButtons intent="login" returnTo={oauthReturnTo} />
 
             <p className="text-center text-txt-muted font-medium">
               Chưa có tài khoản?{' '}

@@ -17,10 +17,10 @@ const personas = [
       'Tối ưu hồ sơ tự động',
     ],
     stat: { value: '3x', label: 'Nhanh hơn so với tìm việc truyền thống' },
-    accent: 'border-l-blue-500',
-    iconColor: 'text-blue-600',
-    iconBg: 'bg-blue-500/10 border-blue-500/20',
-    statColor: 'text-blue-600',
+    accent: 'border-l-teal-500',
+    iconColor: 'text-teal-600',
+    iconBg: 'bg-teal-500/10 border-teal-500/20',
+    statColor: 'text-teal-600',
   },
   {
     id: 'employer',
@@ -53,10 +53,10 @@ const personas = [
       'Dashboard giám sát real-time',
     ],
     stat: { value: '24/7', label: 'Giám sát và hỗ trợ tự động' },
-    accent: 'border-l-violet-500',
-    iconColor: 'text-violet-600',
-    iconBg: 'bg-violet-500/10 border-violet-500/20',
-    statColor: 'text-violet-600',
+    accent: 'border-l-emerald-700',
+    iconColor: 'text-emerald-700',
+    iconBg: 'bg-emerald-700/10 border-emerald-700/20',
+    statColor: 'text-emerald-700',
   },
 ];
 
@@ -76,7 +76,7 @@ const CapabilityShowcase = () => {
             >
               <div className="flex items-center gap-3">
                 <div className="section-accent-line" />
-                <p className="text-sm font-bold text-primary uppercase tracking-widest">
+                <p className="text-base font-bold text-primary uppercase tracking-widest">
                   Cho mọi người
                 </p>
               </div>
@@ -179,7 +179,7 @@ const CapabilityShowcase = () => {
                           >
                             {persona.stat.value}
                           </p>
-                          <p className="text-xs text-muted-foreground font-medium leading-snug">
+                          <p className="text-base text-muted-foreground font-medium leading-snug">
                             {persona.stat.label}
                           </p>
                         </div>

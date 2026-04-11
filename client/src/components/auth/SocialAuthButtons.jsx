@@ -105,12 +105,7 @@ const SocialAuthButtons = ({ intent = 'login', role, className = '', returnTo = 
           <div className="h-11 animate-pulse rounded-xl bg-muted/60" />
           <div className="h-11 animate-pulse rounded-xl bg-muted/60" />
         </div>
-      ) : !anyEnabled ? (
-        <p className="rounded-xl border border-dashed border-border/80 bg-muted/20 px-4 py-3 text-center text-xs text-muted-foreground">
-          Đăng nhập mạng xã hội chưa được cấu hình trên server (GOOGLE / FACEBOOK / GITHUB). Dùng
-          email và mật khẩu hoặc liên hệ quản trị.
-        </p>
-      ) : (
+      ) : !anyEnabled ? null : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <button
             type="button"

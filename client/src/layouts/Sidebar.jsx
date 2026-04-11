@@ -164,12 +164,6 @@ const Sidebar = ({ role = 'candidate', mobileOpen = false, onMobileClose = null 
             <Logo className="relative h-16 w-16 grayscale transition-all duration-700 group-hover:scale-110 group-hover:grayscale-0" />
           </Link>
           <div className="relative">
-            <div className="flex items-center gap-1 text-2xl font-black italic tracking-tighter text-foreground">
-              HIRE
-              <span className="text-accent underline decoration-accent/30 decoration-4 underline-offset-4">
-                AI
-              </span>
-            </div>
             <div className="mt-2 flex items-center justify-center gap-3">
               <span className="h-[2px] w-4 bg-accent" />
               <span className="text-sm font-black uppercase tracking-[0.4em] text-muted-foreground/80">
@@ -216,7 +210,6 @@ const Sidebar = ({ role = 'candidate', mobileOpen = false, onMobileClose = null 
           <Link to="/" className="flex items-center gap-3" onClick={() => onMobileClose?.(false)}>
             <Logo className="h-11 w-11" />
             <div>
-              <div className="text-lg font-black tracking-tight text-white">HireAI</div>
               <div className="text-base uppercase tracking-[0.18em] text-slate-400">{role}</div>
             </div>
           </Link>

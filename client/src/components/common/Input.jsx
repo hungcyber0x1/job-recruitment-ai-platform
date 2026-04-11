@@ -26,7 +26,7 @@ const Input = React.forwardRef(({ label, error, className, ...props }, ref) => {
         {...props}
       />
       {error && (
-        <span className="text-xs font-medium text-error-600 ml-1 mt-0.5 animate-fade-in">
+        <span className="text-sm font-medium text-error-600 ml-1 mt-0.5 animate-fade-in">
           {error}
         </span>
       )}

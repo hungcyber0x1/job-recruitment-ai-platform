@@ -34,7 +34,7 @@ export const JobDetailHeader = ({ job, onApply, customAction, applyDisabled = fa
       <div className="p-8 md:p-10 relative z-10">
         <div className="flex flex-col lg:flex-row justify-between items-start gap-6 lg:gap-10">
           <div className="w-full lg:w-2/3">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-sm font-bold uppercase tracking-widest mb-6">
               <Sparkles size={14} /> Mới đăng
             </div>
             <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white mb-4 leading-tight tracking-tight">
@@ -53,7 +53,7 @@ export const JobDetailHeader = ({ job, onApply, customAction, applyDisabled = fa
                   <DollarSign size={20} />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">
+                  <p className="text-base font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">
                     Mức lương
                   </p>
                   <p className="font-bold text-slate-900 dark:text-slate-100">{job.salary_range}</p>
@@ -65,7 +65,7 @@ export const JobDetailHeader = ({ job, onApply, customAction, applyDisabled = fa
                   <MapPin size={20} />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">
+                  <p className="text-base font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">
                     Địa điểm
                   </p>
                   <p className="font-bold text-slate-900 dark:text-slate-100">{job.location}</p>
@@ -77,7 +77,7 @@ export const JobDetailHeader = ({ job, onApply, customAction, applyDisabled = fa
                   <Clock size={20} />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">
+                  <p className="text-base font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">
                     Kinh nghiệm
                   </p>
                   <p className="font-bold text-slate-900 dark:text-slate-100">{job.experience}</p>
@@ -89,7 +89,7 @@ export const JobDetailHeader = ({ job, onApply, customAction, applyDisabled = fa
                   <Calendar size={20} />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">
+                  <p className="text-base font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">
                     Hạn nộp
                   </p>
                   <p
@@ -247,19 +247,19 @@ export const AIAnalysisCard = ({ matchScore = 85 }) => (
       <div className="space-y-3">
         <div className="flex items-start gap-2">
           <CheckCircle2 size={16} className="text-primary-400 mt-0.5 shrink-0" />
-          <p className="text-sm text-primary-100">
+          <p className="text-base text-primary-100">
             Bạn đáp ứng <span className="text-white font-bold">9/10 kỹ năng</span> yêu cầu.
           </p>
         </div>
         <div className="flex items-start gap-2">
           <Lightbulb size={16} className="text-yellow-400 mt-0.5 shrink-0" />
-          <p className="text-sm text-primary-100">
+          <p className="text-base text-primary-100">
             Kinh nghiệm của bạn trong lĩnh vực Fintech là điểm cộng lớn.
           </p>
         </div>
         <div className="flex items-start gap-2">
           <AlertTriangle size={16} className="text-orange-400 mt-0.5 shrink-0" />
-          <p className="text-sm text-primary-100">
+          <p className="text-base text-primary-100">
             Cần bổ sung kiến thức về{' '}
             <span className="underline decoration-orange-400/50">GraphQL</span>.
           </p>

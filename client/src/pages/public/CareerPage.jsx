@@ -222,7 +222,7 @@ const CareerPage = () => {
                   </div>
                   <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-lg border border-slate-100">
                     <AlertCircle className="text-primary-600 shrink-0 mt-0.5" size={18} />
-                    <p className="text-sm text-slate-600 leading-relaxed">
+                    <p className="text-base text-slate-600 leading-relaxed">
                       <span className="font-bold text-slate-900">Mẹo AI:</span> Đừng lo lắng nếu bạn
                       chưa thành thạo. Hệ thống sẽ đề xuất lộ trình học tập để lấp đầy các khoảng
                       trống kỹ năng này.
@@ -281,7 +281,7 @@ const CareerPage = () => {
                           {React.cloneElement(item.icon, { size: 20 })}
                         </div>
                         <h3 className="font-bold text-slate-900 mb-1">{item.label}</h3>
-                        <p className="text-slate-500 text-xs">{item.desc}</p>
+                        <p className="text-slate-500 text-base">{item.desc}</p>
                       </div>
                     ))}
                   </div>
@@ -396,7 +396,7 @@ const CareerPage = () => {
             <div className="bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/50 overflow-hidden mb-8">
               <div className="bg-slate-900 p-8 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
-                  <div className="flex items-center gap-2 text-primary-300 font-bold text-xs uppercase tracking-widest mb-2">
+                  <div className="flex items-center gap-2 text-primary-300 font-bold text-sm uppercase tracking-widest mb-2">
                     <Award size={14} /> Recommended Career Path
                   </div>
                   <h2 className="text-3xl font-black mb-2">Frontend Developer</h2>
@@ -407,33 +407,33 @@ const CareerPage = () => {
                 </div>
                 <div className="text-right">
                   <div className="text-4xl font-black text-green-400 mb-1">94%</div>
-                  <div className="text-xs font-bold text-slate-400 uppercase">Match Score</div>
+                  <div className="text-sm font-bold text-slate-400 uppercase">Match Score</div>
                 </div>
               </div>
 
               <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                  <div className="flex items-center gap-2 mb-2 text-slate-500 font-bold text-xs uppercase">
+                  <div className="flex items-center gap-2 mb-2 text-slate-500 font-bold text-sm uppercase">
                     <TrendingUp size={14} /> Nhu cầu thị trường
                   </div>
                   <div className="text-2xl font-black text-slate-900">Rất Cao</div>
-                  <div className="text-xs text-green-600 font-bold mt-1">
+                  <div className="text-sm text-green-600 font-bold mt-1">
                     +24% so với cùng kỳ năm trước
                   </div>
                 </div>
                 <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                  <div className="flex items-center gap-2 mb-2 text-slate-500 font-bold text-xs uppercase">
+                  <div className="flex items-center gap-2 mb-2 text-slate-500 font-bold text-sm uppercase">
                     <Briefcase size={14} /> Lương trung bình
                   </div>
                   <div className="text-2xl font-black text-slate-900">15 - 25M</div>
-                  <div className="text-xs text-slate-500 font-bold mt-1">Level: Junior - Mid</div>
+                  <div className="text-sm text-slate-500 font-bold mt-1">Level: Junior - Mid</div>
                 </div>
                 <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                  <div className="flex items-center gap-2 mb-2 text-slate-500 font-bold text-xs uppercase">
+                  <div className="flex items-center gap-2 mb-2 text-slate-500 font-bold text-sm uppercase">
                     <BarChart3 size={14} /> Độ khó
                   </div>
                   <div className="text-2xl font-black text-slate-900">Trung bình</div>
-                  <div className="text-xs text-slate-500 font-bold mt-1">Cần 6 tháng đào tạo</div>
+                  <div className="text-sm text-slate-500 font-bold mt-1">Cần 6 tháng đào tạo</div>
                 </div>
               </div>
             </div>
@@ -468,10 +468,10 @@ const CareerPage = () => {
                       <div key={idx} className="relative">
                         <div className="absolute -left-[41px] top-1 w-6 h-6 rounded-full border-4 border-white bg-primary-600 shadow-md"></div>
                         <h4 className="font-bold text-lg text-slate-900">{item.role}</h4>
-                        <span className="text-xs font-bold text-primary-600 bg-primary-50 px-2 py-0.5 rounded-md mb-2 inline-block">
+                        <span className="text-sm font-bold text-primary-600 bg-primary-50 px-2 py-0.5 rounded-md mb-2 inline-block">
                           {item.time}
                         </span>
-                        <p className="text-slate-500 text-sm leading-relaxed">{item.desc}</p>
+                        <p className="text-slate-500 text-base leading-relaxed">{item.desc}</p>
                       </div>
                     ))}
                   </div>
@@ -492,7 +492,7 @@ const CareerPage = () => {
                         className="flex justify-between items-center p-3 rounded-lg bg-orange-50/50 border border-orange-100"
                       >
                         <span className="text-sm font-bold text-slate-700">{s}</span>
-                        <span className="text-[10px] font-bold text-orange-600 uppercase bg-white px-2 py-0.5 rounded border border-orange-100">
+                        <span className="text-sm font-bold text-orange-600 uppercase bg-white px-2 py-0.5 rounded border border-orange-100">
                           Missing
                         </span>
                       </div>
@@ -502,11 +502,11 @@ const CareerPage = () => {
 
                 {/* Recommended Course */}
                 <div className="bg-gradient-to-br from-primary to-accent rounded-2xl p-6 text-white shadow-lg shadow-primary/20">
-                  <div className="flex items-center gap-2 text-primary-200 font-bold text-xs uppercase mb-4">
+                  <div className="flex items-center gap-2 text-primary-200 font-bold text-sm uppercase mb-4">
                     <Sparkles size={14} /> AI Recommendation
                   </div>
                   <h4 className="font-bold text-lg mb-2">ReactJS Advanced Course</h4>
-                  <p className="text-primary-100 text-sm mb-6 opacity-90">
+                  <p className="text-primary-100 text-base mb-6 opacity-90">
                     Khóa học được đánh giá cao nhất để lấp đầy "TypeScript" gap của bạn.
                   </p>
                   <button className="w-full py-3 bg-white text-primary-600 font-bold rounded-xl hover:bg-primary-50 transition-colors text-sm">

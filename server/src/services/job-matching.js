@@ -1,10 +1,10 @@
 const AIService = require('./ai');
-const AIJobMatchRepository = require('../repositories/ai-job-match');
-const CandidateRepository = require('../repositories/candidate');
-const JobRepository = require('../repositories/job');
-const SystemSettingsRepository = require('../repositories/system-settings');
-// const SkillRepository = require('../repositories/skill');
-const ResumeAnalysisRepository = require('../repositories/resume-analysis');
+const AIJobMatchRepository = require('../models/AiJobMatch');
+const CandidateRepository = require('../models/Candidate');
+const JobRepository = require('../models/Job');
+const SystemSettingsRepository = require('../models/SystemSettings');
+// const SkillRepository = require('../models/Skill');
+const ResumeAnalysisRepository = require('../models/ResumeAnalysis');
 const logger = require('../utils/logger');
 const { sanitizeForPrompt, sanitizeSkillList } = require('../utils/sanitize');
 

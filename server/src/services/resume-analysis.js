@@ -1,7 +1,7 @@
 const { PDFParse } = require('pdf-parse');
 const fs = require('fs').promises;
-const ResumeAnalysisRepository = require('../repositories/resume-analysis');
-const JobRepository = require('../repositories/job');
+const ResumeAnalysisRepository = require('../models/ResumeAnalysis');
+const JobRepository = require('../models/Job');
 const AppError = require('../utils/errorHandler');
 
 const logger = require('../utils/logger');

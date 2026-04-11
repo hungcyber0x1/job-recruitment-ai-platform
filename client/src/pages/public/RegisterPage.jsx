@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/AuthContext';
 import { useNotification } from '@/context/NotificationContext';
-import SocialAuthButtons from '@/components/auth/SocialAuthButtons.jsx';
+import { Logo } from '@/components/common';
 import { getDashboardPath, getSafePostAuthRedirect } from '@/utils/rolePaths';
 
 const RegisterPage = () => {
@@ -110,11 +110,14 @@ const RegisterPage = () => {
           />
           <div className="relative z-10 space-y-10">
             <div>
-              <Link to="/" className="group mb-8 inline-flex items-center gap-3">
-                <span className="text-3xl font-bold tracking-tight text-foreground transition-colors group-hover:text-primary/90 xl:text-4xl">
-                  HireAI<span className="text-primary">.</span>
-                </span>
-              </Link>
+              <div className="flex justify-center">
+                <Link
+                  to="/"
+                  className="group mb-8 inline-flex items-center gap-3 transition-opacity hover:opacity-90"
+                >
+                  <Logo className="h-14 w-auto" />
+                </Link>
+              </div>
               <h1 className="mb-5 max-w-[22ch] text-balance text-4xl font-bold leading-[1.12] tracking-tight text-foreground xl:text-[2.75rem] xl:leading-[1.1]">
                 Mở khóa tiềm năng{' '}
                 <span className="bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent">
@@ -136,7 +139,7 @@ const RegisterPage = () => {
                   <h3 className="font-semibold leading-snug text-foreground">
                     Gợi ý việc làm thông minh
                   </h3>
-                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                  <p className="mt-1 text-base leading-relaxed text-muted-foreground">
                     Matching chính xác đến 94.7% bằng AI.
                   </p>
                 </div>
@@ -149,7 +152,7 @@ const RegisterPage = () => {
                   <h3 className="font-semibold leading-snug text-foreground">
                     Bảo mật &amp; tin cậy
                   </h3>
-                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                  <p className="mt-1 text-base leading-relaxed text-muted-foreground">
                     Hồ sơ của bạn được bảo vệ tuyệt đối.
                   </p>
                 </div>
@@ -169,9 +172,9 @@ const RegisterPage = () => {
             <div className="mb-6 flex justify-center lg:hidden">
               <Link
                 to="/"
-                className="inline-flex items-center gap-2 text-2xl font-bold tracking-tight text-foreground"
+                className="inline-flex items-center gap-2 transition-opacity hover:opacity-90"
               >
-                HireAI<span className="text-primary">.</span>
+                <Logo className="h-8 w-auto" />
               </Link>
             </div>
             {!role ? (
@@ -179,7 +182,7 @@ const RegisterPage = () => {
                 <h2 className="mb-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
                   Chào mừng bạn!
                 </h2>
-                <p className="text-sm text-muted-foreground sm:text-base">
+                <p className="text-base text-muted-foreground sm:text-base">
                   Vui lòng chọn vai trò để bắt đầu.
                 </p>
               </>
@@ -188,7 +191,7 @@ const RegisterPage = () => {
                 <button
                   type="button"
                   onClick={() => setRole(null)}
-                  className="mb-5 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary transition-colors hover:text-primary/80"
+                  className="mb-5 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.14em] text-primary transition-colors hover:text-primary/80"
                 >
                   <ArrowLeft className="size-3.5 shrink-0" strokeWidth={2.5} aria-hidden />
                   Quay lại chọn vai trò
@@ -196,7 +199,7 @@ const RegisterPage = () => {
                 <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
                   Đăng ký {role === 'employer' ? 'nhà tuyển dụng' : 'ứng viên'}
                 </h2>
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="mt-2 text-base text-muted-foreground">
                   {role === 'employer'
                     ? 'Tạo tài khoản để đăng tin và quản lý ứng viên.'
                     : 'Tạo tài khoản để nhận gợi ý việc làm phù hợp.'}
@@ -219,7 +222,7 @@ const RegisterPage = () => {
                   <h3 className="mb-0.5 text-base font-semibold text-foreground sm:text-lg">
                     Ứng viên
                   </h3>
-                  <p className="text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                  <p className="text-base leading-relaxed text-muted-foreground sm:text-base">
                     Tìm kiếm việc làm &amp; cơ hội sự nghiệp
                   </p>
                 </div>
@@ -241,7 +244,7 @@ const RegisterPage = () => {
                   <h3 className="mb-0.5 text-base font-semibold text-foreground sm:text-lg">
                     Nhà tuyển dụng
                   </h3>
-                  <p className="text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                  <p className="text-base leading-relaxed text-muted-foreground sm:text-base">
                     Tìm kiếm nhân tài &amp; quản lý tuyển dụng
                   </p>
                 </div>
@@ -253,18 +256,6 @@ const RegisterPage = () => {
             </div>
           ) : (
             <>
-              <SocialAuthButtons
-                intent="register"
-                role={role}
-                className="mb-6"
-                returnTo={role ? getSafePostAuthRedirect(searchParams.get('next'), role) : null}
-              />
-              <div className="relative mb-6 flex items-center justify-center">
-                <div className="absolute inset-x-0 h-px bg-border/80" />
-                <span className="relative bg-white px-4 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                  Hoặc đăng ký bằng email
-                </span>
-              </div>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6">
                   <div className="space-y-2.5">
@@ -403,7 +394,7 @@ const RegisterPage = () => {
             </>
           )}
 
-          <p className="mt-8 text-center text-sm text-muted-foreground">
+          <p className="mt-8 text-center text-base text-muted-foreground">
             Đã có tài khoản?{' '}
             <Link
               to="/login"

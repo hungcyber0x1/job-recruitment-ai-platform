@@ -1,4 +1,32 @@
-const BaseRepository = require('./base');
+/**
+ * Candidate Model Schema — see migration 002_create_candidates_table.sql
+ *
+ * Cung cấp JSDoc type definitions cho hệ thống không dùng ORM.
+ */
+
+/**
+ * @typedef {Object} CandidateRow
+ * @property {number} id - Primary key, auto-increment
+ * @property {number} user_id - FK → users.id
+ * @property {string|null} bio - Giới thiệu bản thân
+ * @property {number|null} experience_years - Số năm kinh nghiệm
+ * @property {string|null} current_job_title - Vị trí hiện tại
+ * @property {string|null} education_level - Trình độ học vấn
+ * @property {Array|null} education - Danh sách trường đã học (JSON)
+ * @property {Array|null} experience - Danh sách kinh nghiệm (JSON)
+ * @property {string|null} location - Địa điểm
+ * @property {string|null} resume_url - Đường dẫn CV
+ * @property {string|null} phone - Số điện thoại
+ * @property {string} created_at - ISO timestamp
+ * @property {string} updated_at - ISO timestamp
+ */
+
+/** Tên bảng trong database */
+const TABLE_NAME = 'candidates';
+
+module.exports = { TABLE_NAME };
+
+const BaseRepository = require('./Base');
 
 class CandidateRepository extends BaseRepository {
   constructor() {

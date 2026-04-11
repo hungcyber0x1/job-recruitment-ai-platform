@@ -50,7 +50,7 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
             <h2 className="text-3xl font-black leading-tight text-foreground">
               {initialData ? 'Chỉnh sửa tin tuyển dụng' : 'Đăng tin tuyển dụng mới'}
             </h2>
-            <p className="mt-1 text-xs font-bold uppercase tracking-widest text-txt-light">
+            <p className="mt-1 text-base font-bold uppercase tracking-widest text-txt-light">
               Hãy cung cấp đầy đủ thông tin để AI Matching hoạt động tốt nhất
             </p>
           </div>
@@ -70,7 +70,7 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
           </div>
 
           <div className="space-y-3">
-            <label className="ml-1 text-xs font-black uppercase tracking-widest text-txt-light">
+            <label className="ml-1 text-sm font-black uppercase tracking-widest text-txt-light">
               Lĩnh vực / Ngành nghề
             </label>
             <select
@@ -90,7 +90,7 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
           </div>
 
           <div className="space-y-3">
-            <label className="ml-1 text-xs font-black uppercase tracking-widest text-txt-light">
+            <label className="ml-1 text-sm font-black uppercase tracking-widest text-txt-light">
               Hình thức làm việc
             </label>
             <select
@@ -157,7 +157,7 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
             </h3>
             <div className="space-y-8">
               <div className="space-y-3">
-                <label className="ml-1 text-xs font-black uppercase tracking-widest text-txt-light">
+                <label className="ml-1 text-sm font-black uppercase tracking-widest text-txt-light">
                   Mô tả công việc
                 </label>
                 <textarea
@@ -171,7 +171,7 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
                 />
               </div>
               <div className="space-y-3">
-                <label className="ml-1 text-xs font-black uppercase tracking-widest text-txt-light">
+                <label className="ml-1 text-sm font-black uppercase tracking-widest text-txt-light">
                   Yêu cầu ứng viên
                 </label>
                 <textarea
@@ -185,7 +185,7 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
                 />
               </div>
               <div className="space-y-3">
-                <label className="ml-1 text-xs font-black uppercase tracking-widest text-txt-light">
+                <label className="ml-1 text-sm font-black uppercase tracking-widest text-txt-light">
                   Quyền lợi
                 </label>
                 <textarea
@@ -209,12 +209,12 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
               size={120}
             />
             <h4 className="text-xl font-black mb-4">AI Optimizer</h4>
-            <p className="mb-8 text-sm font-medium leading-relaxed text-white/70">
+            <p className="mb-8 text-base font-medium leading-relaxed text-white/70">
               Hệ thống AI của chúng tôi sẽ phân tích các từ khóa trong mô tả của bạn để đảm bảo tin
               tuyển dụng tiếp cận đúng đối tượng ứng viên nhất.
             </p>
             <div className="space-y-4">
-              <div className="flex items-center justify-between text-xs font-bold">
+              <div className="flex items-center justify-between text-sm font-bold">
                 <span className="uppercase tracking-widest text-white/60">Độ phủ từ khóa</span>
                 <span className="text-accent">85%</span>
               </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, Linkedin, Facebook } from 'lucide-react';
+import { Logo } from '@/components/common';
 
 const footerColumns = [
   {
@@ -47,17 +48,16 @@ const LandingFooter = () => {
       <div className="container mx-auto px-6 max-w-7xl relative z-10">
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-12 py-14">
           <div className="lg:col-span-4 space-y-6">
-            <Link to="/" className="inline-flex items-center gap-2.5 group">
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-[0_4px_14px_rgba(16,185,129,0.25)]">
-                <span className="text-white font-black text-xl">H</span>
-              </div>
-              <span className="text-lg font-black text-white tracking-tight sm:text-xl">
-                HireAI<span className="text-primary">.</span>
-              </span>
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2.5 transition-opacity hover:opacity-90"
+            >
+              <Logo className="h-16 w-auto" />
             </Link>
             <p className="max-w-md text-base font-medium leading-relaxed text-slate-500">
-              HireAI kết nối nhân tài và cơ hội việc làm bằng AI: gợi ý việc khớp kỹ năng, phân tích
-              CV và đồng hành phát triển sự nghiệp — dành cho ứng viên và doanh nghiệp tại Việt Nam.
+              HireBot kết nối nhân tài và cơ hội việc làm bằng AI: gợi ý việc khớp kỹ năng, phân
+              tích CV và đồng hành phát triển sự nghiệp — dành cho ứng viên và doanh nghiệp tại Việt
+              Nam.
             </p>
             <div className="flex items-center gap-2">
               {[
@@ -135,10 +135,12 @@ const LandingFooter = () => {
         </div>
 
         <div className="py-6 border-t border-white/[0.06] flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-center text-sm font-medium text-slate-500 sm:text-left">
+          <p className="text-center text-base font-medium text-slate-500 sm:text-left">
             © {new Date().getFullYear()} HireAI.vn — Đường tới thành công sự nghiệp
           </p>
-          <p className="text-sm font-medium text-slate-500">Thiết kế giao diện theo chuẩn HireAI</p>
+          <p className="text-base font-medium text-slate-500">
+            Thiết kế giao diện theo chuẩn HireAI
+          </p>
         </div>
       </div>
     </footer>

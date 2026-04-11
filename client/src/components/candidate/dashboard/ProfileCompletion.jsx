@@ -27,7 +27,7 @@ const ProfileCompletion = ({ completion, missingItems }) => {
       <div className="relative z-10 mb-6">
         <div className="flex w-fit items-center gap-2 rounded-md bg-secondary/10 px-3 py-1.5 text-secondary">
           <CheckCircle2 size={16} />
-          <p className="text-xs font-semibold tracking-wide">
+          <p className="text-base font-semibold tracking-wide">
             Hoàn thiện thêm để tăng <span className="font-bold">{completion}%</span> cơ hội
           </p>
         </div>

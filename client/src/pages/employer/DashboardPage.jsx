@@ -43,10 +43,10 @@ const FUNNEL_LABELS = {
 const FUNNEL_COLORS = {
   pending: '#10b981', // emerald-500
   screening: '#059669', // emerald-600
-  shortlisted: '#8b5cf6', // violet-500
-  interviewing: '#3b82f6', // blue-500
-  offered: '#0ea5e9', // sky-500
-  hired: '#22c55e', // green-500
+  shortlisted: '#14b8a6', // teal-500
+  interviewing: '#0d9488', // teal-600
+  offered: '#0f766e', // teal-700
+  hired: '#10b981', // emerald-500
   rejected: '#f43f5e', // rose-500
 };
 
@@ -154,8 +154,8 @@ const EmployerDashboard = () => {
     const entries = Object.entries(byDept);
     if (entries.length === 0) {
       return [
-        { name: 'IT', value: Math.round(total * 0.65), fill: '#10b981' },
-        { name: 'Sales', value: Math.round(total * 0.25), fill: '#3b82f6' },
+        { name: 'Công nghệ', value: Math.round(total * 0.65), fill: '#10b981' },
+        { name: 'Kinh doanh', value: Math.round(total * 0.25), fill: '#14b8a6' },
         {
           name: 'Khác',
           value: total - Math.round(total * 0.65) - Math.round(total * 0.25),
@@ -163,7 +163,7 @@ const EmployerDashboard = () => {
         },
       ].filter((d) => d.value > 0);
     }
-    const colors = ['#10b981', '#3b82f6', '#94a3b8'];
+    const colors = ['#10b981', '#14b8a6', '#94a3b8'];
     return entries.map(([name, value], i) => ({
       name,
       value,
@@ -187,21 +187,22 @@ const EmployerDashboard = () => {
         value: publishedJobs,
         ...getChange(publishedJobs, 1.2),
         icon: Megaphone,
-        iconClass: 'text-indigo-600 bg-indigo-50 border-indigo-100 shadow-sm shadow-indigo-100/50',
+        iconClass:
+          'text-emerald-600 bg-emerald-50 border-emerald-100 shadow-sm shadow-emerald-100/50',
       },
       {
         label: 'Hành chờ AI Screening',
         value: screeningCount,
         ...getChange(screeningCount, 2.5),
         icon: Sparkles,
-        iconClass: 'text-violet-600 bg-violet-50',
+        iconClass: 'text-primary bg-primary/10',
       },
       {
         label: 'Phỏng vấn phễu',
         value: interviewCount,
         ...getChange(interviewCount, 3.1),
         icon: Users,
-        iconClass: 'text-blue-600 bg-blue-50',
+        iconClass: 'text-teal-600 bg-teal-50',
       },
       {
         label: 'Match score TB',
@@ -305,7 +306,7 @@ const EmployerDashboard = () => {
           return (
             <div
               key={card.label}
-              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition-all group"
+              className="rounded-2xl border border-slate-200 bg-white p-6 card-premium-hover group"
             >
               <div className="flex flex-col">
                 <div
@@ -512,7 +513,7 @@ const EmployerDashboard = () => {
             {recentMatches.map((app, i) => (
               <div
                 key={app.id || i}
-                className="flex items-start gap-4 p-4 rounded-2xl bg-white border border-slate-200 hover:border-emerald-500/30 transition-all hover:shadow-md group"
+                className="flex items-start gap-4 p-4 rounded-2xl bg-white border border-slate-200 card-premium-hover group"
               >
                 <Avatar className="h-12 w-12 shrink-0 border-2 border-white shadow-sm transition-transform group-hover:scale-110">
                   <AvatarFallback className="bg-slate-200 text-slate-600 font-bold">
@@ -571,8 +572,8 @@ const EmployerDashboard = () => {
       <section className="rounded-3xl border border-border bg-card p-8 shadow-sm">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
-              <Briefcase className="text-blue-600" size={20} />
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+              <Briefcase className="text-emerald-600" size={20} />
             </div>
             <h2 className="text-2xl font-black uppercase tracking-tight text-slate-900">
               Hiệu suất tin tuyển dụng
@@ -610,7 +611,7 @@ const EmployerDashboard = () => {
               {topJobsWithStats.map((job) => (
                 <tr key={job.id} className="group">
                   <td className="py-5 px-4 font-bold">
-                    <p className="text-slate-900 group-hover:text-emerald-700 transition-colors">
+                    <p className="text-slate-900 group-hover:text-primary transition-colors">
                       {job.title || 'Vị trí'}
                     </p>
                     <p className="mt-0.5 text-base font-medium uppercase text-slate-500">

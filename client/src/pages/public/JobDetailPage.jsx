@@ -192,7 +192,7 @@ const JobDetailPage = () => {
   const linkedInShareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(jobPageUrl)}`;
 
   const socialSharePillClass =
-    'inline-flex items-center justify-center rounded-full border border-slate-700/90 bg-white px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-slate-800 shadow-[0_1px_0_rgba(15,23,42,0.08),0_1px_2px_rgba(15,23,42,0.06)] transition hover:border-slate-900 hover:bg-muted/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-2';
+    'inline-flex items-center justify-center rounded-full border border-slate-700/90 bg-white px-4 py-2.5 text-sm font-bold uppercase tracking-widest text-slate-800 shadow-[0_1px_0_rgba(15,23,42,0.08),0_1px_2px_rgba(15,23,42,0.06)] transition hover:border-slate-900 hover:bg-muted/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-2';
 
   return (
     <>
@@ -242,15 +242,15 @@ const JobDetailPage = () => {
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                   <Badge
                     variant="primary"
-                    className="rounded-lg px-3 py-1 text-xs font-bold uppercase tracking-wider"
+                    className="rounded-lg px-3 py-1 text-sm font-bold uppercase tracking-wider"
                   >
                     {formatJobTypeVi(job.type)}
                   </Badge>
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50/90 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-700">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/80 bg-emerald-50/90 px-3 py-1 text-sm font-bold uppercase tracking-wider text-emerald-700">
                     <ShieldCheck size={13} className="shrink-0" aria-hidden /> Đã xác minh
                   </span>
                   {isExpired && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-red-700">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-3 py-1 text-sm font-bold uppercase tracking-wider text-red-700">
                       Đã hết hạn ứng tuyển
                     </span>
                   )}
@@ -422,13 +422,13 @@ const JobDetailPage = () => {
                   aria-hidden
                 />
                 <div className="relative z-10">
-                  <p className="mb-1 text-sm font-bold uppercase tracking-widest text-white/70">
+                  <p className="mb-1 text-base font-bold uppercase tracking-widest text-white/70">
                     Mức lương (tham khảo)
                   </p>
                   <p className="mb-2 text-3xl font-black tracking-tight md:text-4xl">
                     {formatSalaryRange(job.salary_min, job.salary_max)}
                   </p>
-                  <p className="mb-8 text-sm font-medium text-white/80">
+                  <p className="mb-8 text-base font-medium text-white/80">
                     Gross / tháng · có thể thỏa thuận
                   </p>
                   <div className="mb-6 h-px bg-white/15" />
@@ -438,7 +438,7 @@ const JobDetailPage = () => {
                         <DollarSign size={20} aria-hidden />
                       </div>
                       <div>
-                        <p className="text-xs font-bold uppercase tracking-widest text-white/60">
+                        <p className="text-base font-bold uppercase tracking-widest text-white/60">
                           Hình thức trả lương
                         </p>
                         <p className="mt-0.5 text-base font-semibold">
@@ -451,7 +451,7 @@ const JobDetailPage = () => {
                         <Users size={20} aria-hidden />
                       </div>
                       <div>
-                        <p className="text-xs font-bold uppercase tracking-widest text-white/60">
+                        <p className="text-base font-bold uppercase tracking-widest text-white/60">
                           Kinh nghiệm
                         </p>
                         <p className="mt-0.5 text-base font-semibold">

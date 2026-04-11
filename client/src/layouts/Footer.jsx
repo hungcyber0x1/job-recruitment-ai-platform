@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Instagram, Linkedin, Mail, MapPin, Phone, ShieldCheck } from 'lucide-react';
 
-import { Button } from '@/components/common';
+import { Button, Logo } from '@/components/common';
 import { cn } from '@/utils/cn';
 
 const footerLinks = [
@@ -18,7 +18,7 @@ const footerLinks = [
   {
     title: 'Khám phá',
     links: [
-      { label: 'Về HireAI', path: '/about' },
+      { label: 'Về HireBot', path: '/about' },
       { label: 'Định hướng nghề nghiệp', path: '/career' },
       { label: 'Liên hệ hợp tác', path: '/contact' },
     ],
@@ -36,26 +36,26 @@ const footerLinks = [
 
 const socialLinks = [
   {
-    label: 'Email HireAI',
-    href: 'mailto:contact@hireai.vn',
+    label: 'Email HireBot',
+    href: 'mailto:contact@hirebot.vn',
     Icon: Mail,
     color: 'hover:text-primary',
   },
   {
-    label: 'Gọi HireAI',
+    label: 'Gọi HireBot',
     href: 'tel:+842873001234',
     Icon: Phone,
     color: 'hover:text-success',
   },
   {
-    label: 'Trang liên hệ HireAI',
+    label: 'Trang liên hệ HireBot',
     href: '/contact',
     Icon: Linkedin,
     color: 'hover:text-[#0A66C2]',
     internal: true,
   },
   {
-    label: 'Blog HireAI',
+    label: 'Blog HireBot',
     href: '/blog',
     Icon: Instagram,
     color: 'hover:text-[#E4405F]',
@@ -75,21 +75,19 @@ const Footer = () => {
         <div className="grid gap-16 border-b border-white/10 pb-20 lg:grid-cols-12">
           <div className="space-y-10 lg:col-span-4">
             <div className="space-y-6">
-              <Link to="/" className="group flex w-fit items-center gap-3">
-                <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-xl font-black text-white transition-all group-hover:bg-primary/20">
-                  H
-                </div>
-                <span className="text-3xl font-black tracking-tighter text-white">
-                  HireAI<span className="text-primary">.</span>
-                </span>
+              <Link
+                to="/"
+                className="group flex w-fit items-center gap-3 transition-opacity hover:opacity-90"
+              >
+                <Logo className="h-16 w-16" />
               </Link>
 
-              <p className="max-w-sm text-sm leading-relaxed text-slate-400">
+              <p className="max-w-sm text-base leading-relaxed text-slate-400">
                 Nền tảng tuyển dụng ứng dụng AI để rút ngắn thời gian sàng lọc, tăng độ chính xác
                 khi ghép nối ứng viên và hỗ trợ ra quyết định tuyển dụng rõ ràng hơn.
               </p>
 
-              <div className="flex w-fit items-center gap-2 rounded-full border border-success/20 bg-success/10 px-3 py-1.5 text-xs font-medium text-success">
+              <div className="flex w-fit items-center gap-2 rounded-full border border-success/20 bg-success/10 px-3 py-1.5 text-sm font-medium text-success">
                 <ShieldCheck size={14} />
                 Tập trung vào trải nghiệm tuyển dụng thực tế
               </div>
@@ -99,7 +97,7 @@ const Footer = () => {
               <h2 className="text-base font-bold tracking-tight text-white">
                 Nhận cập nhật sản phẩm
               </h2>
-              <p className="mt-2 text-xs text-slate-500">
+              <p className="mt-2 text-base text-slate-500">
                 Theo dõi xu hướng tuyển dụng, tính năng mới và các nội dung hữu ích dành cho ứng
                 viên cũng như nhà tuyển dụng.
               </p>
@@ -151,14 +149,14 @@ const Footer = () => {
                     <Mail size={16} />
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-white">
+                    <p className="text-base font-semibold uppercase tracking-wider text-white">
                       Email
                     </p>
                     <a
-                      href="mailto:contact@hireai.vn"
+                      href="mailto:contact@hirebot.vn"
                       className="text-sm text-slate-500 transition-colors hover:text-primary"
                     >
-                      contact@hireai.vn
+                      contact@hirebot.vn
                     </a>
                   </div>
                 </div>
@@ -168,7 +166,7 @@ const Footer = () => {
                     <Phone size={16} />
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-white">
+                    <p className="text-base font-semibold uppercase tracking-wider text-white">
                       Hotline
                     </p>
                     <a
@@ -185,10 +183,10 @@ const Footer = () => {
                     <MapPin size={16} />
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-white">
+                    <p className="text-base font-semibold uppercase tracking-wider text-white">
                       Văn phòng
                     </p>
-                    <p className="text-sm text-slate-500">Innovation Building, Quận 12, TP.HCM</p>
+                    <p className="text-base text-slate-500">Innovation Building, Quận 12, TP.HCM</p>
                   </div>
                 </div>
               </div>
@@ -198,10 +196,10 @@ const Footer = () => {
 
         <div className="flex flex-col items-center justify-between gap-8 pt-10 lg:flex-row">
           <div className="flex flex-col items-center gap-6 md:flex-row">
-            <p className="whitespace-nowrap text-sm font-medium text-slate-400">
-              © {currentYear} HireAI Corp. Phát triển tại Việt Nam.
+            <p className="whitespace-nowrap text-base font-medium text-slate-400">
+              © {currentYear} HireBot Corp. Phát triển tại Việt Nam.
             </p>
-            <div className="flex items-center gap-6 text-xs text-slate-400">
+            <div className="flex items-center gap-6 text-sm text-slate-400">
               <Link to="/contact" className="transition-colors hover:text-primary">
                 Liên hệ
               </Link>
@@ -210,7 +208,7 @@ const Footer = () => {
               </Link>
               <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1">
                 <div className="h-2 w-2 rounded-full bg-success shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-                <span className="text-xs font-semibold uppercase tracking-widest">
+                <span className="text-sm font-semibold uppercase tracking-widest">
                   Hệ thống hoạt động ổn định
                 </span>
               </div>

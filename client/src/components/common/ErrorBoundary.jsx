@@ -27,7 +27,7 @@ class ErrorBoundary extends React.Component {
             </pre>
             <details className="mt-4">
               <summary className="text-slate-400 cursor-pointer">Chi tiết lỗi</summary>
-              <pre className="text-xs text-slate-500 mt-2 overflow-auto bg-slate-900 p-4 rounded-xl">
+              <pre className="text-sm text-slate-500 mt-2 overflow-auto bg-slate-900 p-4 rounded-xl">
                 {this.state.errorInfo?.componentStack}
               </pre>
             </details>

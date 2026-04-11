@@ -22,7 +22,7 @@ const SkillTag = ({
 
   // Size configurations
   const sizeClasses = {
-    small: 'px-2 py-0.5 text-xs',
+    small: 'px-2 py-0.5 text-sm',
     medium: 'px-3 py-1 text-sm',
     large: 'px-4 py-1.5 text-base',
   };
@@ -41,7 +41,7 @@ const SkillTag = ({
       <span>{skill}</span>
 
       {showProficiency && proficiency && (
-        <span className="text-xs opacity-75">({proficiency})</span>
+        <span className="text-sm opacity-75">({proficiency})</span>
       )}
 
       {onRemove && (

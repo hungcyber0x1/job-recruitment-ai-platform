@@ -27,7 +27,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AIToolsDropdown } from '@/components/common';
+import { Avatar, AIToolsDropdown, Logo } from '@/components/common';
 import { resolveMediaUrl } from '@/utils/mediaUrl';
 
 const navLinks = [
@@ -162,17 +162,10 @@ const ModernHeader = () => {
         {/* Logo */}
         <Link
           to="/"
-          className="flex items-center gap-2.5 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 rounded-xl transition-[transform,opacity] duration-200 hover:opacity-90 active:scale-[0.98]"
-          aria-label="Về trang chủ HireAI"
+          className="group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 rounded-xl transition-[transform,opacity] duration-200 hover:opacity-90 active:scale-[0.98]"
+          aria-label="Về trang chủ HireBot"
         >
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/25 transition-transform duration-300 group-hover:shadow-primary/35 motion-safe:group-hover:scale-105">
-            <span className="text-white font-black text-xl" aria-hidden="true">
-              H
-            </span>
-          </div>
-          <span className="text-lg font-black tracking-tight text-foreground sm:text-xl">
-            HireAI<span className="text-primary">.</span>
-          </span>
+          <Logo className="h-14 w-auto" asLink={false} />
         </Link>
 
         {/* Desktop Nav */}
@@ -243,12 +236,12 @@ const ModernHeader = () => {
                 <DropdownMenuContent align="end" className="w-80 sm:w-96 p-0" sideOffset={8}>
                   <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900">
                     <div className="flex items-center gap-2">
-                      <Bell size={16} className="text-primary" />
+                      <Logo asLink={false} />
                       <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">
                         Thông báo
                       </h3>
                       {notifications.filter((n) => !n.isRead).length > 0 && (
-                        <span className="bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 text-xs font-bold px-1.5 py-0.5 rounded-full">
+                        <span className="bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 text-sm font-bold px-1.5 py-0.5 rounded-full">
                           {notifications.filter((n) => !n.isRead).length}
                         </span>
                       )}
@@ -320,10 +313,10 @@ const ModernHeader = () => {
                                 >
                                   {n.title}
                                 </h4>
-                                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
+                                <p className="text-base font-medium text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
                                   {n.message}
                                 </p>
-                                <p className="text-xs font-medium text-slate-400 mt-1.5">
+                                <p className="text-base font-medium text-slate-400 mt-1.5">
                                   {formatNotificationTime(n.time)}
                                 </p>
                               </div>
@@ -356,7 +349,7 @@ const ModernHeader = () => {
                       <p className="truncate text-base font-black tracking-tight text-foreground">
                         {displayName}
                       </p>
-                      <p className="truncate text-sm font-medium text-muted-foreground">
+                      <p className="truncate text-base font-medium text-muted-foreground">
                         {user?.email}
                       </p>
                     </div>

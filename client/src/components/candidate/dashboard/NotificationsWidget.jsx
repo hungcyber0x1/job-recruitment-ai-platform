@@ -92,11 +92,11 @@ const NotificationsWidget = () => {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p
-                    className={`line-clamp-2 text-sm tracking-wide ${isRead ? 'font-medium text-txt-muted' : 'font-semibold text-foreground'}`}
+                    className={`line-clamp-2 text-base tracking-wide ${isRead ? 'font-medium text-txt-muted' : 'font-semibold text-foreground'}`}
                   >
                     {notification.message}
                   </p>
-                  <p className="mt-1 text-xs text-txt-light">
+                  <p className="mt-1 text-base text-txt-light">
                     {formatTimeAgo(notification.created_at)}
                   </p>
                 </div>

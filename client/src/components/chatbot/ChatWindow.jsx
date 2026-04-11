@@ -29,7 +29,7 @@ const ChatWindow = ({ messages, isLoading, onSendMessage, onClearHistory }) => {
             <h3 className="font-black text-slate-900 leading-tight">HireAI Smart Assistant</h3>
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-              <span className="text-xs uppercase font-bold text-slate-400 tracking-widest">
+              <span className="text-sm uppercase font-bold text-slate-400 tracking-widest">
                 Active Model v4.0
               </span>
             </div>
@@ -56,7 +56,7 @@ const ChatWindow = ({ messages, isLoading, onSendMessage, onClearHistory }) => {
               <p className="font-black text-slate-900 text-lg uppercase tracking-tight">
                 Bắt đầu trò chuyện
               </p>
-              <p className="text-sm font-medium text-slate-500 mt-2">
+              <p className="text-base font-medium text-slate-500 mt-2">
                 Hỏi mình bất cứ điều gì về hồ sơ, việc làm hay kỹ năng sự nghiệp của bạn.
               </p>
             </div>

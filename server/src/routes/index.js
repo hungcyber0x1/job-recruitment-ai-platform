@@ -23,7 +23,7 @@ const interviewPrepRoutes = require('./interview-prep');
 const publicToolsRoutes = require('./public-tools');
 const jobRoutes = require('./job');
 const candidateRoutes = require('./candidate');
-const SystemSettingsRepository = require('../repositories/system-settings');
+const SystemSettingsRepository = require('../models/SystemSettings');
 const { buildFeatureCatalog } = require('../utils/feature-catalog');
 
 const FEATURE_FLAG_KEYS = [

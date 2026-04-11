@@ -13,7 +13,7 @@ const questions = [
 const SuggestedQuestions = ({ onSelect }) => {
   return (
     <div className="flex flex-wrap gap-3 p-6 bg-gray-50/50 border-t border-gray-50">
-      <div className="w-full flex items-center gap-2 text-xs font-black text-emerald-600 uppercase tracking-widest mb-1">
+      <div className="w-full flex items-center gap-2 text-sm font-black text-emerald-600 uppercase tracking-widest mb-1">
         <Sparkles size={14} />
         Gợi ý dành cho bạn
       </div>

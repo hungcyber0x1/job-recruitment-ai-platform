@@ -48,7 +48,7 @@ const QuickActions = () => {
             >
               <div className="transition-colors">{action.icon}</div>
             </div>
-            <span className="text-xs font-semibold tracking-wide text-txt-muted transition-colors group-hover:text-foreground">
+            <span className="text-sm font-semibold tracking-wide text-txt-muted transition-colors group-hover:text-foreground">
               {action.label}
             </span>
           </Link>

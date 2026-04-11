@@ -19,7 +19,7 @@ const Card = React.forwardRef(
       bordered: 'border-2 border-secondary/20 bg-transparent',
     };
 
-    const hoverEffects = hover ? 'hover-lift' : '';
+    const hoverEffects = hover ? 'card-premium-hover' : '';
 
     return (
       <div
@@ -44,7 +44,7 @@ const CardTitle = ({ className, ...props }) => (
 );
 
 const CardDescription = ({ className, ...props }) => (
-  <p className={cn('text-sm text-txt-muted', className)} {...props} />
+  <p className={cn('text-base text-txt-muted', className)} {...props} />
 );
 
 const CardContent = ({ className, ...props }) => (

@@ -1,5 +1,5 @@
-const EmployerRepository = require('../repositories/employer');
-const UserRepository = require('../repositories/user');
+const EmployerRepository = require('../models/Employer');
+const UserRepository = require('../models/User');
 const AppError = require('../utils/errorHandler');
 
 class EmployerService {

@@ -42,10 +42,10 @@ const CareerAdvice = () => {
             </div>
             <div className="flex-grow">
               <h4 className="font-black text-slate-900 mb-2 truncate">{advice.title}</h4>
-              <p className="text-sm text-slate-500 font-medium leading-relaxed mb-4">
+              <p className="text-base text-slate-500 font-medium leading-relaxed mb-4">
                 {advice.desc}
               </p>
-              <button className="text-emerald-600 font-bold text-xs uppercase tracking-widest flex items-center gap-2 group-hover:translate-x-1 transition-transform">
+              <button className="text-emerald-600 font-bold text-sm uppercase tracking-widest flex items-center gap-2 group-hover:translate-x-1 transition-transform">
                 Chi tiết <ArrowRight size={14} />
               </button>
             </div>
@@ -57,7 +57,7 @@ const CareerAdvice = () => {
         <Trophy className="absolute -right-4 -bottom-4 opacity-10" size={120} />
         <div className="relative z-10 text-center">
           <h4 className="text-xl font-black mb-4">Mở khóa Career Roadmaps</h4>
-          <p className="text-slate-400 text-sm font-medium mb-8">
+          <p className="text-slate-400 text-base font-medium mb-8">
             Tính năng phân tích lộ trình chuyên sâu dựa trên xu hướng thị trường 2026.
           </p>
           <Button variant="primary" className="w-full bg-emerald-600 border-none font-black">

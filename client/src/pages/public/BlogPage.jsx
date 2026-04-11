@@ -77,7 +77,7 @@ const BlogFilterSidebar = ({
           {popularTags.map((tag) => (
             <span
               key={tag}
-              className="cursor-default rounded-md border border-border/50 bg-slate-50 px-2 py-1 text-xs font-semibold text-slate-600"
+              className="cursor-default rounded-md border border-border/50 bg-slate-50 px-2 py-1 text-sm font-semibold text-slate-600"
             >
               #{tag}
             </span>
@@ -210,7 +210,7 @@ const BlogPage = () => {
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
         <div className="relative border-b border-border/50 bg-white/60 backdrop-blur-sm">
-          <div className="container mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-muted-foreground sm:px-6 lg:px-8">
+          <div className="container mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2.5 text-sm font-semibold uppercase tracking-widest text-muted-foreground sm:px-6 lg:px-8">
             <span>{editionDate}</span>
             <span className="hidden sm:inline">Hà Nội · TP.HCM · Đà Nẵng</span>
             <span className="font-bold text-primary">Bản tin tuyển dụng &amp; công nghệ</span>
@@ -224,7 +224,7 @@ const BlogPage = () => {
               Tạp chí &amp; Insights
             </div>
             <h1 className="text-3xl font-black tracking-tight text-foreground sm:text-4xl md:text-4xl lg:text-5xl">
-              HireAI — Tạp chí việc làm
+              HireBOT — Tạp chí việc làm
             </h1>
             <p className="mx-auto mt-3 max-w-xl text-base font-medium leading-relaxed text-muted-foreground md:text-lg">
               Ghi nhận thị trường, phỏng vấn chuyên gia và phân tích dữ liệu tuyển dụng — cập nhật
@@ -273,7 +273,7 @@ const BlogPage = () => {
                             >
                               {p.title}
                             </Link>
-                            <p className="mt-1 text-sm font-medium text-muted-foreground">
+                            <p className="mt-1 text-base font-medium text-muted-foreground">
                               {p.viewCount != null
                                 ? `${p.viewCount.toLocaleString('vi-VN')} lượt xem`
                                 : p.date}
@@ -390,101 +390,109 @@ const BlogPage = () => {
               ) : (
                 <>
                   {featured ? (
-                    <article className="overflow-hidden rounded-2xl border-2 border-foreground/10 bg-white shadow-[0_20px_50px_-24px_rgba(0,0,0,0.25)]">
+                    <article className="card-premium-hover overflow-hidden rounded-2xl border border-border/40 bg-white shadow-xl shadow-black/[0.03]">
                       <div className="grid gap-0 lg:grid-cols-12">
                         <div className="relative lg:col-span-7">
-                          <div className="aspect-[16/10] overflow-hidden bg-muted lg:aspect-auto lg:min-h-[320px]">
+                          <div className="aspect-[16/9] overflow-hidden bg-muted lg:aspect-auto lg:h-full lg:min-h-[400px]">
                             <img
                               src={featured.image || BLOG_CARD_PLACEHOLDER_IMG}
                               alt=""
-                              className="h-full w-full object-cover"
+                              className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
                               loading="eager"
                               decoding="async"
                               fetchPriority="high"
                             />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                           </div>
-                          <div className="absolute left-4 top-4 rounded bg-foreground px-3 py-1.5 font-sans text-xs font-bold uppercase tracking-widest text-background">
+                          <div className="absolute left-6 top-6 rounded-lg bg-emerald-600 px-4 py-1.5 text-sm font-black uppercase tracking-[0.2em] text-white shadow-lg">
                             {featured.category}
                           </div>
                         </div>
-                        <div className="flex flex-col justify-center border-t border-border/60 p-6 sm:p-8 lg:col-span-5 lg:border-l lg:border-t-0">
-                          <p className="mb-3 font-sans text-xs font-bold uppercase tracking-widest text-primary">
-                            Tin chính
-                          </p>
-                          <h2 className="font-serif text-2xl font-bold leading-[1.15] tracking-tight text-foreground sm:text-3xl md:text-4xl">
+                        <div className="flex flex-col justify-center p-8 sm:p-10 lg:col-span-5">
+                          <div className="mb-4 inline-flex items-center gap-2 text-sm font-black uppercase tracking-[0.2em] text-primary">
+                            <span className="h-1 w-8 rounded-full bg-primary" />
+                            Tin nổi bật
+                          </div>
+                          <h2 className="text-3xl font-black leading-tight tracking-tight text-foreground sm:text-4xl">
                             <Link
                               to={`/blog/${featured.slug || featured.id}`}
-                              className="hover:underline"
+                              className="hover:text-primary transition-colors"
                             >
                               {featured.title}
                             </Link>
                           </h2>
-                          <p className="mt-4 line-clamp-5 font-article text-base font-medium leading-relaxed text-foreground/85">
+                          <p className="mt-6 line-clamp-4 text-base font-semibold leading-relaxed text-muted-foreground/90">
                             {featured.excerpt}
                           </p>
-                          <div className="mt-6 flex flex-wrap items-center gap-4 border-t border-border/50 pt-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                            <span className="flex items-center gap-1.5">
-                              <Calendar size={13} /> {featured.date}
+
+                          <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-border/40 pt-6 text-sm font-bold text-muted-foreground/60">
+                            <span className="flex items-center gap-2">
+                              <Calendar size={14} className="text-primary/60" /> {featured.date}
                             </span>
-                            <span className="flex items-center gap-1.5">
-                              <User size={13} /> {featured.author}
+                            <span className="flex items-center gap-2">
+                              <User size={14} className="text-primary/60" /> {featured.author}
                             </span>
                             {featured.viewCount != null ? (
-                              <span className="flex items-center gap-1.5">
-                                <Eye size={13} /> {featured.viewCount.toLocaleString('vi-VN')} lượt
-                                xem
+                              <span className="flex items-center gap-2">
+                                <Eye size={14} className="text-primary/60" />{' '}
+                                {featured.viewCount.toLocaleString('vi-VN')}
                               </span>
                             ) : null}
-                            <span>
-                              ~{estimateReadMinutes(featured.excerpt, featured.title)} phút đọc
-                            </span>
                           </div>
-                          <Link
-                            to={`/blog/${featured.slug || featured.id}`}
-                            className="mt-6 inline-flex items-center gap-2 text-base font-bold tracking-wide text-primary hover:underline"
-                          >
-                            Đọc toàn văn
-                            <ArrowRight className="size-4" />
-                          </Link>
+
+                          <div className="mt-8">
+                            <Link
+                              to={`/blog/${featured.slug || featured.id}`}
+                              className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]"
+                            >
+                              Đọc chi tiết bài viết
+                              <ArrowRight className="size-4" />
+                            </Link>
+                          </div>
                         </div>
                       </div>
                     </article>
                   ) : null}
 
                   {highlightCards.length > 0 ? (
-                    <div>
-                      <h3 className="mb-3 text-sm font-bold uppercase tracking-widest text-muted-foreground">
-                        Được quan tâm
+                    <div className="mt-12">
+                      <h3 className="mb-6 flex items-center gap-3 text-sm font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+                        <TrendingUp size={16} className="text-primary" />
+                        XU HƯỚNG MỚI NHẤT
                       </h3>
-                      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+                      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                         {highlightCards.map((post) => (
                           <Link
                             key={post.slug || post.id}
                             to={`/blog/${post.slug || post.id}`}
-                            className="group flex flex-col overflow-hidden rounded-xl border border-border/60 bg-white shadow-sm transition hover:border-primary/25 hover:shadow-md"
+                            className="card-premium-hover group flex flex-col overflow-hidden rounded-2xl border border-border/40 bg-white shadow-sm transition-all"
                           >
-                            <div className="relative aspect-[5/3] overflow-hidden bg-muted/40">
+                            <div className="relative aspect-[16/10] overflow-hidden bg-muted/40">
                               <img
                                 src={post.image || BLOG_CARD_PLACEHOLDER_IMG}
                                 alt=""
-                                className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                                className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
                                 loading="lazy"
                                 decoding="async"
                               />
-                              <span className="absolute left-2 top-2 rounded bg-primary/90 px-2 py-0.5 text-xs font-bold uppercase tracking-widest text-primary-foreground">
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                              <span className="absolute left-3 top-3 rounded-md bg-white/95 px-2.5 py-1 text-sm font-black uppercase tracking-widest text-primary shadow-sm">
                                 {post.category}
                               </span>
                             </div>
-                            <div className="flex flex-1 flex-col p-3">
-                              <h3 className="line-clamp-2 text-base font-bold leading-snug text-foreground group-hover:text-primary">
+                            <div className="flex flex-1 flex-col p-5">
+                              <h3 className="line-clamp-2 text-[17px] font-black leading-tight text-foreground transition-colors group-hover:text-primary">
                                 {post.title}
                               </h3>
-                              <p className="mt-1 line-clamp-2 text-sm font-medium text-muted-foreground">
+                              <p className="mt-3 line-clamp-2 text-[14px] font-semibold text-muted-foreground/80 leading-relaxed">
                                 {post.excerpt}
                               </p>
-                              <p className="mt-auto pt-2 text-xs font-medium text-muted-foreground">
-                                {post.date}
-                              </p>
+                              <div className="mt-auto pt-4 flex items-center justify-between text-sm font-bold text-muted-foreground/50">
+                                <span>{post.date}</span>
+                                <span className="flex items-center gap-1 group-hover:text-primary transition-colors">
+                                  Đọc thêm <ArrowRight size={12} />
+                                </span>
+                              </div>
                             </div>
                           </Link>
                         ))}
@@ -493,50 +501,56 @@ const BlogPage = () => {
                   ) : null}
 
                   {moreGrid.length > 0 ? (
-                    <div>
-                      <h3 className="mb-4 flex items-center gap-2 border-b-2 border-foreground/80 pb-2 font-serif text-xl font-bold text-foreground md:text-2xl">
-                        Thêm bài viết
+                    <div className="mt-16">
+                      <h3 className="mb-8 flex items-center justify-between border-b-2 border-foreground pb-4">
+                        <span className="text-2xl font-black tracking-tight text-foreground">
+                          Bản tin công nghệ
+                        </span>
+                        <div className="h-1 w-24 bg-primary rounded-full" />
                       </h3>
-                      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                      <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
                         {moreGrid.map((post) => (
                           <Link
                             key={post.slug || post.id}
                             to={`/blog/${post.slug || post.id}`}
-                            className="group flex flex-col overflow-hidden rounded-xl border border-border/60 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
+                            className="card-premium-hover group flex flex-col overflow-hidden rounded-2xl border border-border/40 bg-white shadow-sm"
                           >
-                            <div className="relative h-40 overflow-hidden border-b border-border/40 sm:h-44">
+                            <div className="relative aspect-[16/9] overflow-hidden">
                               <img
                                 src={post.image || BLOG_CARD_PLACEHOLDER_IMG}
                                 alt=""
-                                className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                                className="h-full w-full object-cover transition duration-1000 group-hover:scale-105"
                                 loading="lazy"
                                 decoding="async"
                               />
-                              <div className="absolute left-3 top-3 rounded bg-white/95 px-2.5 py-1 text-xs font-bold uppercase tracking-widest text-slate-800 shadow-sm">
+                              <div className="absolute left-4 top-4 rounded-md bg-emerald-600 px-3 py-1 text-sm font-black uppercase tracking-widest text-white shadow-lg">
                                 {post.category}
                               </div>
                             </div>
-                            <div className="flex flex-1 flex-col p-5">
-                              <div className="mb-3 flex flex-wrap items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                                <span className="flex items-center gap-1">
-                                  <Calendar size={12} /> {post.date}
+                            <div className="flex flex-1 flex-col p-6">
+                              <div className="mb-4 flex flex-wrap items-center gap-4 text-sm font-bold text-muted-foreground/40">
+                                <span className="flex items-center gap-1.5 uppercase tracking-widest">
+                                  <Calendar size={13} /> {post.date}
                                 </span>
                                 {post.viewCount != null ? (
-                                  <span className="flex items-center gap-1">
-                                    <Eye size={12} /> {post.viewCount.toLocaleString('vi-VN')}
+                                  <span className="flex items-center gap-1.5 uppercase tracking-widest">
+                                    <Eye size={13} /> {post.viewCount.toLocaleString('vi-VN')}
                                   </span>
                                 ) : null}
                               </div>
-                              <h4 className="mb-2 line-clamp-2 font-serif text-lg font-bold leading-snug text-foreground group-hover:text-primary">
+                              <h4 className="mb-4 line-clamp-2 text-xl font-black leading-tight text-foreground group-hover:text-primary transition-colors">
                                 {post.title}
                               </h4>
-                              <p className="line-clamp-3 flex-1 font-article text-base font-medium leading-relaxed text-foreground/80">
+                              <p className="line-clamp-3 flex-1 text-base font-semibold leading-relaxed text-muted-foreground/80">
                                 {post.excerpt}
                               </p>
-                              <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold tracking-wide text-primary">
-                                Đọc tiếp
-                                <ArrowRight className="size-3.5 transition group-hover:translate-x-0.5" />
-                              </span>
+                              <div className="mt-6 inline-flex items-center gap-2 text-sm font-black text-primary group-hover:gap-3 transition-all duration-300">
+                                <span className="relative">
+                                  Đọc trọn vẹn bài viết
+                                  <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-primary transition-all group-hover:w-full" />
+                                </span>
+                                <ArrowRight className="size-4" />
+                              </div>
                             </div>
                           </Link>
                         ))}
@@ -584,7 +598,7 @@ const BlogPage = () => {
                 />
                 <div className="relative z-10 px-6 py-10 sm:px-10 sm:py-12">
                   <div className="mx-auto max-w-2xl text-center">
-                    <p className="mb-2 text-xs font-bold uppercase tracking-widest text-emerald-400/95">
+                    <p className="mb-2 text-base font-bold uppercase tracking-widest text-emerald-400/95">
                       Bản tin HireAI
                     </p>
                     <h3
@@ -626,7 +640,7 @@ const BlogPage = () => {
                         Đăng ký
                       </Button>
                     </div>
-                    <p className="mt-3 text-center text-sm font-medium leading-snug text-slate-500">
+                    <p className="mt-3 text-center text-base font-medium leading-snug text-slate-500">
                       Chúng tôi không bán địa chỉ email.
                     </p>
                   </form>

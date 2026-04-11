@@ -56,19 +56,19 @@ const BlogCard = ({ post, index }) => (
     to={`/blog/${post.slug}`}
     className="group block h-full w-[min(85vw,320px)] shrink-0 snap-center sm:w-[360px] lg:w-full lg:min-w-0 lg:shrink"
   >
-    <div className="bg-white rounded-2xl overflow-hidden h-full flex flex-col border border-border/45 shadow-[0_2px_16px_-4px_rgba(15,23,42,0.06)] hover:border-primary/15 hover:shadow-[0_16px_40px_-12px_rgba(15,23,42,0.1)] transition-all duration-300">
+    <div className="bg-white rounded-2xl overflow-hidden h-full flex flex-col border border-border/45 card-premium-hover">
       <div className="aspect-[5/3] bg-muted/40 relative overflow-hidden shrink-0">
         <img
           src={post.image || PLACEHOLDER_IMAGES[index] || PLACEHOLDER_IMAGES[0]}
           alt=""
           className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
         />
-        <span className="absolute top-3 left-3 px-2.5 py-1 bg-background/90 backdrop-blur-sm text-foreground rounded-md text-xs font-semibold border border-border/40">
+        <span className="absolute top-3 left-3 px-2.5 py-1 bg-background/90 backdrop-blur-sm text-foreground rounded-md text-sm font-semibold border border-border/40">
           {post.category}
         </span>
       </div>
       <div className="p-5 flex-1 flex flex-col min-h-0">
-        <h3 className="text-lg font-bold text-foreground leading-snug mb-2 line-clamp-2 group-hover:text-primary/90 transition-colors">
+        <h3 className="text-lg font-bold text-foreground leading-snug mb-2 line-clamp-2 transition-colors">
           {post.title}
         </h3>
         <p className="text-base text-muted-foreground font-medium leading-relaxed line-clamp-2 mb-4 flex-1 min-h-0">
@@ -181,7 +181,9 @@ const BlogSection = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           >
-            <p className="text-sm font-bold text-primary uppercase tracking-widest mb-3">Bản tin</p>
+            <p className="text-base font-bold text-primary uppercase tracking-widest mb-3">
+              Bản tin
+            </p>
             <h2 className="text-3xl md:text-4xl font-black text-foreground tracking-tight leading-[1.1]">
               Bản tin nghề nghiệp <span className="text-primary">HireAI</span>
             </h2>

@@ -29,7 +29,7 @@ const MatchScoreBadge = ({ score, size = 'medium', showLabel = true }) => {
 
   // Size configurations
   const sizeConfig = {
-    small: { width: '40px', height: '40px', fontSize: '12px', labelSize: 'text-xs' },
+    small: { width: '40px', height: '40px', fontSize: '12px', labelSize: 'text-sm' },
     medium: { width: '60px', height: '60px', fontSize: '16px', labelSize: 'text-sm' },
     large: { width: '80px', height: '80px', fontSize: '20px', labelSize: 'text-base' },
   };

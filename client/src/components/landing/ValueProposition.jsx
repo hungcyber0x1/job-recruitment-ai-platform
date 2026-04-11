@@ -83,14 +83,14 @@ const ValueProposition = () => {
                     <p className="text-foreground font-extrabold text-lg tabular-nums tracking-tight">
                       {item.stat}
                     </p>
-                    <p className="text-muted-foreground text-[10px] font-medium uppercase tracking-wider">
+                    <p className="text-muted-foreground text-base font-medium uppercase tracking-wider">
                       {item.statLabel}
                     </p>
                   </div>
                 </div>
                 <div>
                   <h3 className="text-foreground font-bold text-lg mb-2">{item.title}</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
+                  <p className="text-muted-foreground text-base leading-relaxed">
                     {item.description}
                   </p>
                 </div>

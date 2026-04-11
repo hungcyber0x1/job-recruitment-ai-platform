@@ -1,4 +1,37 @@
-const BaseRepository = require('./base');
+/**
+ * Application Model Schema — see migration 006_create_applications_table.sql
+ *
+ * Cung cấp JSDoc type definitions cho hệ thống không dùng ORM.
+ */
+
+/**
+ * @typedef {Object} ApplicationRow
+ * @property {number} id - Primary key, auto-increment
+ * @property {number} candidate_id - FK → candidates.id
+ * @property {number} job_id - FK → jobs.id
+ * @property {string|null} resume_url - Đường dẫn CV đã upload
+ * @property {string|null} cover_letter - Thư giới thiệu
+ * @property {'pending'|'screening'|'shortlisted'|'interviewing'|'offered'|'hired'|'rejected'} status - Trạng thái
+ * @property {string} applied_at - ISO timestamp
+ */
+
+/** Danh sách trạng thái pipeline */
+const APPLICATION_STATUSES = [
+  'pending',
+  'screening',
+  'shortlisted',
+  'interviewing',
+  'offered',
+  'hired',
+  'rejected',
+];
+
+/** Tên bảng trong database */
+const TABLE_NAME = 'applications';
+
+module.exports = { APPLICATION_STATUSES, TABLE_NAME };
+
+const BaseRepository = require('./Base');
 
 class ApplicationRepository extends BaseRepository {
   constructor() {

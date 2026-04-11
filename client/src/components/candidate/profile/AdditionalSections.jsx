@@ -30,7 +30,7 @@ export const CVSection = ({ cvUrl }) => {
           <FileText className="text-primary" size={20} />
           CV / Resume
         </h3>
-        <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-md">
+        <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-md">
           Verified
         </span>
       </div>
@@ -44,7 +44,7 @@ export const CVSection = ({ cvUrl }) => {
             <h4 className="text-base font-bold text-slate-900 dark:text-white mb-1">
               Hồ sơ năng lực (CV)
             </h4>
-            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+            <p className="text-base font-medium text-slate-500 dark:text-slate-400">
               PDF • Verified Document • Updated recently
             </p>
           </div>
@@ -60,7 +60,7 @@ export const CVSection = ({ cvUrl }) => {
         </div>
       ) : (
         <div className="text-center p-8 border border-dashed border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800/50">
-          <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">
+          <p className="text-slate-500 dark:text-slate-400 text-base mb-4">
             No Digital Identity Found
           </p>
           <a
@@ -133,7 +133,7 @@ export const JobPreferencesSection = ({ preferences }) => {
               <item.icon size={20} />
             </div>
             <div>
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+              <p className="text-base font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
                 {item.label}
               </p>
               <p className="font-bold text-slate-900 dark:text-white text-base">{item.value}</p>

@@ -5,56 +5,56 @@ import Avatar from '../../components/common/Avatar';
 import Badge from '../../components/common/Badge';
 import Loading from '../../components/common/Loading';
 
+const MESSAGE_MODULES = [
+  {
+    title: 'Liên lạc nhà tuyển dụng',
+    description:
+      'Theo dõi các trao đổi liên quan đến phỏng vấn, feedback và offer trong một khu vực riêng.',
+  },
+  {
+    title: 'Ngữ cảnh ứng tuyển',
+    description:
+      'Mỗi hội thoại có thể gắn với công ty, tin tuyển dụng và lịch hẹn để dễ mở rộng quy trình sau này.',
+  },
+  {
+    title: 'Ưu tiên phản hồi',
+    description: 'Nhìn nhanh thread chưa đọc, employer đang online và các tin nhắn cần xử lý ngay.',
+  },
+];
+
+const INITIAL_CHATS = [
+  {
+    id: 0,
+    name: 'TechHub Solutions',
+    role: 'Employer',
+    lastMsg: 'Chào bạn, chúng tôi đã nhận được CV...',
+    time: '12:45 PM',
+    unread: 2,
+    online: true,
+  },
+  {
+    id: 1,
+    name: 'FPT Software',
+    role: 'Employer',
+    lastMsg: 'Bạn có thể phỏng vấn vào sáng mai không?',
+    time: 'Hôm qua',
+    unread: 0,
+    online: false,
+  },
+  {
+    id: 2,
+    name: 'VNG Corp',
+    role: 'Employer',
+    lastMsg: 'Cảm ơn bạn đã quan tâm đến vị trí...',
+    time: '2 ngày trước',
+    unread: 0,
+    online: true,
+  },
+];
+
 const MessagesPage = () => {
   const [loading, setLoading] = useState(true);
   const [activeChat, setActiveChat] = useState(0);
-  const messageModules = [
-    {
-      title: 'Liên lạc nhà tuyển dụng',
-      description:
-        'Theo dõi các trao đổi liên quan đến phỏng vấn, feedback và offer trong một khu vực riêng.',
-    },
-    {
-      title: 'Ngữ cảnh ứng tuyển',
-      description:
-        'Mỗi hội thoại có thể gắn với công ty, tin tuyển dụng và lịch hẹn để dễ mở rộng quy trình sau này.',
-    },
-    {
-      title: 'Ưu tiên phản hồi',
-      description:
-        'Nhìn nhanh thread chưa đọc, employer đang online và các tin nhắn cần xử lý ngay.',
-    },
-  ];
-
-  const chats = [
-    {
-      id: 0,
-      name: 'TechHub Solutions',
-      role: 'Employer',
-      lastMsg: 'Chào bạn, chúng tôi đã nhận được CV...',
-      time: '12:45 PM',
-      unread: 2,
-      online: true,
-    },
-    {
-      id: 1,
-      name: 'FPT Software',
-      role: 'Employer',
-      lastMsg: 'Bạn có thể phỏng vấn vào sáng mai không?',
-      time: 'Hôm qua',
-      unread: 0,
-      online: false,
-    },
-    {
-      id: 2,
-      name: 'VNG Corp',
-      role: 'Employer',
-      lastMsg: 'Cảm ơn bạn đã quan tâm đến vị trí...',
-      time: '2 ngày trước',
-      unread: 0,
-      online: true,
-    },
-  ];
 
   // Simulate initial loading (replace with actual API call if needed)
   React.useEffect(() => {
@@ -76,7 +76,7 @@ const MessagesPage = () => {
     <Layout useSidebar={true}>
       <div className="space-y-6">
         <div className="grid gap-4 xl:grid-cols-3">
-          {messageModules.map((module) => (
+          {MESSAGE_MODULES.map((module) => (
             <div
               key={module.title}
               className="rounded-[28px] border border-slate-100 bg-white p-6 shadow-[0_18px_45px_rgba(15,23,42,0.06)]"
@@ -109,7 +109,7 @@ const MessagesPage = () => {
             </div>
 
             <div className="flex-1 overflow-y-auto px-4 space-y-2 custom-scrollbar">
-              {chats.map((chat) => (
+              {INITIAL_CHATS.map((chat) => (
                 <button
                   key={chat.id}
                   onClick={() => setActiveChat(chat.id)}
@@ -157,17 +157,17 @@ const MessagesPage = () => {
             {/* Chat Header */}
             <header className="px-8 py-5 bg-white border-b border-slate-50 flex items-center justify-between z-10">
               <div className="flex items-center gap-4">
-                <Avatar name={chats[activeChat].name} size="md" className="rounded-2xl" />
+                <Avatar name={INITIAL_CHATS[activeChat].name} size="md" className="rounded-2xl" />
                 <div>
                   <h2 className="font-black text-slate-900 leading-tight">
-                    {chats[activeChat].name}
+                    {INITIAL_CHATS[activeChat].name}
                   </h2>
                   <div className="flex items-center gap-1.5">
                     <div
-                      className={`w-1.5 h-1.5 rounded-full ${chats[activeChat].online ? 'bg-green-500' : 'bg-slate-300'}`}
+                      className={`w-1.5 h-1.5 rounded-full ${INITIAL_CHATS[activeChat].online ? 'bg-green-500' : 'bg-slate-300'}`}
                     ></div>
                     <span className="text-base font-bold text-slate-400 uppercase tracking-widest">
-                      {chats[activeChat].online ? 'Đang hoạt động' : 'Ngoại tuyến'}
+                      {INITIAL_CHATS[activeChat].online ? 'Đang hoạt động' : 'Ngoại tuyến'}
                     </span>
                   </div>
                 </div>
@@ -195,7 +195,11 @@ const MessagesPage = () => {
 
               {/* Sample Messages */}
               <div className="flex justify-start gap-4 max-w-[80%]">
-                <Avatar name={chats[activeChat].name} size="sm" className="rounded-xl shrink-0" />
+                <Avatar
+                  name={INITIAL_CHATS[activeChat].name}
+                  size="sm"
+                  className="rounded-xl shrink-0"
+                />
                 <div className="p-5 bg-white rounded-[24px] rounded-tl-none border border-slate-100 shadow-sm text-base font-medium text-slate-700 leading-relaxed">
                   Chào bạn, sau khi xem xét hồ sơ, chúng tôi thấy bạn rất tiềm năng cho vị trí
                   Senior Frontend. Bạn có thể dành chút thời gian phỏng vấn ngắn qua Video Call
@@ -211,9 +215,13 @@ const MessagesPage = () => {
               </div>
 
               <div className="flex justify-start gap-4 max-w-[80%]">
-                <Avatar name={chats[activeChat].name} size="sm" className="rounded-xl shrink-0" />
+                <Avatar
+                  name={INITIAL_CHATS[activeChat].name}
+                  size="sm"
+                  className="rounded-xl shrink-0"
+                />
                 <div className="p-5 bg-white rounded-[24px] rounded-tl-none border border-slate-100 shadow-sm text-base font-medium text-slate-700 leading-relaxed">
-                  {chats[activeChat].lastMsg}
+                  {INITIAL_CHATS[activeChat].lastMsg}
                 </div>
               </div>
             </div>

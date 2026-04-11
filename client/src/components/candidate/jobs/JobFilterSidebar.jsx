@@ -140,15 +140,18 @@ const JobFilterSidebar = ({ filters, setFilters, onFilterChange, embedded }) => 
   if (embedded) {
     return (
       <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-bold tracking-tight text-foreground">Bộ lọc</h3>
+        <div className="flex items-center justify-between gap-4">
+          <h3 className="flex items-center gap-2 whitespace-nowrap text-lg font-black uppercase tracking-widest text-foreground">
+            <Filter className="size-4 text-emerald-500" aria-hidden />
+            BỘ LỌC
+          </h3>
           <Button
             variant="ghost"
             size="sm"
             onClick={handleReset}
-            className="text-base font-semibold text-destructive hover:bg-destructive/10"
+            className="whitespace-nowrap h-auto px-0 py-0 text-base font-bold uppercase tracking-widest text-red-500 hover:text-red-600 hover:bg-transparent"
           >
-            Đặt lại
+            ĐẶT LẠI
           </Button>
         </div>
         <div className="h-px w-full shrink-0 bg-border" aria-hidden />
@@ -160,17 +163,17 @@ const JobFilterSidebar = ({ filters, setFilters, onFilterChange, embedded }) => 
   return (
     <Card className="overflow-hidden rounded-2xl border-border/60 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between gap-4 px-6 py-5">
-        <CardTitle className="flex items-center gap-2 text-lg font-bold tracking-tight">
-          <Filter className="size-4 text-primary" aria-hidden />
-          Bộ lọc
+        <CardTitle className="flex whitespace-nowrap items-center gap-2 text-lg font-black uppercase tracking-widest text-foreground">
+          <Filter className="size-4 text-emerald-500" aria-hidden />
+          BỘ LỌC
         </CardTitle>
         <Button
           variant="ghost"
           size="sm"
           onClick={handleReset}
-          className="text-base font-semibold text-destructive hover:bg-destructive/10 hover:text-destructive"
+          className="whitespace-nowrap h-auto px-0 py-0 text-base font-bold uppercase tracking-widest text-red-500 hover:text-red-600 hover:bg-transparent"
         >
-          Đặt lại
+          ĐẶT LẠI
         </Button>
       </CardHeader>
       <div className="h-px w-full shrink-0 bg-border" aria-hidden />

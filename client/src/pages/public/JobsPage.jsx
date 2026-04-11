@@ -110,7 +110,7 @@ const JobsPage = () => {
   }, [searchParams, searchTerm, selectedLocation, setSearchParams]);
 
   const locationOptions = [
-    { value: '', label: 'Toàn quốc' },
+    { value: 'all', label: 'Toàn quốc' },
     { value: 'Ha Noi', label: 'Hà Nội' },
     { value: 'Ho Chi Minh', label: 'Hồ Chí Minh' },
     { value: 'Da Nang', label: 'Đà Nẵng' },
@@ -182,22 +182,22 @@ const JobsPage = () => {
             transition={{ delay: 0.15 }}
             className="mx-auto mt-8 max-w-4xl"
           >
-            <div className="flex flex-col gap-3 rounded-2xl border border-border/60 bg-white p-3 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.08)] sm:flex-row sm:items-center sm:gap-2 sm:p-2">
-              <div className="relative flex flex-1 items-center rounded-xl bg-slate-50/80 transition-colors focus-within:bg-slate-100/80 focus-within:ring-2 focus-within:ring-primary/10">
-                <Search className="absolute left-4 size-5 text-muted-foreground" aria-hidden />
+            <div className="bg-white p-2 rounded-2xl border border-slate-100 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.06)] flex flex-col sm:flex-row gap-2 dark:bg-slate-900 dark:border-slate-800">
+              <div className="relative flex flex-1 items-center rounded-xl bg-slate-50/80 transition-colors focus-within:bg-slate-100/80 dark:bg-slate-800 dark:focus-within:bg-slate-700">
+                <Search className="absolute left-4 size-5 text-slate-400" aria-hidden />
                 <Input
                   type="search"
-                  placeholder="Vị trí, kỹ năng, công ty…"
+                  placeholder="Vị trí, kỹ năng, công ty..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="h-12 border-0 bg-transparent pl-12 pr-10 text-base focus-visible:ring-0"
+                  className="h-14 border-0 bg-transparent pl-12 pr-10 text-base font-medium text-slate-700 placeholder:text-slate-400 focus-visible:ring-0 shadow-none dark:text-slate-200"
                   aria-label="Tìm kiếm việc làm"
                 />
                 {searchTerm && (
                   <button
                     type="button"
                     onClick={() => setSearchTerm('')}
-                    className="absolute right-3 rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
+                    className="absolute right-3 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-200 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-200"
                     aria-label="Xóa tìm kiếm"
                   >
                     <X className="size-4" />
@@ -205,28 +205,34 @@ const JobsPage = () => {
                 )}
               </div>
 
-              <div className="relative flex shrink-0 items-center rounded-xl border border-border/50 bg-white sm:w-48">
-                <MapPin className="ml-4 size-5 shrink-0 text-muted-foreground" aria-hidden />
-                <select
-                  value={selectedLocation}
-                  onChange={(e) => setSelectedLocation(e.target.value)}
-                  className="h-12 w-full cursor-pointer appearance-none border-0 bg-transparent pl-3 pr-10 text-base font-medium text-foreground outline-none"
-                  aria-label="Chọn địa điểm"
+              <div className="flex shrink-0 items-center rounded-xl bg-slate-50/80 transition-colors focus-within:bg-slate-100/80 sm:min-w-[200px] dark:bg-slate-800 dark:focus-within:bg-slate-700">
+                <MapPin className="ml-4 size-5 shrink-0 text-slate-400" aria-hidden />
+                <Select
+                  value={selectedLocation || 'all'}
+                  onValueChange={(v) => setSelectedLocation(v === 'all' ? '' : v)}
                 >
-                  {locationOptions.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown
-                  className="pointer-events-none absolute right-3 size-4 text-muted-foreground"
-                  aria-hidden
-                />
+                  <SelectTrigger className="h-14 w-full border-0 bg-transparent px-3 text-base font-medium text-slate-700 focus:ring-0 focus:ring-offset-0 shadow-none dark:text-slate-200">
+                    <SelectValue placeholder="Toàn quốc" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl border-slate-100 shadow-xl">
+                    <SelectItem value="all" className="text-base font-medium py-3 cursor-pointer">
+                      Toàn quốc
+                    </SelectItem>
+                    {locationOptions.map((opt) => (
+                      <SelectItem
+                        key={opt.value}
+                        value={opt.value}
+                        className="text-base font-medium py-3 cursor-pointer"
+                      >
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
-              <Button size="lg" className="h-12 shrink-0 text-base font-bold sm:px-10">
-                Tìm kiếm
+              <Button className="h-14 shrink-0 px-10 text-sm font-black uppercase tracking-[0.1em] bg-emerald-50 text-emerald-950 hover:bg-emerald-100 border border-transparent rounded-xl transition-all dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50">
+                TÌM KIẾM
               </Button>
             </div>
 
@@ -289,12 +295,12 @@ const JobsPage = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="lg:hidden text-base font-semibold"
+                  className="lg:hidden text-base font-black uppercase tracking-widest"
                   onClick={() => setMobileFilterOpen(true)}
                   aria-label="Mở bộ lọc"
                 >
                   <SlidersHorizontal className="mr-2 size-4" />
-                  Bộ lọc
+                  BỘ LỌC
                 </Button>
                 <Select value={sortBy} onValueChange={setSortBy}>
                   <SelectTrigger className="h-11 w-[220px] text-base font-medium">

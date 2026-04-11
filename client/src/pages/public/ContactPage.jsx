@@ -11,6 +11,13 @@ import {
   Sparkles,
   ChevronRight,
 } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 const ContactPage = () => {
@@ -23,7 +30,7 @@ const ContactPage = () => {
 
         <div className="container mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-20">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary font-bold text-xs uppercase tracking-widest mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary font-bold text-sm uppercase tracking-widest mb-8">
               <Sparkles size={14} />
               Chúng tôi luôn ở đây
             </div>
@@ -66,17 +73,17 @@ const ContactPage = () => {
                   <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center mb-6">
                     {React.cloneElement(item.icon, { size: 28 })}
                   </div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">
+                  <p className="text-base font-black text-slate-400 uppercase tracking-[0.2em] mb-2">
                     {item.label}
                   </p>
                   <p className="text-lg font-black text-slate-900 mb-2">{item.val}</p>
-                  <p className="text-sm font-medium text-slate-500">{item.desc}</p>
+                  <p className="text-base font-medium text-slate-500">{item.desc}</p>
                 </Card>
               ))}
 
               {/* Social Icons */}
               <div className="bg-slate-900 rounded-[32px] p-8 text-white">
-                <p className="text-center text-xs font-black text-slate-500 uppercase tracking-widest mb-6">
+                <p className="text-center text-base font-black text-slate-500 uppercase tracking-widest mb-6">
                   Theo dõi mạng xã hội
                 </p>
                 <div className="flex justify-center gap-6">
@@ -109,7 +116,7 @@ const ContactPage = () => {
                 <form className="space-y-8 flex-grow">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
-                      <label className="text-xs font-black text-slate-900 uppercase tracking-widest ml-1 mb-2 block">
+                      <label className="text-sm font-black text-slate-900 uppercase tracking-widest ml-1 mb-2 block">
                         Họ và tên
                       </label>
                       <input
@@ -118,7 +125,7 @@ const ContactPage = () => {
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-black text-slate-900 uppercase tracking-widest ml-1 mb-2 block">
+                      <label className="text-sm font-black text-slate-900 uppercase tracking-widest ml-1 mb-2 block">
                         Email nhận phản hồi
                       </label>
                       <input
@@ -130,19 +137,32 @@ const ContactPage = () => {
                   </div>
 
                   <div>
-                    <label className="text-xs font-black text-slate-900 uppercase tracking-widest ml-1 mb-2 block">
+                    <label className="text-sm font-black text-slate-900 uppercase tracking-widest ml-1 mb-2 block">
                       Chủ đề cần hỗ trợ
                     </label>
-                    <select className="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-slate-100 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/10 focus:border-primary transition-all font-medium text-slate-700 appearance-none">
-                      <option>Tôi muốn hợp tác Employer</option>
-                      <option>Báo lỗi hệ thống kỹ thuật</option>
-                      <option>Giải đáp quyền lợi ứng viên</option>
-                      <option>Vấn đề khác</option>
-                    </select>
+                    <Select defaultValue="employer">
+                      <SelectTrigger className="w-full h-[58px] px-6 rounded-2xl bg-slate-50 border-slate-100 font-medium text-slate-700 focus:ring-4 focus:ring-primary/10 shadow-none">
+                        <SelectValue placeholder="Chủ đề cần hỗ trợ" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl border-border/50 shadow-xl">
+                        <SelectItem value="employer" className="text-base font-medium py-3">
+                          Tôi muốn hợp tác Employer
+                        </SelectItem>
+                        <SelectItem value="bug" className="text-base font-medium py-3">
+                          Báo lỗi hệ thống kỹ thuật
+                        </SelectItem>
+                        <SelectItem value="candidate" className="text-base font-medium py-3">
+                          Giải đáp quyền lợi ứng viên
+                        </SelectItem>
+                        <SelectItem value="other" className="text-base font-medium py-3">
+                          Vấn đề khác
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div>
-                    <label className="text-xs font-black text-slate-900 uppercase tracking-widest ml-1 mb-2 block">
+                    <label className="text-sm font-black text-slate-900 uppercase tracking-widest ml-1 mb-2 block">
                       Nội dung chi tiết
                     </label>
                     <textarea
@@ -172,7 +192,7 @@ const ContactPage = () => {
                     </div>
                     <div>
                       <p className="font-extrabold text-slate-900">Muốn câu trả lời nhanh hơn?</p>
-                      <p className="text-sm text-primary font-bold">
+                      <p className="text-base text-primary font-bold">
                         Trò chuyện trực tiếp với HireAI Chatbot
                       </p>
                     </div>

@@ -16,6 +16,13 @@ import {
   Sparkles,
   BarChart3,
 } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Link } from 'react-router-dom';
 
 // Moved MOCK_CATEGORIES outside
@@ -160,7 +167,7 @@ const CategoriesPage = () => {
         <div className="container mx-auto px-6 relative z-10">
           <div className="max-w-4xl">
             <div className="flex items-center gap-2 mb-6 animate-fade-in">
-              <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-primary-200 text-xs font-bold uppercase tracking-wider border border-white/20">
+              <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-primary-200 text-sm font-bold uppercase tracking-wider border border-white/20">
                 Career Intelligence
               </span>
             </div>
@@ -196,7 +203,7 @@ const CategoriesPage = () => {
 
           <div className="relative z-10 flex flex-col md:flex-row gap-12 items-start md:items-center">
             <div className="flex-1">
-              <div className="flex items-center gap-2 text-primary-300 font-bold mb-3 uppercase text-xs tracking-widest">
+              <div className="flex items-center gap-2 text-primary-300 font-bold mb-3 uppercase text-sm tracking-widest">
                 <Sparkles size={14} />
                 <span>AI Analysis Report</span>
               </div>
@@ -212,8 +219,8 @@ const CategoriesPage = () => {
                     <Code2 size={20} className="text-white" />
                   </div>
                   <div>
-                    <p className="text-xs text-slate-300 font-bold uppercase">Top 1</p>
-                    <p className="font-bold text-sm">Công nghệ thông tin</p>
+                    <p className="text-base text-slate-300 font-bold uppercase">Top 1</p>
+                    <p className="font-bold text-base">Công nghệ thông tin</p>
                   </div>
                 </div>
                 <div className="h-px w-8 bg-white/20"></div>
@@ -222,8 +229,8 @@ const CategoriesPage = () => {
                     <Megaphone size={20} className="text-white" />
                   </div>
                   <div>
-                    <p className="text-xs text-slate-300 font-bold uppercase">Top 2</p>
-                    <p className="font-bold text-sm">Digital Marketing</p>
+                    <p className="text-base text-slate-300 font-bold uppercase">Top 2</p>
+                    <p className="font-bold text-base">Digital Marketing</p>
                   </div>
                 </div>
               </div>
@@ -236,7 +243,7 @@ const CategoriesPage = () => {
               </h3>
               <div className="space-y-4">
                 <div>
-                  <div className="flex justify-between text-xs font-bold mb-1">
+                  <div className="flex justify-between text-sm font-bold mb-1">
                     <span>IT & Software</span>
                     <span className="text-green-400">+24%</span>
                   </div>
@@ -245,7 +252,7 @@ const CategoriesPage = () => {
                   </div>
                 </div>
                 <div>
-                  <div className="flex justify-between text-xs font-bold mb-1">
+                  <div className="flex justify-between text-sm font-bold mb-1">
                     <span>Marketing</span>
                     <span className="text-green-400">+12%</span>
                   </div>
@@ -283,13 +290,18 @@ const CategoriesPage = () => {
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
-            <span>Sắp xếp theo:</span>
-            <select className="bg-transparent font-bold text-slate-900 outline-none cursor-pointer">
-              <option>Phổ biến nhất</option>
-              <option>Lương cao nhất</option>
-              <option>Nhu cầu tuyển dụng</option>
-            </select>
+          <div className="flex items-center gap-3 text-sm font-medium text-slate-500">
+            <span className="shrink-0">Sắp xếp theo:</span>
+            <Select defaultValue="popular">
+              <SelectTrigger className="w-[180px] h-9 border-none bg-transparent font-bold text-slate-900 focus:ring-0 p-0 shadow-none">
+                <SelectValue placeholder="Sắp xếp" />
+              </SelectTrigger>
+              <SelectContent className="rounded-xl border-border/50 shadow-xl">
+                <SelectItem value="popular">Phổ biến nhất</SelectItem>
+                <SelectItem value="salary">Lương cao nhất</SelectItem>
+                <SelectItem value="demand">Nhu cầu tuyển dụng</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -310,7 +322,7 @@ const CategoriesPage = () => {
                 >
                   {cat.tags.includes('HOT') && (
                     <div className="absolute top-0 right-0">
-                      <div className="px-3 py-1 bg-gradient-to-r from-red-500 to-orange-500 text-white text-[10px] font-black uppercase tracking-wider rounded-bl-xl shadow-sm">
+                      <div className="px-3 py-1 bg-gradient-to-r from-red-500 to-orange-500 text-white text-sm font-black uppercase tracking-wider rounded-bl-xl shadow-sm">
                         Trending
                       </div>
                     </div>
@@ -321,7 +333,7 @@ const CategoriesPage = () => {
                       <div className="w-12 h-12 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-700 group-hover:bg-primary-600 group-hover:text-white group-hover:border-primary-600 transition-colors">
                         {React.cloneElement(cat.icon, { size: 24 })}
                       </div>
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-md">
+                      <div className="flex items-center gap-1.5 text-sm font-bold text-green-600 bg-green-50 px-2 py-1 rounded-md">
                         <TrendingUp size={12} />
                         {cat.growth}
                       </div>
@@ -333,7 +345,7 @@ const CategoriesPage = () => {
                     >
                       {cat.name}
                     </h3>
-                    <p className="text-slate-500 text-sm leading-relaxed line-clamp-2 mb-4">
+                    <p className="text-slate-500 text-base leading-relaxed line-clamp-2 mb-4">
                       {cat.desc}
                     </p>
                   </div>
@@ -345,7 +357,7 @@ const CategoriesPage = () => {
                         .map((tag) => (
                           <span
                             key={tag}
-                            className="px-2 py-0.5 bg-slate-50 text-slate-500 border border-slate-100 rounded text-[10px] font-bold uppercase tracking-wide"
+                            className="px-2 py-0.5 bg-slate-50 text-slate-500 border border-slate-100 rounded text-sm font-bold uppercase tracking-wide"
                           >
                             {tag}
                           </span>
@@ -353,7 +365,7 @@ const CategoriesPage = () => {
                     </div>
 
                     <div className="pt-4 border-t border-slate-50 flex items-center justify-between">
-                      <div className="text-xs">
+                      <div className="text-sm">
                         <span className="font-bold text-slate-900 block">
                           {cat.count.toLocaleString()}
                         </span>
@@ -397,7 +409,7 @@ const CategoriesPage = () => {
                 <div className="w-8 h-8 rounded-full bg-primary-50 text-primary-600 font-bold text-sm flex items-center justify-center mx-auto mb-3 border border-primary-100 group-hover:bg-primary-600 group-hover:text-white transition-colors">
                   {idx + 1}
                 </div>
-                <p className="font-bold text-slate-900 text-sm">{level}</p>
+                <p className="font-bold text-slate-900 text-base">{level}</p>
               </div>
             ))}
           </div>

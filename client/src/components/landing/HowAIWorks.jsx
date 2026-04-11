@@ -93,15 +93,15 @@ const HowAIWorks = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-2">
-                    <span className="text-primary/30 text-xs font-bold tracking-widest">
+                    <span className="text-primary/30 text-sm font-bold tracking-widest">
                       {step.num}
                     </span>
                     <h3 className="text-foreground font-bold text-lg">{step.title}</h3>
                   </div>
-                  <p className="text-muted-foreground text-sm leading-relaxed mb-3">
+                  <p className="text-muted-foreground text-base leading-relaxed mb-3">
                     {step.description}
                   </p>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-muted/50 border border-border/40 rounded-lg text-[11px] font-mono text-primary/60">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-muted/50 border border-border/40 rounded-lg text-sm font-mono text-primary/60">
                     {step.detail}
                   </span>
                 </div>
@@ -125,7 +125,7 @@ const HowAIWorks = () => {
             <div className="landing-card p-7 shadow-[0_20px_50px_-15px_rgba(16,185,129,0.06)]">
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <p className="text-muted-foreground text-xs font-bold uppercase tracking-wider">
+                  <p className="text-muted-foreground text-base font-bold uppercase tracking-wider">
                     Skill Matching
                   </p>
                   <p className="text-foreground font-bold text-lg mt-1">
@@ -197,11 +197,11 @@ const HowAIWorks = () => {
               </div>
 
               <div className="mt-8 p-4 bg-primary/5 border border-primary/10 rounded-xl">
-                <p className="text-primary text-xs font-bold mb-1 flex items-center gap-1.5">
+                <p className="text-primary text-base font-bold mb-1 flex items-center gap-1.5">
                   <Brain size={12} />
                   AI Insight
                 </p>
-                <p className="text-muted-foreground text-sm leading-relaxed">
+                <p className="text-muted-foreground text-base leading-relaxed">
                   Bạn phù hợp <span className="text-primary font-bold">82%</span> với vị trí này. Bổ
                   sung <span className="text-foreground font-bold">System Design</span> sẽ nâng lên{' '}
                   <span className="text-primary font-bold">93%</span>.

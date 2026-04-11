@@ -49,6 +49,7 @@ const EmployerDashboard = ({ stats, activeJobs }) => {
         ].map((stat, i) => (
           <Card
             key={i}
+            hover
             className="p-8 border-none shadow-xl shadow-slate-100/50 flex flex-col items-center text-center"
           >
             <div
@@ -57,7 +58,7 @@ const EmployerDashboard = ({ stats, activeJobs }) => {
               {stat.icon}
             </div>
             <p className="text-3xl font-black text-slate-900 mb-1">{stat.val}</p>
-            <p className="text-xs font-black text-slate-400 uppercase tracking-widest leading-none">
+            <p className="text-base font-black text-slate-400 uppercase tracking-widest leading-none">
               {stat.label}
             </p>
           </Card>
@@ -67,7 +68,7 @@ const EmployerDashboard = ({ stats, activeJobs }) => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         {/* Analytics Chart */}
         <div className="lg:col-span-2">
-          <Card className="p-8 border-none shadow-xl shadow-slate-100/50 h-full">
+          <Card hover className="p-8 border-none shadow-xl shadow-slate-100/50 h-full">
             <div className="flex items-center justify-between mb-8">
               <h3 className="text-xl font-black text-slate-900">Biểu đồ tăng trưởng</h3>
               <Badge variant="indigo">7 NGÀY QUA</Badge>
@@ -84,7 +85,7 @@ const EmployerDashboard = ({ stats, activeJobs }) => {
             <button className="w-full bg-slate-900 text-white p-8 rounded-[32px] hover:bg-emerald-600 transition-all group flex items-center justify-between">
               <div>
                 <p className="text-xl font-black mb-1">Đăng tin mới</p>
-                <p className="text-xs text-slate-400 group-hover:text-emerald-100 transition-colors">
+                <p className="text-base text-slate-400 group-hover:text-emerald-100 transition-colors">
                   Tìm kiếm tài năng ngay lập tức
                 </p>
               </div>
@@ -94,7 +95,7 @@ const EmployerDashboard = ({ stats, activeJobs }) => {
             </button>
           </Link>
 
-          <Card className="p-8 border-none shadow-xl shadow-slate-100/50">
+          <Card hover className="p-8 border-none shadow-xl shadow-slate-100/50">
             <h3 className="text-lg font-black text-slate-900 mb-6 font-black">
               Tin đang hoạt động
             </h3>
@@ -107,10 +108,10 @@ const EmployerDashboard = ({ stats, activeJobs }) => {
                         <TrendingUp size={18} />
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-slate-900 truncate max-w-[150px]">
+                        <p className="text-base font-bold text-slate-900 truncate max-w-[150px]">
                           {job.title}
                         </p>
-                        <p className="text-xs text-slate-400 font-bold uppercase tracking-tight">
+                        <p className="text-base text-slate-400 font-bold uppercase tracking-tight">
                           {job.applicant_count} Ứng viên
                         </p>
                       </div>
@@ -126,7 +127,7 @@ const EmployerDashboard = ({ stats, activeJobs }) => {
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-slate-400 font-medium italic">
+                <p className="text-base text-slate-400 font-medium italic">
                   Không có tin nào đang hoạt động.
                 </p>
               )}
@@ -134,7 +135,7 @@ const EmployerDashboard = ({ stats, activeJobs }) => {
             <Link to="/employer/manage-jobs">
               <Button
                 variant="outline"
-                className="w-full mt-8 py-3 text-xs font-black uppercase tracking-widest"
+                className="w-full mt-8 py-3 text-sm font-black uppercase tracking-widest"
               >
                 Quản lý tất cả
               </Button>
@@ -143,7 +144,7 @@ const EmployerDashboard = ({ stats, activeJobs }) => {
 
           <Card className="p-8 bg-amber-50 border-amber-100 text-amber-900 flex items-center gap-4">
             <AlertCircle size={24} className="shrink-0" />
-            <p className="text-xs font-bold leading-relaxed">
+            <p className="text-base font-bold leading-relaxed">
               Bạn có{' '}
               <span className="font-black text-amber-600 underline cursor-pointer">
                 05 hồ sơ mới

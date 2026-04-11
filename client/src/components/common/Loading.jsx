@@ -23,7 +23,7 @@ const Loading = ({ size = 'md', text, className = '' }) => {
         className={`${sizes[finalSize]} border-primary border-t-transparent rounded-full animate-spin`}
       ></div>
       {text && <p className="mt-3 text-gray-600 font-medium">{text.replace('...', '…')}</p>}
-      {!text && <p className="mt-3 text-gray-400 text-sm font-medium italic">Đang tải…</p>}
+      {!text && <p className="mt-3 text-gray-400 text-base font-medium italic">Đang tải…</p>}
     </div>
   );
 };

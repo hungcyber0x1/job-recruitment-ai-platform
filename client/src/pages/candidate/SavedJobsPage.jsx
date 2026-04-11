@@ -124,7 +124,7 @@ const SavedJobsPage = () => {
           {displayList.map((job) => (
             <Card
               key={job.id}
-              className="rounded-2xl border border-slate-200/60 bg-white shadow-sm transition-all hover:border-emerald-500/30 hover:shadow-md hover-lift group"
+              className="rounded-2xl border border-slate-200/60 bg-white shadow-sm card-premium-hover group"
             >
               <CardContent className="p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

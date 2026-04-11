@@ -1,6 +1,6 @@
 const ApplicationService = require('../services/application');
-const CandidateRepository = require('../repositories/candidate');
-const EmployerRepository = require('../repositories/employer');
+const CandidateRepository = require('../models/Candidate');
+const EmployerRepository = require('../models/Employer');
 
 class ApplicationController {
   async apply(req, res, next) {

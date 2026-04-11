@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 
 const CompanyCard = ({ company }) => {
   return (
-    <Card className="bg-white border border-slate-200 hover:border-primary/40 focus:border-primary/40 rounded-3xl p-0 transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 flex flex-col h-full overflow-hidden outline-none">
+    <Card hover className="p-0 flex flex-col h-full overflow-hidden outline-none">
       <div className="h-24 bg-slate-100/50 relative border-b border-slate-100/50">
         {/* Optional Cover Image */}
       </div>

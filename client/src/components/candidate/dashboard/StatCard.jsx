@@ -21,7 +21,7 @@ const StatCard = ({ label, value, icon: Icon, color, subValue, trend = 'up' }) =
 
         {subValue && (
           <div
-            className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium tracking-wide shadow-sm transition-all duration-500 ${trend === 'up' ? 'border border-state-success/20 bg-state-success/10 text-state-success' : 'border border-state-danger/20 bg-state-danger/10 text-state-danger'}`}
+            className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium tracking-wide shadow-sm transition-all duration-500 ${trend === 'up' ? 'border border-state-success/20 bg-state-success/10 text-state-success' : 'border border-state-danger/20 bg-state-danger/10 text-state-danger'}`}
           >
             {trend === 'up' ? '▲' : '▼'} {subValue}
           </div>
@@ -29,7 +29,7 @@ const StatCard = ({ label, value, icon: Icon, color, subValue, trend = 'up' }) =
       </div>
 
       <div className="space-y-2">
-        <p className="text-xs font-medium uppercase tracking-wider text-txt-muted">{label}</p>
+        <p className="text-base font-medium uppercase tracking-wider text-txt-muted">{label}</p>
         <h3 className="text-4xl font-semibold tracking-tight text-foreground">{value}</h3>
       </div>
     </div>

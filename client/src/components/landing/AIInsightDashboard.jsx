@@ -89,12 +89,12 @@ const AIInsightDashboard = () => {
                 </div>
                 <div>
                   <h3 className="text-foreground font-bold">Phân tích Skill Gap</h3>
-                  <p className="text-muted-foreground text-xs font-medium">
+                  <p className="text-muted-foreground text-base font-medium">
                     So với vị trí: Senior Fullstack
                   </p>
                 </div>
               </div>
-              <span className="px-3 py-1 bg-primary/8 border border-primary/12 text-primary rounded-lg text-xs font-bold">
+              <span className="px-3 py-1 bg-primary/8 border border-primary/12 text-primary rounded-lg text-sm font-bold">
                 Cập nhật hôm nay
               </span>
             </div>
@@ -106,12 +106,12 @@ const AIInsightDashboard = () => {
                     <span className="text-foreground/80 text-sm font-medium">{item.skill}</span>
                     <div className="flex items-center gap-2">
                       <span
-                        className={`text-xs font-bold tabular-nums ${item.status === 'gap' ? 'text-amber-500' : 'text-primary'}`}
+                        className={`text-sm font-bold tabular-nums ${item.status === 'gap' ? 'text-amber-500' : 'text-primary'}`}
                       >
                         {item.current}%
                       </span>
-                      <span className="text-border text-xs">/</span>
-                      <span className="text-muted-foreground text-xs tabular-nums">
+                      <span className="text-border text-sm">/</span>
+                      <span className="text-muted-foreground text-sm tabular-nums">
                         {item.target}%
                       </span>
                     </div>
@@ -138,11 +138,11 @@ const AIInsightDashboard = () => {
             </div>
 
             <div className="mt-6 p-4 bg-amber-50 border border-amber-200/50 rounded-xl">
-              <p className="text-amber-600 text-xs font-bold mb-1 flex items-center gap-1.5">
+              <p className="text-amber-600 text-base font-bold mb-1 flex items-center gap-1.5">
                 <Sparkles size={12} />
                 Gợi ý từ AI
               </p>
-              <p className="text-muted-foreground text-sm leading-relaxed">
+              <p className="text-muted-foreground text-base leading-relaxed">
                 Tập trung vào <span className="text-foreground font-bold">Node.js</span> và
                 <span className="text-foreground font-bold"> System Design</span> để nâng tổng điểm
                 lên <span className="text-primary font-bold">85%+</span>
@@ -165,12 +165,12 @@ const AIInsightDashboard = () => {
                 </div>
                 <div>
                   <h3 className="text-foreground font-bold">Lộ trình phát triển</h3>
-                  <p className="text-muted-foreground text-xs font-medium">
+                  <p className="text-muted-foreground text-base font-medium">
                     Frontend → Senior Fullstack
                   </p>
                 </div>
               </div>
-              <span className="px-3 py-1 bg-muted/50 border border-border/40 text-muted-foreground rounded-lg text-xs font-bold">
+              <span className="px-3 py-1 bg-muted/50 border border-border/40 text-muted-foreground rounded-lg text-sm font-bold">
                 12 tháng
               </span>
             </div>
@@ -192,22 +192,22 @@ const AIInsightDashboard = () => {
                     {index < roadmapSteps.length - 1 && <div className="w-px h-8 bg-border/60" />}
                   </div>
                   <div className="flex-1 min-w-0 pb-2">
-                    <p className="text-muted-foreground text-[11px] font-bold uppercase tracking-wider">
+                    <p className="text-muted-foreground text-base font-bold uppercase tracking-wider">
                       {step.period}
                     </p>
                     <p
-                      className={`text-sm font-medium mt-0.5 ${step.status === 'current' ? 'text-foreground' : step.status === 'completed' ? 'text-muted-foreground line-through' : 'text-muted-foreground/60'}`}
+                      className={`text-base font-medium mt-0.5 ${step.status === 'current' ? 'text-foreground' : step.status === 'completed' ? 'text-muted-foreground line-through' : 'text-muted-foreground/60'}`}
                     >
                       {step.milestone}
                     </p>
                   </div>
                   {step.status === 'current' && (
-                    <span className="px-2 py-0.5 bg-amber-50 border border-amber-200/50 text-amber-600 rounded-md text-[10px] font-bold whitespace-nowrap">
+                    <span className="px-2 py-0.5 bg-amber-50 border border-amber-200/50 text-amber-600 rounded-md text-sm font-bold whitespace-nowrap">
                       Đang thực hiện
                     </span>
                   )}
                   {step.status === 'completed' && (
-                    <span className="px-2 py-0.5 bg-primary/8 border border-primary/12 text-primary rounded-md text-[10px] font-bold">
+                    <span className="px-2 py-0.5 bg-primary/8 border border-primary/12 text-primary rounded-md text-sm font-bold">
                       Hoàn thành
                     </span>
                   )}
@@ -216,7 +216,7 @@ const AIInsightDashboard = () => {
             </div>
 
             <div className="mt-6 space-y-3">
-              <p className="text-muted-foreground text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+              <p className="text-muted-foreground text-base font-bold uppercase tracking-wider flex items-center gap-2">
                 <BookOpen size={12} />
                 Khóa học gợi ý
               </p>
@@ -229,10 +229,10 @@ const AIInsightDashboard = () => {
                   className="flex items-center justify-between p-3 bg-muted/30 border border-border/30 rounded-xl hover:border-primary/15 transition-all cursor-pointer group"
                 >
                   <div>
-                    <p className="text-foreground text-sm font-bold group-hover:text-primary transition-colors">
+                    <p className="text-foreground text-base font-bold group-hover:text-primary transition-colors">
                       {course.title}
                     </p>
-                    <p className="text-muted-foreground text-xs font-medium">
+                    <p className="text-muted-foreground text-base font-medium">
                       {course.provider} · {course.duration}
                     </p>
                   </div>

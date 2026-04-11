@@ -60,7 +60,7 @@ const ApplicationForm = ({ job, onClose }) => {
         </div>
         <div>
           <h4 className="font-bold text-gray-900 leading-tight mb-1">{job.title}</h4>
-          <p className="text-sm text-gray-500 font-medium">{job.company_name}</p>
+          <p className="text-base text-gray-500 font-medium">{job.company_name}</p>
         </div>
       </div>
 
@@ -96,16 +96,16 @@ const ApplicationForm = ({ job, onClose }) => {
                 <FileText className="text-gray-400 group-hover:text-emerald-600" size={28} />
               )}
             </div>
-            <p className="text-sm font-bold text-gray-900 mb-1">
+            <p className="text-base font-bold text-gray-900 mb-1">
               {resumeFile ? resumeFile.name : 'Kéo thả file vào đây hoặc click để chọn'}
             </p>
-            <p className="text-xs text-gray-400">Định dạng hỗ trợ: PDF, DOC, DOCX (Tối đa 5MB)</p>
+            <p className="text-base text-gray-400">Định dạng hỗ trợ: PDF, DOC, DOCX (Tối đa 5MB)</p>
           </div>
         </div>
 
         <div className="p-4 bg-yellow-50 rounded-xl flex items-center gap-3 border border-yellow-100/50">
           <Info size={18} className="text-yellow-600 shrink-0" />
-          <p className="text-sm text-yellow-700 font-medium">
+          <p className="text-base text-yellow-700 font-medium">
             HireAI khuyến nghị bạn nên cập nhật đầy đủ các dự án trong hồ sơ cá nhân để tăng 50% tỉ
             lệ matching.
           </p>

@@ -1,6 +1,6 @@
 const AIService = require('./ai');
-const InterviewSessionRepository = require('../repositories/interview-session');
-const JobRepository = require('../repositories/job');
+const InterviewSessionRepository = require('../models/InterviewSession');
+const JobRepository = require('../models/Job');
 const logger = require('../utils/logger');
 
 /**

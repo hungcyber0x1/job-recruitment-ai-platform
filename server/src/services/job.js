@@ -1,6 +1,6 @@
-const JobRepository = require('../repositories/job');
-const EmployerRepository = require('../repositories/employer');
-const SystemSettingsRepository = require('../repositories/system-settings');
+const JobRepository = require('../models/Job');
+const EmployerRepository = require('../models/Employer');
+const SystemSettingsRepository = require('../models/SystemSettings');
 const { isDeadlineDateBeforeToday } = require('../utils/deadline');
 const logger = require('../utils/logger');
 const AIService = require('./ai');

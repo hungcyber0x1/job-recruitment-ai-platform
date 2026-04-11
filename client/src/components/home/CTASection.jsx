@@ -106,7 +106,7 @@ const CTASection = () => {
             </Link>
           </div>
 
-          <p className="mt-10 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm font-medium text-white/50">
+          <p className="mt-10 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-base font-medium text-white/50">
             <span className="inline-flex items-center gap-1.5">
               <Shield
                 size={13}

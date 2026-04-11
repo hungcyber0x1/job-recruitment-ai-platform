@@ -86,8 +86,8 @@ const SidebarContent = ({ onMobileClose }) => {
   const avatarSrc = resolveMediaUrl(user?.avatar_url) || undefined;
 
   return (
-    <div className="z-50 flex h-full flex-col border-r border-border bg-[hsl(var(--nav-bg))] text-foreground dark:border-slate-800 dark:bg-slate-950">
-      <div className="border-b border-border bg-gradient-to-br from-primary/[0.07] via-primary/[0.02] to-transparent px-5 py-5 dark:from-primary/12 dark:via-primary/5 dark:to-transparent">
+    <div className="z-50 flex h-full flex-col border-r border-slate-800 bg-[#0B1120] text-slate-200">
+      <div className="border-b border-slate-800 bg-gradient-to-br from-primary/[0.12] via-primary/[0.05] to-transparent px-5 py-5">
         <div className="flex items-start justify-between gap-2">
           <Link
             to="/candidate/dashboard"
@@ -97,7 +97,7 @@ const SidebarContent = ({ onMobileClose }) => {
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition-transform group-hover:scale-[1.03]">
               <User className="h-6 w-6" aria-hidden />
             </div>
-            <span className="min-w-0 truncate text-lg font-black tracking-tight text-foreground">
+            <span className="min-w-0 truncate text-lg font-black tracking-tight text-slate-50">
               Ứng viên
               <span className="text-primary"> Hub</span>
             </span>
@@ -120,7 +120,7 @@ const SidebarContent = ({ onMobileClose }) => {
         <nav className="flex flex-col gap-6">
           {SIDEBAR_NAV.map((group) => (
             <div key={group.title}>
-              <h3 className="mb-2 px-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+              <h3 className="mb-2 px-3 text-sm font-bold uppercase tracking-widest text-slate-500">
                 {group.title}
               </h3>
               <div className="space-y-0.5">
@@ -136,8 +136,8 @@ const SidebarContent = ({ onMobileClose }) => {
                       className={cn(
                         'group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-base font-medium transition-all duration-200',
                         active
-                          ? 'bg-primary/10 text-primary shadow-sm ring-1 ring-primary/10 dark:bg-primary/15 dark:text-primary dark:ring-primary/20'
-                          : 'text-muted-foreground hover:bg-muted/90 hover:text-foreground dark:hover:bg-slate-800/80 dark:hover:text-slate-100'
+                          ? 'bg-primary/15 text-primary shadow-sm ring-1 ring-primary/20'
+                          : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'
                       )}
                     >
                       {active && (
@@ -150,9 +150,7 @@ const SidebarContent = ({ onMobileClose }) => {
                         size={20}
                         className={cn(
                           'shrink-0 transition-transform duration-200 group-hover:scale-105',
-                          active
-                            ? 'text-primary'
-                            : 'text-muted-foreground/80 group-hover:text-primary'
+                          active ? 'text-primary' : 'text-slate-500 group-hover:text-primary'
                         )}
                         aria-hidden
                       />
@@ -166,13 +164,13 @@ const SidebarContent = ({ onMobileClose }) => {
         </nav>
       </ScrollArea>
 
-      <div className="border-t border-border p-4">
+      <div className="border-t border-slate-800 p-4">
         <Link
           to="/candidate/profile"
-          className="group mb-3 flex items-center gap-3 rounded-2xl border border-border bg-card/70 p-3.5 shadow-sm transition-all hover:border-primary/30 hover:bg-primary/[0.06] dark:bg-slate-900/50 dark:hover:bg-primary/10"
+          className="group mb-3 flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-900/50 p-3.5 shadow-sm transition-all hover:border-primary/30 hover:bg-primary/10"
           onClick={() => onMobileClose?.()}
         >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-background shadow-sm transition-transform group-hover:scale-[1.02] dark:bg-slate-800 dark:border-slate-700">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-700 bg-slate-800 shadow-sm transition-transform group-hover:scale-[1.02]">
             {avatarSrc ? (
               <img src={avatarSrc} alt="" className="h-full w-full object-cover" />
             ) : (
@@ -182,17 +180,17 @@ const SidebarContent = ({ onMobileClose }) => {
             )}
           </div>
           <div className="min-w-0 flex-1 text-left">
-            <p className="truncate text-base font-semibold text-foreground transition-colors group-hover:text-primary">
+            <p className="truncate text-base font-semibold text-slate-100 transition-colors group-hover:text-primary">
               {displayName}
             </p>
-            <p className="truncate text-xs font-bold uppercase tracking-widest text-primary">
+            <p className="truncate text-base font-bold uppercase tracking-widest text-primary">
               Tài khoản ứng viên
             </p>
           </div>
         </Link>
         <Button
           variant="ghost"
-          className="h-11 w-full justify-start rounded-xl text-muted-foreground hover:bg-muted/90 hover:text-foreground dark:hover:bg-slate-800/80"
+          className="h-11 w-full justify-start rounded-xl text-slate-400 hover:bg-slate-800/80 hover:text-slate-100"
           onClick={handleLogout}
         >
           <LogOut className="mr-2 h-4 w-4 shrink-0" />
@@ -513,7 +511,7 @@ const CandidateLayout = ({ children }) => {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  className="text-destructive focus:text-destructive"
+                  className="cursor-pointer text-red-500 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/30"
                   onClick={handleLogout}
                 >
                   Đăng xuất
