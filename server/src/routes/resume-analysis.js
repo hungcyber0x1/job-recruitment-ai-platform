@@ -42,15 +42,4 @@ router.get(
   ResumeAnalysisController.compareWithMarket.bind(ResumeAnalysisController)
 );
 
-/**
- * @route   POST /api/candidates/resume/match-job
- * @desc    Check match percentage with a specific job
- * @access  Private (Candidate only)
- */
-router.post(
-  '/match-job',
-  aiLimiter,
-  ResumeAnalysisController.analyzeJobMatch.bind(ResumeAnalysisController)
-);
-
 module.exports = router;

@@ -10,7 +10,7 @@ const JobList = ({ jobs, loading, emptyMessage }) => {
         {[1, 2, 3].map((item) => (
           <div
             key={item}
-            className="h-48 rounded-[32px] border border-gray-100 bg-white p-10 shadow-sm animate-pulse"
+            className="h-48 rounded-lg border border-border bg-card p-10 shadow-sm animate-pulse"
           />
         ))}
       </div>
@@ -19,8 +19,8 @@ const JobList = ({ jobs, loading, emptyMessage }) => {
 
   if (!jobs.length) {
     return (
-      <div className="rounded-[40px] border border-dashed border-gray-200 bg-white py-32 text-center">
-        <p className="font-medium text-gray-500">{emptyMessage}</p>
+      <div className="rounded-lg border border-dashed border-border bg-card py-24 text-center shadow-sm">
+        <p className="text-sm font-medium text-muted-foreground">{emptyMessage}</p>
       </div>
     );
   }

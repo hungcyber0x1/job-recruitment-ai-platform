@@ -3,6 +3,11 @@ const UserRepository = require('../models/User');
 const AuthService = require('./auth');
 const AppError = require('../utils/errorHandler');
 
+/**
+ * OAuth Social Service - Xử lý đăng nhập/đăng ký qua mạng xã hội
+ * ⚠️  STATUS: Chỉ dùng cột `status` trong logic, nhưng đồng bộ cả `is_active` cho tương thích DB
+ */
+
 function stripUser(user) {
   if (!user) return user;
   const { password: _p, ...rest } = user;
@@ -11,7 +16,7 @@ function stripUser(user) {
 
 function resolveRole(state) {
   if (state.intent === 'register') {
-    return state.role === 'employer' ? 'employer' : 'candidate';
+    return state.role === 'employer' ? 'recruiter' : 'candidate';
   }
   return 'candidate';
 }
@@ -20,6 +25,12 @@ async function createOAuthUser(profile, role, provider, providerId) {
   const connection = await pool.getConnection();
   await connection.beginTransaction();
   try {
+    /**
+     * Chỉ định status='active' cho OAuth user mới.
+     * Cột is_active được đặt =1 để đồng bộ DB (legacy support).
+     */
+    const storedRole = await AuthService.getStoredRole(role, connection);
+
     const [result] = await connection.query(
       `INSERT INTO users (
         email, password, role, first_name, last_name, avatar_url,
@@ -27,7 +38,7 @@ async function createOAuthUser(profile, role, provider, providerId) {
       ) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, 'active', 1)`,
       [
         profile.email,
-        role,
+        storedRole,
         profile.firstName,
         profile.lastName,
         profile.avatarUrl,
@@ -37,18 +48,11 @@ async function createOAuthUser(profile, role, provider, providerId) {
     );
     const userId = result.insertId;
 
-    if (role === 'candidate') {
-      await connection.query('INSERT INTO candidates (user_id) VALUES (?)', [userId]);
-    } else if (role === 'employer') {
-      const companyName =
-        `${profile.firstName} ${profile.lastName}`.trim() ||
-        profile.email.split('@')[0] ||
-        'Doanh nghiệp';
-      await connection.query('INSERT INTO employers (user_id, company_name) VALUES (?, ?)', [
-        userId,
-        companyName,
-      ]);
-    }
+    const companyName =
+      `${profile.firstName} ${profile.lastName}`.trim() ||
+      profile.email.split('@')[0] ||
+      'Doanh nghiệp';
+    await AuthService.insertRoleProfile(connection, role, userId, companyName);
 
     await connection.commit();
     return UserRepository.findById(userId);

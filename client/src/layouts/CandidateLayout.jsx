@@ -6,11 +6,9 @@ import {
   Bookmark,
   BookOpen,
   Briefcase,
-  Calendar,
   Check,
   Clock,
   FileText,
-  Lightbulb,
   LogOut,
   Menu,
   MessageSquare,
@@ -22,7 +20,8 @@ import {
 } from 'lucide-react';
 import { resolveMediaUrl } from '@/utils/mediaUrl';
 import { useAuth } from '../context/AuthContext';
-import applicationService from '../services/applicationService';
+import notificationService from '../services/notificationService';
+import { AccountHomeLink, Logo } from '@/components/common';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -53,6 +52,7 @@ const SIDEBAR_NAV = [
       { path: '/candidate/jobs', label: 'Việc làm', icon: Briefcase },
       { path: '/candidate/saved-jobs', label: 'Đã lưu', icon: Bookmark },
       { path: '/candidate/applications', label: 'Ứng tuyển', icon: Send },
+      { path: '/candidate/messages', label: 'Tin nhắn', icon: MessageSquare },
       { path: '/candidate/notifications', label: 'Thông báo', icon: Bell },
     ],
   },
@@ -60,8 +60,6 @@ const SIDEBAR_NAV = [
     title: 'AI & CHIẾN LƯỢC',
     items: [
       { path: '/candidate/chat', label: 'Chatbot AI', icon: MessageSquare },
-      { path: '/candidate/career-roadmap', label: 'Lộ trình 90 ngày', icon: Calendar },
-      { path: '/candidate/career-suggestions', label: 'Gợi ý nghề nghiệp', icon: Lightbulb },
       { path: '/blog', label: 'Blog kiến thức', icon: BookOpen },
     ],
   },
@@ -88,25 +86,30 @@ const SidebarContent = ({ onMobileClose }) => {
   return (
     <div className="z-50 flex h-full flex-col border-r border-slate-800 bg-[#0B1120] text-slate-200">
       <div className="border-b border-slate-800 bg-gradient-to-br from-primary/[0.12] via-primary/[0.05] to-transparent px-5 py-5">
-        <div className="flex items-start justify-between gap-2">
+        <div className="relative">
           <Link
             to="/candidate/dashboard"
-            className="group flex min-w-0 flex-1 items-center gap-3"
+            className="group flex w-full min-w-0 flex-col items-center gap-3 text-center"
             onClick={() => onMobileClose?.()}
           >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition-transform group-hover:scale-[1.03]">
-              <User className="h-6 w-6" aria-hidden />
-            </div>
-            <span className="min-w-0 truncate text-lg font-black tracking-tight text-slate-50">
+            <Logo
+              asLink={false}
+              className="mx-auto h-10 w-auto max-w-[172px] object-center transition-transform duration-200 group-hover:scale-[1.02]"
+            />
+            <span className="hidden min-w-0 truncate text-lg font-black tracking-tight text-slate-50">
               Ứng viên
               <span className="text-primary"> Hub</span>
             </span>
+            <div className="space-y-1 text-center">
+              <p className="text-base font-semibold text-slate-50">Ứng viên</p>
+              <p className="text-xs font-medium text-slate-400">Hồ sơ và cơ hội việc làm</p>
+            </div>
           </Link>
           {onMobileClose ? (
             <Button
               variant="ghost"
               size="icon"
-              className="shrink-0 text-muted-foreground lg:hidden"
+              className="absolute right-0 top-0 shrink-0 text-muted-foreground lg:hidden"
               onClick={onMobileClose}
               aria-label="Đóng menu"
             >
@@ -167,7 +170,7 @@ const SidebarContent = ({ onMobileClose }) => {
       <div className="border-t border-slate-800 p-4">
         <Link
           to="/candidate/profile"
-          className="group mb-3 flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-900/50 p-3.5 shadow-sm transition-all hover:border-primary/30 hover:bg-primary/10"
+          className="group flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-900/50 p-3.5 shadow-sm transition-all hover:border-primary/30 hover:bg-primary/10"
           onClick={() => onMobileClose?.()}
         >
           <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-700 bg-slate-800 shadow-sm transition-transform group-hover:scale-[1.02]">
@@ -190,7 +193,7 @@ const SidebarContent = ({ onMobileClose }) => {
         </Link>
         <Button
           variant="ghost"
-          className="h-11 w-full justify-start rounded-xl text-slate-400 hover:bg-slate-800/80 hover:text-slate-100"
+          className="hidden h-11 w-full justify-start rounded-xl text-slate-400 hover:bg-slate-800/80 hover:text-slate-100"
           onClick={handleLogout}
         >
           <LogOut className="mr-2 h-4 w-4 shrink-0" />
@@ -236,14 +239,25 @@ const CandidateLayout = ({ children }) => {
     const fetchNotifications = async () => {
       try {
         setNotificationsLoading(true);
-        const res = await applicationService.getMyNotifications();
-        const raw = res.data?.data ?? [];
+        const res = await notificationService.getNotifications({ limit: 10 });
+        const payload = res.data?.data ?? res.data ?? {};
+        const raw = Array.isArray(payload.notifications) ? payload.notifications : [];
         const items = raw.map((item, idx) => ({
           id: item.id,
           title: item.title || item.message?.slice(0, 50) || 'Thông báo',
           message: item.message || item.body || '',
           time: item.created_at || item.createdAt,
           type: item.type || 'application',
+          data:
+            typeof item.data === 'string'
+              ? (() => {
+                try {
+                  return JSON.parse(item.data);
+                } catch {
+                  return {};
+                }
+              })()
+              : item.data || {},
           isRead: item.read ?? item.is_read ?? idx > 2,
         }));
         setNotifications(items);
@@ -257,6 +271,17 @@ const CandidateLayout = ({ children }) => {
   }, []);
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
+
+  const getNotificationLink = (notification) => {
+    const data = notification?.data || {};
+    if (notification?.type === 'message' && data.conversation_id) {
+      return `/candidate/messages?conversationId=${data.conversation_id}`;
+    }
+    if (data.application_id) {
+      return `/candidate/applications?applicationId=${data.application_id}`;
+    }
+    return '/candidate/notifications';
+  };
 
   const getPageTitle = () => {
     for (const group of SIDEBAR_NAV) {
@@ -279,7 +304,7 @@ const CandidateLayout = ({ children }) => {
     user?.fullName || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'Ứng viên';
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="candidate-applications-typography min-h-screen bg-background flex">
       {/* Desktop Sidebar */}
       <aside className="z-20 hidden w-64 lg:fixed lg:inset-y-0 lg:flex lg:flex-col">
         <SidebarContent />
@@ -323,6 +348,7 @@ const CandidateLayout = ({ children }) => {
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <AccountHomeLink />
             {/* Search - rounded-square container */}
             <DropdownMenu open={searchOpen} onOpenChange={setSearchOpen}>
               <DropdownMenuTrigger asChild>
@@ -426,7 +452,7 @@ const CandidateLayout = ({ children }) => {
                       {notifications.slice(0, 5).map((n, i) => (
                         <Link
                           key={n.id ?? `notif-${i}`}
-                          to="/candidate/notifications"
+                          to={getNotificationLink(n)}
                           className={cn(
                             'block p-4 hover:bg-muted/35 dark:hover:bg-slate-800/50 transition-colors',
                             !n.isRead && 'bg-primary/5'
@@ -437,18 +463,18 @@ const CandidateLayout = ({ children }) => {
                               className={cn(
                                 'mt-1 w-8 h-8 rounded-full flex items-center justify-center shrink-0',
                                 n.type === 'application' &&
-                                  'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400',
+                                'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400',
                                 n.type === 'system' &&
-                                  'bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400',
+                                'bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400',
                                 (n.type === 'message' ||
                                   !['application', 'system'].includes(n.type)) &&
-                                  'bg-primary/10 text-primary'
+                                'bg-primary/10 text-primary'
                               )}
                             >
                               {n.type === 'application' && <Check size={14} />}
                               {n.type === 'system' && <Clock size={14} />}
-                              {(n.type === 'message' ||
-                                !['application', 'system'].includes(n.type)) && <Bell size={14} />}
+                              {n.type === 'message' && <MessageSquare size={14} />}
+                              {!['application', 'system', 'message'].includes(n.type) && <Bell size={14} />}
                             </div>
                             <div className="min-w-0 flex-1">
                               <h4
@@ -495,25 +521,42 @@ const CandidateLayout = ({ children }) => {
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
+              <DropdownMenuContent
+                className="w-56 bg-white dark:bg-slate-800 border-border text-foreground shadow-2xl"
+                align="end"
+                forceMount
+              >
+                <DropdownMenuLabel className="font-normal p-4">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-base font-medium leading-none">{displayName}</p>
-                    <p className="text-base leading-none text-muted-foreground">{user?.email}</p>
+                    <p className="text-base font-semibold leading-none">{displayName}</p>
+                    <p className="truncate text-base leading-none text-muted-foreground">{user?.email}</p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to="/candidate/profile">Hồ sơ cá nhân</Link>
+                <DropdownMenuItem
+                  asChild
+                  className="hover:bg-primary/10 dark:hover:bg-emerald-500/10 focus:bg-primary/10 cursor-pointer p-3"
+                >
+                  <Link to="/candidate/profile" className="w-full flex items-center">
+                    <User className="mr-2 h-4 w-4 text-emerald-500" />
+                    Hồ sơ cá nhân
+                  </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/candidate/settings">Cài đặt</Link>
+                <DropdownMenuItem
+                  asChild
+                  className="hover:bg-primary/10 dark:hover:bg-emerald-500/10 focus:bg-primary/10 cursor-pointer p-3"
+                >
+                  <Link to="/candidate/settings" className="w-full flex items-center">
+                    <Settings className="mr-2 h-4 w-4 text-emerald-500" />
+                    Cài đặt
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  className="cursor-pointer text-red-500 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/30"
+                  className="cursor-pointer p-3 font-semibold text-red-600 hover:bg-destructive/10 focus:text-red-600 dark:text-red-400 dark:hover:bg-destructive/15"
                   onClick={handleLogout}
                 >
+                  <LogOut className="mr-2 h-4 w-4" />
                   Đăng xuất
                 </DropdownMenuItem>
               </DropdownMenuContent>

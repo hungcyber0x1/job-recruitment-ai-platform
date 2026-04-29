@@ -1,321 +1,958 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
+  AlertCircle,
+  ArrowRight,
   Bookmark,
-  BookmarkCheck,
   Briefcase,
+  Building2,
   ChevronLeft,
   ChevronRight,
-  Filter,
+  Clock3,
+  FolderOpen,
   FolderPlus,
   Mail,
   MapPin,
   Plus,
+  Search,
+  Target,
   Trash2,
+  Users,
 } from 'lucide-react';
+
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import EmployerStatCard from '../../components/employer/EmployerStatCard';
 import { useNotification } from '../../context/NotificationContext';
+import { employerCandidateService } from '../../services';
+import { cn } from '../../utils';
 
-// ─── Mock data ───────────────────────────────────
-const FOLDERS = [
-  { id: 'all', name: 'Tất cả ứng viên', count: 48 },
-  { id: 'dev', name: 'Lập trình viên', count: 24 },
-  { id: 'design', name: 'UI/UX Designer', count: 12 },
-  { id: 'marketing', name: 'Marketing', count: 12 },
+const PAGE_SIZE = 12;
+const CUSTOM_FOLDER_KEY = 'employerTalentPoolFolders';
+
+const BASE_FOLDERS = [
+  { id: 'all', label: 'Tất cả' },
+  { id: 'general', label: 'Đã lưu' },
+  { id: 'engineering', label: 'Kỹ thuật' },
+  { id: 'design', label: 'Thiết kế' },
+  { id: 'marketing', label: 'Marketing' },
+  { id: 'leadership', label: 'Trưởng nhóm / Quản lý' },
 ];
 
-const CANDIDATES = [
-  {
-    id: 1,
-    name: 'Nguyễn Văn An',
-    role: 'Senior Frontend Dev',
-    roleColor: 'text-emerald-400',
-    experience: '5 năm kinh nghiệm',
-    jobType: 'Full-time',
-    location: 'Quận 1, TP. Hồ Chí Minh',
-    skills: ['ReactJS', 'TypeScript', 'Tailwind'],
-    folder: 'dev',
-    avatar: 'A',
-    avatarGradient: 'from-emerald-600 to-teal-800',
-  },
-  {
-    id: 2,
-    name: 'Trần Thị Mai',
-    role: 'UI/UX Designer',
-    roleColor: 'text-pink-400',
-    experience: '3 năm kinh nghiệm',
-    jobType: 'Remote',
-    location: 'Hà Nội',
-    skills: ['Figma', 'Adobe XD', 'Prototyping'],
-    folder: 'design',
-    avatar: 'M',
-    avatarGradient: 'from-pink-600 to-rose-800',
-  },
-  {
-    id: 3,
-    name: 'Lê Minh Tâm',
-    role: 'Backend Engineer',
-    roleColor: 'text-blue-400',
-    experience: '4 năm kinh nghiệm',
-    jobType: 'Hybrid',
-    location: 'Đà Nẵng',
-    skills: ['Node.js', 'PostgreSQL', 'AWS'],
-    folder: 'dev',
-    avatar: 'T',
-    avatarGradient: 'from-blue-600 to-blue-900',
-  },
-  {
-    id: 4,
-    name: 'Hoàng Thùy Dương',
-    role: 'Marketing Lead',
-    roleColor: 'text-amber-400',
-    experience: '7 năm kinh nghiệm',
-    jobType: 'Full-time',
-    location: 'Quận 7, TP. Hồ Chí Minh',
-    skills: ['SEO', 'Data Analysis', 'Growth'],
-    folder: 'marketing',
-    avatar: 'D',
-    avatarGradient: 'from-amber-600 to-orange-800',
-  },
+const SORT_OPTIONS = [
+  { value: 'recent', label: 'Lưu gần đây' },
+  { value: 'name', label: 'Tên A-Z' },
+  { value: 'experience', label: 'Kinh nghiệm cao' },
 ];
 
-const ITEMS_PER_PAGE = 4;
-
-// ─── Main page ────────────────────────────────────
-const SavedCandidatesPage = () => {
-  const { showNotification } = useNotification();
-  const [activeFolder, setActiveFolder] = useState('all');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [removedIds, setRemovedIds] = useState(new Set());
-  const [searchQuery] = useState('');
-
-  const handleCreateFolder = () => {
-    const name = window.prompt('Nhập tên thư mục mới:');
-    if (name) showNotification(`Đã tạo thư mục "${name}" thành công!`, 'success');
-  };
-
-  const handleFilter = () => {
-    showNotification('Tính năng lọc đang được phát triển.', 'info');
-  };
-
-  const filtered = useMemo(() => {
-    let result = CANDIDATES.filter((c) => !removedIds.has(c.id));
-    if (activeFolder !== 'all') result = result.filter((c) => c.folder === activeFolder);
-    return result.filter(
-      (c) =>
-        c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.role.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [activeFolder, removedIds, searchQuery]);
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
-  const paged = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
-
-  const handleRemove = (id) => {
-    setRemovedIds((prev) => new Set([...prev, id]));
-  };
-
-  return (
-    <div className="space-y-8 max-w-[1200px] mx-auto pb-20">
-      {/* ── Header ── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-tight">
-            Ứng viên đã lưu
-          </h1>
-          <p className="text-base font-medium text-slate-500 mt-1">
-            Quản lý các hồ sơ tiềm năng bạn đã đánh dấu để cân nhắc.
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleFilter}
-            className="flex h-11 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 text-base font-black text-slate-600 hover:border-emerald-200 hover:text-emerald-600 transition-all shadow-sm active:scale-95"
-          >
-            <Filter size={14} />
-            LỌC
-          </button>
-          <button
-            onClick={handleCreateFolder}
-            className="flex h-11 items-center gap-2 rounded-2xl bg-emerald-600 px-5 text-base font-black text-white hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/20 active:scale-95"
-          >
-            <FolderPlus size={14} />
-            TẠO THƯ MỤC MỚI
-          </button>
-        </div>
-      </div>
-
-      {/* ── Folder tabs ── */}
-      <div className="flex items-center gap-1 mb-6 border-b border-slate-100 bg-white/50 backdrop-blur-sm sticky top-0 z-10 p-1 rounded-t-2xl">
-        {FOLDERS.map((folder) => (
-          <button
-            key={folder.id}
-            onClick={() => {
-              setActiveFolder(folder.id);
-              setCurrentPage(1);
-            }}
-            className={`relative flex items-center gap-2 px-6 py-4 text-base font-black transition-all ${
-              activeFolder === folder.id
-                ? 'text-emerald-600 after:absolute after:bottom-0 after:inset-x-0 after:h-1 after:bg-emerald-600 after:rounded-full'
-                : 'text-slate-400 hover:text-foreground hover:bg-muted/35 rounded-xl'
-            }`}
-          >
-            {folder.name.toUpperCase()}
-            <span
-              className={`rounded-lg px-2 py-0.5 text-base font-black tabular-nums transition-all ${
-                activeFolder === folder.id
-                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/20'
-                  : 'bg-slate-100 text-slate-500'
-              }`}
-            >
-              {folder.count}
-            </span>
-          </button>
-        ))}
-      </div>
-
-      {/* ── Candidate grid ── */}
-      {paged.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 rounded-3xl border border-dashed border-slate-200 bg-white shadow-sm">
-          <div className="h-20 w-20 rounded-3xl bg-slate-50 flex items-center justify-center text-slate-300 mb-6">
-            <Bookmark size={40} />
-          </div>
-          <p className="text-slate-900 font-black text-xl tracking-tight">
-            Không có ứng viên nào trong danh sách này
-          </p>
-          <p className="text-slate-400 mt-2 font-medium">
-            Hãy bắt đầu tìm kiếm và lưu lại những tài năng tiềm năng.
-          </p>
-          <Link
-            to="/employer/search-candidates"
-            className="mt-8 flex items-center gap-2 rounded-2xl bg-slate-900 border border-slate-800 px-8 py-3.5 text-base font-black text-white hover:bg-black transition-all shadow-xl active:scale-95 uppercase tracking-widest"
-          >
-            <Plus size={16} />
-            Tìm ứng viên mới
-          </Link>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
-          {paged.map((candidate) => (
-            <div
-              key={candidate.id}
-              className="rounded-[32px] border border-slate-200 bg-white p-6 hover:border-emerald-200 hover:shadow-2xl transition-all group duration-300 hover:-translate-y-1"
-            >
-              {/* Header */}
-              <div className="flex items-start gap-4 mb-6">
-                <div
-                  className={`h-16 w-16 shrink-0 rounded-2xl bg-gradient-to-br ${candidate.avatarGradient} flex items-center justify-center text-white text-2xl font-black shadow-lg group-hover:scale-110 transition-transform duration-500`}
-                >
-                  {candidate.avatar}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <p className="font-black text-slate-900 text-lg tracking-tight group-hover:text-emerald-600 transition-colors">
-                        {candidate.name}
-                      </p>
-                      <p
-                        className={`text-base font-black uppercase tracking-widest mt-0.5 ${candidate.roleColor.replace('text-emerald-400', 'text-emerald-600').replace('text-pink-400', 'text-pink-600').replace('text-blue-400', 'text-blue-600').replace('text-amber-400', 'text-amber-600')}`}
-                      >
-                        {candidate.role}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => handleRemove(candidate.id)}
-                      className="flex h-8 w-8 items-center justify-center rounded-lg text-emerald-600 opacity-0 group-hover:opacity-100 bg-emerald-50 border border-emerald-100 transition-all hover:bg-emerald-600 hover:text-white"
-                      title="Bỏ lưu ứng viên"
-                    >
-                      <BookmarkCheck size={16} fill="currentColor" />
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-4 mt-3 text-base font-bold text-slate-500">
-                    <span className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">
-                      <Briefcase size={12} className="text-slate-400" />
-                      {(candidate.experience || 'N/A').toUpperCase()}
-                    </span>
-                    <span className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">
-                      <MapPin size={12} className="text-slate-400" />
-                      {candidate.location.toUpperCase()}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Skills */}
-              <div className="flex flex-wrap gap-2 mb-8">
-                {(candidate.skills || []).map((s) => (
-                  <span
-                    key={s}
-                    className="rounded-lg bg-emerald-50/50 border border-emerald-100 px-3 py-1 text-base font-black text-emerald-700 uppercase tracking-widest"
-                  >
-                    {s}
-                  </span>
-                ))}
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center gap-3 border-t border-slate-50 pt-6">
-                <Link
-                  to="/employer/messages"
-                  className="flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-400 hover:text-emerald-600 hover:border-emerald-200 hover:shadow-md transition-all active:scale-95"
-                  title="Nhắn tin"
-                >
-                  <Mail size={18} />
-                </Link>
-                <button
-                  onClick={() => handleRemove(candidate.id)}
-                  className="flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-400 hover:text-red-500 hover:border-red-200 hover:shadow-md transition-all active:scale-95"
-                  title="Xóa ứng viên"
-                >
-                  <Trash2 size={18} />
-                </button>
-                <Link
-                  to={`/employer/applications/${candidate.id}`}
-                  className="flex-1 h-12 flex items-center justify-center rounded-2xl bg-emerald-600 text-base font-black text-white hover:bg-emerald-700 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 active:scale-95 transition-all uppercase tracking-widest"
-                >
-                  XEM HỒ SƠ CHI TIẾT
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* ── Pagination ── */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-12 bg-white border border-slate-200 p-2 rounded-[24px] shadow-sm w-fit mx-auto">
-          <button
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
-            className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-100 text-slate-400 hover:text-foreground transition-all disabled:opacity-30 disabled:hover:bg-transparent"
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <div className="flex items-center gap-1.5 px-3">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`flex h-11 w-11 items-center justify-center rounded-2xl text-base font-black transition-all ${
-                  page === currentPage
-                    ? 'bg-slate-900 text-white shadow-lg'
-                    : 'text-slate-400 hover:text-foreground hover:bg-muted/35'
-                }`}
-              >
-                {page}
-              </button>
-            ))}
-          </div>
-          <button
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            disabled={currentPage === totalPages}
-            className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-100 text-slate-400 hover:text-foreground transition-all disabled:opacity-30 disabled:hover:bg-transparent"
-          >
-            <ChevronRight size={20} />
-          </button>
-        </div>
-      )}
-    </div>
-  );
+const CARD_TONES = {
+  emerald: {
+    accent: 'bg-emerald-500',
+    line: 'from-emerald-400/80 via-emerald-300/25 to-transparent',
+    icon: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
+    soft: 'bg-emerald-50 text-emerald-700',
+  },
+  blue: {
+    accent: 'bg-sky-500',
+    line: 'from-sky-400/80 via-sky-300/25 to-transparent',
+    icon: 'bg-sky-50 text-sky-700 ring-sky-100',
+    soft: 'bg-sky-50 text-sky-700',
+  },
+  amber: {
+    accent: 'bg-amber-500',
+    line: 'from-amber-400/80 via-amber-300/25 to-transparent',
+    icon: 'bg-amber-50 text-amber-700 ring-amber-100',
+    soft: 'bg-amber-50 text-amber-700',
+  },
+  violet: {
+    accent: 'bg-violet-500',
+    line: 'from-violet-400/80 via-violet-300/25 to-transparent',
+    icon: 'bg-violet-50 text-violet-700 ring-violet-100',
+    soft: 'bg-violet-50 text-violet-700',
+  },
+  slate: {
+    accent: 'bg-slate-400',
+    line: 'from-slate-400/70 via-slate-300/25 to-transparent',
+    icon: 'bg-slate-100 text-slate-700 ring-slate-200',
+    soft: 'bg-slate-50 text-slate-700',
+  },
 };
 
-export default SavedCandidatesPage;
+const getCardTone = (tone) => CARD_TONES[tone] || CARD_TONES.emerald;
+
+const formatNumber = (value) => new Intl.NumberFormat('vi-VN').format(Number(value) || 0);
+
+const getInitials = (name = '') =>
+  name
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2) || 'UV';
+
+const formatExperience = (years) => {
+  const value = Number(years) || 0;
+  if (value <= 0) return 'Mới tốt nghiệp';
+  if (value === 1) return '1 năm kinh nghiệm';
+  return `${value} năm kinh nghiệm`;
+};
+
+const formatSavedAt = (value) => {
+  if (!value) return 'Vừa lưu';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Vừa lưu';
+
+  return new Intl.DateTimeFormat('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(date);
+};
+
+const createFolderId = (name) =>
+  name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+    .slice(0, 80) || 'custom';
+
+const getStoredFolders = () => {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(CUSTOM_FOLDER_KEY) || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
+const getPriorityMeta = (score) => {
+  if (score >= 85) {
+    return {
+      badgeClass: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+      statTone: 'emerald',
+      noteTitle: 'Ưu tiên danh sách rút gọn',
+      note:
+        'Hồ sơ này đang có độ phù hợp cao, thích hợp để giữ ở nhóm ưu tiên và tiếp cận sớm.',
+    };
+  }
+
+  if (score >= 70) {
+    return {
+      badgeClass: 'border-amber-200 bg-amber-50 text-amber-700',
+      statTone: 'amber',
+      noteTitle: 'Có tiềm năng',
+      note: 'Có nhiều tín hiệu phù hợp, nên tiếp tục theo dõi hoặc so sánh với danh sách rút gọn hiện tại.',
+    };
+  }
+
+  return {
+    badgeClass: 'border-slate-200 bg-slate-50 text-slate-700',
+    statTone: 'slate',
+    noteTitle: 'Cần rà soát thêm',
+    note: 'Hồ sơ nên được xem kỹ hơn trước khi tiếp tục giữ lâu trong kho ứng viên.',
+  };
+};
+
+function SearchBox({ value, onChange }) {
+  return (
+    <label className="relative block min-w-0 flex-1">
+      <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+      <input
+        type="search"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder="Tìm theo tên, vị trí, kỹ năng..."
+        className="h-12 w-full rounded-lg border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm font-medium text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100"
+      />
+    </label>
+  );
+}
+
+function FolderTab({ folder, active, isCustom, onSelect, onDelete }) {
+  const FolderIcon = folder.id === 'all' ? Bookmark : FolderOpen;
+  const styles = getCardTone(folder.id === 'all' ? 'emerald' : isCustom ? 'violet' : 'slate');
+
+  return (
+    <div className="group relative flex items-center">
+      <button
+        type="button"
+        onClick={onSelect}
+        className={cn(
+          'inline-flex min-h-11 items-center gap-2 rounded-lg border px-4 pr-3 text-sm font-bold transition-colors duration-200',
+          active
+            ? 'border-emerald-600 bg-emerald-600 text-white shadow-sm shadow-emerald-900/10'
+            : 'border-slate-200 bg-white text-slate-600 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700'
+        )}
+      >
+        <FolderIcon className="h-3.5 w-3.5" />
+        <span>{folder.label}</span>
+        <span
+          className={cn(
+            'inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold',
+            active ? 'bg-white/20 text-white' : styles.soft
+          )}
+        >
+          {formatNumber(folder.count)}
+        </span>
+      </button>
+
+      {isCustom ? (
+        <button
+          type="button"
+          onClick={onDelete}
+          className={cn(
+            'absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full text-xs transition-all',
+            active
+              ? 'bg-rose-500 text-white opacity-0 group-hover:opacity-100 hover:bg-rose-600'
+              : 'bg-slate-200 text-slate-500 hover:bg-rose-500 hover:text-white'
+          )}
+          title="Xóa thư mục"
+        >
+          ×
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+function CandidateCard({ candidate, folders, updating, onMoveFolder, onRemove }) {
+  const skills = Array.isArray(candidate.skills) ? candidate.skills : [];
+  const detailPath = candidate.application_id
+    ? `/employer/applications/${candidate.application_id}`
+    : `/employer/search-candidates?q=${encodeURIComponent(candidate.name || '')}`;
+  const folderLabel =
+    folders.find((folder) => folder.id === (candidate.saved_folder || 'general'))?.label || 'Đã lưu';
+  const priorityScore = Number(candidate.score ?? candidate.ai_score ?? 0);
+  const priorityMeta = getPriorityMeta(priorityScore);
+  const priorityTone = priorityMeta.statTone || 'slate';
+  const priorityStyles = getCardTone(priorityTone);
+
+  return (
+    <article className="group relative overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-100/40">
+      <div className={cn('absolute inset-y-0 left-0 w-1', priorityStyles.accent)} />
+
+      <div className="p-5 pl-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="flex min-w-0 flex-1 gap-3">
+            <Avatar className="h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-slate-100 bg-slate-50 shadow-sm ring-1 ring-inset ring-slate-100">
+              <AvatarFallback className="rounded-lg bg-slate-950 text-sm font-bold text-white">
+                {getInitials(candidate.name)}
+              </AvatarFallback>
+            </Avatar>
+
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="line-clamp-2 text-base font-bold leading-tight tracking-normal text-slate-950 transition-colors group-hover:text-emerald-700">
+                  {candidate.name || 'Ứng viên đang cập nhật'}
+                </h3>
+
+                <span
+                  className={cn(
+                    'inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold shadow-sm',
+                    priorityMeta.badgeClass
+                  )}
+                >
+                  {priorityMeta.noteTitle}
+                </span>
+
+                <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-semibold text-slate-600">
+                  {folderLabel}
+                </span>
+              </div>
+
+              <p className="mt-2 text-sm font-semibold text-slate-600">
+                {candidate.role || 'Vị trí đang cập nhật'}
+              </p>
+
+              <div className="mt-2 flex flex-wrap gap-2 text-xs font-medium text-slate-500">
+                <span className="inline-flex items-center gap-1 rounded-md bg-slate-50 px-2.5 py-1 ring-1 ring-inset ring-slate-100">
+                  <Briefcase className="h-3 w-3 text-emerald-500" />
+                  {formatExperience(candidate.experience_years)}
+                </span>
+                <span className="inline-flex min-w-0 items-center gap-1 rounded-md bg-slate-50 px-2.5 py-1 ring-1 ring-inset ring-slate-100">
+                  <MapPin className="h-3 w-3 shrink-0 text-emerald-500" />
+                  <span className="truncate">{candidate.location || 'Linh hoạt'}</span>
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-md bg-slate-50 px-2.5 py-1 ring-1 ring-inset ring-slate-100">
+                  <Clock3 className="h-3 w-3" />
+                  Lưu {formatSavedAt(candidate.saved_at)}
+                </span>
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                {skills.length > 0 ? (
+                  <>
+                    {skills.slice(0, 5).map((skill) => (
+                      <span
+                        key={skill}
+                        className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-600"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                    {skills.length > 5 ? (
+                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-500">
+                        +{skills.length - 5}
+                      </span>
+                    ) : null}
+                  </>
+                ) : (
+                  <span className="rounded-full border border-dashed border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-medium text-slate-500">
+                    Hồ sơ chưa cập nhật kỹ năng
+                  </span>
+                )}
+              </div>
+
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500">
+                {priorityMeta.note}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex shrink-0 flex-col gap-2 lg:w-[280px] lg:items-end">
+            <div className="flex w-full flex-wrap gap-2 lg:justify-end lg:flex-nowrap">
+              <Button
+                asChild
+                size="sm"
+                className="h-9 rounded-lg bg-emerald-600 px-3 text-xs font-bold text-white shadow-sm shadow-emerald-900/10 hover:bg-emerald-700"
+              >
+                <Link to={detailPath}>
+                  Chi tiết
+                  <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="sm"
+                variant="outline"
+                className="h-9 rounded-lg border-slate-200 px-3 text-xs font-bold text-slate-700 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
+              >
+                <Link
+                  to={`/employer/messages?candidateId=${candidate.id}&candidateName=${encodeURIComponent(candidate.name || '')}`}
+                >
+                  <Mail className="mr-1 h-3.5 w-3.5" />
+                  Nhắn
+                </Link>
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                disabled={updating}
+                onClick={() => onRemove(candidate)}
+                className="h-9 w-9 rounded-lg border border-slate-200 bg-white text-slate-400 hover:bg-rose-50 hover:text-rose-600"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+
+            <Select
+              value={candidate.saved_folder || 'general'}
+              onValueChange={(folder) => onMoveFolder(candidate, folder)}
+              disabled={updating}
+            >
+              <SelectTrigger className="h-10 w-full rounded-lg border-slate-200 bg-white text-xs font-semibold text-slate-700 lg:w-[220px]">
+                <SelectValue placeholder="Chọn thư mục" />
+              </SelectTrigger>
+              <SelectContent>
+                {folders
+                  .filter((folder) => folder.id !== 'all')
+                  .map((folder) => (
+                    <SelectItem key={folder.id} value={folder.id}>
+                      {folder.label}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function SkeletonGrid() {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: 4 }, (_, index) => (
+        <div
+          key={index}
+          className="h-36 animate-pulse rounded-lg border border-slate-200 bg-slate-50"
+        />
+      ))}
+    </div>
+  );
+}
+
+export default function SavedCandidatesPage() {
+  const { showNotification } = useNotification();
+  const [activeFolder, setActiveFolder] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('recent');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [candidates, setCandidates] = useState([]);
+  const [pagination, setPagination] = useState({ page: 1, limit: PAGE_SIZE, total: 0, totalPages: 1 });
+  const [stats, setStats] = useState({ savedCandidates: 0, folderCounts: [] });
+  const [customFolders, setCustomFolders] = useState(getStoredFolders);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [updatingIds, setUpdatingIds] = useState(() => new Set());
+
+  const folders = useMemo(() => {
+    const countMap = new Map();
+    (stats.folderCounts || []).forEach((item) => {
+      countMap.set(item.folder, Number(item.count || 0));
+    });
+
+    const dynamicFolders = (stats.folderCounts || []).map((item) => ({
+      id: item.folder,
+      label:
+        [...BASE_FOLDERS, ...customFolders].find((folder) => folder.id === item.folder)?.label ||
+        item.folder,
+    }));
+
+    const merged = [...BASE_FOLDERS, ...customFolders, ...dynamicFolders].reduce((acc, folder) => {
+      if (!acc.some((item) => item.id === folder.id)) acc.push(folder);
+      return acc;
+    }, []);
+
+    return merged.map((folder) => ({
+      ...folder,
+      count: folder.id === 'all' ? stats.savedCandidates || 0 : countMap.get(folder.id) || 0,
+    }));
+  }, [customFolders, stats.folderCounts, stats.savedCandidates]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const timer = window.setTimeout(async () => {
+      setLoading(true);
+      setError('');
+
+      try {
+        const params = {
+          page: currentPage,
+          limit: PAGE_SIZE,
+          sort: sortBy,
+        };
+        if (activeFolder !== 'all') params.folder = activeFolder;
+        if (searchQuery.trim()) params.search = searchQuery.trim();
+
+        const response = await employerCandidateService.getTalentPool(params);
+        if (cancelled) return;
+
+        setCandidates(Array.isArray(response.data?.data) ? response.data.data : []);
+        setPagination(
+          response.data?.meta?.pagination || { page: currentPage, limit: PAGE_SIZE, total: 0, totalPages: 1 }
+        );
+        setStats(response.data?.meta?.stats || { savedCandidates: 0, folderCounts: [] });
+      } catch (fetchError) {
+        if (cancelled) return;
+        console.error('Failed to fetch talent pool:', fetchError);
+        setCandidates([]);
+        setPagination({ page: 1, limit: PAGE_SIZE, total: 0, totalPages: 1 });
+        setStats({ savedCandidates: 0, folderCounts: [] });
+        setError('Không tải được kho ứng viên. Vui lòng kiểm tra API hoặc đăng nhập lại.');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }, 250);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [activeFolder, currentPage, refreshKey, searchQuery, sortBy]);
+
+  const totalPages = Math.max(1, Number(pagination.totalPages) || 1);
+
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+  }, [currentPage, totalPages]);
+
+  const persistCustomFolders = (nextFolders) => {
+    setCustomFolders(nextFolders);
+    localStorage.setItem(CUSTOM_FOLDER_KEY, JSON.stringify(nextFolders));
+  };
+
+  const handleDeleteFolder = (folder) => {
+    if (!customFolders.some((f) => f.id === folder.id)) {
+      showNotification('Không thể xóa thư mục mặc định.', 'warning');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Xóa thư mục "${folder.label}"? Các ứng viên trong thư mục này sẽ được chuyển về "Đã lưu".`
+    );
+    if (!confirmed) return;
+
+    const nextFolders = customFolders.filter((f) => f.id !== folder.id);
+    persistCustomFolders(nextFolders);
+
+    if (activeFolder === folder.id) {
+      setActiveFolder('general');
+    }
+
+    setCurrentPage(1);
+    showNotification(`Đã xóa thư mục "${folder.label}".`, 'success');
+  };
+
+  const handleCreateFolder = () => {
+    const name = window.prompt('Nhập tên thư mục kho ứng viên mới:');
+    const label = String(name || '').trim();
+    if (!label) return;
+
+    const id = createFolderId(label);
+    if (folders.some((folder) => folder.id === id)) {
+      showNotification('Thư mục này đã tồn tại.', 'info');
+      setActiveFolder(id);
+      return;
+    }
+
+    const nextFolders = [...customFolders, { id, label }];
+    persistCustomFolders(nextFolders);
+    setActiveFolder(id);
+    setCurrentPage(1);
+    showNotification(`Đã tạo thư mục "${label}".`, 'success');
+  };
+
+  const updateCandidateInFlight = (candidateId, updating) => {
+    setUpdatingIds((previous) => {
+      const next = new Set(previous);
+      if (updating) next.add(candidateId);
+      else next.delete(candidateId);
+      return next;
+    });
+  };
+
+  const handleMoveFolder = async (candidate, folder) => {
+    if (folder === candidate.saved_folder) return;
+
+    updateCandidateInFlight(candidate.id, true);
+    const previousFolder = candidate.saved_folder;
+    setCandidates((previous) =>
+      previous.map((item) => (item.id === candidate.id ? { ...item, saved_folder: folder } : item))
+    );
+
+    try {
+      await employerCandidateService.updateSavedCandidate(candidate.id, { folder });
+      showNotification('Đã cập nhật thư mục kho ứng viên.', 'success');
+      setRefreshKey((value) => value + 1);
+    } catch (moveError) {
+      console.error('Failed to move saved candidate:', moveError);
+      setCandidates((previous) =>
+        previous.map((item) =>
+          item.id === candidate.id ? { ...item, saved_folder: previousFolder } : item
+        )
+      );
+      showNotification('Không cập nhật được thư mục. Vui lòng thử lại.', 'error');
+    } finally {
+      updateCandidateInFlight(candidate.id, false);
+    }
+  };
+
+  const handleRemove = async (candidate) => {
+    const confirmed = window.confirm(`Bỏ "${candidate.name}" khỏi kho ứng viên?`);
+    if (!confirmed) return;
+
+    updateCandidateInFlight(candidate.id, true);
+    const previousCandidates = candidates;
+    setCandidates((current) => current.filter((item) => item.id !== candidate.id));
+
+    try {
+      await employerCandidateService.removeSavedCandidate(candidate.id);
+      showNotification('Đã xóa ứng viên khỏi kho ứng viên.', 'success');
+      setRefreshKey((value) => value + 1);
+    } catch (removeError) {
+      console.error('Failed to remove saved candidate:', removeError);
+      setCandidates(previousCandidates);
+      showNotification('Không xóa được ứng viên. Vui lòng thử lại.', 'error');
+    } finally {
+      updateCandidateInFlight(candidate.id, false);
+    }
+  };
+
+  const resetFilters = () => {
+    setActiveFolder('all');
+    setSearchQuery('');
+    setSortBy('recent');
+    setCurrentPage(1);
+  };
+
+  const activeFolderMeta = folders.find((folder) => folder.id === activeFolder) || folders[0] || BASE_FOLDERS[0];
+  const activeSortLabel = SORT_OPTIONS.find((option) => option.value === sortBy)?.label || SORT_OPTIONS[0].label;
+  const customFolderCount = customFolders.length;
+  const managedFolderCount = Math.max(folders.length - 1, 0);
+  const priorityCount = candidates.filter((candidate) => Number(candidate.score ?? candidate.ai_score ?? 0) >= 80).length;
+  const activeFilters = [
+    activeFolder !== 'all' ? `Nhóm: ${activeFolderMeta.label}` : null,
+    searchQuery.trim() ? `Từ khóa: ${searchQuery.trim()}` : null,
+    sortBy !== 'recent' ? `Sắp xếp: ${activeSortLabel}` : null,
+  ].filter(Boolean);
+  const activeFilterCount = activeFilters.length;
+
+  const insightHeader = useMemo(() => {
+    if (loading) {
+      return {
+        title: 'Đang đồng bộ kho ứng viên',
+        description: 'Hệ thống đang rà lại các hồ sơ đã lưu để cập nhật nhanh trạng thái theo nhóm.',
+      };
+    }
+
+    if (error) {
+      return {
+        title: 'Cần kiểm tra kết nối dữ liệu',
+        description: 'Các nhận định trong kho ứng viên tạm thời chưa sẵn sàng vì dữ liệu chưa tải được.',
+      };
+    }
+
+    if (!stats.savedCandidates) {
+      return {
+        title: 'Kho ứng viên đang trống',
+        description: 'Bắt đầu từ tìm kiếm ứng viên để lưu các hồ sơ tiềm năng và tổ chức thành từng nhóm.',
+      };
+    }
+
+    if (activeFolder !== 'all') {
+      return {
+        title: `Đang rà soát nhóm ${activeFolderMeta.label}`,
+        description: 'Bạn có thể tiếp tục phân loại, nhắn tin hoặc dọn lại nhóm hiện tại để dễ theo dõi.',
+      };
+    }
+
+    if (priorityCount >= Math.max(2, Math.ceil(candidates.length / 3))) {
+      return {
+        title: 'Danh sách rút gọn đang có chất lượng tốt',
+        description: `Có ${formatNumber(priorityCount)} hồ sơ nên xem trước trong trang hiện tại.`,
+      };
+    }
+
+    return {
+      title: 'Kho ứng viên đã sẵn sàng để điều phối',
+      description: 'Tiếp tục gom hồ sơ theo nhóm chuyên biệt để dễ quản lý quy trình tuyển dụng và ưu tiên liên hệ.',
+    };
+  }, [activeFolder, activeFolderMeta.label, candidates.length, error, priorityCount, loading, stats.savedCandidates]);
+
+  return (
+    <div className="min-h-screen bg-slate-50/40 pb-16 animate-fade-in">
+      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-40"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px)',
+            backgroundSize: '32px 32px',
+          }}
+        />
+
+        <div className="relative mx-auto max-w-7xl px-4 pb-6 pt-8 sm:px-6 lg:px-8">
+          <div className="mb-6 max-w-4xl space-y-4">
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-white shadow-sm shadow-slate-900/10">
+                <Building2 className="h-5 w-5" strokeWidth={2.5} />
+              </div>
+              <div className="space-y-3">
+                <span className="inline-flex rounded-full bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-600 ring-1 ring-inset ring-slate-200/80">
+                  Kho ứng viên
+                </span>
+                <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-950 sm:text-[2.35rem]">
+                  Trung tâm điều phối ứng viên đã lưu
+                </h1>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 sm:text-[15px]">
+                  {insightHeader.description}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <EmployerStatCard
+              icon={Bookmark}
+              label="Đã lưu"
+              value={formatNumber(stats.savedCandidates || 0)}
+              helper="Hồ sơ trong kho"
+              tone="emerald"
+              loading={loading}
+            />
+            <EmployerStatCard
+              icon={FolderOpen}
+              label="Thư mục"
+              value={formatNumber(managedFolderCount)}
+              helper={`${formatNumber(customFolderCount)} thư mục tùy chỉnh`}
+              tone="violet"
+              loading={loading}
+            />
+            <EmployerStatCard
+              icon={Target}
+              label="Ưu tiên cao"
+              value={formatNumber(priorityCount)}
+              helper="Nên xem trước trong trang"
+              tone="amber"
+              loading={loading}
+            />
+            <EmployerStatCard
+              icon={Users}
+              label="Nhóm đang xem"
+              value={formatNumber(activeFolderMeta.count || 0)}
+              helper={activeFolder !== 'all' ? activeFolderMeta.label : 'Toàn bộ danh sách'}
+              tone="blue"
+              loading={loading}
+            />
+          </div>
+
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            <Button
+              asChild
+              variant="outline"
+              className="h-11 justify-start rounded-xl border-slate-950 bg-slate-950 px-4 text-sm font-semibold text-white shadow-sm hover:border-emerald-600 hover:bg-emerald-600 hover:text-white sm:w-auto"
+            >
+              <Link to="/employer/search-candidates">
+                <Plus className="mr-2 h-4 w-4 text-white" />
+                Tìm ứng viên
+              </Link>
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleCreateFolder}
+              className="h-11 justify-start rounded-xl border-slate-200/90 bg-white/90 px-4 text-sm font-semibold text-slate-700 shadow-sm hover:border-emerald-200 hover:bg-white hover:text-emerald-700 sm:w-auto"
+            >
+              <FolderPlus className="mr-2 h-4 w-4 text-emerald-600" />
+              Tạo thư mục
+            </Button>
+
+            {activeFilterCount ? (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={resetFilters}
+                className="h-11 justify-start rounded-xl border-slate-200/90 bg-white/90 px-4 text-sm font-semibold text-slate-700 shadow-sm hover:border-emerald-200 hover:bg-white hover:text-emerald-700 sm:w-auto"
+              >
+                Xóa lọc
+              </Button>
+            ) : null}
+          </div>
+        </div>
+      </div>
+
+      <main className="mx-auto max-w-7xl px-4 pt-5 sm:px-6 lg:px-8">
+        <div className="mb-4 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+          <div className="overflow-x-auto">
+            <div className="flex min-w-max gap-2">
+              {folders.map((folder) => {
+                const isCustom = customFolders.some((customFolder) => customFolder.id === folder.id);
+
+                return (
+                  <FolderTab
+                    key={folder.id}
+                    folder={folder}
+                    active={activeFolder === folder.id}
+                    isCustom={isCustom}
+                    onSelect={() => {
+                      setActiveFolder(folder.id);
+                      setCurrentPage(1);
+                    }}
+                    onDelete={(event) => {
+                      event.stopPropagation();
+                      handleDeleteFolder(folder);
+                    }}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        <section className="min-w-0 space-y-4">
+          <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <SearchBox
+                value={searchQuery}
+                onChange={(value) => {
+                  setSearchQuery(value);
+                  setCurrentPage(1);
+                }}
+              />
+
+              <Select
+                value={sortBy}
+                onValueChange={(value) => {
+                  setSortBy(value);
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="h-12 w-full rounded-lg border-slate-200 bg-white text-sm font-medium text-slate-700 md:w-[200px]">
+                  <SelectValue placeholder="Sắp xếp" />
+                </SelectTrigger>
+                <SelectContent className="rounded-lg border-slate-200 shadow-xl">
+                  {SORT_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value} className="text-sm font-medium">
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {activeFilterCount ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={resetFilters}
+                  className="h-12 rounded-lg border-slate-200 bg-white px-4 text-sm font-semibold text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                >
+                  Xóa lọc
+                </Button>
+              ) : null}
+            </div>
+
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+              <span>
+                Hiển thị <strong className="text-slate-700">{formatNumber(pagination.total || 0)}</strong> ứng viên ·{' '}
+                {activeFolderMeta.label}
+              </span>
+              <span>
+                <strong className="text-slate-700">{formatNumber(priorityCount)}</strong> ưu tiên cao ·{' '}
+                <strong className="text-slate-700">{formatNumber(customFolderCount)}</strong> thư mục tùy chỉnh
+              </span>
+              {activeFilterCount > 0 ? (
+                <span className="rounded-full border border-slate-200 bg-white px-2.5 py-0.5 text-xs font-semibold text-slate-600">
+                  {activeFilterCount} bộ lọc
+                </span>
+              ) : null}
+              {activeFilters.length > 0 ? (
+                <div className="flex flex-wrap gap-1">
+                  {activeFilters.map((item) => (
+                    <span
+                      key={item}
+                      className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs font-semibold text-slate-600"
+                    >
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          {error ? (
+            <div className="flex items-start gap-3 rounded-lg border border-rose-200 bg-rose-50 px-4 py-4 text-sm font-semibold text-rose-700">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+              {error}
+            </div>
+          ) : null}
+
+          <div>
+            <div className="mb-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FolderOpen className="h-4 w-4 text-emerald-600" />
+                <span className="text-sm font-bold text-slate-700">
+                  {loading ? 'Đang đồng bộ ứng viên' : `${formatNumber(pagination.total || 0)} ứng viên`}
+                </span>
+              </div>
+              {totalPages > 1 ? (
+                <span className="text-xs text-slate-400">
+                  Trang {currentPage}/{totalPages}
+                </span>
+              ) : null}
+            </div>
+
+            {loading ? (
+              <SkeletonGrid />
+            ) : candidates.length === 0 ? (
+              <div className="rounded-lg border border-dashed border-slate-300 bg-white px-6 py-12 text-center shadow-sm">
+                <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-lg bg-slate-50 text-slate-400 shadow-sm ring-1 ring-inset ring-slate-200">
+                  <Users className="h-8 w-8" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-950">Chưa có ứng viên trong nhóm này</h3>
+                <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-500">
+                  Lưu ứng viên từ trang tìm kiếm hoặc đổi sang nhóm khác để tiếp tục xem danh sách rút gọn đang có
+                  trong kho ứng viên.
+                </p>
+                <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
+                  <Button asChild className="h-11 rounded-lg bg-emerald-600 px-6 font-bold hover:bg-emerald-700">
+                    <Link to="/employer/search-candidates">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Tìm ứng viên mới
+                    </Link>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={resetFilters}
+                    className="h-11 rounded-lg border-slate-200 px-6 font-bold"
+                  >
+                    Đặt lại bộ lọc
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-3">
+                  {candidates.map((candidate) => (
+                    <CandidateCard
+                      key={candidate.id}
+                      candidate={candidate}
+                      folders={folders}
+                      updating={updatingIds.has(candidate.id)}
+                      onMoveFolder={handleMoveFolder}
+                      onRemove={handleRemove}
+                    />
+                  ))}
+                </div>
+
+                {totalPages > 1 ? (
+                  <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+                    <button
+                      type="button"
+                      disabled={currentPage <= 1}
+                      onClick={() => setCurrentPage((value) => Math.max(1, value - 1))}
+                      className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 transition hover:border-emerald-200 hover:text-emerald-600 disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                      <button
+                        key={page}
+                        type="button"
+                        onClick={() => setCurrentPage(page)}
+                        className={cn(
+                          'flex h-10 min-w-[40px] items-center justify-center rounded-lg px-3 text-sm font-bold transition-all',
+                          page === currentPage
+                            ? 'bg-emerald-500 text-white shadow-sm'
+                            : 'border border-slate-200 bg-white text-slate-500 hover:border-emerald-200 hover:text-emerald-600'
+                        )}
+                      >
+                        {page}
+                      </button>
+                    ))}
+
+                    <button
+                      type="button"
+                      disabled={currentPage >= totalPages}
+                      onClick={() => setCurrentPage((value) => Math.min(totalPages, value + 1))}
+                      className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 transition hover:border-emerald-200 hover:text-emerald-600 disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                ) : null}
+              </>
+            )}
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}

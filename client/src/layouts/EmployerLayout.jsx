@@ -9,7 +9,6 @@ import {
   Building2,
   Calendar,
   Grid3X3,
-  Home,
   LogOut,
   Menu,
   MessageSquare,
@@ -19,6 +18,7 @@ import {
   Users,
   Workflow,
 } from 'lucide-react';
+import { AccountHomeLink, Logo } from '@/components/common';
 import { useAuth } from '../context/AuthContext';
 import { resolveMediaUrl } from '@/utils/mediaUrl';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -33,7 +33,43 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/utils';
-import { jobService, applicationService } from '../services';
+import jobService from '../services/jobService';
+import applicationService from '../services/applicationService';
+import messageService from '../services/messageService';
+
+const isApplicationsListView = (location) =>
+  location.pathname === '/employer/applications' &&
+  new URLSearchParams(location.search).get('view') === 'list';
+
+const isApplicationsPipelineView = (location) => {
+  if (location.pathname.startsWith('/employer/applications/')) {
+    return true;
+  }
+
+  return (
+    location.pathname === '/employer/applications' &&
+    new URLSearchParams(location.search).get('view') !== 'list'
+  );
+};
+
+const isEmployerNavItemActive = (item, location) => {
+  if (typeof item.match === 'function') {
+    return item.match(location);
+  }
+
+  if (item.path === '/employer/dashboard') {
+    return location.pathname === item.path;
+  }
+
+  if (item.path === '/employer/jobs') {
+    return (
+      location.pathname.startsWith('/employer/jobs') &&
+      !location.pathname.startsWith('/employer/jobs/post')
+    );
+  }
+
+  return location.pathname === item.path || location.pathname.startsWith(`${item.path}/`);
+};
 
 const navigationByRole = {
   employer: [
@@ -43,17 +79,23 @@ const navigationByRole = {
         { path: '/employer/dashboard', label: 'Dashboard', icon: Grid3X3 },
         { path: '/employer/jobs/post', label: 'Đăng việc mới', icon: Plus },
         { path: '/employer/jobs', label: 'Quản lý việc', icon: Briefcase, badgeKey: 'jobs' },
-        { path: '/employer/applications', label: 'Pipeline AI', icon: Workflow },
+        {
+          path: '/employer/applications',
+          label: 'Pipeline',
+          icon: Workflow,
+          match: isApplicationsPipelineView,
+        },
       ],
     },
     {
       title: 'ỨNG VIÊN',
       items: [
         {
-          path: '/employer/applications',
+          path: '/employer/applications?view=list',
           label: 'Hồ sơ ứng viên',
           icon: Users,
           badgeKey: 'candidates',
+          match: isApplicationsListView,
         },
         { path: '/employer/search-candidates', label: 'Tìm ứng viên AI', icon: Search },
         { path: '/employer/saved-candidates', label: 'Đã lưu', icon: Bookmark },
@@ -93,14 +135,22 @@ const EmployerSidebarContent = ({ role = 'employer', badgeCounts = {}, user }) =
     <div className="z-50 flex h-full flex-col border-r border-slate-800 bg-[#0B1120] text-slate-200">
       {/* Logo — nền nhẹ theo primary, tách lớp với nội dung chính */}
       <div className="border-b border-slate-800 bg-gradient-to-br from-primary/[0.12] via-primary/[0.05] to-transparent px-5 py-5">
-        <Link to="/employer/dashboard" className="group flex items-center gap-3">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition-transform group-hover:scale-[1.03]">
-            <Briefcase className="h-6 w-6" aria-hidden />
-          </div>
-          <span className="min-w-0 truncate text-lg font-black tracking-tight text-slate-50">
-            Recruiter
-            <span className="text-primary"> Hub</span>
+        <Link
+          to="/employer/dashboard"
+          className="group flex w-full flex-col items-center gap-3 text-center"
+        >
+          <Logo
+            asLink={false}
+            className="mx-auto h-10 w-auto max-w-[172px] object-center transition-transform duration-200 group-hover:scale-[1.02]"
+          />
+          <span className="hidden min-w-0 truncate text-lg font-black tracking-tight text-slate-50">
+            Trung tâm
+            <span className="text-primary"> Tuyển dụng</span>
           </span>
+          <div className="space-y-1 text-center">
+            <p className="text-base font-semibold text-slate-50">Nhà tuyển dụng</p>
+            <p className="text-xs font-medium text-slate-400">Quản lý tuyển dụng và ứng viên</p>
+          </div>
         </Link>
       </div>
 
@@ -116,14 +166,7 @@ const EmployerSidebarContent = ({ role = 'employer', badgeCounts = {}, user }) =
                 {group.items.map((item) => {
                   const Icon = item.icon;
                   const count = item.badgeKey ? badgeCounts[item.badgeKey] : null;
-                  const active =
-                    location.pathname === item.path ||
-                    (item.path !== '/employer/dashboard' &&
-                      item.path !== '/employer/jobs' &&
-                      location.pathname.startsWith(item.path)) ||
-                    (item.path === '/employer/jobs' &&
-                      location.pathname.startsWith('/employer/jobs') &&
-                      !location.pathname.startsWith('/employer/jobs/post'));
+                  const active = isEmployerNavItemActive(item, location);
 
                   return (
                     <NavLink
@@ -157,11 +200,11 @@ const EmployerSidebarContent = ({ role = 'employer', badgeCounts = {}, user }) =
                           className={cn(
                             'h-6 min-w-6 rounded-full px-2 text-sm font-semibold',
                             item.badgeKey === 'jobs' &&
-                              'border border-primary/25 bg-primary/15 text-primary dark:bg-primary/20',
+                            'border border-primary/25 bg-primary/15 text-primary dark:bg-primary/20',
                             item.badgeKey === 'candidates' &&
-                              'border border-primary/25 bg-primary/15 text-primary dark:bg-primary/20',
+                            'border border-primary/25 bg-primary/15 text-primary dark:bg-primary/20',
                             item.badgeKey === 'messages' &&
-                              'border border-destructive/30 bg-destructive/15 text-destructive dark:bg-destructive/20 dark:text-red-400'
+                            'border border-destructive/30 bg-destructive/15 text-destructive dark:bg-destructive/20 dark:text-red-400'
                           )}
                         >
                           {count > 99 ? '99+' : count}
@@ -223,7 +266,7 @@ const EmployerLayout = ({ children }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const [badgeCounts, setBadgeCounts] = useState({ jobs: 0, candidates: 0, messages: 5 });
+  const [badgeCounts, setBadgeCounts] = useState({ jobs: 0, candidates: 0, messages: 0 });
 
   const handleLogout = async () => {
     await logout();
@@ -252,6 +295,15 @@ const EmployerLayout = ({ children }) => {
           );
           setBadgeCounts((prev) => ({ ...prev, candidates: total }));
         }
+
+        const messageRes = await messageService
+          .getConversations({ limit: 100 })
+          .catch(() => ({ data: { data: { unread_total: 0 } } }));
+        const messagePayload = messageRes.data?.data || messageRes.data || {};
+        setBadgeCounts((prev) => ({
+          ...prev,
+          messages: Number(messagePayload.unread_total || 0),
+        }));
       } catch {
         // keep default counts
       }
@@ -288,7 +340,7 @@ const EmployerLayout = ({ children }) => {
       <div className="flex-1 lg:pl-64 flex flex-col min-h-screen bg-background text-foreground">
         {/* Top Header - Admin Style */}
         <header className="sticky top-0 z-40 flex h-[4.25rem] items-center justify-between border-b border-border bg-background/95 px-6 backdrop-blur lg:px-8">
-          <div className="flex items-center gap-4 flex-1 max-w-xl">
+          <div className="flex min-w-0 flex-1 items-center gap-4">
             <button
               type="button"
               className="lg:hidden p-2 rounded-lg text-slate-500 hover:bg-primary/10 hover:text-emerald-600 transition-colors"
@@ -297,7 +349,7 @@ const EmployerLayout = ({ children }) => {
             >
               <Menu className="h-6 w-6" />
             </button>
-            <div className="relative flex-1">
+            <div className="relative max-w-xl flex-1">
               <Search className="absolute left-4 top-1/2 h-6 w-6 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
@@ -314,13 +366,7 @@ const EmployerLayout = ({ children }) => {
           </div>
 
           <div className="flex items-center gap-2">
-            <Link
-              to="/"
-              className="p-2.5 rounded-xl text-slate-500 hover:bg-primary/10 dark:hover:bg-emerald-500/10 hover:text-emerald-600 transition-all hover:scale-110 active:scale-95"
-              title="Xem trang chủ"
-            >
-              <Home className="h-6 w-6" />
-            </Link>
+            <AccountHomeLink />
             <Link
               to="/blog"
               className="p-2.5 rounded-xl text-slate-500 hover:bg-primary/10 dark:hover:bg-emerald-500/10 hover:text-emerald-600 transition-all hover:scale-110 active:scale-95"
@@ -330,15 +376,16 @@ const EmployerLayout = ({ children }) => {
             </Link>
 
             <div className="relative">
-              <button
-                type="button"
-                className="p-2.5 rounded-xl text-slate-500 hover:bg-primary/10 dark:hover:bg-emerald-500/10 hover:text-emerald-600 transition-all hover:scale-110 active:scale-95"
+              <Link
+                to="/employer/notifications"
+                className="block p-2.5 rounded-xl text-slate-500 hover:bg-primary/10 dark:hover:bg-emerald-500/10 hover:text-emerald-600 transition-all hover:scale-110 active:scale-95"
+                title="Thông báo tuyển dụng"
               >
                 <Bell className="h-6 w-6" />
                 {badgeCounts.messages > 0 && (
                   <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-emerald-500 border-2 border-background" />
                 )}
-              </button>
+              </Link>
             </div>
 
             <DropdownMenu>

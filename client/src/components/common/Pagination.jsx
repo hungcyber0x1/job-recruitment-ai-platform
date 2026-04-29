@@ -19,29 +19,31 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-center gap-2 mt-12">
+    <div className="mt-8 flex items-center justify-center gap-2">
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="p-2 rounded-xl border border-secondary-200 bg-paper text-txt-light hover:text-primary-600 disabled:opacity-30 transition-all font-bold"
+        className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition-colors duration-200 hover:bg-muted/60 hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
+        aria-label="Trang trước"
       >
-        <ChevronLeft size={20} />
+        <ChevronLeft size={18} />
       </button>
 
       {pages.map((page, index) =>
         page === '...' ? (
-          <span key={index} className="px-4 py-2 text-txt-muted">
+          <span key={index} className="inline-flex h-10 w-10 items-center justify-center text-muted-foreground">
             <MoreHorizontal size={16} />
           </span>
         ) : (
           <button
             key={page}
             onClick={() => onPageChange(page)}
-            className={`w-10 h-10 rounded-xl font-bold transition-all ${
+            className={`inline-flex h-10 min-w-10 items-center justify-center rounded-lg px-3 text-sm font-semibold transition-colors duration-200 ${
               currentPage === page
-                ? 'bg-primary-600 text-white shadow-lg shadow-primary-100'
-                : 'bg-paper text-txt-muted border border-secondary-200 hover:border-primary-600 hover:text-primary-600'
+                ? 'border border-primary bg-primary text-primary-foreground shadow-sm'
+                : 'border border-border bg-card text-muted-foreground hover:bg-muted/60 hover:text-foreground'
             }`}
+            aria-current={currentPage === page ? 'page' : undefined}
           >
             {page}
           </button>
@@ -51,9 +53,10 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="p-2 rounded-xl border border-secondary-200 bg-paper text-txt-light hover:text-primary-600 disabled:opacity-30 transition-all font-bold"
+        className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition-colors duration-200 hover:bg-muted/60 hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
+        aria-label="Trang sau"
       >
-        <ChevronRight size={20} />
+        <ChevronRight size={18} />
       </button>
     </div>
   );

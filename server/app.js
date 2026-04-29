@@ -2,6 +2,8 @@
  * API Express monolith: middleware toàn cục, auth, REST nội bộ (không proxy microservice).
  */
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
 const cors = require('cors');
 const morgan = require('morgan');
 const helmet = require('helmet');
@@ -12,9 +14,11 @@ const { generalLimiter } = require('./src/middlewares/rate-limiter');
 const { auditMiddleware } = require('./src/middlewares/audit');
 const { requestIdMiddleware } = require('./src/middlewares/request-id');
 const { getAllowedOrigins } = require('./src/utils/allowedOrigins');
-const { uploadsRoot } = require('./src/config/paths');
+const { uploadsRoot, clientDistRoot } = require('./src/config/paths');
 
 const app = express();
+const clientIndexPath = path.join(clientDistRoot, 'index.html');
+const hasClientBuild = fs.existsSync(clientIndexPath);
 
 app.use(requestIdMiddleware);
 
@@ -30,7 +34,11 @@ const corsOptions = {
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    callback(new Error(`CORS: Origin ${origin} not allowed`));
+    const corsError = new Error(`CORS: Origin ${origin} not allowed`);
+    corsError.statusCode = 403;
+    corsError.status = 'fail';
+    corsError.isOperational = true;
+    callback(corsError);
   },
   credentials: true,
   optionsSuccessStatus: 200,
@@ -74,6 +82,16 @@ app.use('/api', generalLimiter);
 
 app.use('/api/auth', authRoutes);
 app.use('/api', routes);
+
+if (hasClientBuild) {
+  app.use(express.static(clientDistRoot));
+  app.get(
+    /^\/(?!api(?:\/|$)|uploads(?:\/|$)|socket\.io(?:\/|$)|api-docs(?:\/|$)).*/,
+    (_req, res) => {
+      res.sendFile(clientIndexPath);
+    }
+  );
+}
 
 app.use((req, res, next) => {
   const err = new Error(`Can't find ${req.originalUrl} on this server!`);

@@ -26,7 +26,7 @@ const oauthRoutes = require('./oauth');
  *               password: { type: string }
  *               first_name: { type: string }
  *               last_name: { type: string }
- *               role: { type: string, enum: [candidate, employer] }
+ *               role: { type: string, enum: [candidate, recruiter] }
  *     responses:
  *       201: { description: User created }
  *       400: { description: Invalid input }

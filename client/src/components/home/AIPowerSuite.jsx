@@ -26,12 +26,12 @@ const AIPowerSuite = () => {
               <div className="section-accent-line" />
               <div className="inline-flex items-center gap-2">
                 <Sparkles size={13} className="text-primary" aria-hidden="true" />
-                <span className="text-sm font-bold text-primary uppercase tracking-widest">
+                <span className="text-sm font-bold text-primary uppercase tracking-normal">
                   Công cụ AI
                 </span>
               </div>
             </div>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-foreground tracking-[-0.04em] leading-[0.92]">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground tracking-normal leading-[0.92]">
               Phát triển sự nghiệp cùng <span className="text-primary">trợ lý AI</span>
             </h2>
           </motion.div>

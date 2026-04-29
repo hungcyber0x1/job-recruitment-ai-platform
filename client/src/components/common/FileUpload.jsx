@@ -74,13 +74,12 @@ const FileUpload = ({ onFileSelect, accept = '.pdf,.doc,.docx', maxSize = 5 }) =
   return (
     <div className="w-full">
       <div
-        className={`relative border-2 border-dashed rounded-2xl p-8 transition-all duration-300 text-center ${
-          dragActive
+        className={`relative border-2 border-dashed rounded-xl p-8 transition-all duration-300 text-center ${dragActive
             ? 'border-primary-500 bg-primary-50'
             : file
               ? 'border-green-500 bg-green-50'
               : 'border-slate-300 hover:border-primary-400'
-        }`}
+          }`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
@@ -101,8 +100,8 @@ const FileUpload = ({ onFileSelect, accept = '.pdf,.doc,.docx', maxSize = 5 }) =
               <Upload size={32} />
             </div>
             <div>
-              <p className="text-lg font-bold text-slate-900">Tải lên Resume của bạn</p>
-              <p className="text-slate-500 mt-1">Kéo thả hoặc nhấn để chọn file</p>
+              <p className="text-lg font-bold text-slate-900">Tải lên CV của bạn</p>
+              <p className="text-slate-500 mt-1">Kéo thả hoặc nhấn để chọn tệp</p>
             </div>
             <div className="px-4 py-2 bg-slate-100 rounded-full text-sm font-medium text-slate-500">
               Hỗ trợ: PDF, DOC, DOCX (Max {maxSize}MB)

@@ -3,9 +3,10 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Loading from '../components/common/Loading.jsx';
-import { getDashboardPath } from '../utils/rolePaths';
+import { getDashboardPath, normalizeAuthRole } from '../utils/rolePaths';
+import { hasAdminPermission } from '../utils/adminPermissions';
 
-const PrivateRoute = ({ children, roles }) => {
+const PrivateRoute = ({ children, roles, adminPermission }) => {
   const { user, loading, isAuthenticated } = useAuth();
   const location = useLocation();
 
@@ -26,8 +27,15 @@ const PrivateRoute = ({ children, roles }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (roles && !roles.includes(user.role)) {
-    return <Navigate to={getDashboardPath(user.role)} replace />;
+  const userRole = normalizeAuthRole(user.role);
+  const allowedRoles = roles?.map(normalizeAuthRole);
+
+  if (allowedRoles && !allowedRoles.includes(userRole)) {
+    return <Navigate to={getDashboardPath(userRole)} replace />;
+  }
+
+  if (adminPermission && userRole === 'admin' && !hasAdminPermission(user, adminPermission)) {
+    return <Navigate to="/admin/dashboard" replace />;
   }
 
   return children;
@@ -35,10 +43,12 @@ const PrivateRoute = ({ children, roles }) => {
 
 PrivateRoute.propTypes = {
   children: PropTypes.node.isRequired,
+  adminPermission: PropTypes.string,
   roles: PropTypes.arrayOf(PropTypes.string),
 };
 
 PrivateRoute.defaultProps = {
+  adminPermission: undefined,
   roles: undefined,
 };
 

@@ -23,7 +23,7 @@ const HeroSectionBridge = () => {
       {/* Center accent */}
       <div className="relative z-10 flex items-center gap-3 px-4 bg-background">
         <span className="w-1.5 h-1.5 rounded-full bg-primary/50" />
-        <span className="text-sm font-medium text-muted-foreground tracking-widest uppercase">
+        <span className="text-sm font-medium text-muted-foreground tracking-normal uppercase">
           Đối tác tin dùng
         </span>
         <span className="w-1.5 h-1.5 rounded-full bg-primary/50" />

@@ -26,8 +26,8 @@ const HeroSection = () => {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
               </div>
-              <span className="text-sm font-black text-primary uppercase tracking-[0.2em]">
-                Next-Gen AI Recruitment Ecosystem
+              <span className="text-sm font-bold text-primary uppercase tracking-normal">
+                Next-Gen Recruitment Ecosystem
               </span>
             </motion.div>
 
@@ -35,11 +35,11 @@ const HeroSection = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-6xl md:text-7xl lg:text-8xl font-black text-foreground leading-[0.95] tracking-tight"
+              className="text-6xl md:text-7xl lg:text-8xl font-bold text-foreground leading-[0.95] tracking-normal"
             >
               Khai quật <br />
               <span className="gradient-text">Nhân tài thực</span> <br />
-              cùng AI.
+              cùng HireBOT.
             </motion.h1>
 
             <motion.p
@@ -48,7 +48,7 @@ const HeroSection = () => {
               transition={{ delay: 0.2 }}
               className="text-lg md:text-xl text-txt-muted font-medium leading-relaxed max-w-xl"
             >
-              Hãy để trí tuệ nhân tạo của HireAI thay bạn tìm kiếm, sàng lọc và kết nối những cơ hội
+              Hãy để trí tuệ nhân tạo của HireBOT thay bạn tìm kiếm, sàng lọc và kết nối những cơ hội
               nghề nghiệp phù hợp nhất với năng lực thực tế.
             </motion.p>
 
@@ -77,9 +77,9 @@ const HeroSection = () => {
               </div>
               <Button
                 variant="primary"
-                className="w-full md:w-auto px-10 h-16 rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-glow active:scale-95"
+                className="w-full md:w-auto px-10 h-16 rounded-[2rem] font-bold text-sm uppercase tracking-normal shadow-glow active:scale-95"
               >
-                Kích hoạt AI
+                Kích hoạt ngay
                 <Zap size={18} className="ml-2 fill-current" />
               </Button>
             </motion.div>
@@ -87,22 +87,22 @@ const HeroSection = () => {
             {/* Quick Stats - Floating Style */}
             <div className="pt-8 flex flex-wrap gap-10 items-center">
               <div className="flex flex-col gap-1">
-                <span className="text-3xl font-black text-foreground leading-none">50K+</span>
-                <span className="text-sm font-black text-txt-muted uppercase tracking-widest">
+                <span className="text-3xl font-bold text-foreground leading-none">50K+</span>
+                <span className="text-sm font-bold text-txt-muted uppercase tracking-normal">
                   Việc làm Active
                 </span>
               </div>
               <div className="w-px h-10 bg-border hidden md:block" />
               <div className="flex flex-col gap-1">
-                <span className="text-3xl font-black text-primary leading-none">98%</span>
-                <span className="text-sm font-black text-txt-muted uppercase tracking-widest">
-                  AI Accuracy
+                <span className="text-3xl font-bold text-primary leading-none">98%</span>
+                <span className="text-sm font-bold text-txt-muted uppercase tracking-normal">
+                  Độ chính xác
                 </span>
               </div>
               <div className="w-px h-10 bg-border hidden md:block" />
               <div className="flex flex-col gap-1">
-                <span className="text-3xl font-black text-secondary leading-none">1.2K+</span>
-                <span className="text-sm font-black text-txt-muted uppercase tracking-widest">
+                <span className="text-3xl font-bold text-secondary leading-none">1.2K+</span>
+                <span className="text-sm font-bold text-txt-muted uppercase tracking-normal">
                   Top Doanh nghiệp
                 </span>
               </div>
@@ -128,15 +128,15 @@ const HeroSection = () => {
                 {/* Advanced Overlay Components */}
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent h-1/2 p-12 flex flex-col justify-end">
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="h-14 w-14 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white">
+                    <div className="h-14 w-14 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white">
                       <Star size={28} className="fill-yellow-400 text-yellow-400" />
                     </div>
                     <div>
-                      <p className="text-white font-black text-2xl tracking-tight leading-none mb-1">
+                      <p className="text-white font-bold text-2xl tracking-normal leading-none mb-1">
                         Top 1% Talent
                       </p>
-                      <p className="text-white/60 text-base font-bold font-sans uppercase tracking-[0.2em]">
-                        Verified by AI Guard
+                      <p className="text-white/60 text-base font-bold font-sans uppercase tracking-normal">
+                        Verified by HireBOT
                       </p>
                     </div>
                   </div>
@@ -157,7 +157,7 @@ const HeroSection = () => {
                     <ShieldCheck size={24} />
                   </div>
                   <div>
-                    <p className="text-base font-black text-txt-muted uppercase">Verification</p>
+                    <p className="text-base font-bold text-txt-muted uppercase">Verification</p>
                     <p className="text-base font-bold text-foreground leading-none">
                       Node_ID: #49281
                     </p>
@@ -170,10 +170,10 @@ const HeroSection = () => {
                 transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
                 className="absolute bottom-40 -right-12 p-6 glass border border-white/20 rounded-[2.5rem] shadow-premium max-w-[240px]"
               >
-                <p className="text-base font-black text-txt-muted uppercase mb-4 tracking-widest underline decoration-primary decoration-4 underline-offset-4">
+                <p className="text-base font-bold text-txt-muted uppercase mb-4 tracking-normal underline decoration-primary decoration-4 underline-offset-4">
                   Skill Matrix Output
                 </p>
-                <div className="flex flex-wrap gap-2 text-[9px] font-black text-foreground">
+                <div className="flex flex-wrap gap-2 text-xs font-bold text-foreground">
                   <span className="px-2 py-1 bg-primary/10 rounded-md border border-primary/20">
                     PYTHON_CORE
                   </span>

@@ -1,5 +1,7 @@
 const ChatbotService = require('../services/chatbot');
+const AIService = require('../services/ai');
 const SystemSettingsRepository = require('../models/SystemSettings');
+const { checkUserQuota, incrementUserQuota } = require('../middlewares/rate-limiter');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -44,6 +46,9 @@ class ChatbotController {
     this.clearHistory = this.clearHistory.bind(this);
     this.getSuggestedQuestions = this.getSuggestedQuestions.bind(this);
     this.uploadFile = this.uploadFile.bind(this);
+    this.analyzeCV = this.analyzeCV.bind(this);
+    this.generateCoverLetter = this.generateCoverLetter.bind(this);
+    this.sendFeedback = this.sendFeedback.bind(this);
   }
 
   async _ensureChatbotEnabled(res) {
@@ -69,8 +74,31 @@ class ChatbotController {
         return res.status(400).json({ success: false, message: 'Message is required' });
       }
 
+      // Check daily quota
+      const quota = await checkUserQuota(userId);
+      if (!quota.allowed) {
+        return res.status(429).json({
+          success: false,
+          message: quota.resetAt
+            ? `Bạn đã dùng hết quota tin nhắn hôm nay (${quota.limit}/${quota.limit}). Vui lòng thử lại vào ngày mai.`
+            : 'Bạn đã dùng hết quota tin nhắn hôm nay. Vui lòng thử lại vào ngày mai.',
+          quota,
+        });
+      }
+
       const response = await ChatbotService.processMessage(userId, message, conversationId);
-      res.json({ success: true, data: response });
+
+      // Increment quota after successful processing
+      await incrementUserQuota(userId);
+
+      res.json({
+        success: true,
+        data: response,
+        quota: {
+          remaining: Math.max(0, quota.remaining - 1),
+          limit: quota.limit,
+        },
+      });
     } catch (error) {
       next(error);
     }
@@ -184,6 +212,118 @@ class ChatbotController {
 
       const response = await ChatbotService.processFileUpload(userId, fileData, conversationId);
       res.json({ success: true, data: response });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Analyze CV/resume file and extract structured data.
+   * Accepts an optional job description to tailor improvement suggestions.
+   */
+  async analyzeCV(req, res, next) {
+    try {
+      if (!(await this._ensureChatbotEnabled(res))) return;
+
+      const userId = req.user.id;
+      const { conversationId, jobDescription } = req.body;
+
+      if (!req.file) {
+        return res.status(400).json({ success: false, message: 'CV file is required' });
+      }
+
+      // Read the uploaded file
+      const filePath = req.file.path;
+      const cvText = await fs.promises.readFile(filePath, 'utf-8');
+
+      // Perform CV analysis
+      const analysis = await AIService.analyzeCV(cvText, jobDescription);
+
+      // Clean up the uploaded file after processing
+      try {
+        await fs.promises.unlink(filePath);
+      } catch (_) {}
+
+      if (!analysis?.success) {
+        return res.status(500).json({
+          success: false,
+          message: 'CV analysis failed. ' + (analysis?.error || ''),
+        });
+      }
+
+      // Track analytics
+      await ChatbotService._trackEvent(null, userId, 'cv_analyzed', {
+        file_name: req.file.originalname,
+      });
+
+      res.json({
+        success: true,
+        data: {
+          analysis: analysis.data,
+          fileName: req.file.originalname,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Generate cover letter based on CV data and job description.
+   */
+  async generateCoverLetter(req, res, next) {
+    try {
+      if (!(await this._ensureChatbotEnabled(res))) return;
+
+      const userId = req.user.id;
+      const { cvData, jobDescription, candidateName } = req.body;
+
+      if (!cvData || !jobDescription) {
+        return res.status(400).json({
+          success: false,
+          message: 'CV data and job description are required',
+        });
+      }
+
+      const coverLetter = await AIService.generateCoverLetter(cvData, jobDescription, candidateName);
+
+      if (!coverLetter) {
+        return res.status(500).json({
+          success: false,
+          message: 'Cover letter generation failed',
+        });
+      }
+
+      // Track analytics
+      await ChatbotService._trackEvent(null, userId, 'cover_letter_generated', {
+        candidate_name: candidateName,
+      });
+
+      res.json({
+        success: true,
+        data: { coverLetter },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Record user feedback on an AI message.
+   */
+  async sendFeedback(req, res, next) {
+    try {
+      const userId = req.user.id;
+      const { messageId, isPositive } = req.body;
+
+      if (!messageId) {
+        return res.status(400).json({ success: false, message: 'Message ID is required' });
+      }
+
+      // Track feedback as analytics event
+      await ChatbotService.recordFeedback(messageId, userId, Boolean(isPositive));
+
+      res.json({ success: true, message: 'Feedback recorded' });
     } catch (error) {
       next(error);
     }

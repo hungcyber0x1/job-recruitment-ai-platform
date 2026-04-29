@@ -12,10 +12,7 @@ import api from '../services/api';
 const DEFAULT_FLAGS = {
   ai_chatbot: true,
   ai_resume_analysis: true,
-  ai_job_matching: true,
   ai_moderation: true,
-  ai_career_roadmap: true,
-  ai_screening_enabled: true,
   company_moderation_required: true,
   experimental_analytics_cards: false,
 };

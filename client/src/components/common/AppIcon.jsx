@@ -14,7 +14,11 @@ const AppIcon = ({
   strokeWidth,
   ...rest
 }) => {
-  return <Icon {...lucideIconProps({ size, className, decorative, strokeWidth })} {...rest} />;
+  if (!Icon) return null;
+  return React.createElement(Icon, {
+    ...lucideIconProps({ size, className, decorative, strokeWidth }),
+    ...rest,
+  });
 };
 
 AppIcon.propTypes = {

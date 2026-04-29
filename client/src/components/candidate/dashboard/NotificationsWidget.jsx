@@ -1,47 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { Bell, Briefcase, CheckCircle, Mail, XCircle } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 import applicationService from '../../../services/applicationService';
 import { formatTimeAgo } from '../../../utils/formatters';
+import {
+  NOTIFICATION_TYPE_CONFIG,
+  getAppStatusConfig,
+} from '../../../constants';
+import { isHandledAuthError } from '../../../utils/authErrors';
 
-const getNotificationType = (item) => {
-  if (item.status === 'interviewing') return 'interview';
-  if (item.status === 'rejected' || item.status === 'withdrawn') return 'status';
-  if (item.status === 'reviewed' || item.status === 'shortlisted' || item.status === 'offered') {
-    return 'viewed';
+/**
+ * Lấy notification icon config dựa trên application status.
+ * Fallback về 'application' type nếu không có status.
+ */
+const getIconConfig = (notification) => {
+  const status = notification?.status;
+  if (status) {
+    const appCfg = getAppStatusConfig(status);
+    if (appCfg) {
+      return { icon: appCfg.icon, bg: appCfg.bg, text: appCfg.text };
+    }
   }
-  return item.type || 'job';
-};
-
-const getIcon = (type) => {
-  switch (type) {
-    case 'interview':
-      return <Mail size={16} className="text-secondary" />;
-    case 'viewed':
-      return <CheckCircle size={16} className="text-accent" />;
-    case 'job':
-      return <Briefcase size={16} className="text-state-success" />;
-    case 'status':
-      return <XCircle size={16} className="text-state-danger" />;
-    default:
-      return <Bell size={16} className="text-txt-muted" />;
-  }
-};
-
-const getBg = (type) => {
-  switch (type) {
-    case 'interview':
-      return 'bg-secondary/10';
-    case 'viewed':
-      return 'bg-accent/10';
-    case 'job':
-      return 'bg-state-success/10';
-    case 'status':
-      return 'bg-state-danger/10';
-    default:
-      return 'bg-muted';
-  }
+  const typeCfg = NOTIFICATION_TYPE_CONFIG[notification?.type] || NOTIFICATION_TYPE_CONFIG.application;
+  return { icon: typeCfg.icon, bg: typeCfg.bg, text: typeCfg.text };
 };
 
 const NotificationsWidget = () => {
@@ -54,6 +36,10 @@ const NotificationsWidget = () => {
         const response = await applicationService.getMyNotifications();
         setNotifications((response.data.data || []).slice(0, 4));
       } catch (error) {
+        if (isHandledAuthError(error)) {
+          setNotifications([]);
+          return;
+        }
         console.error('Failed to fetch dashboard notifications:', error);
         setNotifications([]);
       }
@@ -76,7 +62,8 @@ const NotificationsWidget = () => {
       <div className="space-y-4">
         {notifications.length ? (
           notifications.map((notification, index) => {
-            const type = getNotificationType(notification);
+            const { icon: IconName, bg, text } = getIconConfig(notification);
+            const Icon = IconName;
             const isRead = index > 1;
 
             return (
@@ -86,13 +73,13 @@ const NotificationsWidget = () => {
                 onClick={() => openNotification(notification)}
               >
                 <div
-                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${getBg(type)} shadow-sm transition-transform`}
+                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${bg} shadow-sm transition-transform`}
                 >
-                  {getIcon(type)}
+                  {Icon && <Icon size={16} className={text} />}
                 </div>
                 <div className="min-w-0 flex-1">
                   <p
-                    className={`line-clamp-2 text-base tracking-wide ${isRead ? 'font-medium text-txt-muted' : 'font-semibold text-foreground'}`}
+                    className={`line-clamp-2 text-base tracking-normal ${isRead ? 'font-medium text-txt-muted' : 'font-semibold text-foreground'}`}
                   >
                     {notification.message}
                   </p>

@@ -2,7 +2,7 @@
 -- Used by ContentRepository for CMS pages and banners
 
 CREATE TABLE IF NOT EXISTS content_pages (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     slug VARCHAR(255) NOT NULL UNIQUE,
     title VARCHAR(255) NOT NULL,
     content LONGTEXT,
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS content_pages (
 );
 
 CREATE TABLE IF NOT EXISTS banners (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     image_url VARCHAR(500) NOT NULL,
     link_url VARCHAR(500),
     position VARCHAR(50) DEFAULT 'top',

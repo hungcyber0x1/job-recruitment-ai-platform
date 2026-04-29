@@ -3,7 +3,7 @@ import React from 'react';
 
 const StatCard = ({ label, value, icon: Icon, color, subValue, trend = 'up' }) => {
   return (
-    <div className="group relative cursor-pointer overflow-hidden rounded-2xl border border-border bg-white/90 p-7 shadow-card backdrop-blur-xl transition-all duration-500 hover:-translate-y-1 hover:shadow-premium">
+    <div className="card-premium-hover group relative cursor-pointer overflow-hidden rounded-xl border border-border bg-white/90 p-7 shadow-card backdrop-blur-xl transition-all duration-500">
       {/* Soft Hover Glow */}
       <div
         className={`absolute top-0 right-0 w-32 h-32 blur-3xl opacity-0 group-hover:opacity-10 transition-opacity duration-700 ${color}`}
@@ -21,7 +21,7 @@ const StatCard = ({ label, value, icon: Icon, color, subValue, trend = 'up' }) =
 
         {subValue && (
           <div
-            className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium tracking-wide shadow-sm transition-all duration-500 ${trend === 'up' ? 'border border-state-success/20 bg-state-success/10 text-state-success' : 'border border-state-danger/20 bg-state-danger/10 text-state-danger'}`}
+            className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium tracking-normal shadow-sm transition-all duration-500 ${trend === 'up' ? 'border border-state-success/20 bg-state-success/10 text-state-success' : 'border border-state-danger/20 bg-state-danger/10 text-state-danger'}`}
           >
             {trend === 'up' ? '▲' : '▼'} {subValue}
           </div>
@@ -29,8 +29,8 @@ const StatCard = ({ label, value, icon: Icon, color, subValue, trend = 'up' }) =
       </div>
 
       <div className="space-y-2">
-        <p className="text-base font-medium uppercase tracking-wider text-txt-muted">{label}</p>
-        <h3 className="text-4xl font-semibold tracking-tight text-foreground">{value}</h3>
+        <p className="text-base font-medium uppercase tracking-normal text-txt-muted">{label}</p>
+        <h3 className="text-4xl font-semibold tracking-normal text-foreground">{value}</h3>
       </div>
     </div>
   );

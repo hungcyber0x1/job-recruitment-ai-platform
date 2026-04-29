@@ -20,10 +20,10 @@ const JobFeedTabs = () => {
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
               className="space-y-5"
             >
-              <p className="text-base font-semibold text-primary uppercase tracking-wider">
+              <p className="text-base font-semibold text-primary uppercase tracking-normal">
                 Việc làm
               </p>
-              <h2 className="text-4xl md:text-6xl font-extrabold text-foreground tracking-tighter leading-[0.95]">
+              <h2 className="text-4xl md:text-6xl font-extrabold text-foreground tracking-normal leading-[0.95]">
                 Cơ hội <span className="text-primary">dành cho bạn</span>
               </h2>
             </motion.div>

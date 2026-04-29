@@ -1,216 +1,316 @@
 import React from 'react';
-import { Target, Users, Sparkles, Zap, ArrowRight, Star, ShieldCheck, Globe } from 'lucide-react';
-import { Card, Button, Badge, ScrollReveal, AnimatedCounter } from '../../components/common';
+import {
+  Search, Building2, FileText, Bot, BrainCircuit, Map,
+  Users, Briefcase, Shield, CheckCircle2, Cpu, Workflow, Sparkles
+} from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Button, Card, Badge, ScrollReveal } from '../../components/common';
+
+const SectionHeading = ({ children, align = 'center' }) => (
+  <h2 className={`text-2xl font-semibold text-slate-900 mb-8 ${align === 'center' ? 'text-center' : ''}`}>
+    {children}
+  </h2>
+);
+
 const AboutPage = () => {
+  const features = [
+    {
+      icon: <Search className="w-6 h-6 text-primary" />,
+      bg: 'bg-primary/10',
+      title: 'Hệ thống tìm kiếm linh hoạt',
+      desc: 'Hỗ trợ tìm kiếm việc làm và ứng tuyển dễ dàng với nhiều bộ lọc nâng cao.',
+    },
+    {
+      icon: <Building2 className="w-6 h-6 text-primary" />,
+      bg: 'bg-primary/10',
+      title: 'Hồ sơ Công ty & Tuyển dụng',
+      desc: 'Giúp doanh nghiệp xây dựng thương hiệu tuyển dụng chuyên nghiệp và quản lý quy trình ứng tuyển khép kín.',
+    },
+    {
+      icon: <FileText className="w-6 h-6 text-primary" />,
+      bg: 'bg-primary/10',
+      title: 'Theo dõi Ứng tuyển & CV',
+      desc: 'Ứng viên dễ dàng tạo, quản lý CV và theo dõi trạng thái ứng tuyển theo thời gian thực.',
+    },
+    {
+      icon: <Bot className="w-6 h-6 text-primary" />,
+      bg: 'bg-primary/10',
+      title: 'Career Chatbot',
+      desc: 'Trợ lý ảo thông minh giải đáp thắc mắc và tư vấn nghề nghiệp tức thời.',
+    },
+    {
+      icon: <BrainCircuit className="w-6 h-6 text-primary" />,
+      bg: 'bg-primary/10',
+      title: 'AI Resume Analysis',
+      desc: 'Tự động phân tích và chấm điểm CV, giúp chắt lọc ứng viên tiềm năng nhanh chóng.',
+    },
+    {
+      icon: <Map className="w-6 h-6 text-primary" />,
+      bg: 'bg-primary/10',
+      title: 'Dự đoán Lương bằng AI',
+      desc: 'Phân tích dữ liệu thị trường để đưa ra mức lương tham khảo phù hợp với kỹ năng và kinh nghiệm.',
+    },
+  ];
+
+  const benefits = [
+    'Tuyển dụng thông minh nhờ sức mạnh dữ liệu.',
+    'Kết nối ứng viên và nhà tuyển dụng dễ dàng.',
+    'Hỗ trợ AI chuyên sâu từ Chatbot đến chấm điểm CV.',
+    'Trải nghiệm người dùng cực kỳ hiện đại, thân thiện.',
+  ];
+
   return (
-    <>
-      <div className="overflow-hidden mesh-gradient-bg pb-20 pt-8 md:pt-10">
-        <div className="container mx-auto px-6">
-          {/* Hero Section */}
-          <section className="text-center max-w-4xl mx-auto mb-32 relative">
-            <ScrollReveal>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-50 border border-primary-100 text-primary-600 font-bold text-sm uppercase tracking-widest mb-8">
-                <Sparkles size={14} />
-                Về sứ mệnh của chúng tôi
+    <div className="bg-slate-50 min-h-[calc(100vh-80px)]">
+      {/* 1. Hero Section */}
+      <section className="page-hero-bg page-hero-grain relative overflow-hidden">
+        <div className="page-hero-pattern" aria-hidden />
+        <div className="page-hero-blob page-hero-blob-1" aria-hidden />
+        <div className="page-hero-blob page-hero-blob-2" aria-hidden />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_30%_20%,hsl(var(--primary)/0.06),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_70%_80%,hsl(var(--primary)/0.04),transparent_50%)]" />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+        
+        <div className="container relative z-10 mx-auto max-w-6xl px-4 pt-16 pb-20 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: 'easeOut' }}
+            >
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary font-semibold text-sm mb-6">
+                <Sparkles size={16} />
+                <span>Nền tảng Tuyển Dụng AI</span>
               </div>
-              <h1 className="text-5xl md:text-7xl font-black text-slate-900 mb-8 leading-[1.1] tracking-tight text-wrap-balance">
-                Nâng tầm sự nghiệp bằng <br />
-                <span className="text-primary-600 neon-text">Trí tuệ nhân tạo</span>
+              <h1 className="text-4xl md:text-5xl font-bold tracking-normal text-slate-900 mb-6 leading-tight">
+                Khám phá Nền tảng <br className="hidden sm:block"/>
+                <span className="text-primary bg-primary/10 px-4 py-1 rounded-xl inline-block mt-2">Tuyển Dụng & Việc Làm</span>
               </h1>
-              <p className="text-xl text-slate-500 leading-relaxed font-medium">
-                HireAI không chỉ là một nền tảng tuyển dụng. Chúng tôi là người bạn đồng hành thông
-                minh, giúp hàng triệu người Việt tìm thấy công việc mơ ước và giúp doanh nghiệp xây
-                dựng đội ngũ huyền thoại.
+              <p className="text-lg text-slate-600 mb-10 max-w-2xl mx-auto">
+                Giải pháp tuyển dụng toàn diện tích hợp Trí tuệ Nhân tạo. Nâng cao trải nghiệm ứng tuyển và tối ưu hóa quản lý nhân sự một cách nhanh chóng, chuẩn xác.
               </p>
-            </ScrollReveal>
-          </section>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link to="/jobs">
+                  <Button className="w-full sm:w-auto px-8 py-3 text-base">Khám phá Việc làm</Button>
+                </Link>
+                <Link to="/register">
+                  <Button variant="outline" className="w-full sm:w-auto px-8 py-3 text-base">Tham gia Ngay</Button>
+                </Link>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
 
-          {/* Vision & Mission Card */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-32">
-            <ScrollReveal direction="left">
-              <div className="bg-slate-900 rounded-[40px] p-12 md:p-16 text-white relative overflow-hidden group h-full">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500/10 rounded-full blur-[80px] -z-0"></div>
-                <Target
-                  className="absolute -right-8 -bottom-8 opacity-10 group-hover:scale-110 transition-transform duration-700"
-                  size={240}
-                />
-                <Badge
-                  variant="primary"
-                  className="mb-6 bg-primary-500/20 text-primary-400 border-primary-500/20"
-                >
-                  Tầm nhìn
-                </Badge>
-                <h3 className="text-4xl font-black mb-8 relative z-10 text-wrap-balance">
-                  Trở thành nền tảng <br /> Jobs-AI số 1 Đông Nam Á.
-                </h3>
-                <p className="text-slate-400 leading-relaxed text-lg font-medium relative z-10">
-                  Chúng tôi nỗ lực xóa bỏ rào cản thông tin và sự thiếu chính xác trong tuyển dụng
-                  truyền thống bằng cách áp dụng những mô hình AI tiên tiến nhất thế giới.
+      {/* 2. Project Introduction Section */}
+      <section className="py-20 bg-slate-50 border-b border-slate-200">
+        <div className="container mx-auto px-6 max-w-6xl">
+          <ScrollReveal>
+            <SectionHeading>Hệ thống phục vụ những ai?</SectionHeading>
+            <p className="text-center text-base text-slate-600 mb-12 max-w-3xl mx-auto">
+              Hệ thống được thiết kế khép kín nhằm tạo ra một môi trường tương tác liền mạch giữa
+              ba thành phần cốt lõi của quy trình tuyển dụng chuẩn mực.
+            </p>
+          </ScrollReveal>
+          
+          <ScrollReveal>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+              <div className="hidden md:block absolute top-[45px] left-0 w-full h-[2px] bg-slate-100 z-0" />
+              
+              <Card hover className="h-full p-8 transition-all duration-300 bg-white relative z-10 group">
+                <div className="w-14 h-14 border border-border/40 shadow-sm rounded-xl flex items-center justify-center mb-6 bg-slate-50/50 group-hover:scale-105 group-hover:border-primary/20 group-hover:bg-primary/5 transition-all duration-300">
+                  <Users className="w-7 h-7 text-primary group-hover:scale-110 transition-transform duration-300" />
+                </div>
+                <h3 className="text-xl font-extrabold text-foreground mb-3 group-hover:text-primary transition-colors">Ứng viên</h3>
+                <p className="text-base text-slate-600 leading-relaxed">
+                  Tìm kiếm cơ hội việc làm, tạo hồ sơ, tự động phân tích CV và nhận tư vấn hướng nghiệp từ Chatbot.
                 </p>
+              </Card>
+              
+              <Card hover className="h-full p-8 transition-all duration-300 bg-white relative z-10 group">
+                <div className="w-14 h-14 border border-border/40 shadow-sm rounded-xl flex items-center justify-center mb-6 bg-slate-50/50 group-hover:scale-105 group-hover:border-primary/20 group-hover:bg-primary/5 transition-all duration-300">
+                  <Briefcase className="w-7 h-7 text-primary group-hover:scale-110 transition-transform duration-300" />
+                </div>
+                <h3 className="text-xl font-extrabold text-foreground mb-3 group-hover:text-primary transition-colors">Nhà tuyển dụng</h3>
+                <p className="text-base text-slate-600 leading-relaxed">
+                  Đăng tin, quản lý hồ sơ ứng viên và sử dụng AI để tự động sàng lọc những CV tài năng nhất.
+                </p>
+              </Card>
+
+              <Card hover className="h-full p-8 transition-all duration-300 border-border/40 bg-white relative z-10 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl group">
+                <div className="w-14 h-14 border border-border/40 shadow-sm rounded-xl flex items-center justify-center mb-6 bg-slate-50/50 group-hover:scale-105 group-hover:border-primary/20 group-hover:bg-primary/5 transition-all duration-300">
+                  <Shield className="w-7 h-7 text-primary group-hover:scale-110 transition-transform duration-300" />
+                </div>
+                <h3 className="text-xl font-extrabold text-foreground mb-3 group-hover:text-primary transition-colors">Quản trị viên</h3>
+                <p className="text-base text-slate-600 leading-relaxed">
+                  Theo dõi, kiểm duyệt hoạt động hệ thống và đảm bảo trải nghiệm an toàn cho mọi người dùng.
+                </p>
+              </Card>
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* 3. Main Features Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-6 max-w-6xl">
+          <ScrollReveal>
+            <SectionHeading>Tính năng Cốt lõi</SectionHeading>
+          </ScrollReveal>
+          <ScrollReveal>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {features.map((feature, idx) => (
+                <Card
+                  key={idx}
+                  hover
+                  variant="premium"
+                  className="p-6 transition-all duration-500"
+                >
+                  <div
+                    className={`mb-5 w-14 h-14 rounded-xl flex items-center justify-center ${feature.bg} shadow-sm border border-transparent group-hover:border-primary/20 group-hover:bg-primary/10 transition-all duration-300`}
+                  >
+                    <div className="transform group-hover:scale-110 transition-transform duration-300">
+                      {feature.icon}
+                    </div>
+                  </div>
+                  <h3 className="text-lg font-extrabold text-slate-900 mb-2 group-hover:text-primary transition-colors">
+                    {feature.title}
+                  </h3>
+                  <p className="text-base text-slate-600 leading-relaxed">
+                    {feature.desc}
+                  </p>
+                </Card>
+              ))}
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* 4. Why Choose This Platform */}
+      <section className="py-20 bg-slate-50 border-y border-slate-200">
+        <div className="container mx-auto px-6 max-w-5xl">
+          <ScrollReveal>
+            <Card className="overflow-hidden border-0 shadow-2xl rounded-[2rem]">
+              <div className="flex flex-col md:flex-row">
+                <div className="w-full md:w-5/12 p-10 md:p-14 bg-slate-900 flex flex-col justify-center relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-primary/60 via-primary/10 to-transparent opacity-80" />
+                  <div className="absolute -top-10 -right-10 opacity-10 transform group-hover:rotate-12 transition-transform duration-700">
+                    <Sparkles className="w-48 h-48 text-primary" />
+                  </div>
+                  <div className="relative z-10">
+                    <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6 leading-tight">
+                      Tại sao chọn nền tảng của chúng tôi?
+                    </h2>
+                    <p className="text-base lg:text-lg text-slate-300 mb-0 font-medium leading-relaxed">
+                      Công cụ của chúng tôi không chỉ số hóa hồ sơ mà còn rút ngắn khoảng cách
+                      giữa nhà tuyển dụng và những tài năng phù hợp thực sự.
+                    </p>
+                  </div>
+                </div>
+                <div className="w-full md:w-7/12 p-10 md:p-14 bg-white flex flex-col justify-center relative">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full z-0" />
+                  <ul className="space-y-6 relative z-10">
+                    {benefits.map((benefit, idx) => (
+                      <li key={idx} className="flex items-start group/item hover:bg-slate-50 p-3 -m-3 rounded-xl transition-colors duration-300">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mr-4 group-hover/item:bg-primary group-hover/item:text-white transition-colors duration-300 shadow-sm border border-primary/20">
+                          <CheckCircle2 className="w-6 h-6 text-primary group-hover/item:text-white transition-colors duration-300" />
+                        </div>
+                        <span className="text-base lg:text-lg text-slate-700 font-bold pt-1.5 group-hover/item:text-slate-900 transition-colors">
+                          {benefit}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </Card>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* 5. Vision / Mission Section & 6. Highlights */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-6 max-w-6xl">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <ScrollReveal animation="fade-right">
+              <div>
+                <Badge variant="outline" className="mb-4 text-primary border-primary bg-primary/5">Nguồn gốc & Tầm nhìn</Badge>
+                <h2 className="text-3xl font-bold text-slate-900 mb-6">Giải Bài Toán Thực Tiễn</h2>
+                <p className="text-base text-slate-600 mb-5 leading-relaxed">
+                  Được phát triển dưới khuôn khổ của một <strong>Đồ án Tốt nghiệp</strong>, 
+                  hệ thống ra đời với định hướng giải quyết một bài toán quản trị thực tiễn: 
+                  Số hóa và Trí tuệ nhân tạo hóa quy trình tuyển dụng.
+                </p>
+                <p className="text-base text-slate-600 leading-relaxed mb-8">
+                  Sứ mệnh của chúng tôi là minh chứng việc công nghệ lõi như AI có thể ứng dụng
+                  vào cuộc sống để xóa bỏ những rào cản truyền thống, từ đó mở ra tương lai cho 
+                  thị trường làm việc số hiện đại.
+                </p>
+                <Link to="/ai-cv-scanner">
+                  <Button variant="ghost" className="text-primary hover:bg-primary/10 px-0">
+                    Trải nghiệm AI Scanner <Search className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
               </div>
             </ScrollReveal>
 
-            <ScrollReveal direction="right">
-              <div className="bg-primary-600 rounded-[40px] p-12 md:p-16 text-white relative overflow-hidden group h-full shadow-2xl shadow-blue-200">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-[80px] -z-0"></div>
-                <Zap
-                  className="absolute -right-8 -bottom-8 opacity-10 group-hover:scale-110 transition-transform duration-700"
-                  size={240}
-                />
-                <Badge variant="primary" className="mb-6 bg-white/20 text-white border-white/10">
-                  Sứ mệnh
-                </Badge>
-                <h3 className="text-4xl font-black mb-8 relative z-10 text-wrap-balance">
-                  Hàng triệu cơ hội, <br /> Giải quyết trong 1 chạm.
-                </h3>
-                <p className="text-white/80 leading-relaxed text-lg font-medium relative z-10">
-                  HireAI cam kết mang lại sự minh bạch, tốc độ và độ chính xác tuyệt đối trong mọi
-                  kết nối giữa ứng viên và nhà tuyển dụng.
-                </p>
+            <ScrollReveal animation="fade-left">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <Card hover className="p-6 text-center group transition-all duration-300 bg-white">
+                  <div className="w-16 h-16 mx-auto mb-4 border border-border/40 bg-slate-50/50 rounded-xl flex items-center justify-center group-hover:scale-105 group-hover:border-primary/20 group-hover:bg-primary/5 transition-all duration-300">
+                    <Users className="w-8 h-8 text-primary opacity-80 group-hover:scale-110 group-hover:opacity-100 transition-all duration-300" />
+                  </div>
+                  <h4 className="text-xl font-extrabold text-foreground mb-2 group-hover:text-primary transition-colors">3 Vai trò</h4>
+                  <p className="text-base text-muted-foreground">Được phân quyền quản trị độc lập</p>
+                </Card>
+                <Card hover className="p-6 text-center group transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg border-border/40 bg-white">
+                  <div className="w-16 h-16 mx-auto mb-4 border border-border/40 bg-slate-50/50 rounded-xl flex items-center justify-center group-hover:scale-105 group-hover:border-primary/20 group-hover:bg-primary/5 transition-all duration-300">
+                    <Cpu className="w-8 h-8 text-primary opacity-80 group-hover:scale-110 group-hover:opacity-100 transition-all duration-300" />
+                  </div>
+                  <h4 className="text-xl font-extrabold text-foreground mb-2 group-hover:text-primary transition-colors">Công cụ AI</h4>
+                  <p className="text-base text-muted-foreground">Tích hợp chấm điểm & tư vấn nghề nghiệp</p>
+                </Card>
+                <Card hover className="p-6 text-center md:col-span-2 group transition-all duration-300 border-border/40 bg-gradient-to-br from-slate-50 to-primary/5">
+                  <div className="w-16 h-16 mx-auto mb-4 border border-primary/10 bg-white shadow-sm rounded-xl flex items-center justify-center group-hover:scale-105 group-hover:border-primary/20 group-hover:bg-primary/10 transition-all duration-300">
+                    <Workflow className="w-8 h-8 text-primary opacity-80 group-hover:scale-110 group-hover:opacity-100 transition-all duration-300" />
+                  </div>
+                  <h4 className="text-xl font-extrabold text-foreground mb-2 group-hover:text-primary transition-colors">Luồng tuyển dụng xuyên suốt</h4>
+                  <p className="text-base text-muted-foreground">Từ lúc đăng tin đến khi ứng viên nhận lời mời phỏng vấn thành công</p>
+                </Card>
               </div>
             </ScrollReveal>
           </div>
-
-          {/* Stats Bar */}
-          <section className="bg-white/70 backdrop-blur-xl rounded-[40px] p-12 border border-white shadow-2xl shadow-primary/5 mb-32">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
-              {[
-                { label: 'Người dùng', val: 500000, suffix: '+' },
-                { label: 'Doanh nghiệp', val: 15000, suffix: '+' },
-                { label: 'Tin tuyển dụng', val: 100000, suffix: '+' },
-                { label: 'Tỷ lệ Hài lòng', val: 9.8, suffix: '/10' },
-              ].map((stat, i) => (
-                <ScrollReveal key={i} delay={i * 100}>
-                  <div className="space-y-2">
-                    <AnimatedCounter
-                      end={stat.val}
-                      suffix={stat.suffix}
-                      decimals={stat.val % 1 !== 0 ? 1 : 0}
-                      className="text-4xl font-black text-primary-600"
-                    />
-                    <p className="text-base font-black text-slate-400 uppercase tracking-widest">
-                      {stat.label}
-                    </p>
-                  </div>
-                </ScrollReveal>
-              ))}
-            </div>
-          </section>
-
-          {/* Core Values */}
-          <section className="mb-32">
-            <ScrollReveal>
-              <div className="text-center max-w-2xl mx-auto mb-20">
-                <h2 className="text-4xl font-black text-slate-900 mb-6 tracking-tight text-wrap-balance">
-                  Giá trị của HireAI
-                </h2>
-                <div className="w-20 h-1.5 bg-primary-600 mx-auto rounded-full mb-6"></div>
-                <p className="text-slate-500 font-medium">
-                  Chúng tôi xây dựng nền tảng dựa trên những nguyên tắc bền vững để phục vụ cộng
-                  đồng.
-                </p>
-              </div>
-            </ScrollReveal>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                {
-                  icon: <Users size={32} />,
-                  title: 'Người dùng là ưu tiên',
-                  desc: 'Mọi tính năng đều được tối ưu cho trải nghiệm tốt nhất của bạn.',
-                },
-                {
-                  icon: <ShieldCheck size={32} />,
-                  title: 'Bảo mật tuyệt đối',
-                  desc: 'Thông tin cá nhân và doanh nghiệp được mã hóa đa lớp cực kỳ an toàn.',
-                },
-                {
-                  icon: <Globe size={32} />,
-                  title: 'Tầm vóc toàn cầu',
-                  desc: 'Kết nối tài năng Việt với các thị trường phát triển nhất thế giới.',
-                },
-              ].map((v, i) => (
-                <ScrollReveal key={i} delay={i * 200} direction="up">
-                  <Card className="p-10 hover-lift text-center flex flex-col items-center h-full group">
-                    <div className="w-16 h-16 rounded-2xl bg-primary-50 text-primary-600 flex items-center justify-center mb-8 group-hover:bg-primary-600 group-hover:text-white transition-all duration-500">
-                      {v.icon}
-                    </div>
-                    <h4 className="text-2xl font-black text-slate-900 mb-4">{v.title}</h4>
-                    <p className="text-slate-500 font-medium leading-relaxed">{v.desc}</p>
-                  </Card>
-                </ScrollReveal>
-              ))}
-            </div>
-          </section>
-
-          {/* Culture / CTA */}
-          <section className="bg-slate-900 rounded-[60px] p-10 md:p-20 flex flex-col lg:flex-row items-center gap-16 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary-600/10 rounded-full blur-[120px] -z-0"></div>
-
-            <div className="lg:w-1/2 relative z-10">
-              <ScrollReveal direction="left">
-                <h2 className="text-4xl md:text-5xl font-black text-white mb-8 leading-tight tracking-tight text-wrap-balance">
-                  Gia nhập đội ngũ <br /> xây dựng tương lai.
-                </h2>
-                <p className="text-slate-400 text-lg font-medium mb-10 leading-relaxed max-w-lg">
-                  Tại HireAI, chúng tôi luôn chào đón những nhân tố sáng tạo, nhiệt huyết và khao
-                  khát ứng dụng công nghệ để giải quyết các vấn đề lớn cho hàng triệu người.
-                </p>
-                <Button
-                  className="px-10 py-5 rounded-2xl text-lg font-extrabold flex items-center gap-3 bg-primary-600 border-none hover:shadow-glow transition-all"
-                  icon={<ArrowRight size={20} />}
-                >
-                  Khám phá các vị trí tuyển dụng
-                </Button>
-              </ScrollReveal>
-            </div>
-
-            <div className="lg:w-1/2 grid grid-cols-2 gap-4 relative z-10">
-              <div className="space-y-4">
-                <ScrollReveal delay={200}>
-                  <div className="aspect-[4/5] rounded-[32px] overflow-hidden shadow-2xl border border-white/10">
-                    <img
-                      src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=500&auto=format&fit=crop"
-                      className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
-                      alt="Culture"
-                    />
-                  </div>
-                </ScrollReveal>
-                <ScrollReveal delay={400}>
-                  <div className="aspect-square rounded-[32px] bg-primary-600 flex flex-col items-center justify-center p-6 text-white text-center shadow-2xl shadow-primary/20">
-                    <Star size={40} className="mb-4 fill-white" />
-                    <p className="text-lg font-black tracking-tight leading-none">
-                      Best Place to Work 2026
-                    </p>
-                  </div>
-                </ScrollReveal>
-              </div>
-              <div className="space-y-4 pt-12">
-                <ScrollReveal delay={300}>
-                  <div className="aspect-square rounded-[32px] bg-white/5 backdrop-blur-md border border-white/10 flex items-center justify-center p-8 text-white relative overflow-hidden group">
-                    <span className="text-6xl font-black relative z-10 opacity-20 group-hover:opacity-40 transition-opacity">
-                      AI
-                    </span>
-                    <p className="absolute bottom-6 left-6 font-bold text-base uppercase tracking-widest text-primary-500">
-                      Tech First Culture
-                    </p>
-                  </div>
-                </ScrollReveal>
-                <ScrollReveal delay={500}>
-                  <div className="aspect-[4/5] rounded-[32px] overflow-hidden shadow-2xl border border-white/10">
-                    <img
-                      src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&auto=format&fit=crop"
-                      className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
-                      alt="Culture"
-                    />
-                  </div>
-                </ScrollReveal>
-              </div>
-            </div>
-          </section>
         </div>
-      </div>
-    </>
+      </section>
+
+      {/* 7. CTA Section */}
+      <section className="py-24 bg-primary relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iNCIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
+        <div className="container mx-auto px-6 relative z-10 text-center max-w-3xl">
+          <ScrollReveal>
+            <h2 className="text-4xl sm:text-5xl font-bold tracking-normal text-white mb-6">
+              Bắt đầu trải nghiệm ngay!
+            </h2>
+            <p className="text-lg text-white/90 mb-10 font-medium leading-relaxed max-w-2xl mx-auto">
+              Trải nghiệm toàn bộ những tính năng và lợi ích tuyệt vời nhất của đồ án
+              chỉ bằng một vài thao tác đăng ký đơn giản.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Link to="/register">
+                <Button className="h-14 px-8 w-full sm:w-auto text-base font-bold rounded-xl bg-white text-primary hover:bg-slate-50 shadow-[0_0_40px_rgba(255,255,255,0.7)] hover:shadow-[0_0_60px_rgba(255,255,255,0.9)] transition-all duration-300 hover:-translate-y-0.5">
+                  Tạo Tài khoản
+                </Button>
+              </Link>
+              <Link to="/jobs">
+                <Button variant="outline" className="h-14 px-8 w-full sm:w-auto text-base font-bold rounded-xl border-2 border-white/20 text-white hover:bg-white/10 hover:border-white/40 transition-all duration-300 bg-transparent">
+                  Khám phá Việc làm
+                </Button>
+              </Link>
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+    </div>
   );
 };
 

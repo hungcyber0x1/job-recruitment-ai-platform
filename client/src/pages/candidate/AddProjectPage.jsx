@@ -4,7 +4,6 @@ import {
   ArrowLeft,
   Calendar,
   Image as ImageIcon,
-  Info,
   Link as LinkIcon,
   Save,
   Globe,
@@ -17,7 +16,6 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import candidateService from '../../services/candidateService';
-import { calculateProfileCompletion } from '../../utils/profileCompletion';
 import useUpload from '../../hooks/useUpload';
 import { useNotification } from '../../context/NotificationContext';
 import { API_ORIGIN } from '../../config';
@@ -26,7 +24,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const MAX_IMAGE_SIZE_MB = 5;
@@ -52,11 +49,6 @@ const AddProjectPage = () => {
     projectUrl: '',
     description: '',
   });
-
-  const profileCompletion = React.useMemo(
-    () => calculateProfileCompletion(profile || {}, user || {}),
-    [profile, user]
-  );
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -176,7 +168,7 @@ const AddProjectPage = () => {
   if (loading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <div className="h-12 w-12 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
@@ -208,19 +200,6 @@ const AddProjectPage = () => {
               {displayName.charAt(0) || 'U'}
             </AvatarFallback>
           </Avatar>
-        </div>
-      </div>
-
-      {/* Profile completion */}
-      <div className="mb-6 space-y-2">
-        <div className="flex items-center justify-between text-base">
-          <span className="font-medium text-foreground">Độ hoàn thiện hồ sơ</span>
-          <span className="text-muted-foreground">{profileCompletion.completion}%</span>
-        </div>
-        <Progress value={profileCompletion.completion} className="h-2 bg-muted" />
-        <div className="flex items-start gap-2 rounded-lg bg-primary/10 p-3 text-base text-foreground">
-          <Info className="h-4 w-4 shrink-0 text-primary mt-0.5" />
-          <p>Thêm dự án thực tế giúp tăng 35% khả năng lọt vào mắt xanh của nhà tuyển dụng.</p>
         </div>
       </div>
 
@@ -290,7 +269,7 @@ const AddProjectPage = () => {
                     </div>
                   ) : (
                     <>
-                      <ImageIcon className="h-10 w-10 text-muted-foreground" />
+                      <ImageIcon className="h-12 w-12 text-muted-foreground" />
                       <span className="mt-2 text-center text-base font-medium text-muted-foreground">
                         {isUploading ? 'Đang tải...' : 'Tải ảnh lên (PNG, JPG)'}
                       </span>

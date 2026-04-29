@@ -1,3 +1,8 @@
+/**
+ * Chatbot Routes — AI chatbot endpoints.
+ *
+ * ⚠️   TABLE: Sử dụng `chatbot_conversations` và `chatbot_messages`
+ */
 const express = require('express');
 const router = express.Router();
 const ChatbotController = require('../controllers/chatbot');
@@ -27,5 +32,21 @@ router.post(
   verifyUploadSignature,
   ChatbotController.uploadFile
 );
+
+// CV Analysis (structured extraction)
+router.post(
+  '/analyze-cv',
+  protect,
+  aiLimiter,
+  ChatbotController.upload.single('file'),
+  verifyUploadSignature,
+  ChatbotController.analyzeCV
+);
+
+// Cover Letter Generation
+router.post('/cover-letter', protect, aiLimiter, ChatbotController.generateCoverLetter);
+
+// Message Feedback
+router.post('/feedback', protect, ChatbotController.sendFeedback);
 
 module.exports = router;

@@ -1,12 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Bell, Eye, Lock, Share2, User, Loader2, Github, Facebook } from 'lucide-react';
-import { useAuth } from '../../../context/AuthContext';
-import { useNotification } from '../../../context/NotificationContext';
-import { Card, CardContent } from '@/components/ui/card';
+import React, { useEffect, useState } from 'react';
+import {
+  AtSign,
+  Bell,
+  CheckCircle2,
+  Eye,
+  EyeOff,
+  KeyRound,
+  Loader2,
+  Lock,
+  Mail,
+  Settings,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -14,58 +20,214 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { cn } from '@/utils';
+import { useAuth } from '../../../context/AuthContext';
+import { useNotification } from '../../../context/NotificationContext';
 import authService from '../../../services/authService';
 import userService from '../../../services/userService';
 import candidateService from '../../../services/candidateService';
-import { resolveBrowserApiUrl } from '../../../config';
-import api from '../../../services/api';
 
-const SECTIONS = [
-  { id: 'login', label: 'Đăng nhập & Bảo mật', icon: Lock },
-  { id: 'notifications', label: 'Cài đặt thông báo', icon: Bell },
-  { id: 'privacy', label: 'Quyền riêng tư', icon: Eye },
-  { id: 'social', label: 'Kết nối mạng xã hội', icon: Share2 },
+const ALERT_TYPES = [
+  { key: 'application_update', label: 'Cập nhật đơn ứng tuyển', desc: 'Thông báo khi hồ sơ thay đổi trạng thái.' },
+  { key: 'interview_invite', label: 'Lời mời phỏng vấn', desc: 'Thông báo khi nhà tuyển dụng gửi lịch phỏng vấn.' },
 ];
 
-const PROVIDER_META = {
-  google: { label: 'Google' },
-  facebook: { label: 'Facebook', Icon: Facebook },
-  github: { label: 'GitHub', Icon: Github },
-};
-
-function oauthConnectUrl(provider) {
-  const token = localStorage.getItem('token');
-  if (!token) return '';
-  const base = resolveBrowserApiUrl(`auth/oauth/${provider}`);
-  return `${base}?link_token=${encodeURIComponent(token)}`;
-}
+const SETTING_SECTIONS = [
+  { id: 'security', label: 'Bảo mật', desc: 'Email, mật khẩu', icon: Lock },
+  { id: 'notifications', label: 'Thông báo', desc: 'Email, ứng tuyển', icon: Bell },
+  { id: 'privacy', label: 'Quyền riêng tư', desc: 'Hiển thị hồ sơ', icon: Eye },
+];
 
 function formatPasswordHint(iso) {
-  if (!iso) return '—';
+  if (!iso) return 'Chưa có dữ liệu';
   try {
     return new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium' }).format(new Date(iso));
   } catch {
-    return '—';
+    return 'Chưa có dữ liệu';
   }
 }
+
+const Toggle = ({ checked, onChange, disabled }) => (
+  <button
+    type="button"
+    role="switch"
+    aria-checked={checked}
+    disabled={disabled}
+    onClick={() => onChange(!checked)}
+    className={cn(
+      'relative h-5 w-9 shrink-0 rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+      checked ? 'bg-emerald-600' : 'bg-slate-300'
+    )}
+  >
+    <span
+      className={cn(
+        'absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform',
+        checked && 'translate-x-4'
+      )}
+    />
+  </button>
+);
+
+const SettingsCard = ({ icon: Icon, title, subtitle, children, action }) => (
+  <Card className="overflow-hidden rounded-lg border-slate-200 bg-white shadow-sm">
+    <CardContent className="p-5">
+      <div className="mb-5 flex items-start justify-between gap-4">
+        <div className="flex min-w-0 gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100">
+            <Icon className="h-5 w-5" />
+          </div>
+          <div className="min-w-0">
+            <h2 className="text-lg font-bold text-slate-950">{title}</h2>
+            <p className="mt-1 text-sm font-medium leading-6 text-slate-500">{subtitle}</p>
+          </div>
+        </div>
+        {action}
+      </div>
+      {children}
+    </CardContent>
+  </Card>
+);
+
+const SettingRow = ({ icon: Icon, title, description, meta, action, tone = 'emerald' }) => {
+  const toneClass = {
+    emerald: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
+    blue: 'bg-blue-50 text-blue-700 ring-blue-100',
+    slate: 'bg-slate-50 text-slate-600 ring-slate-100',
+  }[tone];
+
+  return (
+    <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50/60 p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex min-w-0 gap-3">
+        <div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset', toneClass)}>
+          <Icon className="h-4 w-4" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-base font-bold text-slate-950">{title}</p>
+          {meta && <p className="mt-1 text-sm font-semibold text-slate-700">{meta}</p>}
+          <p className="mt-1 text-sm leading-6 text-slate-500">{description}</p>
+        </div>
+      </div>
+      {action && <div className="flex shrink-0 items-center">{action}</div>}
+    </div>
+  );
+};
+
+const PrivacyOption = ({ active, icon: Icon, title, description, onClick, disabled }) => (
+  <button
+    type="button"
+    disabled={disabled}
+    onClick={onClick}
+    className={cn(
+      'relative rounded-lg border p-4 text-left transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60',
+      active
+        ? 'border-emerald-300 bg-emerald-50 shadow-sm shadow-emerald-100/50'
+        : 'border-slate-200 bg-slate-50/60 hover:border-emerald-200 hover:bg-emerald-50/30'
+    )}
+  >
+    <div className="flex gap-3 pr-7">
+      <div
+        className={cn(
+          'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset',
+          active ? 'bg-white text-emerald-700 ring-emerald-100' : 'bg-white text-slate-500 ring-slate-100'
+        )}
+      >
+        <Icon className="h-4 w-4" />
+      </div>
+      <div>
+        <p className="text-base font-bold text-slate-950">{title}</p>
+        <p className="mt-1 text-sm leading-6 text-slate-500">{description}</p>
+      </div>
+    </div>
+    {active && (
+      <span className="absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-white">
+        <CheckCircle2 className="h-3.5 w-3.5" />
+      </span>
+    )}
+  </button>
+);
+
+const SettingStatCard = ({ icon: Icon, label, value, helper, tone, active, onClick }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={cn(
+      'rounded-lg border bg-white p-4 text-left shadow-sm transition-all duration-200',
+      active
+        ? 'border-emerald-300 bg-emerald-50/60 shadow-emerald-100/50'
+        : 'border-slate-200 hover:border-emerald-200 hover:shadow-md'
+    )}
+  >
+    <div className="flex items-start justify-between gap-3">
+      <div className="min-w-0">
+        <div className="truncate text-2xl font-bold leading-none text-slate-950">{value}</div>
+        <div className="mt-1 text-sm font-bold text-slate-700">{label}</div>
+        <div className="mt-0.5 line-clamp-1 text-xs font-medium text-slate-500">{helper}</div>
+      </div>
+      <div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset', tone)}>
+        <Icon size={18} />
+      </div>
+    </div>
+  </button>
+);
+
+const SettingsTabs = ({ activeSection, onChange }) => (
+  <div className="overflow-x-auto">
+    <div className="flex min-w-max gap-2 pb-1">
+      {SETTING_SECTIONS.map(({ id, label, desc, icon: Icon }) => {
+        const active = activeSection === id;
+
+        return (
+          <button
+            key={id}
+            type="button"
+            onClick={() => onChange(id)}
+            className={cn(
+              'inline-flex min-h-11 items-center gap-2 rounded-lg border px-4 text-sm font-bold transition-colors duration-200',
+              active
+                ? 'border-emerald-600 bg-emerald-600 text-white shadow-sm shadow-emerald-900/10'
+                : 'border-slate-200 bg-white text-slate-600 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700'
+            )}
+          >
+            <Icon className="h-3.5 w-3.5" />
+            <span>{label}</span>
+            <span
+              className={cn(
+                'hidden rounded-full px-2 py-0.5 text-[11px] font-bold sm:inline-flex',
+                active ? 'bg-white/20 text-white' : 'bg-slate-50 text-slate-500'
+              )}
+            >
+              {desc}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  </div>
+);
+
+const SidebarCard = ({ title, icon: Icon, children, className }) => (
+  <Card className={cn('overflow-hidden rounded-lg border-slate-200 bg-white shadow-sm', className)}>
+    <CardContent className="p-5">
+      <h3 className="flex items-center gap-2 text-base font-bold text-slate-950">
+        <Icon className="h-4 w-4 text-emerald-600" />
+        {title}
+      </h3>
+      {children}
+    </CardContent>
+  </Card>
+);
 
 const CandidateSettingsPage = () => {
   const { user, updateUser } = useAuth();
   const { showNotification } = useNotification();
-  const [activeSection, setActiveSection] = useState('login');
+  const [activeSection, setActiveSection] = useState('security');
   const [pageLoading, setPageLoading] = useState(true);
   const [prefsSaving, setPrefsSaving] = useState(false);
   const [privacySaving, setPrivacySaving] = useState(false);
-  const [oauthProviders, setOauthProviders] = useState({
-    google: false,
-    facebook: false,
-    github: false,
-  });
-  const [unlinking, setUnlinking] = useState(false);
 
   const [emailNotif, setEmailNotif] = useState(true);
-  const [pushNotif, setPushNotif] = useState(false);
   const [profileVisibility, setProfileVisibility] = useState('public');
 
   const [pwdOpen, setPwdOpen] = useState(false);
@@ -75,78 +237,100 @@ const CandidateSettingsPage = () => {
   const [pwdSubmitting, setPwdSubmitting] = useState(false);
 
   const [me, setMe] = useState(null);
-  const [candidate, setCandidate] = useState(null);
+  const [alertTypes, setAlertTypes] = useState({
+    application_update: true,
+    interview_invite: true,
+  });
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setPageLoading(true);
       try {
-        const [meRes, candRes, oauthRes] = await Promise.all([
+        const [meRes, candRes] = await Promise.all([
           authService.getMe(),
           candidateService.getProfile().catch(() => null),
-          api.get('auth/oauth/status').catch(() => ({ data: {} })),
         ]);
 
         if (cancelled) return;
 
-        if (oauthRes?.data?.providers) {
-          setOauthProviders(oauthRes.data.providers);
-        }
-
         const meData = meRes?.data?.data;
         if (meData) {
           setMe(meData);
-          setEmailNotif(
-            meData.email_notifications === 0 || meData.email_notifications === false ? false : true
-          );
-          setPushNotif(meData.push_notifications === 1 || meData.push_notifications === true);
+          setEmailNotif(!(meData.email_notifications === 0 || meData.email_notifications === false));
+          if (meData.notification_preferences) {
+            setAlertTypes((prev) => ({ ...prev, ...meData.notification_preferences }));
+          }
           updateUser(meData);
         }
+
         const candData = candRes?.data?.data;
         if (candData) {
-          setCandidate(candData);
           setProfileVisibility(candData.profile_visibility === 'private' ? 'private' : 'public');
         }
       } catch (e) {
-        console.error(e);
+        console.warn('CandidateSettingsPage fetch error:', e?.message);
         showNotification('Không tải được cài đặt. Thử làm mới trang.', 'error');
       } finally {
         if (!cancelled) setPageLoading(false);
       }
     })();
+
     return () => {
       cancelled = true;
     };
   }, [showNotification, updateUser]);
 
-  const displayName =
-    user?.fullName || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'Ứng viên';
+  const hasLocalPassword =
+    me?.has_local_password !== undefined
+      ? !!me.has_local_password
+      : user?.has_local_password !== false;
+  const enabledAlertCount = ALERT_TYPES.filter((item) => alertTypes[item.key]).length;
 
-  const jobTitle = candidate?.current_job_title || candidate?.title || 'Ứng viên';
+  const summaryCards = [
+    {
+      id: 'security',
+      label: 'Bảo mật',
+      value: hasLocalPassword ? 'Đã có' : 'OAuth',
+      helper: user?.email || 'Email đăng nhập',
+      icon: Lock,
+      tone: 'bg-emerald-50 text-emerald-600 ring-emerald-100',
+    },
+    {
+      id: 'notifications',
+      label: 'Thông báo',
+      value: emailNotif ? 'Bật' : 'Tắt',
+      helper: `${enabledAlertCount}/${ALERT_TYPES.length} sự kiện chính`,
+      icon: Bell,
+      tone: 'bg-sky-50 text-sky-600 ring-sky-100',
+    },
+    {
+      id: 'privacy',
+      label: 'Hồ sơ',
+      value: profileVisibility === 'public' ? 'Công khai' : 'Riêng tư',
+      helper: 'Khả năng nhà tuyển dụng tìm thấy bạn',
+      icon: Eye,
+      tone: 'bg-amber-50 text-amber-600 ring-amber-100',
+    },
+  ];
 
-  const persistNotifications = async (nextEmail, nextPush) => {
+  const persistNotifications = async (nextEmail) => {
     setPrefsSaving(true);
     try {
       await userService.updatePreferences({
         email_notifications: nextEmail,
-        push_notifications: nextPush,
       });
       setEmailNotif(nextEmail);
-      setPushNotif(nextPush);
       const fresh = await authService.getMe();
-      const u = fresh?.data?.data;
-      if (u) {
-        setMe(u);
-        updateUser(u);
+      const freshUser = fresh?.data?.data;
+      if (freshUser) {
+        setMe(freshUser);
+        updateUser(freshUser);
       }
       showNotification('Đã lưu cài đặt thông báo.', 'success');
     } catch (err) {
-      console.error(err);
-      showNotification(
-        err.response?.data?.message || 'Không lưu được. Kiểm tra kết nối hoặc chạy migration DB.',
-        'error'
-      );
+      console.warn('CandidateSettingsPage notification save error:', err?.message);
+      showNotification(err.response?.data?.message || 'Không lưu được cài đặt thông báo.', 'error');
     } finally {
       setPrefsSaving(false);
     }
@@ -159,7 +343,7 @@ const CandidateSettingsPage = () => {
       setProfileVisibility(vis);
       showNotification('Đã cập nhật quyền riêng tư hồ sơ.', 'success');
     } catch (err) {
-      console.error(err);
+      console.warn('CandidateSettingsPage privacy save error:', err?.message);
       showNotification(err.response?.data?.message || 'Không lưu được quyền riêng tư.', 'error');
     } finally {
       setPrivacySaving(false);
@@ -188,10 +372,10 @@ const CandidateSettingsPage = () => {
       setPwdNew('');
       setPwdConfirm('');
       const fresh = await authService.getMe();
-      const u = fresh?.data?.data;
-      if (u) {
-        setMe(u);
-        updateUser(u);
+      const freshUser = fresh?.data?.data;
+      if (freshUser) {
+        setMe(freshUser);
+        updateUser(freshUser);
       }
     } catch (err) {
       showNotification(err.response?.data?.message || 'Đổi mật khẩu thất bại.', 'error');
@@ -200,363 +384,230 @@ const CandidateSettingsPage = () => {
     }
   };
 
-  const handleUnlink = async () => {
-    setUnlinking(true);
+  const handleAlertToggle = async (key, value) => {
+    const next = { ...alertTypes, [key]: value };
+    setAlertTypes(next);
     try {
-      await authService.unlinkOAuth();
-      showNotification('Đã hủy liên kết mạng xã hội.', 'success');
-      const fresh = await authService.getMe();
-      const u = fresh?.data?.data;
-      if (u) {
-        setMe(u);
-        updateUser(u);
-      }
-    } catch (err) {
-      showNotification(err.response?.data?.message || 'Không hủy được liên kết.', 'error');
-    } finally {
-      setUnlinking(false);
+      await userService.updatePreferences({ notification_preferences: next });
+    } catch {
+      setAlertTypes((prev) => ({ ...prev, [key]: !value }));
+      showNotification('Không lưu được loại thông báo này.', 'error');
     }
   };
 
-  const Toggle = ({ checked, onChange, disabled }) => (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      disabled={disabled}
-      onClick={() => onChange(!checked)}
-      className={cn(
-        'relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-50',
-        checked ? 'bg-emerald-600' : 'bg-muted'
-      )}
-    >
-      <span
-        className={cn(
-          'absolute top-1 left-1 h-4 w-4 rounded-full bg-white shadow transition-transform',
-          checked && 'translate-x-5'
-        )}
-      />
-    </button>
-  );
+  const renderActiveSection = () => {
+    if (activeSection === 'security') {
+      return (
+        <SettingsCard
+          icon={Lock}
+          title="Đăng nhập & bảo mật"
+          subtitle="Thông tin đăng nhập cơ bản của ứng viên."
+        >
+          <div className="space-y-3">
+            <SettingRow
+              icon={AtSign}
+              title="Email đăng nhập"
+              meta={user?.email || 'Chưa cập nhật email'}
+              description="Dùng để đăng nhập và nhận thông báo hệ thống."
+              tone="emerald"
+            />
+            <SettingRow
+              icon={KeyRound}
+              title="Mật khẩu"
+              description={
+                hasLocalPassword
+                  ? `Cập nhật lần cuối: ${formatPasswordHint(me?.password_updated_at || user?.password_updated_at)}`
+                  : 'Tài khoản đang đăng nhập bằng mạng xã hội.'
+              }
+              tone="blue"
+              action={
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={!hasLocalPassword}
+                  onClick={() => setPwdOpen(true)}
+                  className="h-9 rounded-lg bg-white px-3 text-xs font-bold"
+                >
+                  Đổi mật khẩu
+                </Button>
+              }
+            />
+          </div>
+        </SettingsCard>
+      );
+    }
+
+    if (activeSection === 'notifications') {
+      return (
+        <SettingsCard
+          icon={Bell}
+          title="Thông báo tuyển dụng"
+          subtitle="Chỉ giữ email và các sự kiện chính phục vụ luồng ứng tuyển."
+          action={prefsSaving && <Loader2 className="h-5 w-5 animate-spin text-emerald-600" />}
+        >
+          <div className="space-y-3">
+            <SettingRow
+              icon={Mail}
+              title="Email"
+              description="Nhận cập nhật đơn ứng tuyển và lời mời phỏng vấn qua email."
+              tone="emerald"
+              action={
+                <Toggle
+                  checked={emailNotif}
+                  disabled={prefsSaving}
+                  onChange={(value) => persistNotifications(value)}
+                />
+              }
+            />
+            <div className="rounded-lg border border-slate-200 bg-slate-50/60 p-4">
+              <p className="mb-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-400">Sự kiện chính</p>
+              <div className="space-y-3">
+                {ALERT_TYPES.map((item) => (
+                  <div key={item.key} className="flex items-center justify-between gap-3 rounded-lg bg-white px-3 py-2 ring-1 ring-inset ring-slate-100">
+                    <div>
+                      <p className="text-sm font-bold text-slate-800">{item.label}</p>
+                      <p className="text-xs leading-5 text-slate-500">{item.desc}</p>
+                    </div>
+                    <Toggle
+                      checked={Boolean(alertTypes[item.key])}
+                      onChange={(value) => handleAlertToggle(item.key, value)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </SettingsCard>
+      );
+    }
+
+    return (
+      <SettingsCard
+        icon={Eye}
+        title="Quyền riêng tư hồ sơ"
+        subtitle="Quyết định khả năng nhà tuyển dụng tìm thấy hồ sơ."
+        action={privacySaving && <Loader2 className="h-5 w-5 animate-spin text-emerald-600" />}
+      >
+        <div className="grid gap-3 md:grid-cols-2">
+          <PrivacyOption
+            active={profileVisibility === 'public'}
+            disabled={privacySaving}
+            icon={Eye}
+            title="Công khai"
+            description="Nhà tuyển dụng có thể tìm thấy hồ sơ trong khu vực tìm kiếm ứng viên."
+            onClick={() => persistPrivacy('public')}
+          />
+          <PrivacyOption
+            active={profileVisibility === 'private'}
+            disabled={privacySaving}
+            icon={EyeOff}
+            title="Riêng tư"
+            description="Hạn chế hiển thị công khai, nhưng hồ sơ vẫn được gửi khi bạn ứng tuyển."
+            onClick={() => persistPrivacy('private')}
+          />
+        </div>
+      </SettingsCard>
+    );
+  };
 
   if (pageLoading) {
     return (
-      <div className="flex min-h-[40vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+      <div className="flex min-h-[50vh] items-center justify-center bg-slate-50">
+        <div className="rounded-lg border border-emerald-100 bg-white px-6 py-5 text-center shadow-sm">
+          <Loader2 className="mx-auto h-7 w-7 animate-spin text-emerald-600" />
+          <p className="mt-3 text-sm font-semibold text-slate-700">Đang tải cài đặt...</p>
+        </div>
       </div>
     );
   }
 
-  const hasLocalPassword =
-    me?.has_local_password !== undefined
-      ? !!me.has_local_password
-      : user?.has_local_password !== false;
-
   return (
-    <div className="min-h-screen bg-muted/30 pb-16">
-      <div className="mb-6">
-        <h1 className="text-xl font-bold text-foreground">Cài đặt tài khoản ứng viên</h1>
-        <p className="mt-1 text-base text-muted-foreground">
-          Bảo mật đăng nhập, thông báo và hiển thị hồ sơ.
-        </p>
-      </div>
+    <div className="min-h-screen bg-slate-50/40 pb-16">
+      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-40"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px)',
+            backgroundSize: '32px 32px',
+          }}
+        />
 
-      <div className="grid gap-8 lg:grid-cols-[280px_1fr]">
-        <div className="space-y-6">
-          <Card className="rounded-xl border bg-card shadow-sm">
-            <CardContent className="p-5">
-              <div className="flex flex-col items-center text-center">
-                <Avatar className="h-16 w-16 rounded-full border-2 border-muted">
-                  <AvatarImage src={user?.avatar_url} alt={displayName} />
-                  <AvatarFallback className="bg-primary/20 text-lg font-semibold text-primary">
-                    {displayName.charAt(0) || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-                <p className="mt-3 font-semibold text-foreground">{displayName}</p>
-                <p className="text-base text-muted-foreground line-clamp-2">{jobTitle}</p>
+        <div className="relative mx-auto max-w-7xl px-4 pb-8 pt-10 sm:px-6 lg:px-8">
+          <div className="mb-7 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-white shadow-sm shadow-emerald-900/10">
+                <Settings className="h-5 w-5" strokeWidth={2.5} />
               </div>
-            </CardContent>
-          </Card>
-          <nav className="space-y-0.5" aria-label="Mục cài đặt">
-            {SECTIONS.map(({ id, label, icon: Icon }) => (
-              <button
+              <div>
+                <span className="inline-flex rounded-full bg-white/80 px-3 py-1 text-xs font-bold uppercase text-emerald-700 ring-1 ring-inset ring-emerald-100">
+                  Cài đặt ứng viên
+                </span>
+                <h1 className="mt-3 text-2xl font-bold tracking-normal text-slate-950 sm:text-3xl">
+                  Cài đặt tài khoản
+                </h1>
+                <p className="mt-1 max-w-2xl text-sm font-medium text-slate-600">
+                  Giao diện rút gọn cho báo cáo khóa luận: bảo mật, email thông báo và quyền riêng tư hồ sơ.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {summaryCards.map(({ id, ...card }) => (
+              <SettingStatCard
                 key={id}
-                type="button"
+                {...card}
+                active={activeSection === id}
                 onClick={() => setActiveSection(id)}
-                className={cn(
-                  'flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-base font-medium transition-colors',
-                  activeSection === id
-                    ? 'bg-primary/15 text-primary'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                )}
-              >
-                <Icon className="h-4 w-4 shrink-0" />
-                {label}
-              </button>
+              />
             ))}
-          </nav>
-        </div>
-
-        <div className="space-y-6">
-          {activeSection === 'login' && (
-            <Card className="rounded-xl border bg-card shadow-sm">
-              <CardContent className="p-6">
-                <h2 className="text-lg font-semibold text-foreground">Đăng nhập & bảo mật</h2>
-                <p className="mt-1 text-base text-muted-foreground">
-                  Email đăng nhập và mật khẩu cục bộ (nếu có).
-                </p>
-                <div className="mt-6 space-y-6">
-                  <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border bg-muted/30 p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                        <User className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <p className="text-base font-medium text-muted-foreground">
-                          Email đăng nhập
-                        </p>
-                        <p className="font-medium text-foreground">{user?.email || '—'}</p>
-                        <p className="mt-1 text-base text-muted-foreground">
-                          Đổi email cần xác minh — liên hệ hỗ trợ nếu bạn cần cập nhật.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border bg-muted/30 p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                        <Lock className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <p className="text-base font-medium text-muted-foreground">Mật khẩu</p>
-                        <p className="text-base text-muted-foreground">
-                          {hasLocalPassword
-                            ? `Cập nhật lần cuối: ${formatPasswordHint(me?.password_updated_at || user?.password_updated_at)}`
-                            : 'Bạn đang đăng nhập bằng mạng xã hội — không có mật khẩu cục bộ.'}
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="rounded-lg border-slate-300 text-foreground hover:bg-slate-50"
-                      disabled={!hasLocalPassword}
-                      onClick={() => setPwdOpen(true)}
-                    >
-                      Đổi mật khẩu
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {activeSection === 'notifications' && (
-            <Card className="rounded-xl border bg-card shadow-sm">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <h2 className="text-lg font-semibold text-foreground">Cài đặt thông báo</h2>
-                    <p className="mt-1 text-base text-muted-foreground">
-                      Chọn kênh nhận tin từ nền tảng (lưu ngay khi bật/tắt).
-                    </p>
-                  </div>
-                  {prefsSaving && <Loader2 className="h-5 w-5 animate-spin text-emerald-600" />}
-                </div>
-                <div className="mt-6 space-y-6">
-                  <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border bg-muted/30 p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                        <span className="text-base font-semibold">@</span>
-                      </div>
-                      <div>
-                        <p className="font-medium text-foreground">Thông báo qua email</p>
-                        <p className="text-base text-muted-foreground">
-                          Việc làm phù hợp, cập nhật đơn ứng tuyển và lời mời phỏng vấn
-                        </p>
-                      </div>
-                    </div>
-                    <Toggle
-                      checked={emailNotif}
-                      disabled={prefsSaving}
-                      onChange={(v) => persistNotifications(v, pushNotif)}
-                    />
-                  </div>
-                  <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border bg-muted/30 p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                        <Bell className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-foreground">Thông báo đẩy (Push)</p>
-                        <p className="text-base text-muted-foreground">
-                          Chuẩn bị cho Web Push — bật sẵn tùy chọn; triển khai gửi push sau.
-                        </p>
-                      </div>
-                    </div>
-                    <Toggle
-                      checked={pushNotif}
-                      disabled={prefsSaving}
-                      onChange={(v) => persistNotifications(emailNotif, v)}
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {activeSection === 'privacy' && (
-            <Card className="rounded-xl border bg-card shadow-sm">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <h2 className="text-lg font-semibold text-foreground">Quyền riêng tư hồ sơ</h2>
-                    <p className="mt-1 text-base text-muted-foreground">
-                      Kiểm soát mức độ nhà tuyển dụng có thể khám phá hồ sơ của bạn.
-                    </p>
-                  </div>
-                  {privacySaving && <Loader2 className="h-5 w-5 animate-spin text-emerald-600" />}
-                </div>
-                <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                  <button
-                    type="button"
-                    disabled={privacySaving}
-                    onClick={() => persistPrivacy('public')}
-                    className={cn(
-                      'relative rounded-xl border-2 p-5 text-left transition-colors disabled:opacity-60',
-                      profileVisibility === 'public'
-                        ? 'border-emerald-600 bg-emerald-50/50'
-                        : 'border-muted bg-card hover:border-muted-foreground/30'
-                    )}
-                  >
-                    {profileVisibility === 'public' && (
-                      <span className="absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600 text-base text-white">
-                        ✓
-                      </span>
-                    )}
-                    <h3 className="font-semibold text-foreground">Công khai</h3>
-                    <p className="mt-2 text-base text-muted-foreground">
-                      Nhà tuyển dụng có thể tìm thấy và xem hồ sơ trong tìm kiếm ứng viên (khi tính
-                      năng được bật).
-                    </p>
-                  </button>
-                  <button
-                    type="button"
-                    disabled={privacySaving}
-                    onClick={() => persistPrivacy('private')}
-                    className={cn(
-                      'relative rounded-xl border-2 p-5 text-left transition-colors disabled:opacity-60',
-                      profileVisibility === 'private'
-                        ? 'border-emerald-600 bg-emerald-50/50'
-                        : 'border-muted bg-card hover:border-muted-foreground/30'
-                    )}
-                  >
-                    <span className="absolute right-4 top-4">
-                      {profileVisibility === 'private' ? (
-                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600 text-base text-white">
-                          ✓
-                        </span>
-                      ) : (
-                        <Lock className="h-5 w-5 text-muted-foreground" />
-                      )}
-                    </span>
-                    <h3 className="font-semibold text-foreground">Riêng tư hơn</h3>
-                    <p className="mt-2 text-base text-muted-foreground">
-                      Hạn chế hiển thị công khai; thông tin vẫn gửi kèm khi bạn nộp đơn ứng tuyển.
-                    </p>
-                  </button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {activeSection === 'social' && (
-            <Card className="rounded-xl border bg-card shadow-sm">
-              <CardContent className="p-6">
-                <h2 className="text-lg font-semibold text-foreground">Kết nối mạng xã hội</h2>
-                <p className="mt-1 text-base text-muted-foreground">
-                  Đăng nhập nhanh bằng Google, Facebook hoặc GitHub (theo cấu hình server).
-                </p>
-                <div className="mt-6 space-y-4">
-                  {['google', 'facebook', 'github'].map((key) => {
-                    const meta = PROVIDER_META[key];
-                    if (!meta || !oauthProviders[key]) return null;
-                    const linked =
-                      String(me?.oauth_provider || user?.oauth_provider || '').toLowerCase() ===
-                      key;
-                    return (
-                      <div
-                        key={key}
-                        className="flex flex-wrap items-center justify-between gap-4 rounded-lg border bg-muted/30 p-4"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-background shadow-sm">
-                            {key === 'google' ? (
-                              <span className="text-lg font-bold text-red-500">G</span>
-                            ) : (
-                              <meta.Icon
-                                className={cn(
-                                  'h-5 w-5',
-                                  key === 'facebook' ? 'text-[#1877f2]' : 'text-foreground'
-                                )}
-                              />
-                            )}
-                          </div>
-                          <div>
-                            <p className="font-medium text-foreground">{meta.label}</p>
-                            <p className="text-base text-muted-foreground">
-                              {linked ? 'Đã liên kết với tài khoản này' : 'Chưa liên kết'}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex gap-2">
-                          {!linked ? (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              className="rounded-lg border-slate-300 text-foreground hover:bg-slate-50"
-                              onClick={() => {
-                                const url = oauthConnectUrl(key);
-                                if (url) window.location.href = url;
-                              }}
-                            >
-                              Liên kết
-                            </Button>
-                          ) : (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              className="rounded-lg border-slate-300 text-foreground hover:bg-slate-50"
-                              disabled={unlinking || !hasLocalPassword}
-                              onClick={handleUnlink}
-                            >
-                              {unlinking ? 'Đang xử lý…' : 'Hủy liên kết'}
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                  {!oauthProviders.google && !oauthProviders.facebook && !oauthProviders.github && (
-                    <p className="text-base text-muted-foreground">
-                      Chưa bật OAuth trên server. Thêm biến môi trường Google / Facebook / GitHub để
-                      hiện nút liên kết.
-                    </p>
-                  )}
-                  {me?.oauth_provider && !hasLocalPassword && (
-                    <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-base text-amber-900">
-                      Bạn chỉ đăng nhập qua mạng xã hội. Để hủy liên kết, trước tiên cần đặt mật
-                      khẩu cục bộ (liên hệ hỗ trợ hoặc dùng luồng đặt mật khẩu khi có).
-                    </p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          </div>
         </div>
       </div>
+
+      <main className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+        <div className="mb-5 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+          <SettingsTabs activeSection={activeSection} onChange={setActiveSection} />
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <section className="min-w-0 space-y-4">{renderActiveSection()}</section>
+
+          <aside className="space-y-4">
+            <SidebarCard title="Tóm tắt cài đặt" icon={Settings}>
+              <div className="mt-4 space-y-2.5">
+                {[
+                  { label: 'Email', value: emailNotif ? 'Đang bật' : 'Đang tắt' },
+                  { label: 'Sự kiện', value: `${enabledAlertCount}/${ALERT_TYPES.length} đang bật` },
+                  { label: 'Hồ sơ', value: profileVisibility === 'public' ? 'Công khai' : 'Riêng tư' },
+                ].map((item) => (
+                  <div
+                    key={item.label}
+                    className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2"
+                  >
+                    <span className="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">{item.label}</span>
+                    <span className="text-sm font-bold text-slate-800">{item.value}</span>
+                  </div>
+                ))}
+              </div>
+            </SidebarCard>
+
+            <SidebarCard title="Phạm vi khóa luận" icon={CheckCircle2} className="bg-emerald-50/70">
+              <ul className="mt-4 space-y-2.5">
+                <li className="flex gap-2 text-sm font-medium text-slate-600">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+                  Chỉ giữ các chức năng cốt lõi, dễ thuyết minh trong luồng ứng viên.
+                </li>
+                <li className="flex gap-2 text-sm font-medium text-slate-600">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+                  Bỏ Push vì chưa cần thiết nếu chưa triển khai Web Push hoàn chỉnh.
+                </li>
+              </ul>
+            </SidebarCard>
+          </aside>
+        </div>
+      </main>
 
       <Dialog open={pwdOpen} onOpenChange={setPwdOpen}>
         <DialogContent className="sm:max-w-md">
@@ -571,7 +622,7 @@ const CandidateSettingsPage = () => {
                 type="password"
                 autoComplete="current-password"
                 value={pwdCurrent}
-                onChange={(e) => setPwdCurrent(e.target.value)}
+                onChange={(event) => setPwdCurrent(event.target.value)}
                 required
               />
             </div>
@@ -582,7 +633,7 @@ const CandidateSettingsPage = () => {
                 type="password"
                 autoComplete="new-password"
                 value={pwdNew}
-                onChange={(e) => setPwdNew(e.target.value)}
+                onChange={(event) => setPwdNew(event.target.value)}
                 required
                 minLength={8}
               />
@@ -594,7 +645,7 @@ const CandidateSettingsPage = () => {
                 type="password"
                 autoComplete="new-password"
                 value={pwdConfirm}
-                onChange={(e) => setPwdConfirm(e.target.value)}
+                onChange={(event) => setPwdConfirm(event.target.value)}
                 required
               />
             </div>
@@ -602,12 +653,8 @@ const CandidateSettingsPage = () => {
               <Button type="button" variant="outline" onClick={() => setPwdOpen(false)}>
                 Hủy
               </Button>
-              <Button
-                type="submit"
-                className="bg-emerald-600 text-white hover:bg-emerald-700 hover:text-white"
-                disabled={pwdSubmitting}
-              >
-                {pwdSubmitting ? 'Đang lưu…' : 'Cập nhật'}
+              <Button type="submit" disabled={pwdSubmitting}>
+                {pwdSubmitting ? 'Đang lưu...' : 'Cập nhật'}
               </Button>
             </DialogFooter>
           </form>

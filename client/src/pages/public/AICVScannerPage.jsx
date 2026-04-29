@@ -117,16 +117,16 @@ const AICVScannerPage = () => {
 
   return (
     <AIPublicToolShell
-      kicker="HireAI · Ứng viên"
+      kicker="HireBOT · Ứng viên"
       icon={BarChart3}
       title={titleNode}
-      description="Tải CV (PDF) để AI đánh giá mức độ sẵn sàng ứng tuyển: điểm tổng quan, từ khóa liên quan tin tuyển dụng (ATS) và gợi ý chỉnh sửa. Dùng trước khi nộp hồ sơ qua HireAI — kết quả xem tại chỗ, không tự lưu vào hồ sơ."
+      description="Tải CV (PDF) để AI đánh giá mức độ sẵn sàng ứng tuyển: điểm tổng quan, từ khóa liên quan tin tuyển dụng (ATS) và gợi ý chỉnh sửa. Dùng trước khi nộp hồ sơ qua HireBOT — kết quả xem tại chỗ, không tự lưu vào hồ sơ."
     >
       <div className="mx-auto max-w-4xl">
         {fileError && (
           <div
             role="alert"
-            className="mb-6 flex items-start gap-3 rounded-2xl border border-destructive/25 bg-destructive/5 px-4 py-3 text-base font-medium text-destructive"
+            className="mb-6 flex items-start gap-3 rounded-xl border border-destructive/25 bg-destructive/5 px-4 py-3 text-base font-medium text-destructive"
           >
             <XCircle className="mt-0.5 size-5 shrink-0" aria-hidden />
             {fileError}
@@ -162,7 +162,7 @@ const AICVScannerPage = () => {
               <>
                 <div
                   className={`
-                    relative rounded-2xl border-2 border-dashed p-10 text-center transition-all duration-300 md:p-12
+                    relative rounded-xl border-2 border-dashed p-10 text-center transition-all duration-300 md:p-12
                     ${dragActive ? 'scale-[1.01] border-primary bg-primary/5' : 'border-border hover:border-primary/40 hover:bg-muted/30'}
                     ${file ? 'border-primary bg-primary/5' : ''}
                   `}
@@ -184,7 +184,7 @@ const AICVScannerPage = () => {
                   />
                   {file ? (
                     <div className="relative z-0 flex flex-col items-center gap-4">
-                      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                      <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-primary/10 text-primary">
                         <FileText className="size-8" strokeWidth={1.5} />
                       </div>
                       <div>
@@ -199,7 +199,7 @@ const AICVScannerPage = () => {
                     </div>
                   ) : (
                     <div className="relative z-0 flex flex-col items-center gap-4">
-                      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
+                      <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                         <Upload className="size-8" strokeWidth={1.5} />
                       </div>
                       <div>
@@ -258,7 +258,7 @@ const AICVScannerPage = () => {
             <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div className="rounded-xl border border-border/40 bg-muted/50 p-6 text-center">
                 <p className="mb-1 text-base font-semibold text-muted-foreground">Điểm ATS</p>
-                <p className="text-4xl font-black tabular-nums text-primary md:text-5xl">
+                <p className="text-4xl font-bold tabular-nums text-primary md:text-5xl">
                   {result.score}
                 </p>
                 <p className="mt-1 text-base font-medium text-muted-foreground">trên 100</p>
@@ -267,7 +267,7 @@ const AICVScannerPage = () => {
                 <p className="mb-1 text-base font-semibold text-muted-foreground">
                   Từ khóa tìm thấy
                 </p>
-                <p className="text-4xl font-black tabular-nums text-primary md:text-5xl">
+                <p className="text-4xl font-bold tabular-nums text-primary md:text-5xl">
                   {result.keywordsFound}
                 </p>
                 <p className="mt-1 text-base font-medium text-muted-foreground">
@@ -286,7 +286,7 @@ const AICVScannerPage = () => {
               <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {result.strengths?.length > 0 && (
                   <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-5">
-                    <p className="mb-3 text-base font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
+                    <p className="mb-3 text-base font-bold uppercase tracking-normal text-emerald-700 dark:text-emerald-400">
                       Điểm mạnh (AI)
                     </p>
                     <ul className="list-disc space-y-1.5 pl-4 text-base font-medium text-foreground/90">
@@ -298,7 +298,7 @@ const AICVScannerPage = () => {
                 )}
                 {result.weaknesses?.length > 0 && (
                   <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-5">
-                    <p className="mb-3 text-base font-bold uppercase tracking-widest text-amber-800 dark:text-amber-400">
+                    <p className="mb-3 text-base font-bold uppercase tracking-normal text-amber-800 dark:text-amber-400">
                       Cần cải thiện (AI)
                     </p>
                     <ul className="list-disc space-y-1.5 pl-4 text-base font-medium text-foreground/90">

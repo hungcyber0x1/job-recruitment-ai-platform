@@ -1,916 +1,781 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  AtSign,
   Bell,
-  Camera,
-  Cpu,
-  LogOut,
-  MessageSquare,
-  MoreHorizontal,
-  Plus,
-  Shield,
-  ShieldCheck,
-  Sparkles,
+  Building2,
+  CheckCircle2,
+  KeyRound,
+  Loader2,
+  Lock,
+  Mail,
+  Settings,
   User,
-  UserPlus,
-  X,
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
-import Button from '../../components/common/Button';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { cn } from '../../utils';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
+import EmployerStatCard from '../../components/employer/EmployerStatCard';
 import authService from '../../services/authService';
 import employerService from '../../services/employerService';
 import userService from '../../services/userService';
+import { getUserFullName, normalizeCompanyEntity } from '../../utils/domain';
 
-const STORAGE_AI = 'employer_settings_ai';
-const STORAGE_NOTIF = 'employer_settings_notifications';
-const STORAGE_TEAM = 'employer_settings_team';
 const STORAGE_JOB_TITLE = 'employer_settings_job_title';
 
-const TABS = [
-  { id: 'account', label: 'Tài khoản', icon: User },
-  { id: 'team', label: 'Đội ngũ tuyển dụng', icon: UserPlus },
-  { id: 'ai', label: 'Tích hợp AI', icon: Sparkles },
-  { id: 'security', label: 'Bảo mật', icon: Shield },
-  { id: 'notifications', label: 'Thông báo', icon: Bell },
-];
-
-const DEFAULT_TEAM = [
+const ALERT_TYPES = [
   {
-    id: 1,
-    name: 'Nguyễn Linh',
-    email: 'linh.n@techx.vn',
-    role: 'Admin',
-    status: 'Hoạt động',
-    avatar: 'NL',
+    key: 'new_application',
+    label: 'Hồ sơ ứng tuyển mới',
+    desc: 'Báo khi có ứng viên mới nộp vào tin tuyển dụng.',
   },
   {
-    id: 2,
-    name: 'Trần Duy',
-    email: 'duy.t@techx.vn',
-    role: 'Recruiter',
-    status: 'Hoạt động',
-    avatar: 'TD',
+    key: 'interview_reminder',
+    label: 'Lịch phỏng vấn',
+    desc: 'Nhắc các mốc phỏng vấn và phản hồi quan trọng.',
   },
 ];
 
-const DEFAULT_NOTIF = {
-  emailNewApplications: true,
-  emailDigest: false,
-  pushMessages: true,
-  interviewReminders: true,
-  marketingTips: false,
+const SETTING_SECTIONS = [
+  {
+    id: 'account',
+    label: 'Tài khoản',
+    desc: 'Doanh nghiệp',
+    icon: Building2,
+  },
+  {
+    id: 'security',
+    label: 'Bảo mật',
+    desc: 'Email, mật khẩu',
+    icon: Lock,
+  },
+  {
+    id: 'notifications',
+    label: 'Thông báo',
+    desc: 'Ứng tuyển',
+    icon: Bell,
+  },
+];
+
+const TONE_CLASSES = {
+  emerald: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
+  blue: 'bg-blue-50 text-blue-700 ring-blue-100',
+  amber: 'bg-amber-50 text-amber-700 ring-amber-100',
+  slate: 'bg-slate-50 text-slate-600 ring-slate-100',
 };
 
-function loadJson(key, fallback) {
+const INPUT_CLASS =
+  'h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100';
+
+const LABEL_CLASS = 'text-xs font-bold uppercase tracking-[0.14em] text-slate-400';
+
+function toBool(value, fallback = true) {
+  if (value === undefined || value === null) return fallback;
+  if (value === true || value === 1 || value === '1' || value === 'true') return true;
+  if (value === false || value === 0 || value === '0' || value === 'false') return false;
+  return fallback;
+}
+
+function formatPasswordHint(iso) {
+  if (!iso) return 'Chưa có dữ liệu';
   try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return fallback;
-    return { ...fallback, ...JSON.parse(raw) };
+    return new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium' }).format(new Date(iso));
   } catch {
-    return fallback;
+    return 'Chưa có dữ liệu';
   }
 }
 
-function loadTeam() {
-  try {
-    const raw = localStorage.getItem(STORAGE_TEAM);
-    if (!raw) return DEFAULT_TEAM;
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length ? parsed : DEFAULT_TEAM;
-  } catch {
-    return DEFAULT_TEAM;
-  }
+function buildAccountForm(profile, user) {
+  const normalizedProfile = normalizeCompanyEntity(profile || {});
+  return {
+    first_name: normalizedProfile.first_name || user?.first_name || '',
+    last_name: normalizedProfile.last_name || user?.last_name || '',
+    company_name: normalizedProfile.company_name || user?.company_name || '',
+    job_title: localStorage.getItem(STORAGE_JOB_TITLE) || user?.job_title || '',
+  };
 }
+
+const Toggle = ({ checked, onChange, disabled }) => (
+  <button
+    type="button"
+    role="switch"
+    aria-checked={checked}
+    disabled={disabled}
+    onClick={() => onChange(!checked)}
+    className={cn(
+      'relative h-5 w-9 shrink-0 rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+      checked ? 'bg-emerald-600' : 'bg-slate-300'
+    )}
+  >
+    <span
+      className={cn(
+        'absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform',
+        checked && 'translate-x-4'
+      )}
+    />
+  </button>
+);
+
+const SettingsCard = ({ icon: Icon, title, subtitle, children, action }) => (
+  <Card className="overflow-hidden rounded-lg border-slate-200 bg-white shadow-sm">
+    <CardContent className="p-5">
+      <div className="mb-5 flex items-start justify-between gap-4">
+        <div className="flex min-w-0 gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100">
+            <Icon className="h-5 w-5" />
+          </div>
+          <div className="min-w-0">
+            <h2 className="text-lg font-bold text-slate-950">{title}</h2>
+            <p className="mt-1 text-sm font-medium leading-6 text-slate-500">{subtitle}</p>
+          </div>
+        </div>
+        {action}
+      </div>
+      {children}
+    </CardContent>
+  </Card>
+);
+
+const SettingRow = ({ icon: Icon, title, description, meta, action, tone = 'emerald' }) => (
+  <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50/60 p-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex min-w-0 gap-3">
+      <div
+        className={cn(
+          'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset',
+          TONE_CLASSES[tone] || TONE_CLASSES.emerald
+        )}
+      >
+        <Icon className="h-4 w-4" />
+      </div>
+      <div className="min-w-0">
+        <p className="text-base font-bold text-slate-950">{title}</p>
+        {meta && <p className="mt-1 break-words text-sm font-semibold text-slate-700">{meta}</p>}
+        <p className="mt-1 text-sm leading-6 text-slate-500">{description}</p>
+      </div>
+    </div>
+    {action && <div className="flex shrink-0 items-center">{action}</div>}
+  </div>
+);
+
+const SettingsTabs = ({ activeSection, onChange }) => (
+  <div className="overflow-x-auto">
+    <div className="flex min-w-max gap-2 pb-1">
+      {SETTING_SECTIONS.map(({ id, label, desc, icon: Icon }) => {
+        const active = activeSection === id;
+
+        return (
+          <button
+            key={id}
+            type="button"
+            onClick={() => onChange(id)}
+            className={cn(
+              'inline-flex min-h-11 items-center gap-2 rounded-lg border px-4 text-sm font-bold transition-colors duration-200',
+              active
+                ? 'border-emerald-600 bg-emerald-600 text-white shadow-sm shadow-emerald-900/10'
+                : 'border-slate-200 bg-white text-slate-600 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700'
+            )}
+          >
+            <Icon className="h-3.5 w-3.5" />
+            <span>{label}</span>
+            <span
+              className={cn(
+                'hidden rounded-full px-2 py-0.5 text-[11px] font-bold sm:inline-flex',
+                active ? 'bg-white/20 text-white' : 'bg-slate-50 text-slate-500'
+              )}
+            >
+              {desc}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  </div>
+);
+
+const SidebarCard = ({ title, icon: Icon, children, className }) => (
+  <Card className={cn('overflow-hidden rounded-lg border-slate-200 bg-white shadow-sm', className)}>
+    <CardContent className="p-5">
+      <h3 className="flex items-center gap-2 text-base font-bold text-slate-950">
+        <Icon className="h-4 w-4 text-emerald-600" />
+        {title}
+      </h3>
+      {children}
+    </CardContent>
+  </Card>
+);
+
+const SummaryItem = ({ label, value }) => (
+  <div className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2">
+    <span className="shrink-0 text-xs font-bold uppercase tracking-[0.12em] text-slate-400">{label}</span>
+    <span className="min-w-0 truncate text-right text-sm font-bold text-slate-800">{value}</span>
+  </div>
+);
 
 const EmployerSettingsPage = () => {
-  const { user, logout, updateUser } = useAuth();
-  const navigate = useNavigate();
+  const { user, updateUser } = useAuth();
   const { showNotification } = useNotification();
-  const fileInputRef = useRef(null);
+  const initialUserRef = useRef(user);
 
-  const [activeTab, setActiveTab] = useState('account');
-  const [loading, setLoading] = useState(false);
-  const [profileLoading, setProfileLoading] = useState(true);
+  const [activeSection, setActiveSection] = useState('account');
+  const [pageLoading, setPageLoading] = useState(true);
+  const [accountSaving, setAccountSaving] = useState(false);
+  const [prefsSaving, setPrefsSaving] = useState(false);
 
-  const [accountForm, setAccountForm] = useState({
-    fullName: '',
-    jobTitle: '',
-    companyName: '',
-  });
+  const [me, setMe] = useState(null);
+  const [accountForm, setAccountForm] = useState(() => buildAccountForm(null, user));
   const [accountSnapshot, setAccountSnapshot] = useState(null);
-
-  const [team, setTeam] = useState(() => loadTeam());
-  const [teamSnapshot, setTeamSnapshot] = useState(null);
-  const [inviteOpen, setInviteOpen] = useState(false);
-  const [inviteForm, setInviteForm] = useState({ name: '', email: '', role: 'Recruiter' });
-
-  const [aiConfig, setAiConfig] = useState(() =>
-    loadJson(STORAGE_AI, { autoScoring: true, aiChatbot: false })
-  );
-  const [aiSnapshot, setAiSnapshot] = useState(null);
-
-  const [notifPrefs, setNotifPrefs] = useState(() => loadJson(STORAGE_NOTIF, DEFAULT_NOTIF));
-  const [notifSnapshot, setNotifSnapshot] = useState(null);
-
-  const [passwords, setPasswords] = useState({
-    current: '',
-    new: '',
-    confirm: '',
+  const [emailNotif, setEmailNotif] = useState(true);
+  const [alertTypes, setAlertTypes] = useState({
+    new_application: true,
+    interview_reminder: true,
   });
 
-  const applyProfileToForm = useCallback(
-    (p) => {
-      const full = `${p?.first_name || ''} ${p?.last_name || ''}`.trim();
-      const jobTitle = localStorage.getItem(STORAGE_JOB_TITLE) || '';
-      const next = {
-        fullName: full || user?.full_name || user?.name || '',
-        jobTitle,
-        companyName: p?.company_name || user?.company_name || '',
-      };
-      setAccountForm(next);
-      setAccountSnapshot(next);
-    },
-    [user]
-  );
+  const [pwdOpen, setPwdOpen] = useState(false);
+  const [pwdCurrent, setPwdCurrent] = useState('');
+  const [pwdNew, setPwdNew] = useState('');
+  const [pwdConfirm, setPwdConfirm] = useState('');
+  const [pwdSubmitting, setPwdSubmitting] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
+
     (async () => {
-      setProfileLoading(true);
+      setPageLoading(true);
       try {
-        const res = await employerService.getProfile();
-        const p = res.data?.data;
-        if (!cancelled && p) applyProfileToForm(p);
-      } catch {
-        if (!cancelled) {
-          const full = [user?.first_name, user?.last_name].filter(Boolean).join(' ').trim();
-          const next = {
-            fullName: full || user?.name || user?.full_name || '',
-            jobTitle: localStorage.getItem(STORAGE_JOB_TITLE) || '',
-            companyName: user?.company_name || '',
-          };
-          setAccountForm(next);
-          setAccountSnapshot(next);
+        const [meRes, profileRes, prefRes] = await Promise.all([
+          authService.getMe(),
+          employerService.getProfile().catch(() => null),
+          userService.getPreferences().catch(() => null),
+        ]);
+
+        if (cancelled) return;
+
+        const fallbackUser = initialUserRef.current;
+        const meData = meRes?.data?.data || fallbackUser;
+        const profileData = profileRes?.data?.data || null;
+        const preferences = prefRes?.data?.data || {};
+        const mergedUser = {
+          ...meData,
+          notification_preferences:
+            preferences.notification_preferences || meData?.notification_preferences,
+          email_notifications:
+            preferences.email_notifications ?? meData?.email_notifications,
+        };
+
+        if (mergedUser) {
+          setMe(mergedUser);
+          updateUser(mergedUser);
+          setEmailNotif(toBool(mergedUser.email_notifications, true));
+          if (mergedUser.notification_preferences) {
+            setAlertTypes((previous) => ({
+              ...previous,
+              ...mergedUser.notification_preferences,
+            }));
+          }
         }
+
+        const nextForm = buildAccountForm(profileData, mergedUser || fallbackUser);
+        setAccountForm(nextForm);
+        setAccountSnapshot(nextForm);
+      } catch (error) {
+        console.warn('EmployerSettingsPage fetch error:', error?.message);
+        showNotification('Không tải được cài đặt nhà tuyển dụng. Thử làm mới trang.', 'error');
       } finally {
-        if (!cancelled) setProfileLoading(false);
+        if (!cancelled) setPageLoading(false);
       }
     })();
+
     return () => {
       cancelled = true;
     };
-  }, [applyProfileToForm, user]);
+  }, [showNotification, updateUser]);
 
-  useEffect(() => {
-    setTeamSnapshot(JSON.stringify(loadTeam()));
-  }, []);
+  const hasLocalPassword =
+    me?.has_local_password !== undefined
+      ? Boolean(me.has_local_password)
+      : user?.has_local_password !== false;
+  const enabledAlertCount = ALERT_TYPES.filter((item) => alertTypes[item.key]).length;
+  const recruiterName = getUserFullName(accountForm) || getUserFullName(user) || 'Nhà tuyển dụng';
+  const companyName = accountForm.company_name || user?.company_name || 'Chưa cập nhật';
+  const jobTitle = accountForm.job_title || 'Phụ trách tuyển dụng';
 
-  const persistTeam = (list) => {
-    setTeam(list);
-    localStorage.setItem(STORAGE_TEAM, JSON.stringify(list));
+  const summaryCards = useMemo(
+    () => [
+      {
+        id: 'account',
+        label: 'Tài khoản',
+        value: accountForm.company_name ? 'Đã cập nhật' : 'Cần bổ sung',
+        helper: `${recruiterName} - ${companyName}`,
+        icon: Building2,
+        tone: 'emerald',
+      },
+      {
+        id: 'security',
+        label: 'Bảo mật',
+        value: hasLocalPassword ? 'Đã có' : 'OAuth',
+        helper: user?.email || me?.email || 'Email đăng nhập',
+        icon: Lock,
+        tone: 'blue',
+      },
+      {
+        id: 'notifications',
+        label: 'Thông báo',
+        value: emailNotif ? 'Bật' : 'Tắt',
+        helper: `${enabledAlertCount}/${ALERT_TYPES.length} sự kiện chính`,
+        icon: Bell,
+        tone: 'amber',
+      },
+    ],
+    [accountForm.company_name, companyName, emailNotif, enabledAlertCount, hasLocalPassword, me?.email, recruiterName, user?.email]
+  );
+
+  const handleAccountChange = (field, value) => {
+    setAccountForm((previous) => ({ ...previous, [field]: value }));
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-    showNotification('Đã đăng xuất thành công', 'info');
-  };
-
-  const splitFullName = (fullName) => {
-    const t = fullName.trim();
-    if (!t) return { first_name: '', last_name: '' };
-    const parts = t.split(/\s+/);
-    if (parts.length === 1) return { first_name: parts[0], last_name: '' };
-    return { first_name: parts[0], last_name: parts.slice(1).join(' ') };
-  };
-
-  const handleSaveAccount = async () => {
-    setLoading(true);
+  const handleSaveAccount = async (event) => {
+    event.preventDefault();
+    setAccountSaving(true);
     try {
-      const { first_name, last_name } = splitFullName(accountForm.fullName);
+      const fullName = getUserFullName(accountForm);
       await employerService.updateProfile({
-        first_name,
-        last_name,
-        company_name: accountForm.companyName,
+        first_name: accountForm.first_name,
+        last_name: accountForm.last_name,
+        company_name: accountForm.company_name,
       });
-      localStorage.setItem(STORAGE_JOB_TITLE, accountForm.jobTitle);
+      localStorage.setItem(STORAGE_JOB_TITLE, accountForm.job_title);
       updateUser({
-        first_name,
-        last_name,
-        name: accountForm.fullName,
-        full_name: accountForm.fullName,
-        company_name: accountForm.companyName,
+        first_name: accountForm.first_name,
+        last_name: accountForm.last_name,
+        name: fullName,
+        full_name: fullName,
+        company_name: accountForm.company_name,
       });
       setAccountSnapshot({ ...accountForm });
-      showNotification('Đã lưu thông tin tài khoản.', 'success');
+      showNotification('Đã lưu cài đặt tài khoản.', 'success');
     } catch (error) {
-      showNotification(error.response?.data?.message || 'Không thể lưu thông tin.', 'error');
+      showNotification(error.response?.data?.message || 'Không lưu được cài đặt tài khoản.', 'error');
     } finally {
-      setLoading(false);
+      setAccountSaving(false);
     }
   };
 
   const handleResetAccount = () => {
-    if (accountSnapshot) setAccountForm({ ...accountSnapshot });
-    else {
-      const jobTitle = localStorage.getItem(STORAGE_JOB_TITLE) || '';
-      setAccountForm((prev) => ({ ...prev, jobTitle }));
+    if (accountSnapshot) {
+      setAccountForm({ ...accountSnapshot });
+      showNotification('Đã hoàn tác thay đổi chưa lưu.', 'info');
     }
-    showNotification('Đã hoàn tác thay đổi chưa lưu.', 'info');
   };
 
-  const handleAvatarClick = () => fileInputRef.current?.click();
-
-  const handleAvatarChange = async (e) => {
-    const file = e.target.files?.[0];
-    e.target.value = '';
-    if (!file || !file.type.startsWith('image/')) {
-      showNotification('Vui lòng chọn file ảnh.', 'error');
-      return;
-    }
-    setLoading(true);
+  const persistEmailNotification = async (nextEmail) => {
+    setPrefsSaving(true);
     try {
-      const res = await userService.uploadAvatar(file);
-      const url = res.data?.data?.avatar_url || res.data?.avatar_url;
-      if (url) updateUser({ avatar_url: url });
-      showNotification('Đã cập nhật ảnh đại diện.', 'success');
+      await userService.updatePreferences({ email_notifications: nextEmail });
+      setEmailNotif(nextEmail);
+      const fresh = await authService.getMe();
+      const freshUser = fresh?.data?.data;
+      if (freshUser) {
+        setMe(freshUser);
+        updateUser(freshUser);
+      }
+      showNotification('Đã lưu cài đặt thông báo.', 'success');
     } catch (error) {
-      showNotification(error.response?.data?.message || 'Tải ảnh thất bại.', 'error');
+      console.warn('EmployerSettingsPage notification save error:', error?.message);
+      showNotification(error.response?.data?.message || 'Không lưu được cài đặt thông báo.', 'error');
     } finally {
-      setLoading(false);
+      setPrefsSaving(false);
     }
   };
 
-  const handleSaveTeam = () => {
-    persistTeam(team);
-    setTeamSnapshot(JSON.stringify(team));
-    showNotification('Đã lưu đội ngũ tuyển dụng.', 'success');
-  };
-
-  const handleResetTeam = () => {
+  const handleAlertToggle = async (key, value) => {
+    const next = { ...alertTypes, [key]: value };
+    setAlertTypes(next);
+    setPrefsSaving(true);
     try {
-      const parsed = teamSnapshot ? JSON.parse(teamSnapshot) : loadTeam();
-      setTeam(Array.isArray(parsed) ? parsed : loadTeam());
-    } catch {
-      setTeam(loadTeam());
+      await userService.updatePreferences({ notification_preferences: next });
+      showNotification('Đã cập nhật loại thông báo.', 'success');
+    } catch (error) {
+      setAlertTypes((previous) => ({ ...previous, [key]: !value }));
+      showNotification(error.response?.data?.message || 'Không lưu được loại thông báo này.', 'error');
+    } finally {
+      setPrefsSaving(false);
     }
-    showNotification('Đã hoàn tác thay đổi đội ngũ.', 'info');
   };
 
-  const handleAddMember = (e) => {
-    e.preventDefault();
-    const name = inviteForm.name.trim();
-    const email = inviteForm.email.trim().toLowerCase();
-    if (!name || !email) {
-      showNotification('Nhập đủ họ tên và email.', 'error');
-      return;
-    }
-    if (team.some((m) => m.email.toLowerCase() === email)) {
-      showNotification('Email đã có trong đội ngũ.', 'error');
-      return;
-    }
-    const initials = name
-      .split(/\s+/)
-      .map((w) => w[0])
-      .join('')
-      .slice(0, 2)
-      .toUpperCase();
-    const id = Math.max(0, ...team.map((m) => m.id)) + 1;
-    setTeam((prev) => [
-      ...prev,
-      {
-        id,
-        name,
-        email,
-        role: inviteForm.role,
-        status: 'Mời',
-        avatar: initials || '?',
-      },
-    ]);
-    setInviteForm({ name: '', email: '', role: 'Recruiter' });
-    setInviteOpen(false);
-    showNotification('Đã thêm thành viên (demo). Nhấn Lưu để giữ lại.', 'success');
-  };
-
-  const handleRemoveMember = (id) => {
-    if (!window.confirm('Xóa thành viên này khỏi danh sách?')) return;
-    setTeam((prev) => prev.filter((m) => m.id !== id));
-    showNotification('Đã xóa khỏi danh sách (nhấn Lưu để áp dụng).', 'info');
-  };
-
-  const handleSaveAi = () => {
-    localStorage.setItem(STORAGE_AI, JSON.stringify(aiConfig));
-    setAiSnapshot({ ...aiConfig });
-    showNotification('Đã lưu cấu hình AI.', 'success');
-  };
-
-  const handleResetAi = () => {
-    const base = aiSnapshot || loadJson(STORAGE_AI, { autoScoring: true, aiChatbot: false });
-    setAiConfig(base);
-    showNotification('Đã hoàn tác cấu hình AI.', 'info');
-  };
-
-  useEffect(() => {
-    setAiSnapshot({ ...loadJson(STORAGE_AI, { autoScoring: true, aiChatbot: false }) });
-    setNotifSnapshot({ ...loadJson(STORAGE_NOTIF, DEFAULT_NOTIF) });
-  }, []);
-
-  const handleSaveNotif = () => {
-    localStorage.setItem(STORAGE_NOTIF, JSON.stringify(notifPrefs));
-    setNotifSnapshot({ ...notifPrefs });
-    showNotification('Đã lưu tùy chọn thông báo.', 'success');
-  };
-
-  const handleResetNotif = () => {
-    const base = notifSnapshot || DEFAULT_NOTIF;
-    setNotifPrefs({ ...base });
-    showNotification('Đã hoàn tác thông báo.', 'info');
-  };
-
-  const handleUpdatePassword = async (e) => {
-    e.preventDefault();
-    if (passwords.new !== passwords.confirm) {
-      showNotification('Mật khẩu mới và xác nhận không khớp.', 'error');
-      return;
-    }
-    if (passwords.new.length < 8) {
+  const handlePasswordSubmit = async (event) => {
+    event.preventDefault();
+    if (pwdNew.length < 8) {
       showNotification('Mật khẩu mới cần ít nhất 8 ký tự.', 'error');
       return;
     }
-    setLoading(true);
+    if (pwdNew !== pwdConfirm) {
+      showNotification('Mật khẩu xác nhận không khớp.', 'error');
+      return;
+    }
+
+    setPwdSubmitting(true);
     try {
       await authService.updatePassword({
-        currentPassword: passwords.current,
-        newPassword: passwords.new,
+        currentPassword: pwdCurrent,
+        newPassword: pwdNew,
       });
-      showNotification('Đổi mật khẩu thành công!', 'success');
-      setPasswords({ current: '', new: '', confirm: '' });
+      showNotification('Đổi mật khẩu thành công.', 'success');
+      setPwdOpen(false);
+      setPwdCurrent('');
+      setPwdNew('');
+      setPwdConfirm('');
+      const fresh = await authService.getMe();
+      const freshUser = fresh?.data?.data;
+      if (freshUser) {
+        setMe(freshUser);
+        updateUser(freshUser);
+      }
     } catch (error) {
-      showNotification(error.response?.data?.message || 'Không thể đổi mật khẩu', 'error');
+      showNotification(error.response?.data?.message || 'Đổi mật khẩu thất bại.', 'error');
     } finally {
-      setLoading(false);
+      setPwdSubmitting(false);
     }
   };
 
-  const handleEnable2FA = () => {
-    showNotification('Tính năng 2FA sẽ được kích hoạt sau khi tích hợp OTP (demo).', 'info');
+  const renderAccountSection = () => (
+    <SettingsCard
+      icon={Building2}
+      title="Tài khoản & doanh nghiệp"
+      subtitle="Những thông tin nhận diện chính cho không gian tuyển dụng."
+      action={accountSaving && <Loader2 className="h-5 w-5 animate-spin text-emerald-600" />}
+    >
+      <form onSubmit={handleSaveAccount} className="space-y-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <label className={LABEL_CLASS} htmlFor="employer-first-name">
+              Họ
+            </label>
+            <input
+              id="employer-first-name"
+              value={accountForm.first_name}
+              onChange={(event) => handleAccountChange('first_name', event.target.value)}
+              className={INPUT_CLASS}
+              autoComplete="given-name"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className={LABEL_CLASS} htmlFor="employer-last-name">
+              Tên
+            </label>
+            <input
+              id="employer-last-name"
+              value={accountForm.last_name}
+              onChange={(event) => handleAccountChange('last_name', event.target.value)}
+              className={INPUT_CLASS}
+              autoComplete="family-name"
+            />
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <label className={LABEL_CLASS} htmlFor="employer-company-name">
+              Tên công ty
+            </label>
+            <input
+              id="employer-company-name"
+              value={accountForm.company_name}
+              onChange={(event) => handleAccountChange('company_name', event.target.value)}
+              className={INPUT_CLASS}
+              autoComplete="organization"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className={LABEL_CLASS} htmlFor="employer-job-title">
+              Chức vụ
+            </label>
+            <input
+              id="employer-job-title"
+              value={accountForm.job_title}
+              onChange={(event) => handleAccountChange('job_title', event.target.value)}
+              className={INPUT_CLASS}
+              placeholder="Phụ trách tuyển dụng"
+              autoComplete="organization-title"
+            />
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-emerald-100 bg-emerald-50/70 p-4">
+          <div className="flex gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-emerald-700 ring-1 ring-inset ring-emerald-100">
+              <User className="h-4 w-4" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-slate-950">{recruiterName}</p>
+              <p className="mt-1 text-sm leading-6 text-slate-600">
+                {companyName} - {jobTitle}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            disabled={accountSaving}
+            onClick={handleResetAccount}
+            className="h-10 rounded-lg px-4 text-sm font-bold"
+          >
+            Hủy bỏ
+          </Button>
+          <Button
+            type="submit"
+            disabled={accountSaving}
+            className="h-10 rounded-lg bg-emerald-600 px-4 text-sm font-bold text-white hover:bg-emerald-700"
+          >
+            {accountSaving ? 'Đang lưu...' : 'Lưu thay đổi'}
+          </Button>
+        </div>
+      </form>
+    </SettingsCard>
+  );
+
+  const renderSecuritySection = () => (
+    <SettingsCard
+      icon={Lock}
+      title="Đăng nhập & bảo mật"
+      subtitle="Giữ lại email đăng nhập và thao tác đổi mật khẩu cần thiết."
+    >
+      <div className="space-y-3">
+        <SettingRow
+          icon={AtSign}
+          title="Email đăng nhập"
+          meta={user?.email || me?.email || 'Chưa cập nhật email'}
+          description="Dùng để đăng nhập và nhận các cập nhật quan trọng của hệ thống."
+          tone="emerald"
+        />
+        <SettingRow
+          icon={KeyRound}
+          title="Mật khẩu"
+          description={
+            hasLocalPassword
+              ? `Cập nhật lần cuối: ${formatPasswordHint(me?.password_updated_at || user?.password_updated_at)}`
+              : 'Tài khoản đang đăng nhập bằng mạng xã hội.'
+          }
+          tone="blue"
+          action={
+            <Button
+              type="button"
+              variant="outline"
+              disabled={!hasLocalPassword}
+              onClick={() => setPwdOpen(true)}
+              className="h-9 rounded-lg bg-white px-3 text-xs font-bold"
+            >
+              Đổi mật khẩu
+            </Button>
+          }
+        />
+      </div>
+    </SettingsCard>
+  );
+
+  const renderNotificationsSection = () => (
+    <SettingsCard
+      icon={Bell}
+      title="Thông báo tuyển dụng"
+      subtitle="Chỉ giữ email và các sự kiện ảnh hưởng trực tiếp đến quy trình ứng tuyển."
+      action={prefsSaving && <Loader2 className="h-5 w-5 animate-spin text-emerald-600" />}
+    >
+      <div className="space-y-3">
+        <SettingRow
+          icon={Mail}
+          title="Email"
+          description="Nhận hồ sơ mới, nhắc lịch phỏng vấn và thay đổi quan trọng qua email."
+          tone="emerald"
+          action={
+            <Toggle
+              checked={emailNotif}
+              disabled={prefsSaving}
+              onChange={(value) => persistEmailNotification(value)}
+            />
+          }
+        />
+
+        <div className="rounded-lg border border-slate-200 bg-slate-50/60 p-4">
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-400">
+            Sự kiện chính
+          </p>
+          <div className="space-y-3">
+            {ALERT_TYPES.map((item) => (
+              <div
+                key={item.key}
+                className="flex items-center justify-between gap-3 rounded-lg bg-white px-3 py-2 ring-1 ring-inset ring-slate-100"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-slate-800">{item.label}</p>
+                  <p className="text-xs leading-5 text-slate-500">{item.desc}</p>
+                </div>
+                <Toggle
+                  checked={Boolean(alertTypes[item.key])}
+                  disabled={prefsSaving}
+                  onChange={(value) => handleAlertToggle(item.key, value)}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </SettingsCard>
+  );
+
+  const renderActiveSection = () => {
+    if (activeSection === 'security') return renderSecuritySection();
+    if (activeSection === 'notifications') return renderNotificationsSection();
+    return renderAccountSection();
   };
 
-  const showTabFooter = ['account', 'team', 'ai', 'notifications'].includes(activeTab);
-
-  const teamCountLabel = `${team.length} thành viên`;
+  if (pageLoading) {
+    return (
+    <div className="flex min-h-[50vh] items-center justify-center bg-slate-50/40">
+        <div className="rounded-lg border border-emerald-100 bg-white px-6 py-5 text-center shadow-sm">
+          <Loader2 className="mx-auto h-7 w-7 animate-spin text-emerald-600" />
+          <p className="mt-3 text-sm font-semibold text-slate-700">Đang tải cài đặt...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="pb-24 max-w-7xl mx-auto px-4">
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={handleAvatarChange}
-      />
+    <div className="min-h-screen bg-slate-50/40 pb-16 animate-fade-in">
+      <div className="relative overflow-hidden border-b border-slate-200/70 bg-[linear-gradient(180deg,#f4fbf7_0%,#ffffff_78%)]">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-40"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px)',
+            backgroundSize: '32px 32px',
+          }}
+        />
 
-      {inviteOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-slate-900">Thêm thành viên</h3>
-              <button
-                type="button"
-                onClick={() => setInviteOpen(false)}
-                className="rounded-lg p-2 text-slate-400 hover:bg-muted/55 hover:text-foreground"
-                aria-label="Đóng"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <form onSubmit={handleAddMember} className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-base font-black uppercase tracking-widest text-slate-400">
-                  Họ và tên
-                </label>
-                <input
-                  value={inviteForm.name}
-                  onChange={(ev) => setInviteForm((p) => ({ ...p, name: ev.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
-                  placeholder="Nguyễn Văn A"
-                />
+        <div className="relative mx-auto max-w-7xl px-4 pb-8 pt-10 sm:px-6 lg:px-8">
+          <div className="mb-7 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-white shadow-sm shadow-emerald-900/10">
+                <Settings className="h-5 w-5" strokeWidth={2.5} />
               </div>
-              <div className="space-y-2">
-                <label className="text-base font-black uppercase tracking-widest text-slate-400">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={inviteForm.email}
-                  onChange={(ev) => setInviteForm((p) => ({ ...p, email: ev.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-base outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
-                  placeholder="a@congty.vn"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-base font-black uppercase tracking-widest text-slate-400">
-                  Vai trò
-                </label>
-                <select
-                  value={inviteForm.role}
-                  onChange={(ev) => setInviteForm((p) => ({ ...p, role: ev.target.value }))}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
-                >
-                  <option value="Admin">Admin</option>
-                  <option value="Recruiter">Recruiter</option>
-                  <option value="Viewer">Viewer</option>
-                </select>
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setInviteOpen(false)}
-                  className="rounded-xl border border-slate-200 px-5 py-2.5 text-base font-bold text-slate-600 hover:bg-muted/35"
-                >
-                  Hủy
-                </button>
-                <button
-                  type="submit"
-                  className="rounded-xl bg-emerald-600 px-5 py-2.5 text-base font-bold text-white hover:bg-emerald-700"
-                >
-                  Thêm
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      <div className="mb-10">
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Cài đặt hệ thống</h1>
-        <p className="text-base font-medium text-slate-500 mt-1">
-          Quản lý cấu hình tài khoản, đội ngũ và các tính năng AI bổ trợ.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[280px_1fr]">
-        <div className="h-fit space-y-1.5 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm lg:sticky lg:top-6">
-          {TABS.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setActiveTab(tab.id)}
-                className={`group flex w-full items-center gap-3.5 rounded-full px-4 py-3.5 text-left text-base font-bold transition-all ${
-                  isActive
-                    ? 'bg-emerald-50 text-emerald-700 shadow-sm ring-1 ring-emerald-100'
-                    : 'text-slate-600 hover:bg-muted/35 hover:text-foreground'
-                }`}
-              >
-                <Icon
-                  size={18}
-                  strokeWidth={isActive ? 2.25 : 2}
-                  className={
-                    isActive ? 'text-emerald-600' : 'text-slate-400 group-hover:text-slate-600'
-                  }
-                />
-                {tab.label}
-              </button>
-            );
-          })}
-
-          <div className="mt-6 space-y-1.5 border-t border-slate-100 pt-6">
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="group flex w-full items-center gap-3.5 rounded-full px-4 py-3.5 text-left text-base font-bold text-red-500/80 transition-all hover:bg-destructive/10 hover:text-red-600"
-            >
-              <LogOut size={18} className="transition-transform group-hover:-translate-x-0.5" />
-              Đăng xuất
-            </button>
-          </div>
-        </div>
-
-        <div className="animate-in fade-in slide-in-from-right-4 space-y-8 duration-500">
-          {activeTab === 'account' && (
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-              <div className="border-b border-slate-100 px-8 py-6">
-                <h2 className="text-xl font-bold leading-none tracking-tight text-slate-900">
-                  Thông tin tài khoản
-                </h2>
-                <p className="mt-2 text-base font-medium text-slate-500">
-                  Quản lý thông tin cá nhân và định danh công ty
-                </p>
-              </div>
-              <div className="p-8">
-                {profileLoading ? (
-                  <p className="text-base text-slate-500">Đang tải hồ sơ…</p>
-                ) : (
-                  <div className="flex flex-col items-start gap-10 sm:flex-row">
-                    <button
-                      type="button"
-                      onClick={handleAvatarClick}
-                      disabled={loading}
-                      className="group relative flex h-24 w-24 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border border-emerald-100 bg-emerald-50 shadow-sm disabled:opacity-50"
-                    >
-                      {user?.avatar_url ? (
-                        <img src={user.avatar_url} alt="" className="h-full w-full object-cover" />
-                      ) : (
-                        <Sparkles size={38} className="text-emerald-500/80" />
-                      )}
-                      <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-slate-900/60 opacity-0 backdrop-blur-sm transition-all group-hover:opacity-100">
-                        <Camera size={20} className="text-white" />
-                      </div>
-                    </button>
-                    <div className="grid flex-grow grid-cols-1 gap-6 sm:grid-cols-2">
-                      <div className="space-y-2">
-                        <label className="pl-1 text-base font-black uppercase tracking-widest text-slate-400">
-                          Họ và tên
-                        </label>
-                        <input
-                          type="text"
-                          value={accountForm.fullName}
-                          onChange={(e) =>
-                            setAccountForm((p) => ({ ...p, fullName: e.target.value }))
-                          }
-                          className="w-full rounded-xl border border-slate-200 bg-white px-5 py-3 text-base text-slate-900 outline-none transition-all placeholder:text-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="pl-1 text-base font-black uppercase tracking-widest text-slate-400">
-                          Chức vụ
-                        </label>
-                        <input
-                          type="text"
-                          value={accountForm.jobTitle}
-                          onChange={(e) =>
-                            setAccountForm((p) => ({ ...p, jobTitle: e.target.value }))
-                          }
-                          className="w-full rounded-xl border border-slate-200 bg-white px-5 py-3 text-base text-slate-900 outline-none transition-all placeholder:text-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
-                          placeholder="Trưởng phòng Tuyển dụng"
-                        />
-                      </div>
-                      <div className="space-y-2 sm:col-span-2">
-                        <label className="pl-1 text-base font-black uppercase tracking-widest text-slate-400">
-                          Tên công ty
-                        </label>
-                        <input
-                          type="text"
-                          value={accountForm.companyName}
-                          onChange={(e) =>
-                            setAccountForm((p) => ({ ...p, companyName: e.target.value }))
-                          }
-                          className="w-full rounded-xl border border-slate-200 bg-white px-5 py-3 text-base text-slate-900 outline-none transition-all placeholder:text-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'team' && (
-            <div className="data-table-shell">
-              <div className="flex flex-col gap-4 border-b border-border px-8 py-6 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h2 className="text-xl font-bold leading-none tracking-tight text-slate-900">
-                    Đội ngũ (Recruiter Team)
-                  </h2>
-                  <p className="mt-2 text-base font-medium text-slate-500">{teamCountLabel}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setInviteOpen(true)}
-                  className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-base font-bold uppercase tracking-widest text-white shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.02] hover:bg-emerald-700 active:scale-[0.98]"
-                >
-                  <Plus size={16} /> Thêm thành viên
-                </button>
-              </div>
-              <div className="data-table-scroll">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th className="px-8 py-4 text-base font-bold uppercase tracking-widest">
-                        Thành viên
-                      </th>
-                      <th className="px-8 py-4 text-base font-bold uppercase tracking-widest">
-                        Vai trò
-                      </th>
-                      <th className="px-8 py-4 text-base font-bold uppercase tracking-widest">
-                        Trạng thái
-                      </th>
-                      <th className="px-8 py-4 pr-12 text-end text-base font-bold uppercase tracking-widest">
-                        Thao tác
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {team.map((member) => (
-                      <tr key={member.id} className="group">
-                        <td className="px-8 py-5">
-                          <div className="flex items-center gap-4">
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-base font-bold text-slate-700 shadow-sm transition-all group-hover:border-emerald-300">
-                              {member.avatar}
-                            </div>
-                            <div>
-                              <p className="text-base font-bold text-slate-900 transition-colors group-hover:text-emerald-600">
-                                {member.name}
-                              </p>
-                              <p className="text-base font-medium text-slate-400">{member.email}</p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-8 py-5">
-                          <span className="rounded-lg border border-slate-200 bg-slate-100 px-3 py-1 text-base font-bold uppercase tracking-tight text-slate-600">
-                            {member.role}
-                          </span>
-                        </td>
-                        <td className="px-8 py-5">
-                          <div className="flex items-center gap-2.5">
-                            <div
-                              className={`h-2 w-2 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.4)] ${member.status === 'Mời' ? 'bg-amber-500' : 'bg-emerald-500'}`}
-                            />
-                            <span className="text-base font-bold text-slate-600">
-                              {member.status}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-8 py-5 pr-10 text-right">
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveMember(member.id)}
-                            className="rounded-lg p-2 text-slate-400 transition-all hover:bg-muted/55 hover:text-red-600"
-                            title="Xóa"
-                          >
-                            <MoreHorizontal size={18} />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'ai' && (
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-              <div className="flex flex-col gap-4 border-b border-slate-100 px-8 py-6 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h2 className="flex items-center gap-3 text-xl font-bold tracking-tight text-slate-900">
-                    <Sparkles size={22} className="text-emerald-500" /> Cấu hình AI Recruiter
-                  </h2>
-                  <p className="mt-2 text-base font-medium text-slate-500">
-                    Tối ưu hóa quy trình sàng lọc ứng viên bằng trí tuệ nhân tạo
-                  </p>
-                </div>
-                <span className="w-fit rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-base font-black uppercase tracking-widest text-emerald-600">
-                  GÓI PRO
+              <div>
+                <span className="inline-flex rounded-full bg-white/80 px-3 py-1 text-xs font-bold uppercase text-emerald-700 ring-1 ring-inset ring-emerald-100">
+                  Cài đặt nhà tuyển dụng
                 </span>
-              </div>
-              <div className="space-y-4 p-8">
-                <div className="group flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/50 p-5 transition-all hover:border-emerald-200 hover:bg-card">
-                  <div className="flex gap-5">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-emerald-500 transition-all group-hover:shadow-sm">
-                      <Cpu size={20} />
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-base font-bold text-slate-900">Tự động chấm điểm CV</p>
-                      <p className="text-base font-medium leading-relaxed text-slate-500">
-                        AI sẽ tự động phân tích và chấm điểm độ phù hợp của CV với JD.
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={aiConfig.autoScoring}
-                    onClick={() =>
-                      setAiConfig((prev) => ({ ...prev, autoScoring: !prev.autoScoring }))
-                    }
-                    className={`relative h-6 w-12 rounded-full p-1 transition-all duration-300 ${aiConfig.autoScoring ? 'bg-emerald-500' : 'bg-slate-300'}`}
-                  >
-                    <div
-                      className={`h-4 w-4 rounded-full bg-white shadow-sm transition-all duration-300 ${aiConfig.autoScoring ? 'translate-x-[24px]' : 'translate-x-0'}`}
-                    />
-                  </button>
-                </div>
-
-                <div className="group flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/50 p-5 transition-all hover:border-emerald-200 hover:bg-card">
-                  <div className="flex gap-5">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-emerald-500 transition-all group-hover:shadow-sm">
-                      <MessageSquare size={20} />
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-base font-bold text-slate-900">AI Chatbot Sơ loại</p>
-                      <p className="text-base font-medium leading-relaxed text-slate-500">
-                        Tự động trả lời câu hỏi cơ bản và đặt lịch hẹn phỏng vấn.
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={aiConfig.aiChatbot}
-                    onClick={() => setAiConfig((prev) => ({ ...prev, aiChatbot: !prev.aiChatbot }))}
-                    className={`relative h-6 w-12 rounded-full p-1 transition-all duration-300 ${aiConfig.aiChatbot ? 'bg-emerald-500' : 'bg-slate-300'}`}
-                  >
-                    <div
-                      className={`h-4 w-4 rounded-full bg-white shadow-sm transition-all duration-300 ${aiConfig.aiChatbot ? 'translate-x-[24px]' : 'translate-x-0'}`}
-                    />
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'security' && (
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-              <div className="border-b border-slate-100 px-8 py-6">
-                <h2 className="text-xl font-bold leading-none tracking-tight text-slate-900">
-                  Bảo mật & Mật khẩu
-                </h2>
-                <p className="mt-2 text-base font-medium text-slate-500">
-                  Cập nhật mật khẩu và xác thực 2 lớp để bảo vệ tài khoản
+                <h1 className="mt-3 text-2xl font-bold tracking-normal text-slate-950 sm:text-3xl">
+                  Cài đặt tài khoản
+                </h1>
+                <p className="mt-1 max-w-2xl text-sm font-medium text-slate-600">
+                  Quản lý thông tin doanh nghiệp, bảo mật đăng nhập và thông báo tuyển dụng trong một khu vực gọn hơn.
                 </p>
               </div>
-              <div className="grid grid-cols-1 gap-10 p-8 lg:grid-cols-2">
-                <form className="space-y-6" onSubmit={handleUpdatePassword}>
-                  <div className="space-y-2">
-                    <label className="pl-1 text-base font-black uppercase tracking-widest text-slate-400">
-                      Mật khẩu hiện tại
-                    </label>
-                    <input
-                      type="password"
-                      value={passwords.current}
-                      onChange={(e) =>
-                        setPasswords((prev) => ({ ...prev, current: e.target.value }))
-                      }
-                      className="w-full rounded-xl border border-slate-200 bg-white px-5 py-3 text-base text-slate-900 outline-none transition-all placeholder:text-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
-                      placeholder="••••••••"
-                      autoComplete="current-password"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="pl-1 text-base font-black uppercase tracking-widest text-slate-400">
-                      Mật khẩu mới
-                    </label>
-                    <input
-                      type="password"
-                      value={passwords.new}
-                      onChange={(e) => setPasswords((prev) => ({ ...prev, new: e.target.value }))}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-5 py-3 text-base text-slate-900 outline-none transition-all placeholder:text-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
-                      placeholder="••••••••"
-                      autoComplete="new-password"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="pl-1 text-base font-black uppercase tracking-widest text-slate-400">
-                      Xác nhận mật khẩu mới
-                    </label>
-                    <input
-                      type="password"
-                      value={passwords.confirm}
-                      onChange={(e) =>
-                        setPasswords((prev) => ({ ...prev, confirm: e.target.value }))
-                      }
-                      className="w-full rounded-xl border border-slate-200 bg-white px-5 py-3 text-base text-slate-900 outline-none transition-all placeholder:text-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
-                      placeholder="••••••••"
-                      autoComplete="new-password"
-                    />
-                  </div>
-                  <Button
-                    type="submit"
-                    disabled={loading || !passwords.new || !passwords.current}
-                    className="w-full uppercase tracking-widest"
-                  >
-                    {loading ? 'Đang cập nhật...' : 'Đổi mật khẩu'}
-                  </Button>
-                </form>
-
-                <div className="flex flex-col items-center justify-center rounded-2xl border border-emerald-500/10 bg-emerald-50/30 p-8 text-center shadow-inner transition-all group">
-                  <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-emerald-100 bg-white text-emerald-500 shadow-sm transition-all duration-500 group-hover:rotate-6 group-hover:scale-110">
-                    <ShieldCheck size={32} strokeWidth={2.5} />
-                  </div>
-                  <h3 className="text-base font-bold uppercase tracking-tighter text-slate-900">
-                    Xác thực 2 lớp (2FA)
-                  </h3>
-                  <p className="mt-3 px-4 text-base font-semibold leading-relaxed text-slate-500">
-                    Tăng cường bảo mật bằng cách yêu cầu mã xác thực từ điện thoại mỗi khi bạn đăng
-                    nhập từ thiết bị lạ.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={handleEnable2FA}
-                    className="mt-7 rounded-xl bg-emerald-600 px-8 py-3 text-base font-black uppercase tracking-widest text-white shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.05] hover:bg-emerald-700 active:scale-95"
-                  >
-                    Kích hoạt ngay
-                  </button>
-                </div>
-              </div>
             </div>
-          )}
+          </div>
 
-          {activeTab === 'notifications' && (
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-              <div className="border-b border-slate-100 px-8 py-6">
-                <h2 className="text-xl font-bold leading-none tracking-tight text-slate-900">
-                  Thông báo
-                </h2>
-                <p className="mt-2 text-base font-medium text-slate-500">
-                  Chọn kênh và loại thông báo bạn muốn nhận
-                </p>
-              </div>
-              <div className="space-y-3 p-8">
-                {[
-                  {
-                    key: 'emailNewApplications',
-                    title: 'Ứng viên nộp đơn mới',
-                    desc: 'Email khi có hồ sơ mới cho tin đăng của bạn.',
-                  },
-                  {
-                    key: 'emailDigest',
-                    title: 'Tóm tắt hằng tuần',
-                    desc: 'Bản tin tổng hợp hiệu suất tuyển dụng qua email.',
-                  },
-                  {
-                    key: 'pushMessages',
-                    title: 'Tin nhắn trên trình duyệt',
-                    desc: 'Thông báo nhanh khi có tin nhắn từ ứng viên.',
-                  },
-                  {
-                    key: 'interviewReminders',
-                    title: 'Nhắc lịch phỏng vấn',
-                    desc: 'Nhắc trước giờ phỏng vấn (email + trong app).',
-                  },
-                  {
-                    key: 'marketingTips',
-                    title: 'Mẹo tuyển dụng & sản phẩm',
-                    desc: 'Nội dung gợi ý từ nền tảng (có thể tắt bất cứ lúc nào).',
-                  },
-                ].map((row) => (
-                  <div
-                    key={row.key}
-                    className="flex items-center justify-between gap-4 rounded-xl border border-slate-100 bg-slate-50/50 p-5 transition-all hover:border-emerald-100 hover:bg-card"
-                  >
-                    <div>
-                      <p className="text-base font-bold text-slate-900">{row.title}</p>
-                      <p className="mt-1 text-base font-medium text-slate-500">{row.desc}</p>
-                    </div>
-                    <button
-                      type="button"
-                      role="switch"
-                      aria-checked={notifPrefs[row.key]}
-                      onClick={() =>
-                        setNotifPrefs((prev) => ({
-                          ...prev,
-                          [row.key]: !prev[row.key],
-                        }))
-                      }
-                      className={`relative h-6 w-12 shrink-0 rounded-full p-1 transition-all duration-300 ${notifPrefs[row.key] ? 'bg-emerald-500' : 'bg-slate-300'}`}
-                    >
-                      <div
-                        className={`h-4 w-4 rounded-full bg-white shadow-sm transition-all duration-300 ${notifPrefs[row.key] ? 'translate-x-[24px]' : 'translate-x-0'}`}
-                      />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {showTabFooter && (
-            <div className="flex flex-col items-stretch justify-end gap-3 pt-2 sm:flex-row sm:items-center">
-              <button
-                type="button"
-                onClick={() => {
-                  if (activeTab === 'account') handleResetAccount();
-                  else if (activeTab === 'team') handleResetTeam();
-                  else if (activeTab === 'ai') handleResetAi();
-                  else if (activeTab === 'notifications') handleResetNotif();
-                }}
-                className="rounded-xl border border-slate-200 bg-white px-8 py-3.5 text-base font-bold uppercase tracking-widest text-slate-500 transition-all hover:bg-muted/35 hover:text-foreground active:scale-[0.98]"
-              >
-                Hủy bỏ
-              </button>
-              <button
-                type="button"
-                disabled={loading || (activeTab === 'account' && profileLoading)}
-                onClick={() => {
-                  if (activeTab === 'account') handleSaveAccount();
-                  else if (activeTab === 'team') handleSaveTeam();
-                  else if (activeTab === 'ai') handleSaveAi();
-                  else if (activeTab === 'notifications') handleSaveNotif();
-                }}
-                className="rounded-xl bg-emerald-600 px-12 py-3.5 text-base font-bold uppercase tracking-widest text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-40"
-              >
-                Lưu thay đổi
-              </button>
-            </div>
-          )}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {summaryCards.map(({ id, ...card }) => (
+              <EmployerStatCard
+                key={id}
+                {...card}
+                active={activeSection === id}
+                onClick={() => setActiveSection(id)}
+              />
+            ))}
+          </div>
         </div>
       </div>
+
+      <main className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+        <div className="mb-5 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+          <SettingsTabs activeSection={activeSection} onChange={setActiveSection} />
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <section className="min-w-0 space-y-4">{renderActiveSection()}</section>
+
+          <aside className="space-y-4">
+            <SidebarCard title="Tóm tắt tài khoản" icon={Building2}>
+              <div className="mt-4 space-y-2.5">
+                <SummaryItem label="Doanh nghiệp" value={companyName} />
+                <SummaryItem label="Người phụ trách" value={recruiterName} />
+                <SummaryItem label="Chức vụ" value={jobTitle} />
+              </div>
+            </SidebarCard>
+
+            <SidebarCard title="Trạng thái cài đặt" icon={CheckCircle2} className="bg-emerald-50/70">
+              <div className="mt-4 space-y-2.5">
+                <SummaryItem label="Email" value={emailNotif ? 'Đang bật' : 'Đang tắt'} />
+                <SummaryItem label="Sự kiện" value={`${enabledAlertCount}/${ALERT_TYPES.length} đang bật`} />
+                <SummaryItem label="Bảo mật" value={hasLocalPassword ? 'Mật khẩu nội bộ' : 'OAuth'} />
+              </div>
+            </SidebarCard>
+          </aside>
+        </div>
+      </main>
+
+      <Dialog open={pwdOpen} onOpenChange={setPwdOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Đổi mật khẩu</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handlePasswordSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="employer-current-password">Mật khẩu hiện tại</Label>
+              <Input
+                id="employer-current-password"
+                type="password"
+                autoComplete="current-password"
+                value={pwdCurrent}
+                onChange={(event) => setPwdCurrent(event.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="employer-new-password">Mật khẩu mới (tối thiểu 8 ký tự)</Label>
+              <Input
+                id="employer-new-password"
+                type="password"
+                autoComplete="new-password"
+                value={pwdNew}
+                onChange={(event) => setPwdNew(event.target.value)}
+                required
+                minLength={8}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="employer-confirm-password">Xác nhận mật khẩu mới</Label>
+              <Input
+                id="employer-confirm-password"
+                type="password"
+                autoComplete="new-password"
+                value={pwdConfirm}
+                onChange={(event) => setPwdConfirm(event.target.value)}
+                required
+              />
+            </div>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button type="button" variant="outline" onClick={() => setPwdOpen(false)}>
+                Hủy
+              </Button>
+              <Button type="submit" disabled={pwdSubmitting}>
+                {pwdSubmitting ? 'Đang lưu...' : 'Cập nhật'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

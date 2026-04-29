@@ -1,18 +1,19 @@
 /**
- * Quản lý phiên đăng nhập (JWT + user tối giản trong localStorage).
+ * Quan ly phien dang nhap (JWT + user toi gian trong localStorage).
  *
- * Luồng chính:
- * 1. Mở app: có token + user JSON → hiển thị user ngay; song song gọi GET /auth/me để đồng bộ.
- * 2. login(email, password): POST /auth/login → lưu token + user.
- * 3. register(payload): POST /auth/register → tương tự khi server trả đủ token + data.role.
- * 4. loginWithToken(jwt): dùng sau OAuth / deep link — set token rồi getMe.
- * 5. logout: xóa storage + state.
+ * Luong chinh:
+ * 1. Mo app: co token + user JSON -> hydrate user tu cache, sau do goi GET /auth/me de xac thuc lai.
+ * 2. login(email, password): POST /auth/login -> luu token + user.
+ * 3. register(payload): tuong tu khi server tra du token + data.role.
+ * 4. loginWithToken(jwt): dung sau OAuth / deep link -> set token roi getMe.
+ * 5. logout: xoa storage + state.
  *
- * `sanitizeUser` chuẩn hóa field để UI không phụ thuộc shape raw từ API.
+ * `sanitizeUser` chuan hoa field de UI khong phu thuoc shape raw tu API.
  */
 import PropTypes from 'prop-types';
 import React, { createContext, useState, useContext, useEffect, useCallback, useMemo } from 'react';
 import authService from '../services/authService';
+import { extractAuthResponse, normalizeUserEntity, shouldPersistAuthSession } from '../utils';
 
 const defaultAuthValue = {
   user: null,
@@ -22,10 +23,13 @@ const defaultAuthValue = {
   register: async () => {},
   logout: () => {},
   updateUser: () => {},
+  refreshUser: async () => {},
   isAuthenticated: false,
 };
 
-/** Export để hooks/useAuth.js dùng cùng một Context instance */
+const AUTH_INVALIDATION_EVENT = 'app:auth-invalidated';
+
+/** Export de hooks/useAuth.js dung cung mot Context instance */
 export const AuthContext = createContext(defaultAuthValue);
 
 const toBool = (v, defaultVal) => {
@@ -35,42 +39,47 @@ const toBool = (v, defaultVal) => {
   return defaultVal;
 };
 
-/** Chuẩn hóa object user cho Context + localStorage (string an toàn, tránh undefined lẫn lộn) */
+const PENDING_RECRUITER_APPROVAL_MESSAGE = 'Tai khoan nha tuyen dung dang cho quan tri vien phe duyet';
+
+function isPendingRecruiterApproval(user) {
+  const role = String(user?.role ?? '').trim().toLowerCase();
+  const normalizedRole = role === 'employer' ? 'recruiter' : role;
+  const status = String(user?.status ?? '').trim().toLowerCase();
+  return normalizedRole === 'recruiter' && ['pending', 'pending_verification'].includes(status);
+}
+
+/** Chuan hoa object user cho Context + localStorage. */
 const sanitizeUser = (data) => {
   if (!data || typeof data !== 'object') return null;
+  const normalized = normalizeUserEntity(data);
   return {
-    id: data?.id ?? null,
-    email: String(data?.email ?? ''),
-    first_name: String(data?.first_name ?? ''),
-    last_name: String(data?.last_name ?? ''),
-    name: String(data?.name ?? ''),
-    full_name: String(data?.full_name ?? ''),
-    role: String(data?.role ?? ''),
-    avatar_url: String(data?.avatar_url ?? ''),
-    company_logo: String(data?.company_logo ?? ''),
-    company_name: String(data?.company_name ?? ''),
-    status: String(data?.status ?? ''),
-    oauth_provider: data?.oauth_provider != null ? String(data.oauth_provider) : '',
-    email_notifications: toBool(data?.email_notifications, true),
-    push_notifications: toBool(data?.push_notifications, false),
-    has_local_password: toBool(data?.has_local_password, true),
-    password_updated_at: data?.password_updated_at != null ? String(data.password_updated_at) : '',
+    ...normalized,
+    email_notifications: toBool(normalized?.email_notifications, true),
+    push_notifications: toBool(normalized?.push_notifications, false),
+    has_local_password: toBool(normalized?.has_local_password, true),
   };
 };
 
-/** Đặt ở cấp module để luôn có hợp lệ khi Provider tham chiếu (OAuth / hash #token=) */
+/** Dat o cap module de luon co hop le khi Provider tham chieu (OAuth / hash #token=). */
 async function applySessionFromToken(token, clearAuth, setUser) {
   if (!token || typeof token !== 'string') {
     throw new Error('Invalid token');
   }
+
   localStorage.setItem('token', token);
   const response = await authService.getMe();
   const freshUser = response?.data?.data || response?.data?.user || response?.data;
+
   if (!freshUser?.role) {
     clearAuth();
     throw new Error('Invalid user data');
   }
+
   const sanitized = sanitizeUser(freshUser);
+  if (isPendingRecruiterApproval(sanitized)) {
+    clearAuth();
+    throw new Error(PENDING_RECRUITER_APPROVAL_MESSAGE);
+  }
   localStorage.setItem('user', JSON.stringify(sanitized));
   setUser(sanitized);
   return sanitized;
@@ -108,36 +117,41 @@ export const AuthProvider = ({ children }) => {
           throw new Error('Invalid user data');
         }
 
-        // Bước A: hiển thị nhanh từ cache (không chặn UI chờ mạng)
         if (!cancelled) {
           setUser(sanitizeUser(parsedUser));
-          setLoading(false);
         }
 
-        // Bước B: làm mới từ server — token hết hạn / user đổi role → clearAuth
-        (async () => {
-          try {
-            const response = await authService.getMe();
-            if (cancelled) return;
+        try {
+          const response = await authService.getMe();
+          if (cancelled) return;
 
-            const freshUser = response?.data?.data || response?.data?.user || response?.data;
+          const freshUser = response?.data?.data || response?.data?.user || response?.data;
 
-            if (freshUser?.role) {
-              const sanitizedFresh = sanitizeUser(freshUser);
-              localStorage.setItem('user', JSON.stringify(sanitizedFresh));
-              setUser(sanitizedFresh);
-            }
-          } catch (error) {
-            if (cancelled) return;
-            const status = error?.response?.status;
-            // Chỉ hủy phiên khi server từ chối thật sự — lỗi mạng / 5xx giữ cache để UX ổn định.
-            if (status === 401 || status === 403) {
+          if (freshUser?.role) {
+            const sanitizedFresh = sanitizeUser(freshUser);
+            if (isPendingRecruiterApproval(sanitizedFresh)) {
               clearAuth();
               return;
             }
-            console.error('Failed to refresh session:', error);
+            localStorage.setItem('user', JSON.stringify(sanitizedFresh));
+            setUser(sanitizedFresh);
           }
-        })();
+        } catch (error) {
+          if (cancelled) return;
+
+          const status = error?.response?.status;
+          // Chi huy phien khi server tu choi that su. Loi mang / 5xx giu cache de UX on dinh.
+          if (status === 401 || status === 403) {
+            clearAuth();
+            return;
+          }
+
+          console.error('Failed to refresh session:', error);
+        } finally {
+          if (!cancelled) {
+            setLoading(false);
+          }
+        }
       } catch (error) {
         if (!cancelled) {
           console.error('Failed to restore auth state:', error);
@@ -153,14 +167,31 @@ export const AuthProvider = ({ children }) => {
     };
   }, [clearAuth]);
 
+  useEffect(() => {
+    const handleAuthInvalidated = () => {
+      clearAuth();
+      setLoading(false);
+    };
+
+    window.addEventListener(AUTH_INVALIDATION_EVENT, handleAuthInvalidated);
+    return () => {
+      window.removeEventListener(AUTH_INVALIDATION_EVENT, handleAuthInvalidated);
+    };
+  }, [clearAuth]);
+
   const login = useCallback(async (email, password) => {
     const response = await authService.login({ email, password });
     const body = response.data;
-    const { token, data: userData } = body || {};
+    const { token, userData } = extractAuthResponse(body);
 
     if (!token || !userData?.role) {
       const msg = body?.message || 'Đăng nhập thất bại — phản hồi không hợp lệ';
       throw new Error(msg);
+    }
+
+    if (!shouldPersistAuthSession(body)) {
+      clearAuth();
+      throw new Error(body?.message || PENDING_RECRUITER_APPROVAL_MESSAGE);
     }
 
     const sanitizedUser = sanitizeUser(userData);
@@ -169,17 +200,20 @@ export const AuthProvider = ({ children }) => {
     setUser(sanitizedUser);
 
     return body;
-  }, []);
+  }, [clearAuth]);
 
   const register = useCallback(async (userData) => {
     const response = await authService.register(userData);
     const body = response.data;
+    const { token, userData: authUser } = extractAuthResponse(body);
 
-    if (body?.success && body.token && body.data?.role) {
-      const sanitizedUser = sanitizeUser(body.data);
-      localStorage.setItem('token', body.token);
-      localStorage.setItem('user', JSON.stringify(sanitizedUser));
-      setUser(sanitizedUser);
+    if (body?.success && authUser?.role) {
+      if (shouldPersistAuthSession(body, 'register')) {
+        const sanitizedUser = sanitizeUser(authUser);
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(sanitizedUser));
+        setUser(sanitizedUser);
+      }
       return body;
     }
 
@@ -190,17 +224,40 @@ export const AuthProvider = ({ children }) => {
   const logout = useCallback(() => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    sessionStorage.removeItem('apply_job_id');
+    // Dispatch event so other listeners (ChatContext, other tabs) clean up
+    window.dispatchEvent(new CustomEvent(AUTH_INVALIDATION_EVENT));
     authService.logout();
     setUser(null);
   }, []);
 
   const updateUser = useCallback((newData) => {
     setUser((prev) => {
+      if (!prev) return prev;
       const updated = sanitizeUser({ ...prev, ...newData });
       localStorage.setItem('user', JSON.stringify(updated));
       return updated;
     });
   }, []);
+
+  const refreshUser = useCallback(async () => {
+    const response = await authService.getMe();
+    const freshUser = response?.data?.data || response?.data?.user || response?.data;
+
+    if (!freshUser?.role) {
+      clearAuth();
+      throw new Error('Invalid user data');
+    }
+
+    const sanitizedFresh = sanitizeUser(freshUser);
+    if (isPendingRecruiterApproval(sanitizedFresh)) {
+      clearAuth();
+      throw new Error(PENDING_RECRUITER_APPROVAL_MESSAGE);
+    }
+    localStorage.setItem('user', JSON.stringify(sanitizedFresh));
+    setUser(sanitizedFresh);
+    return sanitizedFresh;
+  }, [clearAuth]);
 
   const oauthSessionHandler = useCallback(
     (token) => applySessionFromToken(token, clearAuth, setUser),
@@ -216,9 +273,10 @@ export const AuthProvider = ({ children }) => {
       logout,
       loading,
       updateUser,
+      refreshUser,
       isAuthenticated: !!user,
     }),
-    [user, login, oauthSessionHandler, register, logout, loading, updateUser]
+    [user, login, oauthSessionHandler, register, logout, loading, updateUser, refreshUser]
   );
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;

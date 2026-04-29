@@ -23,7 +23,7 @@ const Dropdown = ({ trigger, items, className }) => {
       </div>
 
       {isOpen && (
-        <div className="absolute right-0 mt-3 w-56 bg-paper rounded-2xl shadow-md border border-secondary-100 py-2 z-50 animate-fade-in animate-slide-up origin-top-right">
+        <div className="absolute right-0 z-50 mt-3 w-56 origin-top-right overflow-hidden rounded-2xl border border-border/80 bg-card py-2 shadow-xl animate-fade-in animate-slide-up">
           {items.map((item, idx) => (
             <button
               key={idx}
@@ -32,10 +32,10 @@ const Dropdown = ({ trigger, items, className }) => {
                 setIsOpen(false);
               }}
               className={cn(
-                'w-full px-5 py-2.5 flex items-center gap-3 text-sm font-semibold transition-colors',
+                'flex w-full items-center gap-3 px-4 py-2.5 text-sm font-semibold transition-colors',
                 item.danger
-                  ? 'text-error-600 hover:bg-error-50 hover:text-error-700'
-                  : 'text-txt-muted hover:bg-secondary-50 hover:text-primary-600'
+                  ? 'text-danger hover:bg-danger/10'
+                  : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
               )}
             >
               {item.icon && <span className="shrink-0">{item.icon}</span>}

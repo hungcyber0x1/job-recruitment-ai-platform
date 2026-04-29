@@ -2,9 +2,9 @@
 -- Thống kê hoạt động chatbot AI
 
 CREATE TABLE IF NOT EXISTS chatbot_analytics (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    conversation_id INT,
-    user_id INT NOT NULL,
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    conversation_id INT UNSIGNED,
+    user_id INT UNSIGNED NOT NULL,
     event_type VARCHAR(50) NOT NULL,
     metadata JSON,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

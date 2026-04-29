@@ -62,7 +62,7 @@ const ChatbotAnalytics = () => {
         <p className="text-state-danger font-medium">{error}</p>
         <button
           onClick={fetchAnalytics}
-          className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90"
+          className="rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-white hover:bg-primary/90"
         >
           Thử lại
         </button>
@@ -147,14 +147,14 @@ const ChatbotAnalytics = () => {
                 </span>
               </div>
               <p className="mb-1 text-base font-medium text-muted-foreground">{stat.label}</p>
-              <p className="text-3xl font-black text-foreground">{stat.value.toLocaleString()}</p>
+              <p className="text-3xl font-bold text-foreground">{stat.value.toLocaleString()}</p>
             </Card>
           );
         })}
       </div>
 
       <Card className="p-6">
-        <h3 className="mb-4 text-lg font-black text-foreground">Phân tích sự kiện</h3>
+        <h3 className="mb-4 text-lg font-bold text-foreground">Phân tích sự kiện</h3>
         <div className="space-y-3">
           {eventStats.map((event) => (
             <div
@@ -167,7 +167,7 @@ const ChatbotAnalytics = () => {
                   {event.event_type.replace(/_/g, ' ').toUpperCase()}
                 </span>
               </div>
-              <span className="text-2xl font-black text-foreground">{event.count}</span>
+              <span className="text-2xl font-bold text-foreground">{event.count}</span>
             </div>
           ))}
           {eventStats.length === 0 && (
@@ -177,7 +177,7 @@ const ChatbotAnalytics = () => {
       </Card>
 
       <Card className="p-6">
-        <h3 className="mb-4 flex items-center gap-2 text-lg font-black text-foreground">
+        <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-foreground">
           <Calendar size={20} className="text-primary" />
           Hoạt động theo ngày (30 ngày gần nhất)
         </h3>

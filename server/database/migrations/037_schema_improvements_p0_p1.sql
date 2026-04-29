@@ -29,7 +29,7 @@ PREPARE stmt_ah FROM @sql_ah;
 EXECUTE stmt_ah;
 DEALLOCATE PREPARE stmt_ah;
 
-ALTER TABLE application_history MODIFY COLUMN changed_by INT NULL;
+ALTER TABLE application_history MODIFY COLUMN changed_by INT UNSIGNED NULL;
 
 ALTER TABLE application_history
   ADD CONSTRAINT fk_application_history_changed_by
@@ -38,7 +38,7 @@ ALTER TABLE application_history
 -- ========== blog_posts: giữ bài khi xóa user (tác giả NULL) ==========
 ALTER TABLE blog_posts DROP FOREIGN KEY fk_blog_author_user;
 
-ALTER TABLE blog_posts MODIFY COLUMN author_user_id INT NULL;
+ALTER TABLE blog_posts MODIFY COLUMN author_user_id INT UNSIGNED NULL;
 
 ALTER TABLE blog_posts
   ADD CONSTRAINT fk_blog_author_user FOREIGN KEY (author_user_id) REFERENCES users(id) ON DELETE SET NULL;
@@ -59,8 +59,8 @@ ALTER TABLE candidate_skills
 
 -- ========== job_skills: kỹ năng yêu cầu theo tin ==========
 CREATE TABLE IF NOT EXISTS job_skills (
-  job_id INT NOT NULL,
-  skill_id INT NOT NULL,
+  job_id INT UNSIGNED NOT NULL,
+  skill_id INT UNSIGNED NOT NULL,
   is_required TINYINT(1) NOT NULL DEFAULT 1 COMMENT '1 = bắt buộc, 0 = ưu tiên',
   PRIMARY KEY (job_id, skill_id),
   CONSTRAINT fk_job_skills_job FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
@@ -82,7 +82,7 @@ SET ra.is_current = 1;
 
 -- ========== conversations: gắn đơn ứng tuyển (tùy chọn) ==========
 ALTER TABLE conversations
-  ADD COLUMN application_id INT NULL DEFAULT NULL AFTER user_id,
+  ADD COLUMN application_id INT UNSIGNED NULL DEFAULT NULL AFTER user_id,
   ADD INDEX idx_conversations_application (application_id),
   ADD CONSTRAINT fk_conversations_application
     FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE SET NULL;

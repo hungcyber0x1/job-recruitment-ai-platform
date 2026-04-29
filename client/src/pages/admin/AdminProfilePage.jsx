@@ -1,11 +1,93 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Camera, Save, User, Mail, Phone, MapPin, Shield, ArrowLeft } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  ArrowLeft,
+  Camera,
+  CheckCircle2,
+  Globe2,
+  Mail,
+  MapPin,
+  Phone,
+  Save,
+  Shield,
+  ShieldCheck,
+  Sparkles,
+  UserRound,
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import AdminLayout from '../../layouts/AdminLayout';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import userService from '../../services/userService';
-import { Button } from '@/components/ui/button';
+import {
+  buildUserProfilePayload,
+  getUserFullName,
+  normalizeUserRegion,
+  USER_REGION_LABELS,
+  USER_REGION_VALUES,
+} from '@/utils';
+
+function SectionCard({ icon: Icon, title, description, action, children }) {
+  return (
+    <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 px-5 py-5 sm:px-6">
+        <div className="flex min-w-0 items-start gap-3">
+          {Icon ? (
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100">
+              <Icon className="h-4 w-4" />
+            </div>
+          ) : null}
+          <div className="min-w-0">
+            <h2 className="text-base font-bold text-slate-950">{title}</h2>
+            {description ? (
+              <p className="mt-1 text-sm leading-6 text-slate-500">{description}</p>
+            ) : null}
+          </div>
+        </div>
+        {action}
+      </div>
+      <div className="px-5 py-5 sm:px-6 sm:py-6">{children}</div>
+    </section>
+  );
+}
+
+function FieldBlock({ icon: Icon, label, hint, className = '', children }) {
+  return (
+    <div className={`space-y-3 ${className}`}>
+      <div className="flex items-start gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-50 text-slate-700 ring-1 ring-inset ring-slate-200">
+          <Icon className="h-4 w-4" />
+        </div>
+        <div>
+          <Label className="text-sm font-bold text-slate-800">{label}</Label>
+          {hint ? <p className="mt-1 text-sm leading-6 text-slate-500">{hint}</p> : null}
+        </div>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function SummaryStat({ label, value, helper }) {
+  return (
+    <div className="rounded-lg border border-slate-200 bg-slate-50/80 p-4">
+      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">{label}</p>
+      <p className="mt-2 text-lg font-bold text-slate-950">{value}</p>
+      <p className="mt-2 text-xs font-semibold leading-5 text-slate-500">{helper}</p>
+    </div>
+  );
+}
 
 const AdminProfilePage = () => {
   const { user, refreshUser } = useAuth();
@@ -20,6 +102,8 @@ const AdminProfilePage = () => {
     last_name: '',
     phone: '',
     address: '',
+    gender: '',
+    region: '',
   });
 
   useEffect(() => {
@@ -29,20 +113,27 @@ const AdminProfilePage = () => {
         last_name: user.last_name || '',
         phone: user.phone || '',
         address: user.address || '',
+        gender: user.gender || '',
+        region: normalizeUserRegion(user.region || ''),
       });
     }
   }, [user]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleChange = (event) => {
+    const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSelectChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setLoading(true);
+
     try {
-      await userService.updateProfile(formData);
+      await userService.updateProfile(buildUserProfilePayload(formData));
       await refreshUser();
       showNotification('Cập nhật hồ sơ thành công!', 'success');
     } catch (error) {
@@ -57,15 +148,17 @@ const AdminProfilePage = () => {
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files?.[0];
+  const handleFileChange = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+
     if (!file) return;
 
-    // Validate file type and size
     if (!file.type.startsWith('image/')) {
       showNotification('Vui lòng chọn tệp hình ảnh.', 'error');
       return;
     }
+
     if (file.size > 2 * 1024 * 1024) {
       showNotification('Kích thước ảnh không được vượt quá 2MB.', 'error');
       return;
@@ -84,227 +177,471 @@ const AdminProfilePage = () => {
     }
   };
 
-  const inputClass =
-    'w-full h-12 px-4 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50 transition-all font-medium';
-  const labelClass = 'block text-base font-bold text-slate-500 uppercase tracking-wider mb-2 ml-1';
+  const displayName = useMemo(
+    () => getUserFullName(user) || 'Quản trị viên',
+    [user]
+  );
+
+  const roleLabel = useMemo(() => {
+    const normalizedRole = String(user?.role || '').trim().toLowerCase();
+
+    if (normalizedRole === 'admin' || normalizedRole === 'super_admin' || normalizedRole === 'superadmin') {
+      return 'Quản trị viên hệ thống';
+    }
+
+    return String(user?.role || 'Quản trị viên').trim() || 'Quản trị viên hệ thống';
+  }, [user?.role]);
+
+  const regionLabel = formData.region
+    ? USER_REGION_LABELS[normalizeUserRegion(formData.region)] || formData.region
+    : 'Chưa chọn';
+
+  const profileChecklist = useMemo(
+    () => [
+      {
+        label: 'Họ và tên',
+        done: Boolean(String(formData.first_name || '').trim() && String(formData.last_name || '').trim()),
+        helper: 'Tên hiển thị cho tài khoản quản trị.',
+      },
+      {
+        label: 'Liên hệ chính',
+        done: Boolean(String(formData.phone || '').trim() && String(user?.email || '').trim()),
+        helper: 'Số điện thoại và email hệ thống.',
+      },
+      {
+        label: 'Nhận diện khu vực',
+        done: Boolean(String(formData.gender || '').trim() && String(formData.region || '').trim()),
+        helper: 'Giới tính và vùng miền đang quản lý.',
+      },
+      {
+        label: 'Địa chỉ',
+        done: Boolean(String(formData.address || '').trim()),
+        helper: 'Địa chỉ liên hệ phục vụ hồ sơ nội bộ.',
+      },
+    ],
+    [formData.address, formData.first_name, formData.gender, formData.last_name, formData.phone, formData.region, user?.email]
+  );
+
+  const completedCount = profileChecklist.filter((item) => item.done).length;
+  const completionPercent = Math.round((completedCount / profileChecklist.length) * 100);
+  const remainingProfileFields = Math.max(profileChecklist.length - completedCount, 0);
+
+  const heroCards = [
+    {
+      label: 'Vai trò',
+      value: roleLabel,
+      helper: 'Quyền truy cập hệ thống',
+      tone: 'bg-sky-50 text-sky-700 ring-sky-100',
+    },
+    {
+      label: 'Vùng miền',
+      value: regionLabel,
+      helper: 'Khu vực đang thiết lập',
+      tone: 'bg-violet-50 text-violet-700 ring-violet-100',
+    },
+    {
+      label: 'Trạng thái',
+      value: user?.email ? 'Sẵn sàng vận hành' : 'Cần kiểm tra',
+      helper: 'Thông tin cơ bản của tài khoản',
+      tone: 'bg-amber-50 text-amber-700 ring-amber-100',
+    },
+  ];
 
   return (
-    <AdminLayout>
-      <div className="max-w-4xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-black text-slate-900 uppercase tracking-tight">
-              Hồ sơ cá nhân
-            </h1>
-            <p className="text-base text-slate-500 mt-1 font-medium">
-              Quản lý thông tin tài khoản quản trị của bạn.
-            </p>
-          </div>
-          <Button
-            variant="ghost"
-            onClick={() => navigate(-1)}
-            className="text-slate-500 hover:text-emerald-600 hover:bg-primary/10 rounded-xl"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" /> Quay lại
-          </Button>
-        </div>
+    <div className="min-h-screen bg-slate-50/40 pb-16 animate-fade-in">
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        className="hidden"
+        accept="image/*"
+      />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column: Avatar & Quick Info */}
-          <div className="lg:col-span-1 space-y-6">
-            <div className="bg-white border border-slate-200 rounded-3xl p-8 text-center shadow-sm">
-              <div className="relative inline-block group">
-                <div className="w-32 h-32 rounded-3xl bg-emerald-50 border-4 border-white shadow-xl overflow-hidden mb-4 ring-1 ring-slate-100 transition-transform group-hover:scale-[1.02]">
-                  {user?.avatar_url ? (
-                    <img
-                      src={user.avatar_url}
-                      alt="Avatar"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-4xl font-black text-emerald-500">
-                      {(user?.first_name?.[0] || user?.name?.[0] || 'A').toUpperCase()}
-                    </div>
-                  )}
-                  {uploading && (
-                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center">
-                      <div className="w-6 h-6 border-2 border-white border-t-transparent animate-spin rounded-full" />
-                    </div>
-                  )}
-                </div>
-                <button
-                  onClick={handleAvatarClick}
-                  disabled={uploading}
-                  className="absolute bottom-2 right-2 p-2.5 rounded-xl bg-emerald-500 text-white shadow-lg hover:bg-emerald-600 transition-all hover:scale-110 active:scale-95 disabled:opacity-50"
-                  title="Thay đổi ảnh đại diện"
-                >
-                  <Camera size={16} />
-                </button>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  className="hidden"
-                  accept="image/*"
-                />
-              </div>
+      <section className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-40"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px)',
+            backgroundSize: '32px 32px',
+          }}
+        />
 
-              <h2 className="text-xl font-bold text-slate-900">
-                {user?.first_name} {user?.last_name}
-              </h2>
-              <p className="text-base font-bold text-emerald-500 uppercase tracking-widest mt-1">
-                {user?.role === 'admin' ? 'Quản trị viên hệ thống' : user?.role}
-              </p>
-
-              <div className="mt-8 pt-8 border-t border-slate-100 space-y-4">
-                <div className="flex items-center gap-3 text-slate-500 text-base font-medium px-4">
-                  <Mail size={16} className="text-slate-400 shrink-0" />
-                  <span className="truncate">{user?.email}</span>
-                </div>
-                <div className="flex items-center gap-3 text-slate-500 text-base font-medium px-4">
-                  <Shield size={16} className="text-slate-400 shrink-0" />
-                  <span>ID: #{user?.id ? String(user.id).slice(-6) : 'N/A'}</span>
-                </div>
-              </div>
+        <div className="relative mx-auto max-w-7xl px-4 pb-8 pt-8 sm:px-6 lg:px-8">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge className="rounded-full border border-emerald-200 bg-white/80 px-3 py-1 font-bold text-emerald-700 shadow-sm">
+                <ShieldCheck className="mr-1.5 h-3.5 w-3.5" />
+                Admin workspace
+              </Badge>
+              <Badge className="rounded-full border border-slate-200 bg-white/80 px-3 py-1 font-bold text-slate-600 shadow-sm">
+                <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+                Hồ sơ cá nhân
+              </Badge>
             </div>
 
-            <div className="bg-emerald-600 rounded-3xl p-8 text-white shadow-lg shadow-emerald-200/50 overflow-hidden relative">
-              <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
-              <h3 className="text-lg font-bold mb-2">Bảo mật tài khoản</h3>
-              <p className="text-base text-emerald-100 font-medium leading-relaxed">
-                Đảm bảo mật khẩu của bạn là duy nhất và không được sử dụng ở nơi khác.
-              </p>
-              <Button
-                variant="secondary"
-                className="w-full mt-6 bg-white text-emerald-600 hover:bg-primary/10 border-none rounded-xl font-bold uppercase tracking-wider text-base"
-                onClick={() => navigate('/admin/settings')}
-              >
-                Cập nhật bảo mật
-              </Button>
-            </div>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate(-1)}
+              className="h-11 rounded-lg border-white/80 bg-white/85 px-5 font-bold text-slate-600 shadow-sm hover:border-emerald-200 hover:text-emerald-700"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Quay lại
+            </Button>
           </div>
 
-          {/* Right Column: Edit Form */}
-          <div className="lg:col-span-2">
-            <div className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
-              <div className="bg-slate-50/50 px-8 py-6 border-b border-slate-100">
-                <h3 className="text-base font-bold text-slate-900 uppercase tracking-widest">
-                  Thông tin cá nhân
-                </h3>
+          <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_320px] xl:items-start">
+            <div className="space-y-6">
+              <div className="max-w-4xl">
+                <p className="text-sm font-semibold text-emerald-600">Admin account profile</p>
+                <h1 className="mt-3 text-3xl font-bold tracking-normal text-slate-950 sm:text-4xl lg:text-5xl">
+                  Hồ sơ cá nhân
+                </h1>
+                <p className="mt-4 max-w-3xl text-sm font-medium leading-7 text-slate-600 sm:text-base">
+                  Quản lý thông tin tài khoản quản trị trong một bố cục sáng, gọn và đồng nhất với các
+                  trang doanh nghiệp, để việc cập nhật hồ sơ và kiểm soát nhận diện hệ thống rõ ràng hơn.
+                </p>
               </div>
-              <form onSubmit={handleSubmit} className="p-8 space-y-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-1">
-                    <label className={labelClass} htmlFor="first_name">
-                      Họ (First Name)
-                    </label>
-                    <div className="relative">
-                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                        <User size={18} />
+
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {heroCards.map((card) => (
+                  <div
+                    key={card.label}
+                    className="rounded-lg border border-white/80 bg-white/85 p-4 shadow-sm backdrop-blur"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-normal text-slate-500">
+                          {card.label}
+                        </p>
+                        <p className="mt-2 text-2xl font-bold tracking-normal text-slate-950">
+                          {card.value}
+                        </p>
+                        <p className="mt-2 text-sm leading-6 text-slate-500">{card.helper}</p>
                       </div>
-                      <input
-                        id="first_name"
-                        name="first_name"
-                        type="text"
-                        value={formData.first_name}
-                        onChange={handleChange}
-                        className={`${inputClass} pl-12`}
-                        placeholder="Nhập họ..."
-                      />
+                      <div
+                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset ${card.tone}`}
+                      >
+                        <ShieldCheck className="h-4 w-4" />
+                      </div>
                     </div>
                   </div>
-                  <div className="space-y-1">
-                    <label className={labelClass} htmlFor="last_name">
-                      Tên (Last Name)
-                    </label>
-                    <input
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-white/80 bg-white/90 p-5 shadow-sm backdrop-blur">
+              <p className="text-xs font-semibold uppercase tracking-normal text-emerald-600">
+                Góc nhìn hiện tại
+              </p>
+              <p className="mt-2 text-2xl font-bold text-slate-950">{displayName}</p>
+              <p className="mt-2 text-sm leading-6 text-slate-500">
+                Thông tin trong hồ sơ này được dùng để nhận diện tài khoản quản trị trên khu vực admin.
+              </p>
+
+              <div className="mt-4 grid gap-3">
+                <div className="rounded-lg bg-slate-50/90 p-3 ring-1 ring-inset ring-slate-100">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">Email</p>
+                  <p className="mt-1 truncate text-sm font-bold text-slate-900">{user?.email || 'Chưa cập nhật'}</p>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-lg bg-slate-50/90 p-3 ring-1 ring-inset ring-slate-100">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">ID</p>
+                    <p className="mt-1 text-sm font-bold text-slate-900">#{user?.id ?? 'N/A'}</p>
+                  </div>
+                  <div className="rounded-lg bg-slate-50/90 p-3 ring-1 ring-inset ring-slate-100">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">Vai trò</p>
+                    <p className="mt-1 text-sm font-bold text-slate-900">{roleLabel}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <main className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="space-y-6">
+            <SectionCard
+              icon={UserRound}
+              title="Thông tin cá nhân"
+              description="Cập nhật các trường nhận diện chính của tài khoản quản trị mà không thay đổi logic lưu hồ sơ hiện tại."
+              action={
+                <div className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-semibold text-slate-600">
+                  {completedCount}/{profileChecklist.length} mục hoàn thiện
+                </div>
+              }
+            >
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid gap-6 md:grid-cols-2">
+                  <FieldBlock
+                    icon={UserRound}
+                    label="Họ"
+                    hint="Phần tên đầu tiên trong hồ sơ quản trị."
+                  >
+                    <Input
+                      id="first_name"
+                      name="first_name"
+                      type="text"
+                      value={formData.first_name}
+                      onChange={handleChange}
+                      className="h-12 rounded-lg border-slate-200 px-4 font-semibold focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
+                      placeholder="Nhập họ..."
+                    />
+                  </FieldBlock>
+
+                  <FieldBlock
+                    icon={UserRound}
+                    label="Tên"
+                    hint="Phần tên hiển thị cùng họ trên giao diện."
+                  >
+                    <Input
                       id="last_name"
                       name="last_name"
                       type="text"
                       value={formData.last_name}
                       onChange={handleChange}
-                      className={inputClass}
+                      className="h-12 rounded-lg border-slate-200 px-4 font-semibold focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
                       placeholder="Nhập tên..."
                     />
-                  </div>
-                </div>
+                  </FieldBlock>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-1">
-                    <label className={labelClass} htmlFor="phone">
-                      Số điện thoại
-                    </label>
-                    <div className="relative">
-                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                        <Phone size={18} />
-                      </div>
-                      <input
-                        id="phone"
-                        name="phone"
-                        type="tel"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        className={`${inputClass} pl-12`}
-                        placeholder="0xxx xxx xxx"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <label className={labelClass} htmlFor="email">
-                      Email Hệ thống
-                    </label>
-                    <div className="relative opacity-60">
-                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                        <Mail size={18} />
-                      </div>
-                      <input
-                        id="email"
-                        type="email"
-                        value={user?.email || ''}
-                        readOnly
-                        className={`${inputClass} pl-12 bg-slate-50 cursor-not-allowed`}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <label className={labelClass} htmlFor="address">
-                    Địa chỉ
-                  </label>
-                  <div className="relative">
-                    <div className="absolute left-4 top-4 text-slate-400">
-                      <MapPin size={18} />
-                    </div>
-                    <textarea
-                      id="address"
-                      name="address"
-                      value={formData.address}
+                  <FieldBlock
+                    icon={Phone}
+                    label="Số điện thoại"
+                    hint="Kênh liên hệ chính phục vụ quản trị nội bộ."
+                  >
+                    <Input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      value={formData.phone}
                       onChange={handleChange}
-                      rows={3}
-                      className={`${inputClass} pl-12 py-3 h-auto resize-none`}
-                      placeholder="Nhập địa chỉ của bạn..."
+                      className="h-12 rounded-lg border-slate-200 px-4 font-semibold focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
+                      placeholder="0xxx xxx xxx"
                     />
-                  </div>
+                  </FieldBlock>
+
+                  <FieldBlock
+                    icon={Mail}
+                    label="Email hệ thống"
+                    hint="Email đăng nhập hiện tại, được giữ ở chế độ chỉ đọc."
+                  >
+                    <Input
+                      id="email"
+                      type="email"
+                      value={user?.email || ''}
+                      readOnly
+                      className="h-12 rounded-lg border-slate-200 bg-slate-50 px-4 font-semibold text-slate-500"
+                    />
+                  </FieldBlock>
+
+                  <FieldBlock
+                    icon={UserRound}
+                    label="Giới tính"
+                    hint="Thông tin nhận diện cơ bản cho hồ sơ."
+                  >
+                    <Select value={formData.gender || ''} onValueChange={(value) => handleSelectChange('gender', value)}>
+                      <SelectTrigger className="h-12 rounded-lg border-slate-200 px-4 font-semibold">
+                        <SelectValue placeholder="Chọn giới tính" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-lg border-slate-200">
+                        <SelectItem value="male">Nam</SelectItem>
+                        <SelectItem value="female">Nữ</SelectItem>
+                        <SelectItem value="other">Khác</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FieldBlock>
+
+                  <FieldBlock
+                    icon={Globe2}
+                    label="Vùng miền"
+                    hint="Khu vực địa lý đang gắn với tài khoản quản trị."
+                  >
+                    <Select
+                      value={normalizeUserRegion(formData.region || '')}
+                      onValueChange={(value) => handleSelectChange('region', value)}
+                    >
+                      <SelectTrigger className="h-12 rounded-lg border-slate-200 px-4 font-semibold">
+                        <SelectValue placeholder="Chọn vùng miền" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-lg border-slate-200">
+                        {USER_REGION_VALUES.map((region) => (
+                          <SelectItem key={region} value={region}>
+                            {USER_REGION_LABELS[region]}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FieldBlock>
                 </div>
 
-                <div className="pt-6 border-t border-slate-100 flex justify-end">
+                <FieldBlock
+                  icon={MapPin}
+                  label="Địa chỉ"
+                  hint="Địa chỉ liên hệ hoặc khu vực làm việc hiện tại của tài khoản."
+                >
+                  <Textarea
+                    id="address"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleChange}
+                    rows={4}
+                    className="min-h-[140px] resize-y rounded-lg border-slate-200 p-4 font-medium leading-7 focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
+                    placeholder="Nhập địa chỉ của bạn..."
+                  />
+                </FieldBlock>
+
+                <div className="flex flex-col gap-4 border-t border-slate-100 pt-6 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="max-w-xl text-sm leading-6 text-slate-500">
+                    Các thay đổi tại đây sẽ được cập nhật trực tiếp vào hồ sơ tài khoản admin sau khi lưu.
+                  </p>
                   <Button
                     type="submit"
                     disabled={loading}
-                    className="h-14 px-10 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl shadow-lg shadow-emerald-500/20 font-bold uppercase tracking-widest text-base transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+                    className="h-12 rounded-lg bg-emerald-600 px-8 font-bold text-white shadow-lg shadow-emerald-100 hover:bg-emerald-700"
                   >
-                    <Save className="mr-3 h-4 w-4" />
+                    <Save className="mr-2 h-4 w-4" />
                     {loading ? 'Đang lưu...' : 'Lưu hồ sơ'}
                   </Button>
                 </div>
               </form>
-            </div>
+            </SectionCard>
           </div>
+
+          <aside className="space-y-6 xl:sticky xl:top-24 xl:self-start">
+            <SectionCard
+              icon={UserRound}
+              title="Nhận diện tài khoản"
+              description="Khu vực tóm tắt avatar, định danh và tín hiệu hồ sơ hiện tại."
+            >
+              <div className="space-y-5">
+                <div className="rounded-lg border border-slate-200 bg-[linear-gradient(180deg,#f8fafc_0%,#ffffff_100%)] p-5">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="relative">
+                      <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-2xl border border-white bg-emerald-50 shadow-lg ring-1 ring-inset ring-slate-100">
+                        {user?.avatar_url ? (
+                          <img
+                            src={user.avatar_url}
+                            alt={displayName}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-3xl font-black text-emerald-700">
+                            {(user?.first_name?.[0] || user?.name?.[0] || 'A').toUpperCase()}
+                          </span>
+                        )}
+
+                        {uploading ? (
+                          <div className="absolute inset-0 flex items-center justify-center bg-slate-950/45 backdrop-blur-sm">
+                            <div className="h-6 w-6 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                          </div>
+                        ) : null}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleAvatarClick}
+                        disabled={uploading}
+                        className="absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-lg transition-all hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-60"
+                        title="Thay đổi ảnh đại diện"
+                      >
+                        <Camera className="h-4 w-4" />
+                      </button>
+                    </div>
+
+                    <p className="mt-5 text-2xl font-bold text-slate-950">{displayName}</p>
+                    <p className="mt-2 text-sm font-bold uppercase tracking-normal text-emerald-600">
+                      {roleLabel}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid gap-3">
+                  <SummaryStat label="Email" value={user?.email || 'Chưa cập nhật'} helper="Tài khoản đăng nhập hiện tại" />
+                  <SummaryStat label="ID quản trị" value={`#${user?.id ?? 'N/A'}`} helper="Định danh nội bộ của người dùng" />
+                  <SummaryStat label="Vùng miền" value={regionLabel} helper="Khu vực đang hiển thị trên hồ sơ" />
+                </div>
+              </div>
+            </SectionCard>
+
+            <SectionCard
+              icon={ShieldCheck}
+              title="Tiến độ hồ sơ"
+              description="Theo dõi các nhóm thông tin đã đủ để vận hành tài khoản quản trị."
+            >
+              <div className="space-y-4">
+                <div className="rounded-lg border border-slate-200 bg-slate-50/80 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">
+                        Trạng thái hồ sơ
+                      </p>
+                      <p className="mt-2 text-3xl font-bold text-slate-950">
+                        {remainingProfileFields > 0 ? `${remainingProfileFields} mục cần bổ sung` : 'Đã đầy đủ'}
+                      </p>
+                      <p className="mt-2 text-sm leading-6 text-slate-500">
+                        {remainingProfileFields > 0
+                          ? `Hoàn thiện thêm ${remainingProfileFields} nhóm thông tin để hồ sơ quản trị rõ ràng hơn.`
+                          : 'Hồ sơ đã đủ các nhóm thông tin chính để vận hành tài khoản quản trị.'}
+                      </p>
+                    </div>
+                    <Badge
+                      className={`rounded-full border px-3 py-1 text-xs font-bold ${
+                        completionPercent >= 75
+                          ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                          : 'border-amber-200 bg-amber-50 text-amber-700'
+                      }`}
+                    >
+                      {completionPercent >= 75 ? 'Ổn định' : 'Cần bổ sung'}
+                    </Badge>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {profileChecklist.map((item) => (
+                    <div key={item.label} className="flex items-start gap-3 rounded-lg bg-slate-50/80 p-4 ring-1 ring-inset ring-slate-100">
+                      <CheckCircle2
+                        className={`mt-0.5 h-4 w-4 shrink-0 ${
+                          item.done ? 'text-emerald-600' : 'text-slate-300'
+                        }`}
+                      />
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900">{item.label}</p>
+                        <p className="mt-1 text-xs leading-5 text-slate-500">{item.helper}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </SectionCard>
+
+            <SectionCard
+              icon={Shield}
+              title="Bảo mật tài khoản"
+              description="Quản lý các thao tác nhạy cảm như đổi mật khẩu và thiết lập bảo vệ bổ sung."
+            >
+              <div className="rounded-lg border border-emerald-100 bg-emerald-50/70 p-4">
+                <p className="text-sm font-bold text-emerald-800">Giữ tài khoản admin an toàn</p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Nên dùng mật khẩu riêng cho tài khoản quản trị và rà soát định kỳ phần cài đặt bảo mật
+                  để giảm rủi ro truy cập trái phép.
+                </p>
+                <Button
+                  type="button"
+                  onClick={() => navigate('/admin/settings')}
+                  className="mt-4 h-11 w-full rounded-lg bg-slate-950 font-bold text-white hover:bg-slate-800"
+                >
+                  Mở cài đặt bảo mật
+                </Button>
+              </div>
+            </SectionCard>
+          </aside>
         </div>
-      </div>
-    </AdminLayout>
+      </main>
+    </div>
   );
 };
 

@@ -55,11 +55,6 @@ const navigationByRole = {
       title: 'AI và định hướng',
       items: [
         { path: '/candidate/chat', label: 'Chatbot AI', icon: <Sparkles size={18} /> },
-        {
-          path: '/candidate/career-roadmap',
-          label: 'Lộ trình nghề nghiệp',
-          icon: <Target size={18} />,
-        },
       ],
     },
   ],

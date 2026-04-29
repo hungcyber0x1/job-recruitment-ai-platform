@@ -5,15 +5,15 @@ import { Sparkles } from 'lucide-react';
 const questions = [
   'Làm thế nào để tối ưu hóa CV?',
   'Dự báo mức lương ngành IT năm 2026?',
-  'Top 5 kỹ năng cần thiết cho Frontend?',
+  '5 kỹ năng quan trọng cho lập trình giao diện?',
   'Cách chuẩn bị cho buổi phỏng vấn?',
-  'Lộ trình trở thành Senior Designer?',
+  'Lộ trình trở thành nhà thiết kế cấp cao?',
 ];
 
 const SuggestedQuestions = ({ onSelect }) => {
   return (
     <div className="flex flex-wrap gap-3 p-6 bg-gray-50/50 border-t border-gray-50">
-      <div className="w-full flex items-center gap-2 text-sm font-black text-emerald-600 uppercase tracking-widest mb-1">
+      <div className="w-full flex items-center gap-2 text-sm font-bold text-emerald-600 uppercase tracking-normal mb-1">
         <Sparkles size={14} />
         Gợi ý dành cho bạn
       </div>

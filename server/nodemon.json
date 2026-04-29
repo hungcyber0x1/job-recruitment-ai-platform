@@ -2,5 +2,7 @@
   "watch": ["src", "app.js", "server.js", "socket.js"],
   "ext": ".js, .json",
   "ignore": ["src/**/*.spec.js", "src/**/*.test.js", "logs/*"],
-  "exec": "node server.js"
+  "exec": "node server.js",
+  "signal": "SIGTERM",
+  "delay": 1000
 }

@@ -4,7 +4,7 @@
 
 -- Core: Jobs
 CREATE INDEX idx_jobs_title      ON jobs(title);
-CREATE INDEX idx_jobs_location   ON jobs(location);
+-- CREATE INDEX idx_jobs_location   ON jobs(location);
 CREATE INDEX idx_jobs_status     ON jobs(status);
 CREATE INDEX idx_jobs_employer   ON jobs(employer_id);
 CREATE INDEX idx_jobs_category   ON jobs(category_id);
@@ -24,10 +24,7 @@ CREATE INDEX idx_analytics_conv  ON chatbot_analytics(conversation_id);
 CREATE INDEX idx_analytics_event ON chatbot_analytics(event_type);
 
 -- AI Features
-CREATE INDEX idx_match_score     ON ai_job_matches(match_score);
 CREATE INDEX idx_resume_cand     ON ai_resume_analysis(candidate_id);
-CREATE INDEX idx_career_cand     ON career_paths(candidate_id);
-CREATE INDEX idx_gap_candidate   ON skill_gaps(candidate_id);
 
 -- Interview
 CREATE INDEX idx_interview_cand  ON interview_sessions(candidate_id);

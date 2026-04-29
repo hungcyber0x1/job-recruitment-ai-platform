@@ -9,7 +9,7 @@ const CertificationsSection = ({ certifications = [] }) => {
         <div className="w-10 h-10 bg-orange-50 dark:bg-orange-500/10 rounded-lg flex items-center justify-center text-orange-600 dark:text-orange-400">
           <Award size={20} />
         </div>
-        <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-normal">
           Chứng chỉ & Giải thưởng
         </h3>
       </div>
@@ -20,7 +20,7 @@ const CertificationsSection = ({ certifications = [] }) => {
             key={index}
             className="group/cert flex gap-4 rounded-xl border border-transparent bg-orange-50/50 p-4 transition-colors duration-200 ease-out hover:border-orange-100 hover:bg-muted/40 dark:border-transparent dark:bg-slate-800/50 dark:hover:border-slate-700 dark:hover:bg-slate-800"
           >
-            <div className="w-10 h-10 rounded-lg bg-orange-100/50 dark:bg-slate-700 text-orange-600 dark:text-orange-400 flex items-center justify-center shrink-0 border border-orange-200/50 dark:border-slate-600/50">
+            <div className="w-10 h-12 rounded-lg bg-orange-100/50 dark:bg-slate-700 text-orange-600 dark:text-orange-400 flex items-center justify-center shrink-0 border border-orange-200/50 dark:border-slate-600/50">
               <Award size={20} />
             </div>
             <div>

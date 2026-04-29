@@ -1,0 +1,1166 @@
+-- =============================================================================
+-- RECRUITMENT PLATFORM - NEW DATABASE SCHEMA
+-- Version: 2.0
+-- Created: 2026-04-16
+-- Description: Clean, normalized database design for AI-powered job recruitment platform
+-- =============================================================================
+
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- =============================================================================
+-- SECTION 1: CORE AUTHENTICATION & USER MANAGEMENT
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Table: users (Unified user accounts for all roles)
+-- Purpose: Single source of truth for authentication and user identification
+-- Notes: 
+--   - is_active column is LEGACY - use 'status' column for all application logic
+--   - role determines user type: 'admin', 'recruiter', 'candidate'
+--   - All soft-delete uses deleted_at (not is_active)
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS users (
+    -- Core identity
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    
+    -- Role-based access
+    role ENUM('admin', 'recruiter', 'candidate') NOT NULL,
+    status ENUM('active', 'pending', 'inactive', 'banned', 'locked') NOT NULL DEFAULT 'pending',
+    
+    -- Profile basics
+    first_name VARCHAR(100) NULL,
+    last_name VARCHAR(100) NULL,
+    phone VARCHAR(20) NULL,
+    address VARCHAR(255) NULL,
+    avatar_url VARCHAR(500) NULL,
+    gender ENUM('male', 'female', 'other') NULL,
+    region VARCHAR(100) NULL COMMENT 'Geographic region for filtering',
+    
+    -- OAuth support
+    oauth_provider VARCHAR(50) NULL,
+    oauth_provider_id VARCHAR(255) NULL,
+    
+    -- Security & verification
+    email_verified_at DATETIME NULL,
+    last_login_at DATETIME NULL,
+    locked_at DATETIME NULL,
+    locked_by INT UNSIGNED NULL COMMENT 'Admin who locked this account',
+    password_updated_at DATETIME NULL,
+    
+    -- Admin-specific
+    permissions JSON NULL COMMENT 'Admin permissions as JSON array',
+    internal_notes TEXT NULL,
+    
+    -- Notifications
+    email_notifications BOOLEAN NOT NULL DEFAULT TRUE,
+    push_notifications BOOLEAN NOT NULL DEFAULT TRUE,
+    
+    -- Audit trail
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL COMMENT 'Soft delete timestamp',
+    
+    -- Indexes
+    INDEX idx_users_email (email),
+    INDEX idx_users_role (role),
+    INDEX idx_users_status (status),
+    INDEX idx_users_role_status (role, status),
+    INDEX idx_users_deleted_at (deleted_at),
+    INDEX idx_users_oauth (oauth_provider, oauth_provider_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- Table: user_preferences
+-- Purpose: User-specific settings and preferences
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS user_preferences (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL UNIQUE,
+    
+    -- Language & locale
+    language VARCHAR(10) NOT NULL DEFAULT 'vi',
+    timezone VARCHAR(50) NOT NULL DEFAULT 'Asia/Ho_Chi_Minh',
+    
+    -- Display preferences
+    theme ENUM('light', 'dark', 'system') NOT NULL DEFAULT 'system',
+    
+    -- Notification preferences
+    notify_email_application BOOLEAN NOT NULL DEFAULT TRUE,
+    notify_email_message BOOLEAN NOT NULL DEFAULT TRUE,
+    notify_email_job_alert BOOLEAN NOT NULL DEFAULT TRUE,
+    notify_push_all BOOLEAN NOT NULL DEFAULT TRUE,
+    
+    -- Privacy settings
+    profile_visibility ENUM('public', 'connections', 'private') NOT NULL DEFAULT 'public',
+    show_online_status BOOLEAN NOT NULL DEFAULT TRUE,
+    
+    -- Timestamps
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- SECTION 2: PROFILE EXTENSIONS (User-Specific Data)
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Table: candidate_profiles
+-- Purpose: Detailed candidate information for job search and matching
+-- Notes: 
+--   - 1:1 relationship with users (via user_id)
+--   - Education and experience stored as JSON for flexibility
+--   - Resume stored as URL reference (file in S3/storage)
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS candidate_profiles (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL UNIQUE,
+    
+    -- Professional summary
+    bio TEXT NULL,
+    current_job_title VARCHAR(255) NULL,
+    experience_years INT NULL,
+    current_salary DECIMAL(15, 0) NULL COMMENT 'Current salary in VND',
+    expected_salary DECIMAL(15, 0) NULL COMMENT 'Expected salary in VND',
+    
+    -- Education stored as JSON: [{school, degree, major, year, gpa}]
+    education JSON NULL,
+    education_level ENUM('high_school', 'college', 'bachelor', 'master', 'phd', 'other') NULL,
+    
+    -- Experience stored as JSON: [{company, title, period, description, current}]
+    experience JSON NULL,
+    
+    -- Career preferences
+    preferred_job_types JSON NULL COMMENT 'Array of preferred job types',
+    preferred_locations JSON NULL COMMENT 'Array of preferred locations',
+    preferred_salary DECIMAL(15, 0) NULL COMMENT 'Minimum acceptable salary',
+    
+    -- Resume & documents
+    resume_url VARCHAR(500) NULL,
+    cover_letter_url VARCHAR(500) NULL,
+    portfolio_url VARCHAR(500) NULL,
+    linkedin_url VARCHAR(500) NULL,
+    github_url VARCHAR(500) NULL,
+    
+    -- AI Analysis
+    ai_profile_complete BOOLEAN NOT NULL DEFAULT FALSE,
+    ai_last_analyzed_at DATETIME NULL,
+    
+    -- Timestamps
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_candidate_user (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- Table: company_profiles
+-- Purpose: Company/employer information
+-- Notes: 
+--   - 1:1 relationship with users (via user_id) where role='recruiter'
+--   - Can also exist standalone for company pages
+--   - Verification status managed by admin
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS company_profiles (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NULL UNIQUE,
+    
+    -- Basic info
+    name VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) NOT NULL UNIQUE,
+    logo_url VARCHAR(500) NULL,
+    cover_image_url VARCHAR(500) NULL,
+    
+    -- Company details
+    website VARCHAR(255) NULL,
+    size ENUM('1-10', '11-50', '51-200', '201-500', '501-1000', '1000+') NULL,
+    industry VARCHAR(100) NULL,
+    founded_year INT NULL,
+    tax_code VARCHAR(50) NULL,
+    
+    -- Location
+    headquarters VARCHAR(255) NULL,
+    locations JSON NULL COMMENT 'Array of office locations',
+    
+    -- Description
+    short_description VARCHAR(500) NULL,
+    full_description TEXT NULL,
+    culture_description TEXT NULL,
+    benefits_description TEXT NULL,
+    
+    -- Social media
+    facebook_url VARCHAR(500) NULL,
+    linkedin_url VARCHAR(500) NULL,
+    twitter_url VARCHAR(500) NULL,
+    
+    -- Verification & moderation
+    is_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    verified_at DATETIME NULL,
+    verified_by INT UNSIGNED NULL,
+    is_flagged BOOLEAN NOT NULL DEFAULT FALSE,
+    flagged_at DATETIME NULL,
+    flagged_reason TEXT NULL,
+    moderation_status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
+    moderation_notes TEXT NULL,
+    
+    -- Stats (denormalized for performance)
+    total_jobs INT NOT NULL DEFAULT 0,
+    total_views INT NOT NULL DEFAULT 0,
+    
+    -- Timestamps
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+    
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (verified_by) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_company_slug (slug),
+    INDEX idx_company_industry (industry),
+    INDEX idx_company_verified (is_verified),
+    INDEX idx_company_user (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- SECTION 3: REFERENCE DATA (Lookup Tables)
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Table: categories
+-- Purpose: Job categories (e.g., IT, Marketing, Finance)
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS categories (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    slug VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT NULL,
+    icon VARCHAR(50) NULL COMMENT 'Icon class or emoji',
+    color VARCHAR(7) NULL COMMENT 'Hex color code',
+    parent_id INT UNSIGNED NULL,
+    sort_order INT NOT NULL DEFAULT 0,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE SET NULL,
+    INDEX idx_category_slug (slug),
+    INDEX idx_category_parent (parent_id),
+    INDEX idx_category_active (is_active)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- Table: skills
+-- Purpose: Technical and soft skills for matching
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS skills (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    slug VARCHAR(100) NOT NULL UNIQUE,
+    category VARCHAR(100) NULL COMMENT 'Skill category (Programming, Language, etc.)',
+    description TEXT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    INDEX idx_skill_slug (slug),
+    INDEX idx_skill_category (category),
+    INDEX idx_skill_active (is_active)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- Table: locations
+-- Purpose: Geographic locations for job search
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS locations (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    slug VARCHAR(100) NOT NULL UNIQUE,
+    type ENUM('country', 'region', 'city', 'district') NOT NULL DEFAULT 'city',
+    parent_id INT UNSIGNED NULL,
+    timezone VARCHAR(50) NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (parent_id) REFERENCES locations(id) ON DELETE SET NULL,
+    INDEX idx_location_slug (slug),
+    INDEX idx_location_type (type),
+    INDEX idx_location_parent (parent_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- SECTION 4: JOB MANAGEMENT
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Table: jobs
+-- Purpose: Job postings with full details
+-- Notes:
+--   - Status workflow: draft → pending → published → closed/archived/expired
+--   - Soft delete uses deleted_at
+--   - Supports AI embedding for semantic search
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS jobs (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    company_id INT UNSIGNED NOT NULL,
+    category_id INT UNSIGNED NULL,
+    
+    -- Basic info
+    title VARCHAR(150) NOT NULL,
+    slug VARCHAR(200) NOT NULL,
+    description TEXT NOT NULL,
+    job_embedding JSON NULL COMMENT 'AI embedding for semantic search',
+    
+    -- Requirements & benefits
+    requirements TEXT NULL,
+    benefits TEXT NULL,
+    
+    -- Salary & compensation
+    salary_min DECIMAL(15, 0) NULL,
+    salary_max DECIMAL(15, 0) NULL,
+    salary_currency VARCHAR(10) NOT NULL DEFAULT 'VND',
+    salary_negotiable BOOLEAN NOT NULL DEFAULT FALSE,
+    
+    -- Job details
+    location_id INT UNSIGNED NULL,
+    location_text VARCHAR(255) NULL COMMENT 'Custom location text',
+    experience_min INT NULL COMMENT 'Minimum years of experience',
+    experience_max INT NULL COMMENT 'Maximum years of experience',
+    education_required ENUM('high_school', 'college', 'bachelor', 'master', 'phd', 'any') DEFAULT 'any',
+    job_type ENUM('full-time', 'part-time', 'contract', 'internship', 'remote', 'freelance') NOT NULL DEFAULT 'full-time',
+    
+    -- Work arrangement
+    work_arrangement ENUM('onsite', 'remote', 'hybrid') NOT NULL DEFAULT 'onsite',
+    
+    -- Status & workflow
+    status ENUM('draft', 'pending', 'published', 'rejected', 'closed', 'archived', 'expired') NOT NULL DEFAULT 'draft',
+    moderation_status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
+    rejection_reason TEXT NULL,
+    moderation_notes TEXT NULL,
+    
+    -- Publishing
+    published_at DATETIME NULL,
+    deadline DATETIME NULL,
+    expires_at DATETIME NULL,
+    
+    -- Analytics
+    views INT NOT NULL DEFAULT 0,
+    unique_views INT NOT NULL DEFAULT 0,
+    applications_count INT NOT NULL DEFAULT 0,
+    
+    -- Timestamps
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+    
+    FOREIGN KEY (company_id) REFERENCES company_profiles(id) ON DELETE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL,
+    FOREIGN KEY (location_id) REFERENCES locations(id) ON DELETE SET NULL,
+    
+    UNIQUE KEY uk_job_slug (company_id, slug),
+    INDEX idx_job_status (status),
+    INDEX idx_job_published (published_at),
+    INDEX idx_job_deadline (deadline),
+    INDEX idx_job_company (company_id),
+    INDEX idx_job_category (category_id),
+    INDEX idx_job_type (job_type),
+    INDEX idx_job_status_created (status, created_at),
+    INDEX idx_job_deleted (deleted_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- Table: job_skills (Many-to-Many: Jobs ↔ Skills)
+-- Purpose: Required and preferred skills for each job
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS job_skills (
+    job_id INT UNSIGNED NOT NULL,
+    skill_id INT UNSIGNED NOT NULL,
+    is_required BOOLEAN NOT NULL DEFAULT FALSE COMMENT 'Required vs preferred',
+    importance INT NOT NULL DEFAULT 1 COMMENT '1-5 importance level',
+    min_proficiency ENUM('beginner', 'intermediate', 'advanced', 'expert') NULL,
+    
+    PRIMARY KEY (job_id, skill_id),
+    FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
+    FOREIGN KEY (skill_id) REFERENCES skills(id) ON DELETE CASCADE,
+    INDEX idx_jobskill_skill (skill_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- Table: candidate_skills (Many-to-Many: Candidates ↔ Skills)
+-- Purpose: Skills possessed by candidates
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS candidate_skills (
+    candidate_id INT UNSIGNED NOT NULL,
+    skill_id INT UNSIGNED NOT NULL,
+    proficiency ENUM('beginner', 'intermediate', 'advanced', 'expert') NULL,
+    years_experience INT NULL,
+    last_used_year INT NULL,
+    is_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    
+    PRIMARY KEY (candidate_id, skill_id),
+    FOREIGN KEY (candidate_id) REFERENCES candidate_profiles(id) ON DELETE CASCADE,
+    FOREIGN KEY (skill_id) REFERENCES skills(id) ON DELETE CASCADE,
+    INDEX idx_candskill_skill (skill_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- Table: saved_jobs
+-- Purpose: Jobs saved by candidates for later viewing
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS saved_jobs (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    candidate_id INT UNSIGNED NOT NULL,
+    job_id INT UNSIGNED NOT NULL,
+    notes TEXT NULL COMMENT 'Candidate notes about why saved',
+    saved_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    UNIQUE KEY uk_saved_job (candidate_id, job_id),
+    FOREIGN KEY (candidate_id) REFERENCES candidate_profiles(id) ON DELETE CASCADE,
+    FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
+    INDEX idx_saved_candidate (candidate_id),
+    INDEX idx_saved_at (saved_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- SECTION 5: APPLICATION MANAGEMENT
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Table: applications
+-- Purpose: Job applications from candidates
+-- Notes:
+--   - Status workflow: pending → screening → reviewed → shortlisted → interviewing → offered → hired
+--   - Terminal states: rejected, withdrawn, declined
+--   - Score from AI screening
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS applications (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    candidate_id INT UNSIGNED NOT NULL,
+    job_id INT UNSIGNED NOT NULL,
+    
+    -- Application details
+    resume_url VARCHAR(500) NULL,
+    cover_letter TEXT NULL,
+    answers JSON NULL COMMENT 'Answers to job screening questions',
+    
+    -- Status tracking
+    status ENUM(
+        'pending',     -- Initial state
+        'screening',  -- Being screened by AI
+        'reviewed',    -- Reviewed by recruiter
+        'shortlisted',-- Shortlisted for interview
+        'interviewing',-- In interview process
+        'offered',    -- Job offer extended
+        'hired',       -- Offer accepted, hired
+        'rejected',    -- Rejected at any stage
+        'withdrawn',  -- Candidate withdrew
+        'accepted',   -- Candidate accepted offer
+        'declined'    -- Candidate declined offer
+    ) NOT NULL DEFAULT 'pending',
+    
+    -- AI Screening
+    ai_score DECIMAL(5, 2) NULL COMMENT 'Overall AI match score (0-100)',
+    ai_screening_completed_at DATETIME NULL,
+    
+    -- Internal tracking
+    internal_notes TEXT NULL COMMENT 'Recruiter internal notes',
+    offer_details JSON NULL COMMENT 'Offer details if offered',
+    
+    -- Tracking
+    applied_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    -- Unique constraint: one application per candidate per job
+    UNIQUE KEY uk_application (candidate_id, job_id),
+    FOREIGN KEY (candidate_id) REFERENCES candidate_profiles(id) ON DELETE CASCADE,
+    FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
+    
+    INDEX idx_application_job (job_id),
+    INDEX idx_application_status (status),
+    INDEX idx_application_applied (applied_at),
+    INDEX idx_application_candidate_status (candidate_id, status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- Table: application_history
+-- Purpose: Audit trail for application status changes
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS application_history (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    application_id INT UNSIGNED NOT NULL,
+    changed_by INT UNSIGNED NULL COMMENT 'User who made the change',
+    old_status VARCHAR(50) NULL,
+    new_status VARCHAR(50) NOT NULL,
+    notes TEXT NULL,
+    metadata JSON NULL COMMENT 'Additional context about the change',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE CASCADE,
+    FOREIGN KEY (changed_by) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_history_application (application_id),
+    INDEX idx_history_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- Table: application_screening (AI Screening Results)
+-- Purpose: Detailed AI screening results for applications
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS application_screening (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    application_id INT UNSIGNED NOT NULL,
+    question TEXT NOT NULL,
+    answer TEXT NULL,
+    ai_score INT NULL COMMENT 'Score for this question (0-100)',
+    ai_feedback TEXT NULL COMMENT 'AI feedback on the answer',
+    relevance_rating ENUM('highly_relevant', 'relevant', 'somewhat_relevant', 'not_relevant') NULL,
+    analyzed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE CASCADE,
+    INDEX idx_screening_application (application_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- SECTION 6: AI FEATURES
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Table: ai_resume_analysis
+-- Purpose: AI analysis of candidate resumes
+-- Notes:
+--   - is_current: Only one analysis is "current" for matching purposes
+--   - Stores embedding for semantic search
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS ai_resume_analysis (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    candidate_id INT UNSIGNED NOT NULL,
+    is_current BOOLEAN NOT NULL DEFAULT TRUE,
+    
+    -- Source
+    resume_text TEXT NULL,
+    resume_url VARCHAR(500) NULL,
+    resume_embedding JSON NULL,
+    
+    -- Scores
+    overall_score DECIMAL(5, 2) NULL,
+    skill_score DECIMAL(5, 2) NULL,
+    experience_score DECIMAL(5, 2) NULL,
+    education_score DECIMAL(5, 2) NULL,
+    
+    -- Analysis results
+    strengths JSON NULL,
+    weaknesses JSON NULL,
+    skill_matches JSON NULL,
+    suggestions JSON NULL,
+    extracted_keywords JSON NULL,
+    detected_role_level VARCHAR(50) NULL,
+    
+    -- Timestamps
+    analyzed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expires_at DATETIME NULL,
+    
+    FOREIGN KEY (candidate_id) REFERENCES candidate_profiles(id) ON DELETE CASCADE,
+    INDEX idx_analysis_candidate (candidate_id),
+    INDEX idx_analysis_current (candidate_id, is_current),
+    INDEX idx_analysis_score (overall_score)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- Table: ai_job_matches
+-- Purpose: AI-generated job-candidate match scores and recommendations
+-- Notes:
+--   - Stores detailed matching breakdown
+--   - Supports different recommendation types
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS ai_job_matches (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    candidate_id INT UNSIGNED NOT NULL,
+    job_id INT UNSIGNED NOT NULL,
+    
+    -- Overall match
+    match_score DECIMAL(5, 2) NOT NULL,
+    
+    -- Detailed scores
+    skill_match_score DECIMAL(5, 2) NULL,
+    experience_match_score DECIMAL(5, 2) NULL,
+    education_match_score DECIMAL(5, 2) NULL,
+    location_match_score DECIMAL(5, 2) NULL,
+    salary_match_score DECIMAL(5, 2) NULL,
+    
+    -- Analysis details
+    matching_skills JSON NULL,
+    missing_skills JSON NULL,
+    extra_skills JSON NULL,
+    
+    -- Recommendation
+    recommendation_type ENUM('perfect_match', 'strong_match', 'good_match', 'potential_match') NULL,
+    recommendation_reason TEXT NULL,
+    strengths JSON NULL,
+    concerns JSON NULL,
+    
+    -- Timestamps
+    calculated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expires_at DATETIME NULL,
+    
+    UNIQUE KEY uk_match (candidate_id, job_id),
+    FOREIGN KEY (candidate_id) REFERENCES candidate_profiles(id) ON DELETE CASCADE,
+    FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
+    INDEX idx_match_score (match_score),
+    INDEX idx_match_type (recommendation_type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- Table: career_paths
+-- Purpose: AI-generated career path suggestions
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS career_paths (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    candidate_id INT UNSIGNED NOT NULL,
+    
+    title VARCHAR(255) NOT NULL,
+    description TEXT NULL,
+    target_roles JSON NULL COMMENT 'Roles to aim for',
+    skill_gaps JSON NULL COMMENT 'Skills to develop',
+    timeline_months INT NULL,
+    
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (candidate_id) REFERENCES candidate_profiles(id) ON DELETE CASCADE,
+    INDEX idx_career_candidate (candidate_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- Table: skill_gaps
+-- Purpose: Identified skill gaps for candidates
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS skill_gaps (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    candidate_id INT UNSIGNED NOT NULL,
+    
+    skill_id INT UNSIGNED NOT NULL,
+    current_level ENUM('none', 'beginner', 'intermediate', 'advanced', 'expert') NOT NULL,
+    target_level ENUM('beginner', 'intermediate', 'advanced', 'expert') NOT NULL,
+    priority INT NOT NULL DEFAULT 1 COMMENT '1 = highest priority',
+    resources JSON NULL COMMENT 'Learning resources',
+    
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (candidate_id) REFERENCES candidate_profiles(id) ON DELETE CASCADE,
+    FOREIGN KEY (skill_id) REFERENCES skills(id) ON DELETE CASCADE,
+    INDEX idx_gap_candidate (candidate_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- SECTION 7: AI CHATBOT
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Table: chatbot_conversations
+-- Purpose: Chat sessions for AI career assistant
+-- Notes:
+--   - Can be linked to an application for interview prep
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS chatbot_conversations (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL,
+    application_id INT UNSIGNED NULL COMMENT 'Link to application for interview prep',
+    
+    title VARCHAR(255) NOT NULL DEFAULT 'New Conversation',
+    context JSON NULL COMMENT 'Conversation context and metadata',
+    
+    -- Stats
+    message_count INT NOT NULL DEFAULT 0,
+    tokens_used INT NULL,
+    
+    -- Timestamps
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    ended_at DATETIME NULL,
+    
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE SET NULL,
+    INDEX idx_conv_user (user_id),
+    INDEX idx_conv_application (application_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- Table: chatbot_messages
+-- Purpose: Individual messages in chatbot conversations
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS chatbot_messages (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    conversation_id INT UNSIGNED NOT NULL,
+    sender_id INT UNSIGNED NOT NULL COMMENT 'User who sent (NULL for AI)',
+    sender_type ENUM('user', 'ai', 'system') NOT NULL DEFAULT 'user',
+    
+    content TEXT NOT NULL,
+    message_type ENUM('text', 'html', 'markdown', 'attachment') NOT NULL DEFAULT 'text',
+    attachments JSON NULL COMMENT 'Array of attachment URLs',
+    
+    -- AI metadata
+    ai_model VARCHAR(50) NULL,
+    tokens_used INT NULL,
+    processing_time_ms INT NULL,
+    
+    -- Feedback
+    is_helpful BOOLEAN NULL COMMENT 'User feedback on AI response',
+    
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (conversation_id) REFERENCES chatbot_conversations(id) ON DELETE CASCADE,
+    FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_message_conv (conversation_id),
+    INDEX idx_message_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- Table: chatbot_analytics
+-- Purpose: Analytics for chatbot usage and performance
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS chatbot_analytics (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    conversation_id INT UNSIGNED NULL,
+    user_id INT UNSIGNED NOT NULL,
+    
+    event_type ENUM('message_sent', 'message_received', 'session_start', 'session_end', 'feedback_given') NOT NULL,
+    event_data JSON NULL,
+    
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (conversation_id) REFERENCES chatbot_conversations(id) ON DELETE SET NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_analytics_conv (conversation_id),
+    INDEX idx_analytics_event (event_type),
+    INDEX idx_analytics_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- SECTION 8: INTERVIEW PREPARATION
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Table: interview_sessions
+-- Purpose: AI-powered interview practice sessions
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS interview_sessions (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    candidate_id INT UNSIGNED NOT NULL,
+    application_id INT UNSIGNED NULL,
+    
+    session_type ENUM('practice', 'mock', 'recorded') NOT NULL DEFAULT 'practice',
+    difficulty_level ENUM('easy', 'medium', 'hard', 'expert') NOT NULL DEFAULT 'medium',
+    focus_area VARCHAR(100) NULL COMMENT 'Technical, Behavioral, Case Study, etc.',
+    
+    status ENUM('in_progress', 'completed', 'abandoned') NOT NULL DEFAULT 'in_progress',
+    overall_score DECIMAL(5, 2) NULL,
+    
+    feedback TEXT NULL,
+    notes TEXT NULL,
+    
+    started_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    completed_at DATETIME NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (candidate_id) REFERENCES candidate_profiles(id) ON DELETE CASCADE,
+    FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE SET NULL,
+    INDEX idx_interview_candidate (candidate_id),
+    INDEX idx_interview_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- Table: interview_questions
+-- Purpose: Questions in interview sessions
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS interview_questions (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    session_id INT UNSIGNED NOT NULL,
+    
+    question_number INT NOT NULL,
+    question_text TEXT NOT NULL,
+    question_category VARCHAR(100) NULL,
+    difficulty ENUM('easy', 'medium', 'hard') NOT NULL DEFAULT 'medium',
+    ideal_answer_points JSON NULL COMMENT 'Key points for scoring',
+    time_limit_seconds INT NULL,
+    
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (session_id) REFERENCES interview_sessions(id) ON DELETE CASCADE,
+    INDEX idx_question_session (session_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- Table: interview_answers
+-- Purpose: Candidate answers to interview questions
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS interview_answers (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    question_id INT UNSIGNED NOT NULL,
+    
+    answer_text TEXT NULL,
+    
+    -- AI Scoring
+    ai_feedback TEXT NULL,
+    score DECIMAL(5, 2) NULL,
+    
+    -- Detailed feedback
+    strengths JSON NULL,
+    improvements JSON NULL,
+    key_points_covered JSON NULL,
+    missing_points JSON NULL,
+    
+    -- Timing
+    time_taken_seconds INT NULL,
+    
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (question_id) REFERENCES interview_questions(id) ON DELETE CASCADE,
+    INDEX idx_answer_question (question_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- SECTION 9: CONTENT MANAGEMENT (Blog)
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Table: blog_posts
+-- Purpose: Blog articles and content
+-- Notes:
+--   - Can be authored by admin or recruiters (via company)
+--   - Supports scheduling and moderation
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS blog_posts (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    
+    -- Content
+    slug VARCHAR(320) NOT NULL UNIQUE,
+    title VARCHAR(500) NOT NULL,
+    excerpt TEXT NULL,
+    content LONGTEXT NULL,
+    image_url VARCHAR(800) NULL,
+    video_url VARCHAR(500) NULL,
+    
+    -- Categorization
+    category VARCHAR(100) NOT NULL DEFAULT 'General',
+    tags JSON NULL COMMENT 'Array of tags',
+    
+    -- Authorship
+    author_type ENUM('admin', 'recruiter') NOT NULL,
+    author_user_id INT UNSIGNED NULL,
+    company_id INT UNSIGNED NULL,
+    
+    -- Publishing
+    status ENUM('draft', 'pending', 'published', 'rejected', 'archived') NOT NULL DEFAULT 'draft',
+    is_published BOOLEAN NOT NULL DEFAULT FALSE,
+    published_at DATETIME NULL,
+    scheduled_at DATETIME NULL,
+    
+    -- Moderation
+    is_featured BOOLEAN NOT NULL DEFAULT FALSE,
+    is_flagged BOOLEAN NOT NULL DEFAULT FALSE,
+    rejection_reason TEXT NULL,
+    
+    -- SEO
+    meta_title VARCHAR(500) NULL,
+    meta_description TEXT NULL,
+    
+    -- Analytics
+    view_count INT NOT NULL DEFAULT 0,
+    share_count INT NOT NULL DEFAULT 0,
+    
+    -- Timestamps
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
+    
+    FOREIGN KEY (author_user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (company_id) REFERENCES company_profiles(id) ON DELETE SET NULL,
+    INDEX idx_blog_status (status),
+    INDEX idx_blog_published (is_published, published_at),
+    INDEX idx_blog_category (category),
+    INDEX idx_blog_author (author_user_id),
+    INDEX idx_blog_company (company_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- SECTION 10: SUPPORT & TICKETS
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Table: support_tickets
+-- Purpose: User support tickets
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS support_tickets (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL,
+    
+    subject VARCHAR(255) NOT NULL,
+    description TEXT NULL,
+    category ENUM('technical', 'billing', 'account', 'feature_request', 'bug_report', 'other') NOT NULL DEFAULT 'other',
+    priority ENUM('low', 'medium', 'high', 'urgent') NOT NULL DEFAULT 'medium',
+    status ENUM('open', 'in_progress', 'waiting_response', 'resolved', 'closed') NOT NULL DEFAULT 'open',
+    
+    assigned_to INT UNSIGNED NULL COMMENT 'Admin handling ticket',
+    
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    resolved_at DATETIME NULL,
+    
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_ticket_user (user_id),
+    INDEX idx_ticket_status (status),
+    INDEX idx_ticket_priority (priority)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- Table: support_messages
+-- Purpose: Messages in support tickets
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS support_messages (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    ticket_id INT UNSIGNED NOT NULL,
+    sender_id INT UNSIGNED NULL,
+    sender_type ENUM('user', 'admin', 'system') NOT NULL DEFAULT 'user',
+    
+    message TEXT NOT NULL,
+    attachments JSON NULL,
+    is_internal BOOLEAN NOT NULL DEFAULT FALSE COMMENT 'Only visible to admin',
+    
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (ticket_id) REFERENCES support_tickets(id) ON DELETE CASCADE,
+    FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_message_ticket (ticket_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- SECTION 11: NOTIFICATIONS & COMMUNICATIONS
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Table: notifications
+-- Purpose: User notifications
+-- Notes: Supports different channels and types
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS notifications (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL,
+    
+    type VARCHAR(50) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NULL,
+    
+    -- Reference to related entity
+    reference_type ENUM('application', 'job', 'message', 'blog', 'system') NULL,
+    reference_id INT UNSIGNED NULL,
+    
+    -- Delivery
+    channel ENUM('in_app', 'email', 'push', 'sms') NOT NULL DEFAULT 'in_app',
+    is_sent BOOLEAN NOT NULL DEFAULT FALSE,
+    sent_at DATETIME NULL,
+    
+    -- Read status
+    is_read BOOLEAN NOT NULL DEFAULT FALSE,
+    read_at DATETIME NULL,
+    
+    -- Metadata
+    metadata JSON NULL,
+    
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_notification_user (user_id),
+    INDEX idx_notification_type (type),
+    INDEX idx_notification_read (is_read),
+    INDEX idx_notification_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- Table: email_logs
+-- Purpose: Log of sent emails for audit and troubleshooting
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS email_logs (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    
+    recipient_id INT UNSIGNED NULL,
+    recipient_email VARCHAR(255) NOT NULL,
+    
+    subject VARCHAR(500) NOT NULL,
+    template_name VARCHAR(100) NULL,
+    
+    status ENUM('queued', 'sent', 'delivered', 'failed', 'bounced') NOT NULL DEFAULT 'queued',
+    error_message TEXT NULL,
+    
+    provider VARCHAR(50) NULL COMMENT 'Email provider used',
+    provider_message_id VARCHAR(255) NULL,
+    
+    metadata JSON NULL,
+    
+    queued_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    sent_at DATETIME NULL,
+    delivered_at DATETIME NULL,
+    
+    INDEX idx_email_recipient (recipient_id),
+    INDEX idx_email_status (status),
+    INDEX idx_email_queued (queued_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- SECTION 12: AUDIT & ADMIN
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Table: activity_logs
+-- Purpose: General activity audit log for admin actions
+-- Notes: All admin/system actions should be logged here
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS activity_logs (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    
+    -- Who
+    actor_id INT UNSIGNED NULL,
+    actor_type ENUM('user', 'system', 'api') NOT NULL DEFAULT 'user',
+    
+    -- What
+    action VARCHAR(100) NOT NULL,
+    entity_type VARCHAR(50) NULL COMMENT 'users, jobs, applications, etc.',
+    entity_id INT UNSIGNED NULL,
+    
+    -- Details
+    details JSON NULL COMMENT 'Additional context',
+    ip_address VARCHAR(45) NULL,
+    user_agent VARCHAR(500) NULL,
+    
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (actor_id) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_log_actor (actor_id),
+    INDEX idx_log_action (action),
+    INDEX idx_log_entity (entity_type, entity_id),
+    INDEX idx_log_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- Table: system_settings
+-- Purpose: Global system configuration
+-- Notes: Key-value store for feature flags and settings
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS system_settings (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    
+    key_name VARCHAR(100) NOT NULL UNIQUE,
+    value TEXT NULL,
+    value_type ENUM('string', 'number', 'boolean', 'json') NOT NULL DEFAULT 'string',
+    
+    description TEXT NULL,
+    is_public BOOLEAN NOT NULL DEFAULT FALSE COMMENT 'Visible to frontend',
+    
+    updated_by INT UNSIGNED NULL,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX idx_setting_key (key_name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- SECTION 13: CONTENT PAGES & BANNERS
+-- =============================================================================
+
+-- -----------------------------------------------------------------------------
+-- Table: content_pages
+-- Purpose: Static content pages (About, Privacy Policy, Terms, etc.)
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS content_pages (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    
+    slug VARCHAR(100) NOT NULL UNIQUE,
+    title VARCHAR(255) NOT NULL,
+    content LONGTEXT NULL,
+    page_type ENUM('info', 'legal', 'landing') NOT NULL DEFAULT 'info',
+    
+    meta_title VARCHAR(500) NULL,
+    meta_description TEXT NULL,
+    
+    is_published BOOLEAN NOT NULL DEFAULT FALSE,
+    sort_order INT NOT NULL DEFAULT 0,
+    
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    INDEX idx_page_slug (slug),
+    INDEX idx_page_published (is_published)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- Table: banners
+-- Purpose: Landing page banners and announcements
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS banners (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    
+    title VARCHAR(255) NOT NULL,
+    subtitle VARCHAR(255) NULL,
+    image_url VARCHAR(800) NOT NULL,
+    link_url VARCHAR(500) NULL,
+    link_text VARCHAR(100) NULL,
+    
+    position ENUM('hero', 'top', 'middle', 'bottom', 'sidebar') NOT NULL DEFAULT 'middle',
+    target_audience ENUM('all', 'candidate', 'recruiter', 'guest') NOT NULL DEFAULT 'all',
+    
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    priority INT NOT NULL DEFAULT 0 COMMENT 'Higher = shown first',
+    
+    start_date DATETIME NULL,
+    end_date DATETIME NULL,
+    
+    click_count INT NOT NULL DEFAULT 0,
+    view_count INT NOT NULL DEFAULT 0,
+    
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    INDEX idx_banner_active (is_active),
+    INDEX idx_banner_position (position),
+    INDEX idx_banner_dates (start_date, end_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- FULL-TEXT SEARCH INDEXES
+-- =============================================================================
+
+ALTER TABLE jobs ADD FULLTEXT INDEX ft_jobs_search (title, description);
+ALTER TABLE blog_posts ADD FULLTEXT INDEX ft_blog_search (title, content);
+
+-- =============================================================================
+-- RE-ENABLE FOREIGN KEY CHECKS
+-- =============================================================================
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- =============================================================================
+-- MIGRATION NOTES:
+-- =============================================================================
+-- 
+-- LEGACY ISSUES RESOLVED:
+-- 1. Removed is_active - use status column only
+-- 2. Renamed employers -> company_profiles for clarity
+-- 3. Renamed candidates -> candidate_profiles for consistency
+-- 4. Added deleted_at to all main tables for soft delete
+-- 5. Standardized naming convention (snake_case)
+-- 6. Removed redundant fields (education_level in jobs)
+-- 7. Added proper indexes for all foreign keys
+-- 8. Unified enum values across similar fields
+--
+-- DEPRECATED TABLES TO DROP:
+-- - employers (replaced by company_profiles)
+-- - candidates (replaced by candidate_profiles)
+-- 
+-- BACKWARD COMPATIBILITY:
+-- After migration, update all references from:
+-- - users.role = 'employer' → 'recruiter'
+-- - employers.* → company_profiles.*
+-- - candidates.* → candidate_profiles.*

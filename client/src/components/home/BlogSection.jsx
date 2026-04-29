@@ -56,7 +56,7 @@ const BlogCard = ({ post, index }) => (
     to={`/blog/${post.slug}`}
     className="group block h-full w-[min(85vw,320px)] shrink-0 snap-center sm:w-[360px] lg:w-full lg:min-w-0 lg:shrink"
   >
-    <div className="bg-white rounded-2xl overflow-hidden h-full flex flex-col border border-border/45 card-premium-hover">
+    <div className="bg-white rounded-xl overflow-hidden h-full flex flex-col border border-border/45 card-premium-hover">
       <div className="aspect-[5/3] bg-muted/40 relative overflow-hidden shrink-0">
         <img
           src={post.image || PLACEHOLDER_IMAGES[index] || PLACEHOLDER_IMAGES[0]}
@@ -181,17 +181,17 @@ const BlogSection = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           >
-            <p className="text-base font-bold text-primary uppercase tracking-widest mb-3">
+            <p className="text-base font-bold text-primary uppercase tracking-normal mb-3">
               Bản tin
             </p>
-            <h2 className="text-3xl md:text-4xl font-black text-foreground tracking-tight leading-[1.1]">
-              Bản tin nghề nghiệp <span className="text-primary">HireAI</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground tracking-normal leading-[1.1]">
+              Bản tin nghề nghiệp <span className="text-primary">HireBOT</span>
             </h2>
           </motion.div>
 
           <div className="flex items-center gap-4 shrink-0">
             <Link
-              to="/blog"
+              to="/public/blog"
               className="hidden sm:flex items-center gap-2 text-base font-semibold text-muted-foreground hover:text-foreground transition-colors"
             >
               Xem tất cả <ArrowRight size={14} strokeWidth={2} />

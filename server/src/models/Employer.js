@@ -1,47 +1,51 @@
 /**
- * Employer Model Schema — see migration 003_create_employers_table.sql
+ * Employer Model Schema - DEPRECATED
  *
- * Cung cấp JSDoc type definitions cho hệ thống không dùng ORM.
+ * ⚠️  BẢNG NÀY ĐÃ BỊ XÓA, CHUYỂN SANG DÙNG company_profiles
+ *
+ * Module này giữ lại để tương thích ngược.
+ * Tất cả các tham chiếu đã được chuyển sang Company.js
+ *
+ * @deprecated Use Company.js thay thế
  */
-
-/**
- * @typedef {Object} EmployerRow
- * @property {number} id - Primary key, auto-increment
- * @property {number} user_id - FK → users.id
- * @property {string|null} company_name - Tên công ty
- * @property {string|null} company_website - Website công ty
- * @property {string|null} company_logo - URL logo
- * @property {string|null} company_description - Mô tả công ty
- * @property {string|null} company_size - Quy mô nhân sự
- * @property {string|null} industry - Lĩnh vực
- * @property {string|null} location - Địa điểm
- * @property {string|null} phone - Số điện thoại
- * @property {string|null} tax_code - Mã số thuế
- * @property {boolean} is_verified - Đã xác minh
- * @property {string} created_at - ISO timestamp
- * @property {string} updated_at - ISO timestamp
- */
-
-/** Tên bảng trong database */
-const TABLE_NAME = 'employers';
-
-module.exports = { TABLE_NAME };
 
 const BaseRepository = require('./Base');
 
 class EmployerRepository extends BaseRepository {
   constructor() {
-    super('employers');
+    super('company_profiles');
   }
 
   async findByUserId(userId) {
     const query = `
-      SELECT e.*, u.email, u.first_name, u.last_name, u.avatar_url 
-      FROM employers e
-      JOIN users u ON e.user_id = u.id
-      WHERE e.user_id = ?
+      SELECT cp.*, u.email, u.first_name, u.last_name, u.avatar_url, u.gender, u.region 
+      FROM company_profiles cp
+      JOIN users u ON cp.user_id = u.id
+      WHERE cp.user_id = ?
     `;
-    const [rows] = await this.pool.query(query, [userId]);
+    let [rows] = await this.pool.query(query, [userId]);
+    if (rows[0]) {
+      return rows[0];
+    }
+
+    const [userRows] = await this.pool.query(
+      'SELECT first_name, last_name FROM users WHERE id = ? LIMIT 1',
+      [userId]
+    );
+    const user = userRows[0];
+    if (!user) {
+      return null;
+    }
+
+    const fallbackCompanyName =
+      [user.first_name, user.last_name].filter(Boolean).join(' ').trim() || 'Company profile';
+
+    await this.pool.query(
+      'INSERT IGNORE INTO company_profiles (user_id, company_name) VALUES (?, ?)',
+      [userId, fallbackCompanyName]
+    );
+
+    [rows] = await this.pool.query(query, [userId]);
     return rows[0];
   }
 }

@@ -61,7 +61,7 @@ const ChatbotConversations = () => {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-border bg-card p-6">
+      <div className="rounded-xl border border-border bg-card p-6">
         <form onSubmit={handleSearch} className="flex gap-3">
           <div className="relative flex-1">
             <Search
@@ -85,24 +85,24 @@ const ChatbotConversations = () => {
         </form>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-border bg-card">
+      <div className="overflow-hidden rounded-xl border border-border bg-card">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="border-b border-border bg-muted/50">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-black uppercase tracking-wider text-muted-foreground">
+                <th className="px-6 py-4 text-left text-sm font-bold uppercase tracking-normal text-muted-foreground">
                   Người dùng
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-black uppercase tracking-wider text-muted-foreground">
+                <th className="px-6 py-4 text-left text-sm font-bold uppercase tracking-normal text-muted-foreground">
                   Tiêu đề
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-black uppercase tracking-wider text-muted-foreground">
+                <th className="px-6 py-4 text-left text-sm font-bold uppercase tracking-normal text-muted-foreground">
                   Số tin nhắn
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-black uppercase tracking-wider text-muted-foreground">
+                <th className="px-6 py-4 text-left text-sm font-bold uppercase tracking-normal text-muted-foreground">
                   Tạo lúc
                 </th>
-                <th className="px-6 py-4 text-right text-sm font-black uppercase tracking-wider text-muted-foreground">
+                <th className="px-6 py-4 text-right text-sm font-bold uppercase tracking-normal text-muted-foreground">
                   Hành động
                 </th>
               </tr>
@@ -196,10 +196,10 @@ const ChatbotConversations = () => {
 
       {selectedConversation && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-card">
+          <div className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-xl bg-card">
             <div className="flex items-center justify-between border-b border-border px-6 py-4">
               <div>
-                <h3 className="text-xl font-black text-foreground">
+                <h3 className="text-xl font-bold text-foreground">
                   {selectedConversation.conversation.title}
                 </h3>
                 <p className="text-base text-muted-foreground">
@@ -220,7 +220,7 @@ const ChatbotConversations = () => {
               {selectedConversation.messages.map((msg) => (
                 <div key={msg.id} className={msg.is_ai ? 'flex justify-start' : 'flex justify-end'}>
                   <div
-                    className={`max-w-[70%] rounded-2xl p-4 ${
+                    className={`max-w-[70%] rounded-xl p-4 ${
                       msg.is_ai
                         ? 'rounded-tl-none bg-muted text-foreground'
                         : 'rounded-tr-none bg-primary text-primary-foreground'

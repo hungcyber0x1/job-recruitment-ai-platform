@@ -14,17 +14,18 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/AuthContext';
 import { useNotification } from '@/context/NotificationContext';
 import { Logo } from '@/components/common';
+import { buildRegisterPayload } from '@/utils';
 import { getDashboardPath, getSafePostAuthRedirect } from '@/utils/rolePaths';
 
 const RegisterPage = () => {
   const [role, setRole] = useState(null); // 'candidate' or 'employer'
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    first_name: '',
+    last_name: '',
     email: '',
     password: '',
     confirmPassword: '',
-    companyName: '',
+    company_name: '',
   });
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
@@ -32,6 +33,7 @@ const RegisterPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  // Initialize role from ?role= query param
   useEffect(() => {
     const r = searchParams.get('role');
     if (r === 'candidate' || r === 'employer') {
@@ -60,29 +62,37 @@ const RegisterPage = () => {
 
     setLoading(true);
     try {
-      const res = await register({
-        email: formData.email.trim(),
-        password: formData.password,
-        role,
-        first_name: formData.firstName.trim(),
-        last_name: formData.lastName.trim(),
-        company_name: role === 'employer' ? formData.companyName.trim() : undefined,
-      });
-      if (res?.success) {
-        showNotification('Đăng ký tài khoản thành công!', 'success');
-        if (localStorage.getItem('token')) {
-          const next = searchParams.get('next');
-          const target = getSafePostAuthRedirect(next, role) || getDashboardPath(role);
-          navigate(target, { replace: true });
-        } else {
-          navigate('/login', { replace: true });
-        }
+      const res = await register(buildRegisterPayload(formData, role));
+      // res = { success: true, data: { ...user, token, requires_approval }, meta: { message } }
+      // Use extractAuthResponse to get normalized role + status + requiresApproval
+      const { requiresApproval, role: normalizedRole } =
+        (res?.data && typeof res.data === 'object')
+          ? {
+              requiresApproval: Boolean(res.data.requires_approval),
+              role: res.data.role,
+            }
+          : { requiresApproval: false, role: null };
+
+      const roleLabel = normalizedRole === 'recruiter' ? 'nhà tuyển dụng' : 'ứng viên';
+
+      if (requiresApproval) {
+        showNotification(
+          `Tài khoản ${roleLabel} đã được tạo và đang chờ quản trị viên phê duyệt.`,
+          'success'
+        );
+        navigate('/login', { replace: true });
+      } else {
+        showNotification(`Đăng ký tài khoản ${roleLabel} thành công!`, 'success');
+        const next = searchParams.get('next');
+        const target = getSafePostAuthRedirect(next, normalizedRole)
+          || getDashboardPath(normalizedRole);
+        navigate(target, { replace: true });
       }
     } catch (err) {
       const msg =
-        err.response?.data?.message ||
-        err.response?.data?.errors?.[0]?.message ||
-        (err instanceof Error && err.message ? err.message : '') ||
+        err?.response?.data?.message ||
+        (Array.isArray(err?.response?.data?.errors) && err?.response?.data?.errors[0]?.message) ||
+        (err instanceof Error ? err.message : '') ||
         'Đăng ký thất bại';
       showNotification(msg, 'error');
     } finally {
@@ -115,10 +125,10 @@ const RegisterPage = () => {
                   to="/"
                   className="group mb-8 inline-flex items-center gap-3 transition-opacity hover:opacity-90"
                 >
-                  <Logo className="h-14 w-auto" />
+                  <Logo asLink={false} className="h-14 w-auto" />
                 </Link>
               </div>
-              <h1 className="mb-5 max-w-[22ch] text-balance text-4xl font-bold leading-[1.12] tracking-tight text-foreground xl:text-[2.75rem] xl:leading-[1.1]">
+              <h1 className="mb-5 max-w-[22ch] text-balance text-4xl font-bold leading-[1.12] tracking-normal text-foreground xl:text-[2.75rem] xl:leading-[1.1]">
                 Mở khóa tiềm năng{' '}
                 <span className="bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent">
                   Sự nghiệp của bạn.
@@ -131,7 +141,7 @@ const RegisterPage = () => {
             </div>
 
             <ul className="grid grid-cols-1 gap-4">
-              <li className="flex gap-4 rounded-2xl border border-border/80 bg-white/70 p-5 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md">
+              <li className="flex gap-4 rounded-xl border border-border/80 bg-white/70 p-5 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 ring-1 ring-primary/15">
                   <Zap className="size-6 text-primary" strokeWidth={2.25} aria-hidden />
                 </div>
@@ -140,11 +150,11 @@ const RegisterPage = () => {
                     Gợi ý việc làm thông minh
                   </h3>
                   <p className="mt-1 text-base leading-relaxed text-muted-foreground">
-                    Matching chính xác đến 94.7% bằng AI.
+                    Matching chính xác theo kỹ năng và kinh nghiệm.
                   </p>
                 </div>
               </li>
-              <li className="flex gap-4 rounded-2xl border border-border/80 bg-white/70 p-5 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md">
+              <li className="flex gap-4 rounded-xl border border-border/80 bg-white/70 p-5 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-slate-100 ring-1 ring-border/60">
                   <ShieldCheck className="size-6 text-slate-600" strokeWidth={2.25} aria-hidden />
                 </div>
@@ -174,12 +184,12 @@ const RegisterPage = () => {
                 to="/"
                 className="inline-flex items-center gap-2 transition-opacity hover:opacity-90"
               >
-                <Logo className="h-8 w-auto" />
+                <Logo asLink={false} className="h-8 w-auto" />
               </Link>
             </div>
             {!role ? (
               <>
-                <h2 className="mb-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                <h2 className="mb-2 text-2xl font-bold tracking-normal text-foreground sm:text-3xl">
                   Chào mừng bạn!
                 </h2>
                 <p className="text-base text-muted-foreground sm:text-base">
@@ -191,12 +201,12 @@ const RegisterPage = () => {
                 <button
                   type="button"
                   onClick={() => setRole(null)}
-                  className="mb-5 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.14em] text-primary transition-colors hover:text-primary/80"
+                  className="mb-5 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-normal text-primary transition-colors hover:text-primary/80"
                 >
                   <ArrowLeft className="size-3.5 shrink-0" strokeWidth={2.5} aria-hidden />
                   Quay lại chọn vai trò
                 </button>
-                <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                <h2 className="text-2xl font-bold tracking-normal text-foreground sm:text-3xl">
                   Đăng ký {role === 'employer' ? 'nhà tuyển dụng' : 'ứng viên'}
                 </h2>
                 <p className="mt-2 text-base text-muted-foreground">
@@ -213,9 +223,9 @@ const RegisterPage = () => {
               <button
                 type="button"
                 onClick={() => handleRoleSelect('candidate')}
-                className="group flex items-center gap-5 rounded-2xl border border-border/90 bg-slate-50/50 p-5 text-left transition-all hover:border-primary/40 hover:bg-primary/[0.04] sm:gap-6 sm:p-6"
+                className="group flex items-center gap-5 rounded-xl border border-border/90 bg-slate-50/50 p-5 text-left transition-all hover:border-primary/40 hover:bg-primary/[0.04] sm:gap-6 sm:p-6"
               >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform group-hover:scale-[1.03] sm:h-14 sm:w-14 sm:rounded-2xl">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform group-hover:scale-[1.03] sm:h-14 sm:w-14 sm:rounded-xl">
                   <Users className="size-6 sm:size-7" strokeWidth={2} />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -235,9 +245,9 @@ const RegisterPage = () => {
               <button
                 type="button"
                 onClick={() => handleRoleSelect('employer')}
-                className="group flex items-center gap-5 rounded-2xl border border-border/90 bg-slate-50/50 p-5 text-left transition-all hover:border-primary/40 hover:bg-primary/[0.04] sm:gap-6 sm:p-6"
+                className="group flex items-center gap-5 rounded-xl border border-border/90 bg-slate-50/50 p-5 text-left transition-all hover:border-primary/40 hover:bg-primary/[0.04] sm:gap-6 sm:p-6"
               >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform group-hover:scale-[1.03] sm:h-14 sm:w-14 sm:rounded-2xl">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform group-hover:scale-[1.03] sm:h-14 sm:w-14 sm:rounded-xl">
                   <Building2 className="size-6 sm:size-7" strokeWidth={2} />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -267,9 +277,9 @@ const RegisterPage = () => {
                     </label>
                     <Input
                       id="reg-lastName"
-                      name="lastName"
+                      name="last_name"
                       placeholder="Nguyễn"
-                      value={formData.lastName}
+                      value={formData.last_name}
                       onChange={handleChange}
                       required
                       autoComplete="family-name"
@@ -285,9 +295,9 @@ const RegisterPage = () => {
                     </label>
                     <Input
                       id="reg-firstName"
-                      name="firstName"
+                      name="first_name"
                       placeholder="Văn A"
-                      value={formData.firstName}
+                      value={formData.first_name}
                       onChange={handleChange}
                       required
                       autoComplete="given-name"
@@ -306,9 +316,9 @@ const RegisterPage = () => {
                     </label>
                     <Input
                       id="reg-company"
-                      name="companyName"
+                      name="company_name"
                       placeholder="Tên doanh nghiệp của bạn"
-                      value={formData.companyName}
+                      value={formData.company_name}
                       onChange={handleChange}
                       required={role === 'employer'}
                       autoComplete="organization"
@@ -352,7 +362,7 @@ const RegisterPage = () => {
                     value={formData.password}
                     onChange={handleChange}
                     required
-                    minLength={6}
+                    minLength={8}
                     autoComplete="new-password"
                     className="h-12 rounded-xl border-border/90 bg-slate-50/40 transition-colors focus-visible:border-primary/45 focus-visible:ring-primary/15"
                   />
@@ -381,7 +391,7 @@ const RegisterPage = () => {
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="mt-2 h-12 w-full rounded-xl bg-primary font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary/95 disabled:opacity-70 sm:h-14 sm:rounded-2xl sm:text-base"
+                  className="mt-2 h-12 w-full rounded-xl bg-primary font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary/95 disabled:opacity-70 sm:h-14 sm:rounded-xl sm:text-base"
                 >
                   <span className="inline-flex items-center justify-center gap-2">
                     {loading ? 'Đang xử lý...' : 'Đăng ký ngay'}

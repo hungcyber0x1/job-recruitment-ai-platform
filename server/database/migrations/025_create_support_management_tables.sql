@@ -1,8 +1,8 @@
 -- Migration 025: Create Support Tickets and Messages Tables
 
 CREATE TABLE IF NOT EXISTS support_tickets (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL,
     subject VARCHAR(255) NOT NULL,
     category VARCHAR(50) NOT NULL,
     priority ENUM('low', 'medium', 'high', 'urgent') DEFAULT 'medium',
@@ -13,9 +13,9 @@ CREATE TABLE IF NOT EXISTS support_tickets (
 );
 
 CREATE TABLE IF NOT EXISTS ticket_messages (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    ticket_id INT NOT NULL,
-    sender_id INT,
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    ticket_id INT UNSIGNED NOT NULL,
+    sender_id INT UNSIGNED,
     message TEXT NOT NULL,
     is_internal BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

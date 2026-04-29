@@ -9,8 +9,8 @@ const footerColumns = [
     links: [
       { label: 'Việc làm', path: '/jobs' },
       { label: 'Phân tích CV', path: '/ai-cv-scanner' },
-      { label: 'Coach nghề nghiệp AI', path: '/chat' },
-      { label: 'Lộ trình nghề nghiệp', path: '/career' },
+      { label: 'Coach nghề nghiệp', path: '/chat' },
+      { label: 'Danh mục ngành nghề', path: '/categories' },
     ],
   },
   {
@@ -46,20 +46,20 @@ const LandingFooter = () => {
       </div>
 
       <div className="container mx-auto px-6 max-w-7xl relative z-10">
-        <div className="grid lg:grid-cols-12 gap-10 lg:gap-12 py-14">
-          <div className="lg:col-span-4 space-y-6">
+        <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 py-14">
+          <div className="lg:col-span-4 space-y-6 flex flex-col h-full">
             <Link
               to="/"
               className="inline-flex items-center gap-2.5 transition-opacity hover:opacity-90"
             >
-              <Logo className="h-16 w-auto" />
+              <Logo asLink={false} className="h-16 w-auto" />
             </Link>
-            <p className="max-w-md text-base font-medium leading-relaxed text-slate-500">
-              HireBot kết nối nhân tài và cơ hội việc làm bằng AI: gợi ý việc khớp kỹ năng, phân
+            <p className="max-w-md text-base font-medium leading-relaxed text-slate-500 flex-1">
+              HireBot kết nối nhân tài và cơ hội việc làm: gợi ý việc khớp kỹ năng, phân
               tích CV và đồng hành phát triển sự nghiệp — dành cho ứng viên và doanh nghiệp tại Việt
               Nam.
             </p>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 pt-2">
               {[
                 { Icon: Linkedin, label: 'LinkedIn', href: '#' },
                 { Icon: Facebook, label: 'Facebook', href: '#' },
@@ -85,10 +85,10 @@ const LandingFooter = () => {
             </div>
           </div>
 
-          <div className="lg:col-span-5 grid grid-cols-2 sm:grid-cols-4 gap-8">
+          <div className="lg:col-span-5 grid grid-cols-2 sm:grid-cols-4 gap-6 lg:gap-8">
             {footerColumns.map((col) => (
               <div key={col.title}>
-                <h4 className="mb-4 text-sm font-bold uppercase tracking-widest text-slate-400">
+                <h4 className="mb-4 text-sm font-bold uppercase tracking-normal text-slate-400">
                   {col.title}
                 </h4>
                 <ul className="space-y-2.5">
@@ -108,7 +108,7 @@ const LandingFooter = () => {
           </div>
 
           <div className="lg:col-span-3">
-            <h4 className="mb-4 text-sm font-bold uppercase tracking-widest text-slate-400">
+            <h4 className="mb-4 text-sm font-bold uppercase tracking-normal text-slate-400">
               Liên hệ
             </h4>
             <div className="space-y-3">
@@ -124,10 +124,10 @@ const LandingFooter = () => {
                   +84 28 7300 1234
                 </span>
               </a>
-              <a href="mailto:contact@hireai.vn" className="flex items-start gap-3 group">
+              <a href="mailto:contact@hirebot.vn" className="flex items-start gap-3 group">
                 <Mail size={14} className="text-primary/80 mt-0.5 shrink-0" />
                 <span className="text-base font-medium text-slate-500 group-hover:text-slate-300">
-                  contact@hireai.vn
+                  contact@hirebot.vn
                 </span>
               </a>
             </div>
@@ -136,10 +136,10 @@ const LandingFooter = () => {
 
         <div className="py-6 border-t border-white/[0.06] flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-center text-base font-medium text-slate-500 sm:text-left">
-            © {new Date().getFullYear()} HireAI.vn — Đường tới thành công sự nghiệp
+            © {new Date().getFullYear()} HireBOT.vn — Đường tới thành công sự nghiệp
           </p>
           <p className="text-base font-medium text-slate-500">
-            Thiết kế giao diện theo chuẩn HireAI
+            Thiết kế giao diện theo chuẩn HireBOT
           </p>
         </div>
       </div>

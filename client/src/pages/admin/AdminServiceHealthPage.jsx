@@ -12,9 +12,12 @@ import {
   Users,
   AlertTriangle,
   MinusCircle,
+  Loader2,
+  Clock
 } from 'lucide-react';
-import AdminLayout from '../../layouts/AdminLayout';
 import adminService from '../../services/adminService';
+import { Button } from '../../components/ui/button';
+import { cn } from '../../utils';
 
 /** ok → operational, degraded → monitoring (cảnh báo), thiếu dữ liệu → unknown */
 const mapStatus = (status) => {
@@ -27,28 +30,28 @@ const mapStatus = (status) => {
 const STATUS_META = {
   operational: {
     label: 'Ổn định',
-    badge: 'bg-emerald-500/12 text-emerald-700 ring-1 ring-emerald-500/25',
+    badge: 'bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm shadow-emerald-500/10',
     bar: 'bg-emerald-500',
     dot: 'bg-emerald-500',
     border: 'border-l-emerald-500',
   },
   monitoring: {
     label: 'Cần theo dõi',
-    badge: 'bg-amber-500/12 text-amber-800 ring-1 ring-amber-500/25',
+    badge: 'bg-amber-50 text-amber-800 border-amber-200 shadow-sm shadow-amber-500/10',
     bar: 'bg-amber-500',
     dot: 'bg-amber-500',
     border: 'border-l-amber-500',
   },
   degraded: {
     label: 'Suy giảm',
-    badge: 'bg-red-500/12 text-red-700 ring-1 ring-red-500/25',
+    badge: 'bg-red-50 text-red-700 border-red-200 shadow-sm shadow-red-500/10',
     bar: 'bg-red-500',
     dot: 'bg-red-500',
     border: 'border-l-red-500',
   },
   unknown: {
     label: 'Chưa xác định',
-    badge: 'bg-slate-500/10 text-slate-600 ring-1 ring-slate-400/20',
+    badge: 'bg-slate-50 text-slate-600 border-slate-200',
     bar: 'bg-slate-400',
     dot: 'bg-slate-400',
     border: 'border-l-slate-400',
@@ -110,25 +113,25 @@ const AdminServiceHealthPage = () => {
             ? 'operational'
             : 'degraded'
           : 'unknown',
-        detail: gatewayHealth?.database || 'Đang chờ kiểm tra',
+        detail: gatewayHealth?.database === 'ok' ? 'Connected' : (gatewayHealth?.database || 'Đang chờ kiểm tra'),
         icon: Database,
-        hint: 'MySQL / kết nối pool',
+        hint: 'MySQL / Kết nối pool',
       },
       {
         name: 'Dịch vụ xác thực',
         status: gatewayHealth ? mapStatus(serviceMap.auth?.status) : 'unknown',
-        detail: serviceMap.auth?.error || serviceMap.auth?.status || 'Không có báo cáo chi tiết',
+        detail: serviceMap.auth?.error || (serviceMap.auth?.status === 'ok' ? 'Đang hoạt động' : 'Không có báo cáo chi tiết'),
         icon: Shield,
-        hint: 'JWT & session',
+        hint: 'JWT & Session Management',
       },
       {
         name: 'Dịch vụ việc làm',
         status: gatewayHealth ? mapStatus(serviceMap.jobs?.status) : 'unknown',
         detail:
           serviceMap.jobs?.error ||
-          `${stats?.jobs?.toLocaleString('vi-VN') ?? 0} tin tuyển dụng trong hệ thống`,
+          `${stats?.jobs?.toLocaleString('vi-VN') ?? 0} tin tuyển dụng trên hệ thống`,
         icon: Briefcase,
-        hint: 'Jobs module',
+        hint: 'Jobs Engine',
       },
       {
         name: 'Dịch vụ ứng viên',
@@ -137,7 +140,7 @@ const AdminServiceHealthPage = () => {
           serviceMap.candidates?.error ||
           `${stats?.applications?.toLocaleString('vi-VN') ?? 0} hồ sơ ứng tuyển`,
         icon: Users,
-        hint: 'Applications pipeline',
+        hint: 'Applications Pipeline',
       },
       {
         name: 'Dịch vụ AI',
@@ -152,9 +155,9 @@ const AdminServiceHealthPage = () => {
           ? serviceMap.ai.error
           : hasScreeningLoad
             ? `${stats?.pipeline?.screening || 0} hồ sơ đang sàng lọc AI`
-            : 'Không có backlog AI lớn',
+            : 'Sẵn sàng xử lý',
         icon: Sparkles,
-        hint: 'Sàng lọc & embedding',
+        hint: 'Screening & Embedding',
       },
     ];
   }, [gatewayHealth, stats]);
@@ -169,24 +172,6 @@ const AdminServiceHealthPage = () => {
     return { total, operational, monitoring, degraded, unknown, score };
   }, [services]);
 
-  const healthModules = [
-    {
-      title: 'Gateway & dữ liệu',
-      description: 'Điểm vào API, phiên bản service và ping cơ sở dữ liệu nền.',
-      icon: ServerCog,
-    },
-    {
-      title: 'Nghiệp vụ lõi',
-      description: 'Auth, tin tuyển dụng, ứng viên và tải AI theo số liệu thật.',
-      icon: Activity,
-    },
-    {
-      title: 'Mở rộng vận hành',
-      description: 'Sẵn sàng gắn SLA, hàng đợi, cảnh báo PagerDuty / Slack.',
-      icon: HeartPulse,
-    },
-  ];
-
   const formatTime = (d) =>
     d
       ? new Intl.DateTimeFormat('vi-VN', {
@@ -199,222 +184,156 @@ const AdminServiceHealthPage = () => {
       : '—';
 
   return (
-    <AdminLayout>
-      <div className="mx-auto max-w-6xl space-y-8 pb-10">
-        <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-br from-emerald-500/[0.07] via-card to-card p-6 shadow-sm sm:p-8">
-          <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-emerald-500/10 blur-3xl" />
-          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-            <div className="min-w-0 space-y-3">
-              <span className="inline-flex w-fit items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1 text-base font-bold uppercase tracking-[0.18em] text-emerald-800 dark:text-emerald-300">
+    <div className="mx-auto max-w-6xl space-y-8 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="relative overflow-hidden rounded-[2.5rem] border border-slate-200/60 bg-white p-8 shadow-premium">
+        <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-emerald-500/5 blur-3xl" />
+        <div className="relative flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+               <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3.5 py-2 text-xs font-bold uppercase tracking-normal text-emerald-700 border border-emerald-100 shadow-sm">
                 <HeartPulse size={14} className="shrink-0" strokeWidth={2.5} />
-                Service health
+                Service Health System
               </span>
-              <h1 className="text-2xl font-black tracking-tight text-foreground sm:text-3xl">
-                Theo dõi sức khỏe hệ thống
-              </h1>
-              <p className="max-w-2xl text-base leading-relaxed text-muted-foreground">
-                Tổng hợp health check từ gateway và các module để nhanh chóng phát hiện điểm nghẽn
-                trước khi ảnh hưởng ứng viên và nhà tuyển dụng.
-              </p>
-              <p className="text-base font-medium text-muted-foreground">
-                Cập nhật lần cuối:{' '}
-                <span className="font-bold text-foreground">{formatTime(refreshedAt)}</span>
-              </p>
             </div>
-            <div className="flex shrink-0 flex-col items-stretch gap-3 sm:flex-row lg:flex-col lg:items-end">
-              <button
-                type="button"
-                onClick={() => fetchHealth()}
-                disabled={loading}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-base font-bold text-foreground shadow-sm transition hover:bg-muted/60 disabled:opacity-60"
-              >
-                <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
-                Làm mới
-              </button>
-              <div className="rounded-2xl border border-border/80 bg-background/80 px-5 py-4 text-center shadow-inner backdrop-blur-sm sm:min-w-[140px]">
-                <p className="text-base font-bold uppercase tracking-wider text-muted-foreground">
-                  Điểm tổng quan
-                </p>
-                <p className="mt-1 text-3xl font-black tabular-nums text-emerald-600 dark:text-emerald-400">
-                  {loading ? '…' : `${healthSummary.score}%`}
-                </p>
-                <p className="mt-1 text-base text-muted-foreground">
-                  {healthSummary.operational}/{healthSummary.total} thành phần ổn định
-                </p>
-              </div>
+            <h1 className="text-4xl font-bold tracking-normal text-slate-900">
+              Sức khỏe Hệ thống
+            </h1>
+            <p className="max-w-xl text-base font-semibold text-slate-500 leading-relaxed italic opacity-80">
+              Tổng hợp health check từ gateway và các module nghiệp vụ để giám sát hiệu năng nền tảng Emerald.
+            </p>
+            <div className="flex items-center gap-4 text-xs font-bold text-slate-400 uppercase tracking-normal pt-2">
+               <div className="flex items-center gap-1.5">
+                  <Clock size={14} /> Cập nhật lần cuối: <span className="text-slate-900">{formatTime(refreshedAt)}</span>
+               </div>
             </div>
           </div>
 
-          {!loading && (
-            <div className="relative mt-6 flex flex-wrap gap-2">
-              {[
-                {
-                  key: 'ok',
-                  n: healthSummary.operational,
-                  label: 'Ổn định',
-                  Icon: CheckCircle2,
-                  cls: 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-200',
-                },
-                {
-                  key: 'watch',
-                  n: healthSummary.monitoring,
-                  label: 'Theo dõi',
-                  Icon: AlertTriangle,
-                  cls: 'bg-amber-500/10 text-amber-900 dark:text-amber-200',
-                },
-                {
-                  key: 'bad',
-                  n: healthSummary.degraded,
-                  label: 'Suy giảm',
-                  Icon: AlertTriangle,
-                  cls: 'bg-red-500/10 text-red-800 dark:text-red-200',
-                },
-                {
-                  key: 'unk',
-                  n: healthSummary.unknown,
-                  label: 'Chưa rõ',
-                  Icon: MinusCircle,
-                  cls: 'bg-slate-500/10 text-slate-700 dark:text-slate-300',
-                },
-              ].map(({ key, n, label, Icon, cls }) => (
-                <span
-                  key={key}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-base font-bold ${cls}`}
-                >
-                  <Icon size={14} strokeWidth={2.5} />
-                  {n} {label}
-                </span>
-              ))}
+          <div className="flex flex-col sm:flex-row lg:flex-col gap-4">
+            <Button
+              onClick={fetchHealth}
+              disabled={loading}
+              variant="outline"
+              className="h-12 rounded-xl border-slate-200 bg-white font-bold uppercase tracking-normal shadow-sm hover:bg-slate-50 min-w-[180px]"
+            >
+              {loading ? <Loader2 size={18} className="mr-2 animate-spin" /> : <RefreshCw size={18} className="mr-2" />}
+              Làm mới
+            </Button>
+            <div className="rounded-xl bg-slate-900 p-6 text-center shadow-xl shadow-slate-900/20 min-w-[180px]">
+              <p className="text-xs font-bold uppercase tracking-normal text-white/50">System Score</p>
+              <p className="mt-1 text-4xl font-bold tabular-nums text-emerald-400">
+                {loading ? '...' : `${healthSummary.score}%`}
+              </p>
+              <div className="mt-3 flex items-center justify-center gap-1.5 px-3 py-1 bg-white/10 rounded-full">
+                <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-xs font-bold text-white uppercase">{healthSummary.operational}/{healthSummary.total} OK</span>
+              </div>
             </div>
-          )}
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {loading
-            ? Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="animate-pulse rounded-2xl border border-border bg-card p-6">
-                  <div className="flex justify-between">
-                    <div className="h-12 w-12 rounded-xl bg-muted" />
-                    <div className="h-7 w-24 rounded-full bg-muted" />
-                  </div>
-                  <div className="mt-5 h-6 w-3/4 rounded-lg bg-muted" />
-                  <div className="mt-3 h-4 w-full rounded bg-muted/70" />
-                </div>
-              ))
-            : services.map((service) => {
-                const meta = STATUS_META[service.status] || STATUS_META.unknown;
-                const Icon = service.icon;
-                return (
-                  <div
-                    key={service.name}
-                    className={`group relative overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all duration-200 hover:border-emerald-500/20 hover:shadow-md ${meta.border} border-l-[3px]`}
-                  >
-                    <div className="p-5 sm:p-6">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/15 to-emerald-600/5 text-emerald-700 ring-1 ring-emerald-500/15 dark:text-emerald-400">
-                          <Icon size={22} strokeWidth={2} />
-                        </div>
-                        <span
-                          className={`shrink-0 rounded-full px-3 py-1 text-base font-black uppercase tracking-wide ${meta.badge}`}
-                        >
-                          {meta.label}
-                        </span>
+        {!loading && (
+          <div className="mt-8 flex flex-wrap gap-2 pt-8 border-t border-slate-100">
+            {[
+              { n: healthSummary.operational, label: 'Ổn định', Icon: CheckCircle2, cls: 'bg-emerald-50 text-emerald-700 border-emerald-100' },
+              { n: healthSummary.monitoring, label: 'Theo dõi', Icon: AlertTriangle, cls: 'bg-amber-50 text-amber-700 border-amber-100' },
+              { n: healthSummary.degraded, label: 'Suy giảm', Icon: AlertTriangle, cls: 'bg-red-50 text-red-700 border-red-100' },
+              { n: healthSummary.unknown, label: 'Chưa rõ', Icon: MinusCircle, cls: 'bg-slate-50 text-slate-600 border-slate-100' },
+            ].map(({ n, label, Icon, cls }) => (
+              <span key={label} className={cn('inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-normal border shadow-sm', cls)}>
+                <Icon size={14} strokeWidth={2.5} />
+                {n} {label}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {loading
+          ? Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="animate-pulse rounded-xl border border-slate-200 bg-white p-6 h-[200px]" />
+            ))
+          : services.map((service) => {
+              const meta = STATUS_META[service.status] || STATUS_META.unknown;
+              const Icon = service.icon;
+              return (
+                <div
+                  key={service.name}
+                  className={cn(
+                    'group relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1',
+                    service.status === 'operational' ? 'hover:border-emerald-500/30' : 'hover:border-amber-500/30'
+                  )}
+                >
+                  <div className={cn('absolute inset-y-0 left-0 w-1.5', meta.bar)} />
+                  <div className="p-6">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-900 border border-slate-100 ring-4 ring-slate-500/5">
+                        <Icon size={22} strokeWidth={2.5} />
                       </div>
-                      <h2 className="mt-4 text-lg font-black tracking-tight text-foreground">
+                      <span className={cn('rounded-lg px-3.5 py-2 text-xs font-bold uppercase tracking-normal border', meta.badge)}>
+                        {meta.label}
+                      </span>
+                    </div>
+                    <div className="mt-5">
+                      <p className="text-xs font-bold uppercase tracking-normal text-slate-400 mb-1">{service.hint}</p>
+                      <h2 className="text-lg font-bold tracking-normal text-slate-900 line-clamp-1">
                         {service.name}
                       </h2>
-                      <p className="mt-1 text-base font-semibold uppercase tracking-wider text-muted-foreground/80">
-                        {service.hint}
-                      </p>
-                      <p className="mt-2 text-base leading-relaxed text-muted-foreground">
+                      <p className="mt-2 text-sm font-semibold text-slate-500 line-clamp-2 italic leading-relaxed">
                         {service.detail}
                       </p>
                     </div>
-                    <div
-                      className={`h-1 w-full origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100 ${meta.bar} opacity-80`}
-                      aria-hidden
-                    />
-                  </div>
-                );
-              })}
-        </div>
-
-        <div>
-          <h2 className="text-base font-black uppercase tracking-[0.15em] text-muted-foreground">
-            Phạm vi giám sát
-          </h2>
-          <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
-            {healthModules.map((module) => {
-              const MIcon = module.icon;
-              return (
-                <div
-                  key={module.title}
-                  className="flex gap-4 rounded-2xl border border-dashed border-border/90 bg-muted/20 p-5 transition-colors hover:bg-muted/35"
-                >
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-card text-emerald-600 shadow-sm ring-1 ring-border dark:text-emerald-400">
-                    <MIcon size={20} strokeWidth={2} />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="font-bold text-foreground">{module.title}</h3>
-                    <p className="mt-1 text-base leading-relaxed text-muted-foreground">
-                      {module.description}
-                    </p>
                   </div>
                 </div>
               );
             })}
-          </div>
-        </div>
+      </div>
 
-        <div className="overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm">
-          <div className="border-b border-border/60 bg-muted/30 px-5 py-4 sm:px-6">
-            <h2 className="text-lg font-black text-foreground">Tóm tắt vận hành</h2>
-            <p className="mt-0.5 text-base text-muted-foreground">
-              Chỉ số nhanh từ gateway và hàng đợi AI hiện tại.
-            </p>
-          </div>
-          <div className="grid gap-px bg-border/60 sm:grid-cols-3">
-            {[
-              {
-                label: 'Gateway',
-                value: gatewayHealth?.status || (loading ? '…' : 'không rõ'),
-                sub: gatewayHealth?.service || '—',
-                ok: gatewayHealth?.status === 'ok',
-              },
-              {
-                label: 'Database',
-                value: gatewayHealth?.database || (loading ? '…' : 'không rõ'),
-                sub: 'Ping pool',
-                ok: gatewayHealth?.database === 'ok',
-              },
-              {
-                label: 'Backlog AI',
-                value: loading ? '…' : String(stats?.pipeline?.screening ?? 0),
-                sub: 'Hồ sơ đang sàng lọc',
-                ok: (stats?.pipeline?.screening || 0) < 10,
-              },
-            ].map((row) => (
-              <div key={row.label} className="flex flex-col justify-center bg-card p-5 sm:p-6">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-base font-bold uppercase tracking-wider text-muted-foreground">
-                    {row.label}
-                  </span>
-                  {row.ok ? (
-                    <CheckCircle2 size={18} className="shrink-0 text-emerald-500" strokeWidth={2} />
-                  ) : (
-                    <AlertTriangle size={18} className="shrink-0 text-amber-500" strokeWidth={2} />
-                  )}
-                </div>
-                <p className="mt-2 text-2xl font-black capitalize tabular-nums text-foreground">
-                  {row.value}
-                </p>
-                <p className="mt-1 text-base text-muted-foreground">{row.sub}</p>
+      <div className="rounded-[2.5rem] border border-slate-200/60 bg-white p-8 shadow-premium">
+        <h2 className="text-xs font-bold uppercase tracking-normal text-slate-400 mb-6">
+          Vận hành Gateway & Database
+        </h2>
+        <div className="grid gap-px bg-slate-100 overflow-hidden rounded-xl border border-slate-100 sm:grid-cols-3 shadow-inner">
+          {[
+            {
+              label: 'Gateway API',
+              value: gatewayHealth?.status || (loading ? '...' : 'unknown'),
+              sub: gatewayHealth?.service || 'N/A',
+              ok: gatewayHealth?.status === 'ok',
+            },
+            {
+              label: 'Cơ sở dữ liệu',
+              value: gatewayHealth?.database || (loading ? '...' : 'unknown'),
+              sub: 'Ping Pool & Latency',
+              ok: gatewayHealth?.database === 'ok',
+            },
+            {
+              label: 'Backlog AI',
+              value: loading ? '...' : String(stats?.pipeline?.screening ?? 0),
+              sub: 'Số lượng hồ sơ đang chờ',
+              ok: (stats?.pipeline?.screening || 0) < 10,
+            },
+          ].map((row) => (
+            <div key={row.label} className="bg-white p-6 flex flex-col justify-center">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold uppercase tracking-normal text-slate-500">
+                  {row.label}
+                </span>
+                {row.ok ? (
+                  <CheckCircle2 size={18} className="text-emerald-500" />
+                ) : (
+                  <AlertTriangle size={18} className="text-amber-500" />
+                )}
               </div>
-            ))}
-          </div>
+              <p className={cn('text-2xl font-bold capitalize tabular-nums', row.ok ? 'text-slate-900' : 'text-amber-600')}>
+                {row.value}
+              </p>
+              <p className="mt-1 text-xs font-bold text-slate-400 uppercase tracking-normal">{row.sub}</p>
+            </div>
+          ))}
         </div>
       </div>
-    </AdminLayout>
+    </div>
   );
 };
 

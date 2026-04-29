@@ -8,18 +8,18 @@ import { cn } from '../../utils/cn';
 const Card = React.forwardRef(
   ({ children, className, hover = false, variant = 'default', ...props }, ref) => {
     const baseStyles =
-      'bg-card rounded-2xl text-card-foreground transition-all duration-300 overflow-hidden';
+      'ds-surface-card p-5';
 
     const variants = {
-      default: 'shadow-card border border-border/80',
+      default: '',
       premium:
-        'shadow-premium border border-primary/20 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-500/10',
-      glass: 'glass',
-      flat: 'bg-muted border-none',
-      bordered: 'border-2 border-secondary/20 bg-transparent',
+        'border-primary/10 shadow-sm shadow-primary/5',
+      glass: 'glass-premium',
+      flat: 'border-transparent bg-muted/50 shadow-none',
+      bordered: 'border-border bg-card',
     };
 
-    const hoverEffects = hover ? 'card-premium-hover' : '';
+    const hoverEffects = hover ? 'hover:-translate-y-px hover:border-primary/20 hover:shadow-md' : '';
 
     return (
       <div
@@ -36,23 +36,23 @@ const Card = React.forwardRef(
 Card.displayName = 'Card';
 
 const CardHeader = ({ className, ...props }) => (
-  <div className={cn('flex flex-col space-y-1.5 p-6', className)} {...props} />
+  <div className={cn('mb-4 flex flex-col gap-1.5', className)} {...props} />
 );
 
 const CardTitle = ({ className, ...props }) => (
-  <h3 className={cn('text-2xl font-semibold leading-none tracking-tight', className)} {...props} />
+  <h3 className={cn('text-lg font-semibold text-foreground', className)} {...props} />
 );
 
 const CardDescription = ({ className, ...props }) => (
-  <p className={cn('text-base text-txt-muted', className)} {...props} />
+  <p className={cn('text-sm leading-6 text-muted-foreground', className)} {...props} />
 );
 
 const CardContent = ({ className, ...props }) => (
-  <div className={cn('p-6 pt-0', className)} {...props} />
+  <div className={cn('text-sm leading-6 text-muted-foreground', className)} {...props} />
 );
 
 const CardFooter = ({ className, ...props }) => (
-  <div className={cn('flex items-center p-6 pt-0', className)} {...props} />
+  <div className={cn('mt-4 flex items-center gap-3', className)} {...props} />
 );
 
 CardHeader.propTypes = {

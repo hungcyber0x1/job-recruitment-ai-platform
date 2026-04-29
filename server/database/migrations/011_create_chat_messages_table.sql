@@ -2,9 +2,9 @@
 -- Tin nhắn trong cuộc hội thoại chatbot
 
 CREATE TABLE IF NOT EXISTS chat_messages (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    sender_id INT NOT NULL,
-    conversation_id INT NOT NULL,
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    sender_id INT UNSIGNED NOT NULL,
+    conversation_id INT UNSIGNED NOT NULL,
     message TEXT NOT NULL,
     is_ai BOOLEAN DEFAULT FALSE,
     attachment_url VARCHAR(255),

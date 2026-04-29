@@ -5,8 +5,8 @@ const PlatformBenefits = () => {
   const benefits = [
     {
       icon: <Rocket />,
-      title: 'Cá nhân hóa bằng AI',
-      desc: 'AI phân tích hồ sơ và sở thích của bạn để gợi ý việc làm phù hợp nhất',
+      title: 'Cá nhân hóa',
+      desc: 'Hệ thống phân tích hồ sơ và sở thích của bạn để gợi ý việc làm phù hợp nhất',
       gradient: 'from-emerald-600 to-emerald-400',
     },
     {
@@ -18,7 +18,7 @@ const PlatformBenefits = () => {
     {
       icon: <Target />,
       title: 'Định hướng đúng nghề',
-      desc: 'Chatbot AI tư vấn chi tiết về nghề nghiệp, kỹ năng cần thiết và lộ trình',
+      desc: 'Chatbot tư vấn chi tiết về nghề nghiệp, kỹ năng cần thiết và lộ trình',
       gradient: 'from-teal-600 to-emerald-500',
     },
     {
@@ -35,12 +35,12 @@ const PlatformBenefits = () => {
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 mb-4">
             <Star size={24} className="text-primary fill-primary/20" />
-            <h2 className="text-4xl font-black text-slate-900 leading-tight">
+            <h2 className="text-4xl font-bold text-slate-900 leading-tight">
               Lợi ích khi sử dụng nền tảng
             </h2>
           </div>
           <p className="text-lg text-slate-500 font-medium">
-            Trải nghiệm tuyển dụng thông minh với công nghệ AI tiên tiến
+            Trải nghiệm tuyển dụng thông minh với công nghệ hiện đại
           </p>
         </div>
 
@@ -60,7 +60,7 @@ const PlatformBenefits = () => {
                 </div>
 
                 {/* Content */}
-                <h3 className="text-xl font-black text-slate-900 mb-4 group-hover:text-primary transition-colors">
+                <h3 className="text-xl font-bold text-slate-900 mb-4 group-hover:text-primary transition-colors">
                   {benefit.title}
                 </h3>
                 <p className="text-slate-500 leading-relaxed font-medium text-base">

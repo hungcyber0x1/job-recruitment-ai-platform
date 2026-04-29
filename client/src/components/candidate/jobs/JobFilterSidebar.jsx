@@ -16,7 +16,7 @@ const SALARY_RANGES = [
   'Thỏa thuận',
 ];
 
-const JOB_TYPES = ['Full-time', 'Part-time', 'Contract', 'Internship', 'Remote'];
+const JOB_TYPES = ['Toàn thời gian', 'Bán thời gian', 'Hợp đồng', 'Thực tập', 'Từ xa'];
 
 const EXPERIENCE_LEVELS = [
   'Fresher / Mới tốt nghiệp',
@@ -33,7 +33,7 @@ const FilterSection = ({ title, icon: Icon, children }) => (
       <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
         <Icon className="size-4" aria-hidden />
       </div>
-      <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">{title}</h4>
+      <h4 className="text-sm font-bold uppercase tracking-normal text-muted-foreground">{title}</h4>
     </div>
     <div className="flex flex-col gap-2 pl-10">{children}</div>
   </div>
@@ -141,7 +141,7 @@ const JobFilterSidebar = ({ filters, setFilters, onFilterChange, embedded }) => 
     return (
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between gap-4">
-          <h3 className="flex items-center gap-2 whitespace-nowrap text-lg font-black uppercase tracking-widest text-foreground">
+          <h3 className="flex items-center gap-2 whitespace-nowrap text-lg font-bold uppercase tracking-normal text-foreground">
             <Filter className="size-4 text-emerald-500" aria-hidden />
             BỘ LỌC
           </h3>
@@ -149,7 +149,7 @@ const JobFilterSidebar = ({ filters, setFilters, onFilterChange, embedded }) => 
             variant="ghost"
             size="sm"
             onClick={handleReset}
-            className="whitespace-nowrap h-auto px-0 py-0 text-base font-bold uppercase tracking-widest text-red-500 hover:text-red-600 hover:bg-transparent"
+            className="whitespace-nowrap h-auto px-0 py-0 text-base font-bold uppercase tracking-normal text-red-500 hover:text-red-600 hover:bg-transparent"
           >
             ĐẶT LẠI
           </Button>
@@ -161,9 +161,9 @@ const JobFilterSidebar = ({ filters, setFilters, onFilterChange, embedded }) => 
   }
 
   return (
-    <Card className="overflow-hidden rounded-2xl border-border/60 shadow-sm">
+    <Card className="overflow-hidden rounded-xl border-border/60 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between gap-4 px-6 py-5">
-        <CardTitle className="flex whitespace-nowrap items-center gap-2 text-lg font-black uppercase tracking-widest text-foreground">
+        <CardTitle className="flex whitespace-nowrap items-center gap-2 text-lg font-bold uppercase tracking-normal text-foreground">
           <Filter className="size-4 text-emerald-500" aria-hidden />
           BỘ LỌC
         </CardTitle>
@@ -171,7 +171,7 @@ const JobFilterSidebar = ({ filters, setFilters, onFilterChange, embedded }) => 
           variant="ghost"
           size="sm"
           onClick={handleReset}
-          className="whitespace-nowrap h-auto px-0 py-0 text-base font-bold uppercase tracking-widest text-red-500 hover:text-red-600 hover:bg-transparent"
+          className="whitespace-nowrap h-auto px-0 py-0 text-base font-bold uppercase tracking-normal text-red-500 hover:text-red-600 hover:bg-transparent"
         >
           ĐẶT LẠI
         </Button>

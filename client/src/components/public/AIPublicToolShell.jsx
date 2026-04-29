@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, Home } from 'lucide-react';
+import { AppIcon } from '@/components/common';
 
 /**
  * Khung chung trang công cụ AI: breadcrumb, hero (cùng hệ nền trang Việc làm), vùng nội dung có page-content-bg.
@@ -40,13 +41,13 @@ const AIPublicToolShell = ({ icon: Icon, kicker = 'Công cụ AI', title, descri
           </nav>
 
           <header className="text-center">
-            <div className="mx-auto mb-5 flex h-[4.25rem] w-[4.25rem] items-center justify-center rounded-2xl bg-emerald-50 text-primary shadow-[0_10px_36px_-10px_rgba(16,185,129,0.35)] ring-1 ring-primary/15 dark:bg-primary/15 dark:ring-primary/25">
-              <Icon className="size-9" strokeWidth={1.75} aria-hidden />
+            <div className="mx-auto mb-5 flex h-[4.25rem] w-[4.25rem] items-center justify-center rounded-xl bg-emerald-50 text-primary shadow-[0_10px_36px_-10px_rgba(16,185,129,0.35)] ring-1 ring-primary/15 dark:bg-primary/15 dark:ring-primary/25">
+              {Icon ? <AppIcon icon={Icon} size={36} className="text-primary" strokeWidth={1.75} /> : null}
             </div>
-            <p className="mb-3 text-base font-bold uppercase tracking-widest text-primary">
+            <p className="mb-3 text-base font-bold uppercase tracking-normal text-primary">
               {kicker}
             </p>
-            <h1 className="text-balance text-3xl font-black leading-tight tracking-tight text-foreground sm:text-4xl md:text-4xl lg:text-5xl">
+            <h1 className="text-balance text-3xl font-bold leading-tight tracking-normal text-foreground sm:text-4xl md:text-4xl lg:text-5xl">
               {title}
             </h1>
             <p className="mx-auto mt-3 max-w-2xl text-base font-medium leading-relaxed text-muted-foreground md:text-lg">

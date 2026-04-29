@@ -2,8 +2,8 @@
 -- Phiên luyện phỏng vấn AI
 
 CREATE TABLE IF NOT EXISTS interview_sessions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    candidate_id INT NOT NULL,
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    candidate_id INT UNSIGNED NOT NULL,
     session_type VARCHAR(50),
     topic VARCHAR(255),
     difficulty_level VARCHAR(20),

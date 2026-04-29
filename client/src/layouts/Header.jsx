@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, User, LogOut, Bell, LayoutDashboard, Settings, ChevronDown } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Button, Avatar, Logo, AIToolsDropdown } from '@/components/common';
+import { getDashboardPath, getProfilePath, getSettingsPath } from '../utils/rolePaths';
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,7 +26,7 @@ const Header = () => {
     { label: 'Trang chủ', path: '/' },
     { label: 'Việc làm', path: '/jobs' },
     { label: 'Công ty', path: '/companies' },
-    { label: 'Định hướng AI', path: '/career' },
+    { label: 'Chat tư vấn AI', path: '/chat' },
     { label: 'Blog', path: '/blog' },
   ];
 
@@ -34,10 +35,9 @@ const Header = () => {
     navigate('/');
   };
 
-  const getDashboardPath = () => {
-    if (!user || !user.role) return '/';
-    return `/${user.role}/dashboard`;
-  };
+  const dashboardPath = getDashboardPath(user?.role);
+  const profilePath = getProfilePath(user?.role);
+  const settingsPath = getSettingsPath(user?.role);
 
   return (
     <header
@@ -127,7 +127,7 @@ const Header = () => {
                       </div>
                       <div className="px-2 space-y-0.5">
                         <Link
-                          to={getDashboardPath()}
+                          to={dashboardPath}
                           className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-primary/5 text-foreground hover:text-primary font-bold text-sm transition-colors"
                           onClick={() => setIsProfileOpen(false)}
                         >
@@ -135,7 +135,7 @@ const Header = () => {
                           Bảng điều khiển
                         </Link>
                         <Link
-                          to={user?.role ? `/${user.role}/profile` : '/'}
+                          to={profilePath}
                           className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-primary/5 text-foreground hover:text-primary font-bold text-sm transition-colors"
                           onClick={() => setIsProfileOpen(false)}
                         >
@@ -143,7 +143,7 @@ const Header = () => {
                           Hồ sơ
                         </Link>
                         <Link
-                          to={user?.role ? `/${user.role}/settings` : '/settings'}
+                          to={settingsPath}
                           className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-primary/5 text-foreground hover:text-primary font-bold text-sm transition-colors"
                           onClick={() => setIsProfileOpen(false)}
                         >
@@ -240,7 +240,7 @@ const Header = () => {
             {isAuthenticated ? (
               <div className="flex flex-col gap-2">
                 <Link
-                  to={getDashboardPath()}
+                  to={dashboardPath}
                   className="w-full py-4 rounded-2xl bg-primary text-white text-center font-bold shadow-lg shadow-primary/25"
                   onClick={() => setIsOpen(false)}
                 >

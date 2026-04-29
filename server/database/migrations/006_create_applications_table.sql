@@ -2,9 +2,9 @@
 -- Đơn ứng tuyển, phụ thuộc candidates + jobs
 
 CREATE TABLE IF NOT EXISTS applications (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    candidate_id INT NOT NULL,
-    job_id INT NOT NULL,
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    candidate_id INT UNSIGNED NOT NULL,
+    job_id INT UNSIGNED NOT NULL,
     resume_url VARCHAR(255),
     cover_letter TEXT,
     status ENUM('pending', 'reviewed', 'shortlisted', 'interviewing', 'accepted', 'rejected') DEFAULT 'pending',

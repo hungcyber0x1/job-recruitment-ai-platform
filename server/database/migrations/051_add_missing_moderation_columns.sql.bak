@@ -1,0 +1,20 @@
+-- ============================================
+-- MIGRATION: Add missing flagged columns
+-- Fix: Unknown column 'flagged' errors in Job and Blog models
+-- ============================================
+
+SET NAMES utf8mb4;
+
+-- Add flagged column to jobs table if not exists
+ALTER TABLE jobs ADD COLUMN flagged TINYINT(1) NOT NULL DEFAULT 0 AFTER featured;
+
+-- Add flagged column to blog_posts table if not exists
+ALTER TABLE blog_posts ADD COLUMN flagged TINYINT(1) NOT NULL DEFAULT 0 AFTER status;
+
+-- Add rejection_reason to jobs if not exists
+ALTER TABLE jobs ADD COLUMN rejection_reason TEXT NULL AFTER status;
+
+-- Add rejection_reason to blog_posts if not exists
+ALTER TABLE blog_posts ADD COLUMN rejection_reason TEXT NULL AFTER status;
+
+SELECT 'Added flagged and rejection_reason columns to jobs and blog_posts!' AS status;

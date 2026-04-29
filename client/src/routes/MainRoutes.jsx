@@ -8,9 +8,10 @@ import {
   renderLazyPage,
   renderAuthLazyPage,
   renderCandidatePage,
-  renderEmployerPage,
+  renderRecruiterPage,
   renderAdminPage,
 } from './route-shells.jsx';
+import { ADMIN_PERMISSIONS } from '../utils/adminPermissions';
 
 export default function MainRoutes() {
   return (
@@ -30,11 +31,14 @@ export default function MainRoutes() {
       <Route path="/ai-cv-scanner" element={renderLazyPage(P.AICVScannerPage)} />
       <Route path="/salary-predictor" element={renderLazyPage(P.SalaryPredictorPage)} />
       <Route path="/categories" element={renderLazyPage(P.CategoriesPage)} />
-      <Route path="/career" element={renderLazyPage(P.CareerPage)} />
+      <Route path="/career" element={<Navigate to="/chat" replace />} />
       <Route path="/blog" element={renderLazyPage(P.BlogPage)} />
       <Route path="/blog/:slug" element={renderLazyPage(P.BlogPostPage)} />
 
       <Route path="/candidate" element={<Navigate to="/candidate/dashboard" replace />} />
+      {/* /recruiter → redirect sang /employer để khớp route thực */}
+      <Route path="/recruiter/dashboard" element={<Navigate to="/employer/dashboard" replace />} />
+      <Route path="/recruiter" element={<Navigate to="/employer/dashboard" replace />} />
       <Route path="/employer" element={<Navigate to="/employer/dashboard" replace />} />
 
       {/* —— Candidate —— */}
@@ -59,48 +63,58 @@ export default function MainRoutes() {
         path="/candidate/notifications"
         element={renderCandidatePage(P.CandidateNotificationsPage)}
       />
+      <Route path="/candidate/messages" element={renderCandidatePage(P.CandidateMessagesPage)} />
+      <Route path="/candidate/interviews" element={renderCandidatePage(P.CandidateInterviewSchedulePage)} />
+      <Route path="/candidate/interview-prep" element={renderCandidatePage(P.InterviewPrepPage)} />
+      <Route path="/candidate/profile-analytics" element={<Navigate to="/candidate/profile" replace />} />
       <Route path="/candidate/chat" element={renderCandidatePage(P.CandidateChatCareerPage)} />
-      <Route path="/candidate/career-roadmap" element={renderCandidatePage(P.CareerRoadmapPage)} />
-      <Route
-        path="/candidate/career-suggestions"
-        element={renderCandidatePage(P.CareerSuggestionsPage)}
-      />
       <Route path="/candidate/settings" element={renderCandidatePage(P.CandidateSettingsPage)} />
 
       {/* —— Employer —— */}
-      <Route path="/employer/dashboard" element={renderEmployerPage(P.EmployerDashboard)} />
-      <Route path="/employer/company-profile" element={renderEmployerPage(P.CompanyProfilePage)} />
+      <Route path="/employer/dashboard" element={renderRecruiterPage(P.EmployerDashboard)} />
+      <Route path="/employer/company-profile" element={renderRecruiterPage(P.CompanyProfilePage)} />
       <Route
         path="/employer/profile"
         element={<Navigate to="/employer/company-profile" replace />}
       />
       <Route
         path="/employer/company-profile/edit"
-        element={renderEmployerPage(P.EditCompanyProfilePage)}
+        element={renderRecruiterPage(P.EditCompanyProfilePage)}
       />
-      <Route path="/employer/jobs" element={renderEmployerPage(P.ManageJobsPage)} />
-      <Route path="/employer/jobs/post" element={renderEmployerPage(P.PostJobPage)} />
-      <Route path="/employer/jobs/:id/edit" element={renderEmployerPage(P.PostJobPage)} />
-      <Route path="/employer/applications" element={renderEmployerPage(P.ApplicantsPage)} />
+      <Route path="/employer/jobs" element={renderRecruiterPage(P.ManageJobsPage)} />
+      <Route path="/employer/jobs/post" element={renderRecruiterPage(P.PostJobPage)} />
+      <Route path="/employer/jobs/new" element={<Navigate to="/employer/jobs/post" replace />} />
+      <Route path="/employer/jobs/:id/edit" element={renderRecruiterPage(P.PostJobPage)} />
+      <Route path="/employer/applications" element={renderRecruiterPage(P.ApplicantsPage)} />
       <Route
         path="/employer/applications/:id"
-        element={renderEmployerPage(P.ApplicationDetailPage)}
+        element={renderRecruiterPage(P.ApplicationDetailPage)}
       />
       <Route
         path="/employer/search-candidates"
-        element={renderEmployerPage(P.SearchCandidatesPage)}
+        element={renderRecruiterPage(P.SearchCandidatesPage)}
+      />
+      {/* Talent Pool - Professional Candidate Management */}
+      <Route
+        path="/employer/talent-pool"
+        element={renderRecruiterPage(P.TalentPoolPreviewPage)}
       />
       <Route
         path="/employer/saved-candidates"
-        element={renderEmployerPage(P.SavedCandidatesPage)}
+        element={renderRecruiterPage(P.SavedCandidatesPage)}
       />
-      <Route path="/employer/messages" element={renderEmployerPage(P.MessagesPage)} />
+      <Route path="/employer/messages" element={renderRecruiterPage(P.MessagesPage)} />
       <Route
         path="/employer/interview-schedule"
-        element={renderEmployerPage(P.InterviewSchedulePage)}
+        element={renderRecruiterPage(P.EmployerInterviewSchedulePage)}
       />
-      <Route path="/employer/settings" element={renderEmployerPage(P.EmployerSettingsPage)} />
-      <Route path="/employer/blog" element={renderEmployerPage(P.EmployerBlogPage)} />
+      <Route path="/employer/settings" element={renderRecruiterPage(P.EmployerSettingsPage)} />
+      <Route path="/employer/reports" element={renderRecruiterPage(P.RecruitmentReportPage)} />
+      <Route path="/employer/blog" element={renderRecruiterPage(P.EmployerBlogPage)} />
+      <Route
+        path="/employer/notifications"
+        element={renderRecruiterPage(P.RecruiterNotificationsPage)}
+      />
 
       {/* —— Admin (path khớp AdminLayout / AdminHeader) —— */}
       <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
@@ -109,7 +123,9 @@ export default function MainRoutes() {
       <Route path="/admin/users" element={renderAdminPage(P.UsersPage)} />
       <Route path="/admin/users/:id" element={renderAdminPage(P.AdminUserDetailPage)} />
       <Route path="/admin/jobs" element={renderAdminPage(P.AdminJobsPage)} />
+      <Route path="/admin/jobs/new" element={renderAdminPage(P.AdminJobEditorPage)} />
       <Route path="/admin/jobs/:id" element={renderAdminPage(P.AdminJobDetailPage)} />
+      <Route path="/admin/jobs/:id/edit" element={renderAdminPage(P.AdminJobEditorPage)} />
       <Route path="/admin/companies" element={renderAdminPage(P.AdminCompaniesPage)} />
       <Route path="/admin/companies/:id" element={renderAdminPage(P.AdminCompanyDetailPage)} />
       <Route path="/admin/applications" element={renderAdminPage(P.AdminApplicationsPage)} />
@@ -117,16 +133,40 @@ export default function MainRoutes() {
         path="/admin/applications/:id"
         element={renderAdminPage(P.AdminApplicationDetailPage)}
       />
+      <Route path="/admin/interviews" element={renderAdminPage(P.EmployerInterviewSchedulePage)} />
       <Route path="/admin/categories" element={renderAdminPage(P.AdminCategoriesPage)} />
       <Route path="/admin/analytics" element={renderAdminPage(P.AdminAnalyticsPage)} />
       <Route path="/admin/moderation" element={renderAdminPage(P.AdminModerationPage)} />
       <Route path="/admin/support" element={renderAdminPage(P.AdminSupportPage)} />
       <Route path="/admin/service-health" element={renderAdminPage(P.AdminServiceHealthPage)} />
-      <Route path="/admin/feature-flags" element={renderAdminPage(P.AdminFeatureFlagsPage)} />
-      <Route path="/admin/settings" element={renderAdminPage(P.AdminSettingsPage)} />
-      <Route path="/admin/logs" element={renderAdminPage(P.AdminLogsPage)} />
+      <Route
+        path="/admin/feature-flags"
+        element={renderAdminPage(P.AdminFeatureFlagsPage, {
+          adminPermission: ADMIN_PERMISSIONS.SETTINGS_MANAGE,
+        })}
+      />
+      <Route
+        path="/admin/settings"
+        element={renderAdminPage(P.AdminSettingsPage, {
+          adminPermission: ADMIN_PERMISSIONS.SETTINGS_MANAGE,
+        })}
+      />
+      <Route
+        path="/admin/permissions"
+        element={renderAdminPage(P.AdminPermissionsPage, {
+          adminPermission: ADMIN_PERMISSIONS.ADMIN_PERMISSIONS,
+        })}
+      />
       <Route path="/admin/chatbot" element={renderAdminPage(P.AdminChatbotPage)} />
+      <Route path="/admin/ai-tools" element={renderAdminPage(P.AIToolsAdminPage)} />
+      <Route path="/admin/skills" element={renderAdminPage(P.SkillManagementPage)} />
       <Route path="/admin/blog" element={renderAdminPage(P.AdminBlogPage)} />
+      <Route path="/admin/homepage" element={renderAdminPage(P.HomepageCMSPage)} />
+      <Route path="/admin/email-logs" element={renderAdminPage(P.EmailLogsPage)} />
+      <Route
+        path="/admin/notifications"
+        element={renderAdminPage(P.AdminNotificationsPage)}
+      />
 
       <Route path="*" element={renderLazyPage(P.NotFoundPage)} />
     </Routes>

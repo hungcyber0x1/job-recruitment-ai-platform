@@ -5,26 +5,26 @@ import { Star, Quote, TrendingUp, Users, Briefcase, Award } from 'lucide-react';
 const testimonials = [
   {
     name: 'Phạm Minh Tuấn',
-    role: 'Software Engineer',
+    role: 'Kỹ sư phần mềm',
     company: 'FPT Software',
     initials: 'PT',
-    text: 'AI của HireAI phân tích CV và gợi ý vị trí Senior Frontend cực kỳ chính xác. Từ lúc đăng ký đến lúc nhận offer chỉ 2 tuần. Ấn tượng nhất là lộ trình phát triển mà AI gợi ý.',
+    text: 'Hệ thống của HireBOT phân tích CV và gợi ý vị trí lập trình giao diện cấp cao cực kỳ chính xác. Từ lúc đăng ký đến lúc nhận đề nghị chỉ 2 tuần. Ấn tượng nhất là các bước tiếp theo mà AI đề xuất rất sát với hồ sơ của tôi.',
     rating: 5,
   },
   {
     name: 'Trần Ngọc Hà',
-    role: 'HR Manager',
+    role: 'Quản lý nhân sự',
     company: 'VNG Corporation',
     initials: 'TH',
-    text: 'Với tư cách nhà tuyển dụng, HireAI giúp chúng tôi giảm 70% thời gian screening CV. AI matching rất thông minh, ứng viên được gợi ý đều phù hợp với yêu cầu.',
+    text: 'Với tư cách nhà tuyển dụng, HireBOT giúp chúng tôi giảm 70% thời gian sàng lọc CV. Hệ thống gợi ý hồ sơ rõ ràng, dễ theo dõi và tiết kiệm rất nhiều thời gian cho đội ngũ.',
     rating: 5,
   },
   {
     name: 'Lê Hoàng Nam',
-    role: 'Product Designer',
+    role: 'Nhà thiết kế sản phẩm',
     company: 'Tiki',
     initials: 'LN',
-    text: 'Tính năng Career Mentor thật sự hữu ích. AI không chỉ gợi ý việc mà còn phân tích skill gap và đề xuất lộ trình học tập cụ thể. Đây chính xác là điều tôi cần.',
+    text: 'Tính năng cố vấn nghề nghiệp thật sự hữu ích. Hệ thống không chỉ gợi ý việc mà còn chỉ ra những kỹ năng nên ưu tiên và đề xuất tài liệu học phù hợp. Đây chính xác là điều tôi cần.',
     rating: 5,
   },
 ];
@@ -32,7 +32,7 @@ const testimonials = [
 const stats = [
   { icon: Users, value: '47,200+', label: 'Ứng viên tin tưởng' },
   { icon: Briefcase, value: '1,247', label: 'Doanh nghiệp đối tác' },
-  { icon: TrendingUp, value: '94.7%', label: 'Matching chính xác' },
+  { icon: TrendingUp, value: 'Nhanh hơn 70%', label: 'Thời gian sàng lọc tiết kiệm' },
   { icon: Award, value: '8,340', label: 'Việc làm đang mở' },
 ];
 
@@ -78,7 +78,7 @@ const SocialProof = () => {
                   className="text-primary group-hover:text-white transition-colors"
                 />
               </div>
-              <p className="text-2xl lg:text-3xl font-extrabold text-foreground tabular-nums tracking-tight">
+              <p className="text-2xl lg:text-3xl font-extrabold text-foreground tabular-nums tracking-normal">
                 {stat.value}
               </p>
               <p className="text-muted-foreground text-base font-medium mt-1">{stat.label}</p>
@@ -139,7 +139,7 @@ const SocialProof = () => {
         <div className="relative">
           <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
           <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
-          <p className="text-center text-base font-semibold uppercase tracking-[0.25em] text-muted-foreground mb-8">
+          <p className="text-center text-base font-semibold uppercase tracking-normal text-muted-foreground mb-8">
             Tin tưởng bởi 1,200+ doanh nghiệp tại Việt Nam
           </p>
           <div className="overflow-hidden">
@@ -151,7 +151,7 @@ const SocialProof = () => {
               {[...companies, ...companies].map((company, i) => (
                 <span
                   key={i}
-                  className="text-lg font-bold text-foreground/15 hover:text-foreground/40 transition-colors cursor-default tracking-tight"
+                  className="text-lg font-bold text-foreground/15 hover:text-foreground/40 transition-colors cursor-default tracking-normal"
                 >
                   {company}
                 </span>

@@ -53,14 +53,6 @@ const DEFAULT_FEATURE_CATALOG = {
       path: '/salary-predictor',
       enabled: true,
     },
-    {
-      id: 'career-roadmap',
-      title: 'Career Roadmap',
-      description: 'See a guided growth path based on profile maturity and role direction.',
-      path: '/candidate/career-roadmap',
-      settingKey: 'ai_career_roadmap',
-      enabled: true,
-    },
   ],
   governanceSignals: [
     'Role-based dashboards',
@@ -84,18 +76,23 @@ const toBoolean = (value, fallback = true) => {
 
 const deepClone = (value) => JSON.parse(JSON.stringify(value));
 
+const isSupportedPublicTool = (tool) =>
+  tool?.id !== 'career-roadmap' && tool?.path !== '/candidate/career-roadmap';
+
 const buildFeatureCatalog = ({ settingsMap = {}, payload = null } = {}) => {
   const base =
     payload && typeof payload === 'object' ? payload : deepClone(DEFAULT_FEATURE_CATALOG);
 
   if (Array.isArray(base.publicTools)) {
-    base.publicTools = base.publicTools.map((tool) => ({
-      ...tool,
-      enabled:
-        tool.settingKey && Object.prototype.hasOwnProperty.call(settingsMap, tool.settingKey)
-          ? toBoolean(settingsMap[tool.settingKey], tool.enabled !== false)
-          : tool.enabled !== false,
-    }));
+    base.publicTools = base.publicTools
+      .filter(isSupportedPublicTool)
+      .map((tool) => ({
+        ...tool,
+        enabled:
+          tool.settingKey && Object.prototype.hasOwnProperty.call(settingsMap, tool.settingKey)
+            ? toBoolean(settingsMap[tool.settingKey], tool.enabled !== false)
+            : tool.enabled !== false,
+      }));
   }
 
   return base;

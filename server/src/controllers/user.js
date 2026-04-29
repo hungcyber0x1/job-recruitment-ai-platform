@@ -1,58 +1,41 @@
 const UserService = require('../services/user');
+const { ApiResponse } = require('../utils/ApiResponse');
+const catchAsync = require('../utils/catchAsync');
 
 class UserController {
-  async getProfile(req, res, next) {
-    try {
-      const user = await UserService.getUserProfile(req.user.id);
-      res.json({ success: true, data: user });
-    } catch (error) {
-      next(error);
-    }
-  }
+  getProfile = catchAsync(async (req, res) => {
+    const user = await UserService.getUserProfile(req.user.id);
+    return ApiResponse.success(res, user);
+  });
 
-  async getAllUsers(req, res, next) {
-    try {
-      const users = await UserService.getAllUsers();
-      res.json({ success: true, data: users });
-    } catch (error) {
-      next(error);
-    }
-  }
+  getAllUsers = catchAsync(async (req, res) => {
+    const users = await UserService.getAllUsers();
+    return ApiResponse.success(res, users);
+  });
 
-  async update(req, res, next) {
-    try {
-      const user = await UserService.updateUser(req.user.id, req.body);
-      res.json({ success: true, data: user });
-    } catch (error) {
-      next(error);
-    }
-  }
+  getPreferences = catchAsync(async (req, res) => {
+    const preferences = await UserService.getPreferences(req.user.id);
+    return ApiResponse.success(res, preferences);
+  });
 
-  async updatePreferences(req, res, next) {
-    try {
-      const user = await UserService.updatePreferences(req.user.id, req.body);
-      res.json({ success: true, data: user });
-    } catch (error) {
-      next(error);
-    }
-  }
+  update = catchAsync(async (req, res) => {
+    const user = await UserService.updateUser(req.user.id, req.body);
+    return ApiResponse.success(res, user);
+  });
 
-  async uploadAvatar(req, res, next) {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ success: false, message: 'No file uploaded' });
-      }
-      const avatarUrl = `/uploads/avatars/${req.file.filename}`;
-      const user = await UserService.updateUserAvatar(req.user.id, avatarUrl);
-      res.json({
-        success: true,
-        data: { avatar_url: user.avatar_url },
-        message: 'Avatar uploaded successfully',
-      });
-    } catch (error) {
-      next(error);
+  updatePreferences = catchAsync(async (req, res) => {
+    const user = await UserService.updatePreferences(req.user.id, req.body);
+    return ApiResponse.success(res, user);
+  });
+
+  uploadAvatar = catchAsync(async (req, res) => {
+    if (!req.file) {
+      return ApiResponse.error(res, 400, 'No file uploaded');
     }
-  }
+    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+    const user = await UserService.updateUserAvatar(req.user.id, avatarUrl);
+    return ApiResponse.success(res, { avatar_url: user.avatar_url }, { message: 'Avatar uploaded successfully' });
+  });
 }
 
 module.exports = new UserController();

@@ -8,8 +8,11 @@ const authService = {
   register: (data) => api.post('auth/register', data),
   login: (data) => api.post('auth/login', data),
   logout: () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    // Call backend to invalidate server-side session/token
+    // (localStorage removal is handled by AuthContext.logout)
+    return api.post('auth/logout').catch(() => {
+      // Ignore network errors — logout should always succeed client-side
+    });
   },
   getMe: () => api.get('auth/me'),
   updatePassword: (data) => api.put('auth/password', data),

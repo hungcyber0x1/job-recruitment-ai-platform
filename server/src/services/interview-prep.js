@@ -1,6 +1,7 @@
 const AIService = require('./ai');
 const InterviewSessionRepository = require('../models/InterviewSession');
 const JobRepository = require('../models/Job');
+const { pool } = require('../config/database.config');
 const logger = require('../utils/logger');
 
 /**
@@ -8,6 +9,164 @@ const logger = require('../utils/logger');
  * Mock interviews with AI-generated questions and feedback
  */
 class InterviewPrepService {
+  constructor() {
+    this._interviewNotesReady = false;
+  }
+
+  async _ensureInterviewNotesTable() {
+    if (this._interviewNotesReady) return;
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS candidate_interview_notes (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        candidate_id INT UNSIGNED NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        content TEXT NULL,
+        company VARCHAR(255) NULL,
+        type ENUM('general', 'technical', 'behavioral') NOT NULL DEFAULT 'general',
+        pinned TINYINT(1) NOT NULL DEFAULT 0,
+        created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_candidate_interview_notes_candidate (candidate_id),
+        INDEX idx_candidate_interview_notes_updated (updated_at),
+        CONSTRAINT fk_candidate_interview_notes_candidate
+          FOREIGN KEY (candidate_id) REFERENCES candidate_profiles(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+
+    this._interviewNotesReady = true;
+  }
+
+  _normalizeInterviewNote(row = {}) {
+    return {
+      ...row,
+      pinned: Boolean(Number(row.pinned || 0)),
+    };
+  }
+
+  _sanitizeNotePayload(data = {}, { partial = false } = {}) {
+    const allowedTypes = new Set(['general', 'technical', 'behavioral']);
+    const payload = {};
+
+    if (!partial || data.title !== undefined) {
+      payload.title = String(data.title || '').trim();
+    }
+
+    if (!partial || data.content !== undefined) {
+      const content = data.content == null ? '' : String(data.content).trim();
+      payload.content = content || null;
+    }
+
+    if (!partial || data.company !== undefined) {
+      const company = data.company == null ? '' : String(data.company).trim();
+      payload.company = company || null;
+    }
+
+    if (!partial || data.type !== undefined) {
+      payload.type = allowedTypes.has(data.type) ? data.type : 'general';
+    }
+
+    if (!partial || data.pinned !== undefined) {
+      payload.pinned = Boolean(data.pinned);
+    }
+
+    return payload;
+  }
+
+  async getNoteById(candidateId, noteId) {
+    await this._ensureInterviewNotesTable();
+
+    const [rows] = await pool.query(
+      `SELECT id, candidate_id, title, content, company, type, pinned, created_at, updated_at
+         FROM candidate_interview_notes
+        WHERE candidate_id = ? AND id = ?
+        LIMIT 1`,
+      [candidateId, noteId]
+    );
+
+    return rows[0] ? this._normalizeInterviewNote(rows[0]) : null;
+  }
+
+  async getNotes(candidateId) {
+    await this._ensureInterviewNotesTable();
+
+    const [rows] = await pool.query(
+      `SELECT id, candidate_id, title, content, company, type, pinned, created_at, updated_at
+         FROM candidate_interview_notes
+        WHERE candidate_id = ?
+        ORDER BY pinned DESC, updated_at DESC, id DESC`,
+      [candidateId]
+    );
+
+    return rows.map((row) => this._normalizeInterviewNote(row));
+  }
+
+  async createNote(candidateId, data) {
+    await this._ensureInterviewNotesTable();
+
+    const note = this._sanitizeNotePayload(data);
+    if (!note.title) {
+      const error = new Error('Title is required');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const [result] = await pool.query(
+      `INSERT INTO candidate_interview_notes (candidate_id, title, content, company, type, pinned)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [candidateId, note.title, note.content, note.company, note.type, note.pinned ? 1 : 0]
+    );
+
+    return this.getNoteById(candidateId, result.insertId);
+  }
+
+  async updateNote(candidateId, noteId, data) {
+    await this._ensureInterviewNotesTable();
+
+    const existing = await this.getNoteById(candidateId, noteId);
+    if (!existing) return null;
+
+    const updates = this._sanitizeNotePayload(data, { partial: true });
+    const fields = [];
+    const values = [];
+
+    for (const [key, value] of Object.entries(updates)) {
+      fields.push(`${key} = ?`);
+      values.push(key === 'pinned' ? (value ? 1 : 0) : value);
+    }
+
+    if (!fields.length) {
+      return existing;
+    }
+
+    if (updates.title !== undefined && !updates.title) {
+      const error = new Error('Title is required');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    values.push(candidateId, noteId);
+    await pool.query(
+      `UPDATE candidate_interview_notes
+          SET ${fields.join(', ')}
+        WHERE candidate_id = ? AND id = ?`,
+      values
+    );
+
+    return this.getNoteById(candidateId, noteId);
+  }
+
+  async deleteNote(candidateId, noteId) {
+    await this._ensureInterviewNotesTable();
+
+    const [result] = await pool.query(
+      'DELETE FROM candidate_interview_notes WHERE candidate_id = ? AND id = ?',
+      [candidateId, noteId]
+    );
+
+    return result.affectedRows > 0;
+  }
+
   /**
    * Start a new interview session
    */

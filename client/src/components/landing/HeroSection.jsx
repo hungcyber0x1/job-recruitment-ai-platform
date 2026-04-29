@@ -88,7 +88,12 @@ const HeroSection = () => {
 
       <div className="container mx-auto px-6 max-w-7xl relative z-10 pt-32 pb-20 lg:pt-0 lg:pb-0">
         <div className="grid lg:grid-cols-2 gap-10 items-center">
-          <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-6">
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            animate="visible"
+            className="space-y-6 text-center flex flex-col items-center"
+          >
             <motion.div variants={fadeUp}>
               <span className="landing-badge">
                 <Sparkles size={14} aria-hidden />
@@ -98,7 +103,7 @@ const HeroSection = () => {
 
             <motion.h1
               variants={fadeUp}
-              className="text-4xl sm:text-5xl lg:text-[3.5rem] xl:text-[4rem] font-extrabold text-foreground tracking-tighter leading-[1.05] text-balance"
+              className="text-4xl sm:text-5xl lg:text-[3.5rem] xl:text-[4rem] font-extrabold text-foreground tracking-normal leading-[1.05] text-center"
             >
               AI giúp bạn tìm đúng{' '}
               <span className="relative">
@@ -111,15 +116,15 @@ const HeroSection = () => {
               <span className="text-muted-foreground/60">nhanh hơn 10 lần</span>
             </motion.h1>
 
-            <motion.p variants={fadeUp} className="text-lg landing-prose max-w-xl">
+            <motion.p variants={fadeUp} className="text-lg landing-prose max-w-xl text-center">
               Phân tích CV thông minh, hiểu sâu kỹ năng của bạn và gợi ý lộ trình nghề nghiệp được
-              cá nhân hóa hoàn toàn bằng AI.
+              cá nhân hóa hoàn toàn.
             </motion.p>
 
-            <motion.div variants={fadeUp} className="flex flex-wrap gap-4">
+            <motion.div variants={fadeUp} className="flex flex-wrap gap-4 justify-center">
               <Link to="/chat" className="group landing-btn-primary px-8 py-4 text-base">
                 <Sparkles size={18} aria-hidden />
-                Bắt đầu với AI
+                Bắt đầu ngay
                 <ArrowRight
                   size={18}
                   className="group-hover:translate-x-1 transition-transform"
@@ -132,7 +137,7 @@ const HeroSection = () => {
               </Link>
             </motion.div>
 
-            <motion.div variants={fadeUp} className="flex items-center gap-8 pt-4">
+            <motion.div variants={fadeUp} className="flex items-center gap-8 pt-4 flex-wrap justify-center">
               <div className="flex -space-x-3">
                 {['PM', 'TH', 'LN', 'VD'].map((initials, i) => (
                   <div
@@ -175,7 +180,7 @@ const HeroSection = () => {
                   {/* Megaphone icon with sound waves */}
                   <div className="relative mb-6">
                     <motion.div
-                      className="w-20 h-20 rounded-2xl bg-primary/10 border border-primary/15 flex items-center justify-center"
+                      className="w-20 h-20 rounded-xl bg-primary/10 border border-primary/15 flex items-center justify-center"
                       animate={{
                         boxShadow: [
                           '0 0 0 0 rgba(16,185,129,0.1)',

@@ -19,7 +19,7 @@ const NewsletterSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="relative bg-slate-900 rounded-2xl p-8 md:p-12 overflow-hidden text-center shadow-[0_8px_40px_-12px_rgba(0,0,0,0.25)]"
+          className="relative bg-slate-900 rounded-xl p-8 md:p-12 overflow-hidden text-center shadow-[0_8px_40px_-12px_rgba(0,0,0,0.25)]"
         >
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.12),transparent_50%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.04)_1px,transparent_0)] bg-[size:20px_20px]" />
@@ -29,7 +29,7 @@ const NewsletterSection = () => {
               <Mail size={13} aria-hidden="true" /> Cập nhật mỗi tuần
             </div>
 
-            <h2 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-tight mb-3 text-balance">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-white tracking-normal leading-tight mb-3 text-balance">
               Nhận thông tin việc làm mới nhất
             </h2>
             <p className="text-white/60 text-base font-medium max-w-md mx-auto mb-6 leading-relaxed">

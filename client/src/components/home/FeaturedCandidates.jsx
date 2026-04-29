@@ -18,7 +18,7 @@ const candidates = [
   {
     id: 2,
     name: 'Trần Thị Hương',
-    headline: 'Frontend Developer với 5 năm kinh nghiệm',
+    headline: 'Lập trình viên giao diện với 5 năm kinh nghiệm',
     status: 'Đang tìm việc',
     salary: '$3,200',
     match: 91,
@@ -29,7 +29,7 @@ const candidates = [
   {
     id: 3,
     name: 'Lê Văn Đức',
-    headline: 'Fullstack Engineer tìm dự án mới',
+    headline: 'Kỹ sư full-stack tìm dự án mới',
     status: 'Đang tìm việc',
     salary: '$2,500',
     match: 88,
@@ -44,7 +44,7 @@ const CandidateCard = ({ candidate }) => (
     to="/employer/search-candidates"
     className="group flex-shrink-0 w-[320px] sm:w-[360px] snap-center block"
   >
-    <div className="relative h-[480px] rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.12)] card-premium-hover transition-all duration-500">
+    <div className="relative h-[480px] rounded-xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.12)] card-premium-hover transition-all duration-500">
       {/* Background image */}
       <img
         src={candidate.image}
@@ -54,12 +54,12 @@ const CandidateCard = ({ candidate }) => (
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
       {/* Top left - Verification badge */}
-      <div className="absolute top-4 left-4 flex items-center gap-3 rounded-2xl bg-white/95 backdrop-blur-sm px-4 py-3 shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
+      <div className="absolute top-4 left-4 flex items-center gap-3 rounded-xl bg-white/95 backdrop-blur-sm px-4 py-3 shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
         <div className="size-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
           <ShieldCheck size={20} className="text-emerald-600" />
         </div>
         <div>
-          <p className="text-base font-medium text-muted-foreground uppercase tracking-wider">
+          <p className="text-base font-medium text-muted-foreground uppercase tracking-normal">
             Trạng thái
           </p>
           <p className="text-base font-bold text-foreground">Đã xác minh AI</p>
@@ -67,12 +67,12 @@ const CandidateCard = ({ candidate }) => (
       </div>
 
       {/* Middle right - Salary badge */}
-      <div className="absolute top-1/2 -translate-y-1/2 right-4 flex items-center gap-3 rounded-2xl bg-white/95 backdrop-blur-sm px-4 py-3 shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
+      <div className="absolute top-1/2 -translate-y-1/2 right-4 flex items-center gap-3 rounded-xl bg-white/95 backdrop-blur-sm px-4 py-3 shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
         <div className="size-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
           <TrendingUp size={20} className="text-amber-600" />
         </div>
         <div>
-          <p className="text-base font-medium text-muted-foreground uppercase tracking-wider">
+          <p className="text-base font-medium text-muted-foreground uppercase tracking-normal">
             Lương TB
           </p>
           <p className="text-base font-bold text-foreground">{candidate.salary}</p>
@@ -90,7 +90,7 @@ const CandidateCard = ({ candidate }) => (
             {candidate.headline}
           </h3>
         </div>
-        <div className="sm:w-[200px] shrink-0 rounded-2xl bg-white/95 backdrop-blur-sm p-4 shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
+        <div className="sm:w-[200px] shrink-0 rounded-xl bg-white/95 backdrop-blur-sm p-4 shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm font-medium text-muted-foreground">Độ phù hợp</span>
             <span className="text-sm font-bold text-emerald-600">{candidate.match}% phù hợp</span>
@@ -185,10 +185,10 @@ const FeaturedCandidates = () => {
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="max-w-2xl"
           >
-            <p className="text-base font-semibold text-primary uppercase tracking-wider mb-5">
+            <p className="text-base font-semibold text-primary uppercase tracking-normal mb-5">
               Ứng viên nổi bật
             </p>
-            <h2 className="text-4xl md:text-6xl font-extrabold text-foreground tracking-tighter leading-[0.95]">
+            <h2 className="text-4xl md:text-6xl font-extrabold text-foreground tracking-normal leading-[0.95]">
               Đội ngũ tài năng <span className="text-primary">sẵn sàng cho bạn</span>
             </h2>
             <p className="text-muted-foreground font-medium mt-4 max-w-lg">
@@ -243,9 +243,8 @@ const FeaturedCandidates = () => {
                 el.scrollTo({ left: i * (cardWidth + gap), behavior: 'smooth' });
               }}
               aria-label={`Đi tới ứng viên ${i + 1}`}
-              className={`size-2 rounded-full transition-all ${
-                i === currentIndex ? 'bg-primary w-6' : 'bg-border hover:bg-primary/40'
-              }`}
+              className={`size-2 rounded-full transition-all ${i === currentIndex ? 'bg-primary w-6' : 'bg-border hover:bg-primary/40'
+                }`}
             />
           ))}
         </div>

@@ -19,7 +19,7 @@ const footerLinks = [
     title: 'Khám phá',
     links: [
       { label: 'Về HireBot', path: '/about' },
-      { label: 'Định hướng nghề nghiệp', path: '/career' },
+      { label: 'Mức lương thị trường', path: '/salary-predictor' },
       { label: 'Liên hệ hợp tác', path: '/contact' },
     ],
   },
@@ -79,7 +79,7 @@ const Footer = () => {
                 to="/"
                 className="group flex w-fit items-center gap-3 transition-opacity hover:opacity-90"
               >
-                <Logo className="h-16 w-16" />
+                <Logo asLink={false} className="h-16 w-16" />
               </Link>
 
               <p className="max-w-sm text-base leading-relaxed text-slate-400">
@@ -93,8 +93,8 @@ const Footer = () => {
               </div>
             </div>
 
-            <div className="glass-dark relative overflow-hidden rounded-3xl border border-white/5 p-6 shadow-2xl">
-              <h2 className="text-base font-bold tracking-tight text-white">
+            <div className="glass-dark relative overflow-hidden rounded-xl border border-white/5 p-6 shadow-2xl">
+              <h2 className="text-base font-bold tracking-normal text-white">
                 Nhận cập nhật sản phẩm
               </h2>
               <p className="mt-2 text-base text-slate-500">
@@ -105,12 +105,12 @@ const Footer = () => {
                 <input
                   type="email"
                   placeholder="Email của bạn..."
-                  className="w-full rounded-2xl border border-slate-800 bg-slate-950/50 px-4 py-3 text-sm text-slate-300 shadow-inner transition-all placeholder:text-slate-600 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-xl border border-slate-800 bg-slate-950/50 px-4 py-3 text-sm text-slate-300 shadow-inner transition-all placeholder:text-slate-600 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
                   aria-label="Email nhận bản tin"
                 />
                 <Button
                   variant="primary"
-                  className="border-0 px-5 py-3 !rounded-2xl font-bold shadow-glow"
+                  className="border-0 px-5 py-3 !rounded-xl font-bold shadow-glow"
                 >
                   <ArrowRight size={18} />
                 </Button>
@@ -121,7 +121,7 @@ const Footer = () => {
           <div className="grid grid-cols-2 gap-12 lg:col-span-8 md:grid-cols-3">
             {footerLinks.map((column) => (
               <div key={column.title} className="space-y-6">
-                <h3 className="bg-gradient-to-r from-white to-slate-300 bg-clip-text text-sm font-bold uppercase tracking-widest text-transparent">
+                <h3 className="bg-gradient-to-r from-white to-slate-300 bg-clip-text text-sm font-bold uppercase tracking-normal text-transparent">
                   {column.title}
                 </h3>
                 <ul className="space-y-4">
@@ -149,7 +149,7 @@ const Footer = () => {
                     <Mail size={16} />
                   </div>
                   <div className="space-y-1">
-                    <p className="text-base font-semibold uppercase tracking-wider text-white">
+                    <p className="text-base font-semibold uppercase tracking-normal text-white">
                       Email
                     </p>
                     <a
@@ -166,7 +166,7 @@ const Footer = () => {
                     <Phone size={16} />
                   </div>
                   <div className="space-y-1">
-                    <p className="text-base font-semibold uppercase tracking-wider text-white">
+                    <p className="text-base font-semibold uppercase tracking-normal text-white">
                       Hotline
                     </p>
                     <a
@@ -183,7 +183,7 @@ const Footer = () => {
                     <MapPin size={16} />
                   </div>
                   <div className="space-y-1">
-                    <p className="text-base font-semibold uppercase tracking-wider text-white">
+                    <p className="text-base font-semibold uppercase tracking-normal text-white">
                       Văn phòng
                     </p>
                     <p className="text-base text-slate-500">Innovation Building, Quận 12, TP.HCM</p>
@@ -208,7 +208,7 @@ const Footer = () => {
               </Link>
               <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1">
                 <div className="h-2 w-2 rounded-full bg-success shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-                <span className="text-sm font-semibold uppercase tracking-widest">
+                <span className="text-sm font-semibold uppercase tracking-normal">
                   Hệ thống hoạt động ổn định
                 </span>
               </div>
@@ -223,7 +223,7 @@ const Footer = () => {
                   to={href}
                   aria-label={label}
                   className={cn(
-                    'rounded-2xl border border-white/10 bg-white/5 p-3 text-slate-400 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-glow/20',
+                    'rounded-xl border border-white/10 bg-white/5 p-3 text-slate-400 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-glow/20',
                     color
                   )}
                 >
@@ -235,7 +235,7 @@ const Footer = () => {
                   href={href}
                   aria-label={label}
                   className={cn(
-                    'rounded-2xl border border-white/10 bg-white/5 p-3 text-slate-400 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-glow/20',
+                    'rounded-xl border border-white/10 bg-white/5 p-3 text-slate-400 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-glow/20',
                     color
                   )}
                 >

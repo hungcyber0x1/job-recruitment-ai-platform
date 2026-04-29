@@ -1,12 +1,16 @@
 import PropTypes from 'prop-types';
-import React from 'react';
-import { MapPin, Users, Briefcase, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import React, { useCallback, useEffect, useState } from 'react';
+import { MapPin, Users, Briefcase, ArrowRight, Bookmark, BookmarkCheck } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 
-import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/common/Card';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/utils';
+import { resolveMediaUrl } from '@/utils/mediaUrl';
+import { useAuth } from '@/context/AuthContext';
+import { useNotification } from '@/context/NotificationContext';
+import candidateService from '@/services/candidateService';
 
 function avatarPalette(name) {
   const s = String(name || 'x');
@@ -22,6 +26,63 @@ function avatarPalette(name) {
 }
 
 const CompanyCard = ({ company }) => {
+  const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
+  const { showNotification } = useNotification();
+  const isCandidate = user?.role === 'candidate';
+
+  const [isSaved, setIsSaved] = useState(Boolean(company.is_saved));
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setIsSaved(Boolean(company.is_saved));
+  }, [company.id, company.is_saved]);
+
+  useEffect(() => {
+    if (!isCandidate || isSaved || !company.id || company.is_saved != null) return;
+    // Optional: check if already saved if not provided in props
+    candidateService.checkCompanySaved(company.id)
+      .then(res => setIsSaved(!!res.data?.data?.saved))
+      .catch(() => {});
+  }, [company.id, company.is_saved, isCandidate, isSaved]);
+
+  const handleToggleSave = useCallback(async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isAuthenticated) {
+      if (window.confirm('Bạn cần đăng nhập với vai trò ứng viên để lưu công ty. Chuyển đến trang đăng nhập?')) {
+        navigate('/login', { state: { from: { pathname: window.location.pathname } } });
+      }
+      return;
+    }
+
+    if (!isCandidate) {
+      showNotification('Tính năng này chỉ dành cho ứng viên', 'info');
+      return;
+    }
+
+    if (saving) return;
+
+    setSaving(true);
+    try {
+      if (isSaved) {
+        await candidateService.unsaveCompany(company.id);
+        setIsSaved(false);
+        showNotification('Đã bỏ lưu công ty', 'info');
+      } else {
+        await candidateService.saveCompany(company.id);
+        setIsSaved(true);
+        showNotification('Đã lưu công ty thành công', 'success');
+      }
+    } catch (err) {
+      console.error('Failed to toggle company save:', err);
+      showNotification('Không thể thực hiện tác vụ này', 'error');
+    } finally {
+      setSaving(false);
+    }
+  }, [company.id, isCandidate, isAuthenticated, isSaved, navigate, saving, showNotification]);
+
   const initials =
     company.name
       ?.split(/\s+/)
@@ -32,6 +93,7 @@ const CompanyCard = ({ company }) => {
       .toUpperCase() || 'CO';
 
   const hasLogo = Boolean(company.logo?.trim());
+  const logoSrc = resolveMediaUrl(company.logo);
 
   return (
     <Card
@@ -43,32 +105,55 @@ const CompanyCard = ({ company }) => {
       {/* Decorative Banner Background */}
       <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-br from-primary/5 via-primary/10 to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-100" />
 
+      {/* Save Button */}
+      <div className="absolute top-3 right-3 z-20">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          disabled={saving}
+          onClick={handleToggleSave}
+          className={cn(
+            'size-9 rounded-xl bg-white/90 backdrop-blur-sm shadow-sm ring-1 ring-black/[0.03] transition-all duration-300 dark:bg-slate-900/90',
+            isSaved
+              ? 'text-emerald-600 ring-emerald-500/20 shadow-emerald-600/10'
+              : 'text-slate-400 hover:text-primary hover:bg-primary/5 hover:ring-primary/20 hover:scale-105 active:scale-95'
+          )}
+        >
+          {isSaved ? (
+            <BookmarkCheck className="size-5 fill-emerald-600/10" aria-hidden />
+          ) : (
+            <Bookmark className="size-5" aria-hidden />
+          )}
+        </Button>
+      </div>
+
       {/* Main Content */}
       <div className="relative flex flex-1 flex-col px-5 pb-5 pt-12 sm:px-6">
         {/* Logo & Header Info */}
         <div className="flex flex-col items-center text-center">
           <Avatar
             className={cn(
-              'size-20 shrink-0 rounded-2xl border-4 border-white shadow-xl ring-1 ring-black/[0.03] dark:border-slate-900',
+              'size-20 shrink-0 rounded-xl border-4 border-white shadow-xl ring-1 ring-black/[0.03] dark:border-slate-900',
               'transition-all duration-500 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-primary/10'
             )}
           >
             {hasLogo ? (
-              <AvatarImage src={company.logo} alt={company.name} className="object-cover" />
+              <AvatarImage src={logoSrc} alt={company.name} className="object-cover" />
             ) : null}
             <AvatarFallback
-              className={cn('rounded-2xl text-xl font-bold', avatarPalette(company.name))}
+              className={cn('rounded-xl text-xl font-bold', avatarPalette(company.name))}
             >
               {initials}
             </AvatarFallback>
           </Avatar>
 
           <div className="mt-4 min-w-0">
-            <h3 className="line-clamp-2 text-xl font-extrabold tracking-tight text-foreground transition-colors group-hover:text-primary leading-tight">
+            <h3 className="line-clamp-2 text-xl font-extrabold tracking-normal text-foreground transition-colors group-hover:text-primary leading-tight">
               {company.name}
             </h3>
             <div className="mt-2.5 flex justify-center">
-              <span className="inline-flex items-center rounded-lg bg-primary/8 px-2.5 py-1 text-sm font-bold uppercase tracking-widest text-primary border border-primary/10">
+              <span className="inline-flex items-center rounded-lg bg-primary/8 px-2.5 py-1 text-sm font-bold uppercase tracking-normal text-primary border border-primary/10">
                 {company.industry}
               </span>
             </div>
@@ -96,7 +181,7 @@ const CompanyCard = ({ company }) => {
         {/* Positions Highlight */}
         <div className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-dashed border-primary/20 bg-primary/[0.02] p-3 transition-colors group-hover:bg-primary/[0.04]">
           <Briefcase className="size-4 text-primary" />
-          <span className="text-[14px] font-bold text-primary">
+          <span className="text-sm font-bold text-primary">
             {company.openPositions} vị trí đang tuyển
           </span>
         </div>

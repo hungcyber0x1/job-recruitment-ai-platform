@@ -15,10 +15,13 @@ const categoryRoutes = require('./category');
 const adminChatbotRoutes = require('./admin-chatbot');
 const skillRoutes = require('./skill');
 const employerRoutes = require('./employer');
+const publicCompanyRoutes = require('./company-public');
+const notificationRoutes = require('./notification');
+const messagingRoutes = require('./messaging');
 
 // Tính năng AI (resume, career, interview) trên cùng API server.
+const aiRoutes = require('./ai');
 const resumeAnalysisRoutes = require('./resume-analysis');
-const careerPathRoutes = require('./career-path');
 const interviewPrepRoutes = require('./interview-prep');
 const publicToolsRoutes = require('./public-tools');
 const jobRoutes = require('./job');
@@ -29,10 +32,7 @@ const { buildFeatureCatalog } = require('../utils/feature-catalog');
 const FEATURE_FLAG_KEYS = [
   'ai_chatbot',
   'ai_resume_analysis',
-  'ai_job_matching',
   'ai_moderation',
-  'ai_career_roadmap',
-  'ai_screening_enabled',
   'company_moderation_required',
   'experimental_analytics_cards',
 ];
@@ -40,10 +40,7 @@ const FEATURE_FLAG_KEYS = [
 const DEFAULT_FEATURE_FLAGS = {
   ai_chatbot: true,
   ai_resume_analysis: true,
-  ai_job_matching: true,
   ai_moderation: true,
-  ai_career_roadmap: true,
-  ai_screening_enabled: true,
   company_moderation_required: true,
   experimental_analytics_cards: false,
 };
@@ -60,22 +57,28 @@ router.get('/ready', async (_req, res) => {
 });
 
 router.use('/users', userRoutes);
+router.use('/ai', aiRoutes);
 router.use('/categories', categoryRoutes);
 router.use('/applications', applicationRoutes);
 router.use('/chat', chatbotRoutes);
 router.use('/employers', employerRoutes);
+router.use('/companies', publicCompanyRoutes);
 router.use('/admin', adminRoutes);
 router.use('/admin/chatbot', adminChatbotRoutes);
+router.use('/admin/homepage', require('./admin-homepage'));
+router.use('/homepage', require('./homepage'));
 router.use('/skills', skillRoutes);
 router.use('/blog', require('./blog'));
+router.use('/notifications', notificationRoutes);
+router.use('/messages', messagingRoutes);
 
 // Công cụ công khai (trang landing — không auth)
 router.use('/public/tools', publicToolsRoutes);
 
 // AI Feature Routes (prefix cụ thể trước /candidates/profile)
 router.use('/candidates/resume', resumeAnalysisRoutes);
-router.use('/candidates/career-path', careerPathRoutes);
 router.use('/candidates/interview', interviewPrepRoutes);
+router.use('/interview-prep', interviewPrepRoutes);
 router.use('/candidates', candidateRoutes);
 router.use('/jobs', jobRoutes);
 

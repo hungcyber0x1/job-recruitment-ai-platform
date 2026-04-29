@@ -53,13 +53,13 @@ const ProfileHeader = ({ user, profile }) => {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="relative w-full mb-12 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
+      className="relative w-full mb-12 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
     >
       <div className="relative z-10 flex flex-col xl:flex-row min-h-[400px]">
         <div className="w-full xl:w-[30%] p-8 border-b xl:border-b-0 xl:border-r border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 flex flex-col items-center xl:items-start justify-between relative overflow-hidden">
           <motion.div
             variants={itemVariants}
-            className="relative w-full max-w-[240px] aspect-square rounded-2xl p-2 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700/50 group z-10 mx-auto xl:mx-0"
+            className="relative w-full max-w-[240px] aspect-square rounded-xl p-2 bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700/50 group z-10 mx-auto xl:mx-0"
           >
             <div className="w-full h-full rounded-xl overflow-hidden relative bg-slate-100 dark:bg-slate-900">
               <img
@@ -72,25 +72,25 @@ const ProfileHeader = ({ user, profile }) => {
               />
             </div>
 
-            <button className="absolute -bottom-3 -right-3 w-10 h-10 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:text-primary transition-colors shadow-sm z-20">
+            <button className="absolute -bottom-3 -right-3 w-10 h-12 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center hover:text-primary transition-colors shadow-sm z-20">
               <Camera size={18} />
             </button>
           </motion.div>
 
           {/* Core Status */}
           <motion.div variants={itemVariants} className="mt-8 w-full text-center xl:text-left z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-sm font-semibold tracking-wide mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-sm font-semibold tracking-normal mb-6">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
-              Actively Searching
+              Đang tìm cơ hội
             </div>
 
             <div className="flex flex-col gap-5 text-left">
               <div className="space-y-1">
-                <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500">
-                  Profile Completeness
+                <h3 className="text-sm font-semibold uppercase tracking-normal text-slate-500">
+                  Mức hoàn thiện hồ sơ
                 </h3>
                 <div className="flex items-center gap-3">
                   <div className="flex-1 max-w-[12rem] h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -107,10 +107,10 @@ const ProfileHeader = ({ user, profile }) => {
                 </div>
               </div>
               <div className="space-y-1">
-                <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500">
-                  Last Updated
+                <h3 className="text-sm font-semibold uppercase tracking-normal text-slate-500">
+                  Cập nhật gần nhất
                 </h3>
-                <span className="text-sm text-slate-700 dark:text-slate-300">2 days ago</span>
+                <span className="text-sm text-slate-700 dark:text-slate-300">2 ngày trước</span>
               </div>
             </div>
           </motion.div>
@@ -122,20 +122,20 @@ const ProfileHeader = ({ user, profile }) => {
             <motion.div variants={itemVariants} className="mb-10 text-center xl:text-left">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold mb-6 border border-slate-200 dark:border-slate-700">
                 <Award size={14} className="text-amber-500" />
-                Senior Level Professional
+                Nhân sự cấp cao
               </div>
 
-              <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 dark:text-white tracking-tight mb-4">
+              <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 dark:text-white tracking-normal mb-4">
                 {user?.fullName}
               </h1>
 
               <div className="flex flex-col sm:flex-row items-center gap-3 xl:justify-start justify-center text-slate-600 dark:text-slate-400">
-                <h2 className="text-xl sm:text-2xl font-medium tracking-tight">
-                  {profile?.title || 'Software Engineer'}
+                <h2 className="text-xl sm:text-2xl font-medium tracking-normal">
+                  {profile?.title || 'Kỹ sư phần mềm'}
                 </h2>
                 <span className="hidden sm:block w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600" />
                 <span className="text-sm">
-                  {profile?.yearsOfExperience || '5'} Years Experience
+                  {profile?.yearsOfExperience || '5'} năm kinh nghiệm
                 </span>
               </div>
             </motion.div>
@@ -147,10 +147,10 @@ const ProfileHeader = ({ user, profile }) => {
             >
               {[
                 { label: 'Email', value: user?.email, icon: Mail },
-                { label: 'Phone', value: profile?.phone || 'Not provided', icon: Phone },
+                { label: 'Điện thoại', value: profile?.phone || 'Chưa cung cấp', icon: Phone },
                 {
-                  label: 'Location',
-                  value: profile?.location || 'Ho Chi Minh City, VN',
+                  label: 'Địa điểm',
+                  value: profile?.location || 'TP. Hồ Chí Minh, Việt Nam',
                   icon: MapPin,
                 },
               ].map((item, idx) => (
@@ -160,7 +160,7 @@ const ProfileHeader = ({ user, profile }) => {
                 >
                   <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
                     <item.icon size={16} />
-                    <span className="text-sm uppercase tracking-wider font-semibold">
+                    <span className="text-sm uppercase tracking-normal font-semibold">
                       {item.label}
                     </span>
                   </div>
@@ -187,14 +187,14 @@ const ProfileHeader = ({ user, profile }) => {
                       href={social.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-primary transition-colors"
+                      className="w-10 h-12 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-primary transition-colors"
                       aria-label={social.label}
                     >
                       <social.icon size={18} />
                     </a>
                   ))
                 ) : (
-                  <span className="text-sm text-slate-400">No social links added</span>
+                  <span className="text-sm text-slate-400">Chưa thêm liên kết mạng xã hội</span>
                 )}
               </div>
             </div>
@@ -203,7 +203,7 @@ const ProfileHeader = ({ user, profile }) => {
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <button className="flex-1 sm:flex-none px-5 py-2.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium text-sm hover:bg-muted/35 dark:hover:bg-slate-700 transition-colors flex items-center justify-center gap-2">
                 <Zap size={16} className="text-primary" />
-                AI Analysis
+                Phân tích AI
               </button>
 
               <Link
@@ -211,7 +211,7 @@ const ProfileHeader = ({ user, profile }) => {
                 className="flex-1 sm:flex-none px-5 py-2.5 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-medium text-sm hover:bg-slate-800 dark:hover:bg-muted/55 transition-colors flex items-center justify-center gap-2"
               >
                 <Edit3 size={16} />
-                Edit Profile
+                Chỉnh sửa hồ sơ
               </Link>
             </div>
           </motion.div>

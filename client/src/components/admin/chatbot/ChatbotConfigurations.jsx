@@ -96,7 +96,7 @@ const ChatbotConfigurations = () => {
       )}
 
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-black text-foreground">Cấu hình chatbot</h2>
+        <h2 className="text-xl font-bold text-foreground">Cấu hình chatbot</h2>
         <div className="flex gap-3">
           <button
             onClick={fetchConfigurations}
@@ -118,8 +118,8 @@ const ChatbotConfigurations = () => {
       </div>
 
       {configSections.map((section) => (
-        <div key={section.title} className="rounded-2xl border border-border bg-card p-6">
-          <h3 className="mb-4 text-lg font-black text-foreground">{section.title}</h3>
+        <div key={section.title} className="rounded-xl border border-border bg-card p-6">
+          <h3 className="mb-4 text-lg font-bold text-foreground">{section.title}</h3>
           <div className="space-y-4">
             {section.configs.map((configKey) => {
               const config = configs[configKey];

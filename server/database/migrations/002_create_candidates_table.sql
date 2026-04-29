@@ -2,8 +2,8 @@
 -- Thông tin chi tiết ứng viên, phụ thuộc users
 
 CREATE TABLE IF NOT EXISTS candidates (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL UNIQUE,
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL UNIQUE,
     bio TEXT,
     experience_years INT,
     current_job_title VARCHAR(255),

@@ -4,7 +4,7 @@ import React from 'react';
 const SkeletonCard = ({ variant = 'default' }) => {
   if (variant === 'job') {
     return (
-      <div className="animate-pulse bg-white rounded-2xl border border-slate-100 p-6">
+      <div className="animate-pulse bg-white rounded-xl border border-slate-100 p-6">
         {/* Header */}
         <div className="flex items-start gap-4 mb-4">
           <div className="w-16 h-16 bg-slate-200 rounded-xl"></div>
@@ -39,7 +39,7 @@ const SkeletonCard = ({ variant = 'default' }) => {
 
   if (variant === 'stat') {
     return (
-      <div className="animate-pulse bg-white rounded-2xl border border-slate-100 p-6">
+      <div className="animate-pulse bg-white rounded-xl border border-slate-100 p-6">
         <div className="w-12 h-12 bg-slate-200 rounded-xl mb-4"></div>
         <div className="h-8 bg-slate-200 rounded w-20 mb-2"></div>
         <div className="h-4 bg-slate-200 rounded w-24"></div>
@@ -49,8 +49,8 @@ const SkeletonCard = ({ variant = 'default' }) => {
 
   if (variant === 'feature') {
     return (
-      <div className="animate-pulse bg-white rounded-2xl border border-slate-100 p-8">
-        <div className="w-14 h-14 bg-slate-200 rounded-2xl mb-6"></div>
+      <div className="animate-pulse bg-white rounded-xl border border-slate-100 p-8">
+        <div className="w-14 h-14 bg-slate-200 rounded-xl mb-6"></div>
         <div className="h-6 bg-slate-200 rounded w-3/4 mb-3"></div>
         <div className="space-y-2">
           <div className="h-3 bg-slate-200 rounded w-full"></div>
@@ -62,7 +62,7 @@ const SkeletonCard = ({ variant = 'default' }) => {
 
   // Default skeleton
   return (
-    <div className="animate-pulse bg-white rounded-2xl border border-slate-100 p-6">
+    <div className="animate-pulse bg-white rounded-xl border border-slate-100 p-6">
       <div className="h-48 bg-slate-200 rounded-xl mb-4"></div>
       <div className="h-5 bg-slate-200 rounded w-3/4 mb-2"></div>
       <div className="h-4 bg-slate-200 rounded w-1/2"></div>

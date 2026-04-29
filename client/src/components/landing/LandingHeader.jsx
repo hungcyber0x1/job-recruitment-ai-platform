@@ -68,7 +68,7 @@ const LandingHeader = () => {
         className={cn(
           'w-full max-w-7xl grid grid-cols-[auto_1fr_auto] items-center gap-4 px-5 transition-all duration-500 pointer-events-auto',
           navFloating
-            ? 'rounded-2xl border border-slate-200/90 bg-white/[0.97] py-3.5 shadow-[0_12px_42px_-14px_rgba(15,23,42,0.14)] backdrop-blur-xl'
+            ? 'rounded-xl border border-slate-200/90 bg-white/[0.97] py-3.5 shadow-[0_12px_42px_-14px_rgba(15,23,42,0.14)] backdrop-blur-xl'
             : 'border border-transparent bg-transparent py-5'
         )}
       >
@@ -76,7 +76,7 @@ const LandingHeader = () => {
           to="/"
           className="group shrink-0 transition-[transform,opacity] duration-200 hover:opacity-90 active:scale-[0.98]"
         >
-          <Logo className="h-14 w-auto" />
+          <Logo asLink={false} className="h-14 w-auto" />
         </Link>
 
         <div className="hidden lg:flex items-center justify-center gap-0.5 min-w-0">
@@ -163,10 +163,10 @@ const LandingHeader = () => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                   align="end"
-                  className="w-64 mt-2 p-2 border-border/50 shadow-premium rounded-2xl"
+                  className="w-64 mt-2 p-2 border-border/50 shadow-premium rounded-xl"
                 >
                   <div className="px-3 py-4 mb-2">
-                    <p className="text-base font-black tracking-tight text-foreground">
+                    <p className="text-base font-bold tracking-normal text-foreground">
                       {user?.first_name} {user?.last_name}
                     </p>
                     <p className="truncate text-base font-medium text-muted-foreground">
@@ -222,7 +222,7 @@ const LandingHeader = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="absolute top-20 left-4 right-4 bg-white border border-border shadow-premium rounded-3xl p-6 lg:hidden flex flex-col gap-4 pointer-events-auto"
+            className="absolute top-20 left-4 right-4 bg-white border border-border shadow-premium rounded-xl p-6 lg:hidden flex flex-col gap-4 pointer-events-auto"
           >
             <div className="flex flex-col gap-0.5">
               {navLinksCenter.map((link) => {
@@ -260,13 +260,13 @@ const LandingHeader = () => {
               <div className="grid grid-cols-1 gap-3 mt-3">
                 <Link
                   to="/login"
-                  className="py-4 text-center text-base font-semibold border border-border rounded-2xl hover:bg-muted/50"
+                  className="py-4 text-center text-base font-semibold border border-border rounded-xl hover:bg-muted/50"
                 >
                   Đăng nhập
                 </Link>
                 <Link
                   to="/register"
-                  className="landing-btn-cta rounded-2xl py-4 text-center text-base font-bold"
+                  className="landing-btn-cta rounded-xl py-4 text-center text-base font-bold"
                 >
                   Tuyển dụng ngay
                 </Link>

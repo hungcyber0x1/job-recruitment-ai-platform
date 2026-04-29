@@ -41,6 +41,10 @@
     --su: 160 84% 39%;
     --er: 0 84% 60%;
     --state-warning: 38 92% 50%;
+    --success: 142 71% 45%;
+    --warning: 45 93% 47%;
+    --danger: 0 84% 60%;
+    --neutral: 220 9% 46%;
     --urgent: 25 90% 48%;
     --urgent-muted: 25 95% 96%;
 
@@ -101,23 +105,40 @@
   }
 
   html {
-    /* Cỡ rem gốc ~8% lớn hơn 16px — toàn bộ text-/spacing dùng rem dễ đọc hơn */
-    font-size: 108%;
+    /* Keep the rem root stable; readability is controlled by the shared Tailwind font-size tokens. */
+    font-size: 112.5%;
+    /* 18px base for better readability */
     scroll-behavior: smooth;
     scroll-margin-top: 6rem;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    /* Font stack tối ưu cho tiếng Việt: Be Vietnam Pro → Roboto (hỗ trợ đầy đủ dấu tiếng Việt) → system fonts */
+    font-family: 'Be Vietnam Pro', 'Roboto', 'Nunito', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-kerning: normal;
+    font-feature-settings: 'kern' 1, 'liga' 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
   }
 
   * {
     @apply border-border;
   }
+
+  /* Prevent universal border from interfering with SVG elements in charts */
+  svg,
+  svg * {
+    border-width: 0 !important;
+  }
 }
 
 body {
-  @apply text-foreground antialiased;
+  @apply text-base text-foreground antialiased;
+  font-family: 'Be Vietnam Pro', 'Roboto', 'Nunito', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-kerning: normal;
+  font-feature-settings: 'kern' 1, 'liga' 1;
+  text-rendering: optimizeLegibility;
   background-color: hsl(var(--background));
   background-image:
     radial-gradient(ellipse 80% 50% at 50% -20%, rgba(var(--primary-shadow), 0.05), transparent),
@@ -125,19 +146,230 @@ body {
   background-attachment: fixed;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+/* Role dashboards readability layer: Admin, Recruiter, Candidate. */
+.app-readable {
+  font-size: 1.125rem;
+  line-height: 1.875rem;
+}
+
+.app-readable .text-xs {
+  font-size: 0.9375rem;
+  line-height: 1.375rem;
+}
+
+.app-readable .text-sm {
+  font-size: 1.0625rem;
+  line-height: 1.75rem;
+}
+
+.app-readable .text-base {
+  font-size: 1.125rem;
+  line-height: 1.875rem;
+}
+
+.app-readable .text-lg {
+  font-size: 1.3125rem !important;
+  line-height: 2rem !important;
+}
+
+.app-readable .text-xl {
+  font-size: 1.5625rem !important;
+  line-height: 2.25rem !important;
+}
+
+.app-readable .text-2xl {
+  font-size: 1.875rem !important;
+  line-height: 2.5rem !important;
+}
+
+.app-readable .text-3xl {
+  font-size: 2.25rem !important;
+  line-height: 2.75rem !important;
+}
+
+.app-readable .text-4xl {
+  font-size: 2.625rem !important;
+  line-height: 3.125rem !important;
+}
+
+.app-readable input,
+.app-readable select,
+.app-readable textarea {
+  font-size: 1.0625rem !important;
+  line-height: 1.75rem !important;
+}
+
+.app-readable button,
+.app-readable a[role='button'],
+.app-readable [role='button'] {
+  font-size: 1.0625rem;
+  line-height: 1.75rem;
+}
+
+.app-readable th,
+.app-readable td {
+  font-size: 1.0625rem;
+  line-height: 1.75rem;
+}
+
+/* Candidate account pages: one readable, predictable type scale across all nested routes. */
+.candidate-applications-typography {
+  font-size: 1rem;
+  line-height: 1.625rem;
+}
+
+.candidate-applications-typography [class*="text-[10px]"],
+.candidate-applications-typography [class*="text-[11px]"] {
+  font-size: 0.8125rem !important;
+  line-height: 1.25rem !important;
+}
+
+.candidate-applications-typography .text-xs,
+.candidate-applications-typography .text-xs[class] {
+  font-size: 0.875rem !important;
+  line-height: 1.375rem !important;
+}
+
+.candidate-applications-typography .text-sm,
+.candidate-applications-typography .text-sm[class] {
+  font-size: 0.96875rem !important;
+  line-height: 1.5625rem !important;
+}
+
+.candidate-applications-typography .text-base,
+.candidate-applications-typography .text-base[class] {
+  font-size: 1.0625rem !important;
+  line-height: 1.75rem !important;
+}
+
+.candidate-applications-typography .text-lg,
+.candidate-applications-typography .text-lg[class] {
+  font-size: 1.1875rem !important;
+  line-height: 1.875rem !important;
+}
+
+.candidate-applications-typography .text-xl,
+.candidate-applications-typography .text-xl[class] {
+  font-size: 1.3125rem !important;
+  line-height: 2rem !important;
+}
+
+.candidate-applications-typography .text-2xl,
+.candidate-applications-typography .text-2xl[class] {
+  font-size: 1.625rem !important;
+  line-height: 2.125rem !important;
+}
+
+.candidate-applications-typography .text-3xl,
+.candidate-applications-typography .text-3xl[class] {
+  font-size: 2rem !important;
+  line-height: 2.5rem !important;
+}
+
+.candidate-applications-typography .text-4xl,
+.candidate-applications-typography .text-5xl,
+.candidate-applications-typography .text-6xl {
+  font-size: 2.375rem !important;
+  line-height: 2.875rem !important;
+}
+
+.candidate-applications-typography h1,
+.candidate-applications-typography h1[class] {
+  font-size: 2rem !important;
+  line-height: 2.5rem !important;
+  letter-spacing: 0 !important;
+}
+
+@media (min-width: 640px) {
+
+  .candidate-applications-typography h1,
+  .candidate-applications-typography h1[class] {
+    font-size: 2.125rem !important;
+    line-height: 2.625rem !important;
+  }
+}
+
+.candidate-applications-typography h2,
+.candidate-applications-typography h2[class],
+.candidate-applications-typography h3,
+.candidate-applications-typography h3[class] {
+  letter-spacing: 0 !important;
+}
+
+.candidate-applications-typography input,
+.candidate-applications-typography select,
+.candidate-applications-typography textarea,
+.candidate-applications-typography button {
+  font-size: 1.0625rem;
+  line-height: 1.625rem;
+}
+
+/*
+ * Recharts Reset:
+ * Protecing SVG data labels from forced readability overrides 
+ * which cause alignment issues (lệch dòng).
+ */
+.app-readable .recharts-surface text,
+.app-readable .recharts-legend-item-text,
+.app-readable .recharts-tooltip-label,
+.app-readable .recharts-tooltip-item,
+.app-readable .recharts-default-tooltip * {
+  font-size: inherit !important;
+  line-height: normal !important;
+  letter-spacing: normal !important;
+}
+
+/* Preserve expected control sizes instead of globally inflating small icons. */
+.app-readable :not(.recharts-surface) .h-8 {
+  min-height: 2.5rem;
+}
+
+.app-readable :not(.recharts-surface) .h-9 {
+  min-height: 2.75rem;
+}
+
+.app-readable :not(.recharts-surface) .h-10 {
+  min-height: 3rem;
+}
+
+.app-readable :not(.recharts-surface) .h-11 {
+  min-height: 3.25rem;
+}
+
+.app-readable .w-8.h-8,
+.app-readable .h-8.w-8 {
+  min-width: 2.5rem;
+}
+
+.app-readable .w-9.h-9,
+.app-readable .h-9.w-9 {
+  min-width: 2.75rem;
+}
+
+.app-readable .w-10.h-10,
+.app-readable .h-10.w-10 {
+  min-width: 3rem;
+}
+
+.app-readable .rounded-xl.border.bg-white,
+.app-readable .premium-card,
+.app-readable .app-panel,
+.app-readable .data-table-shell {
+  font-size: 1.0625rem;
+  line-height: 1.75rem;
+}
+
+.app-readable .rounded-xl.border.bg-white.p-4,
+.app-readable .premium-card,
+.app-readable .app-panel {
+  padding: 1.25rem !important;
 }
 
 @keyframes marquee {
   0% {
     transform: translateX(0%);
   }
+
   100% {
     transform: translateX(calc(-100% - 1.5rem));
   }
@@ -147,6 +379,7 @@ h6 {
   0% {
     transform: translateX(calc(-100% - 1.5rem));
   }
+
   100% {
     transform: translateX(0%);
   }
@@ -175,17 +408,93 @@ h3,
 h4,
 h5,
 h6 {
-  @apply text-foreground tracking-tight;
-  font-family: 'Inter', system-ui, sans-serif;
+  @apply text-foreground tracking-normal;
+  font-family: 'Be Vietnam Pro', 'Roboto', 'Nunito', system-ui, sans-serif;
+  font-kerning: normal;
+  font-feature-settings: 'kern' 1, 'liga' 1;
+}
+
+h1 {
+  @apply text-4xl lg:text-5xl font-bold;
+  line-height: 1.2;
+}
+
+h2 {
+  @apply text-3xl lg:text-4xl font-bold;
+  line-height: 1.25;
+}
+
+h3 {
+  @apply text-2xl lg:text-3xl font-semibold;
+  line-height: 1.3;
+}
+
+h4 {
+  @apply text-xl lg:text-2xl font-semibold;
+  line-height: 1.4;
+}
+
+h5 {
+  @apply text-lg lg:text-xl font-medium;
+  line-height: 1.5;
+}
+
+h6 {
+  @apply text-base lg:text-lg font-medium;
+  line-height: 1.5;
 }
 
 @layer components {
+  .ds-page-title {
+    @apply text-4xl font-bold tracking-normal text-foreground;
+  }
+
+  .ds-section-title {
+    @apply text-3xl font-semibold tracking-normal text-foreground;
+  }
+
+  .ds-card-title {
+    @apply text-xl font-semibold tracking-normal text-foreground;
+  }
+
+  .ds-body {
+    @apply text-base leading-6 text-muted-foreground;
+  }
+
+  .ds-caption {
+    @apply text-sm font-medium leading-5 text-muted-foreground;
+  }
+
+  .ds-label {
+    @apply text-base font-semibold leading-5 text-foreground;
+  }
+
+  .ds-card {
+    @apply rounded-lg border border-border bg-card p-5 text-card-foreground shadow-sm transition-colors duration-200 ease-out;
+  }
+
+  .ds-card-hover {
+    @apply hover:border-primary/30 hover:shadow-md;
+  }
+
+  .ds-input {
+    @apply h-12 rounded-lg border border-input bg-background px-4 py-3 text-base text-foreground placeholder:text-muted-foreground transition-colors duration-200 focus-visible:border-primary/40 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .ds-badge {
+    @apply inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-semibold leading-5 transition-colors duration-200;
+  }
+
+  .ds-icon-button {
+    @apply inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors duration-200 hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+
   .premium-card {
-    @apply bg-card border border-border/40 shadow-[0_1px_3px_rgba(0, 0, 0, 0.04)] rounded-2xl transition-all duration-300;
+    @apply rounded-lg border border-border bg-card p-5 text-card-foreground shadow-sm transition-colors duration-200 ease-out;
   }
 
   .premium-card:hover {
-    @apply border-primary/40 ring-2 ring-primary/10 shadow-[0_16px_40px_-12px_rgba(var(--primary-shadow), 0.12)];
+    @apply border-primary/30 shadow-md;
   }
 
   .glass-card {
@@ -196,16 +505,16 @@ h6 {
   }
 
   .stat-number {
-    @apply text-3xl lg:text-4xl font-extrabold text-foreground tracking-tight leading-none;
+    @apply text-3xl lg:text-4xl font-extrabold text-foreground tracking-normal leading-none;
     font-variant-numeric: tabular-nums;
   }
 
   .section-badge {
-    @apply text-sm font-semibold text-primary uppercase tracking-wider;
+    @apply text-sm font-semibold text-primary uppercase tracking-normal;
   }
 
   .section-heading {
-    @apply text-4xl md:text-6xl font-extrabold text-foreground tracking-tighter leading-[0.95];
+    @apply text-4xl md:text-5xl font-bold text-foreground tracking-normal leading-tight;
   }
 
   .section-heading-muted {
@@ -217,7 +526,7 @@ h6 {
   }
 
   .text-caption {
-    @apply text-muted-foreground;
+    @apply text-xs leading-4 text-muted-foreground;
   }
 
   .text-subtle {
@@ -229,7 +538,7 @@ h6 {
    * Cấu trúc: .data-table-shell > .data-table-scroll > table.data-table
    */
   .data-table-shell {
-    @apply overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-sm;
+    @apply overflow-hidden rounded-lg border border-border bg-card text-card-foreground shadow-sm;
   }
 
   .data-table-scroll {
@@ -241,11 +550,11 @@ h6 {
   }
 
   .data-table thead tr {
-    @apply border-b border-primary/10 bg-secondary;
+    @apply border-b border-border bg-muted/50;
   }
 
   .data-table thead th {
-    @apply px-5 py-3.5 text-start align-middle text-sm font-bold uppercase tracking-wider text-secondary-foreground/90;
+    @apply px-5 py-3.5 text-sm font-semibold uppercase text-muted-foreground;
   }
 
   .data-table thead th.text-center {
@@ -298,38 +607,247 @@ h6 {
     @apply transition-colors duration-200 ease-out hover:text-primary;
   }
 
-  /**
-   * Unified Card Hover Effect
-   * Applies a dark green border and text highlight on hover across all cards.
-   */
+  /* --- Unified Premium Hover System --- */
   .card-premium-hover {
-    @apply transition-all duration-300 hover:shadow-xl hover:ring-2 hover:ring-primary/20 hover:border-primary/40;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    @apply transition-all duration-300 ease-out;
   }
 
   .card-premium-hover:hover {
-    box-shadow: 0 20px 40px -12px rgba(var(--primary-shadow), 0.12);
+    @apply -translate-y-1 border-primary/30 shadow-xl shadow-emerald-500/10;
   }
 
   .card-premium-hover:hover h1,
   .card-premium-hover:hover h2,
   .card-premium-hover:hover h3,
   .card-premium-hover:hover h4 {
-    @apply text-primary transition-colors duration-300;
+    @apply text-primary transition-colors duration-200 ease-out;
+  }
+
+  .glass-premium {
+    @apply bg-white/70 dark:bg-slate-950/70 backdrop-blur-xl border border-white/40 dark:border-white/5;
+    box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.03);
+  }
+
+  /**
+   * =============================================
+   * UNIFIED HOVER SYSTEM
+   * Đồng nhất cho: Admin, Nhà tuyển dụng, Ứng viên
+   * =============================================
+   */
+
+  /* --- Sidebar Navigation Hover --- */
+  .sidebar-nav-item {
+    @apply flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-slate-400 transition-colors duration-200;
+  }
+
+  .sidebar-nav-item:hover {
+    @apply bg-white/5 text-slate-200;
+  }
+
+  .sidebar-nav-item.active {
+    @apply bg-primary/10 text-primary;
+  }
+
+  .sidebar-nav-icon {
+    @apply transition-transform duration-200;
+  }
+
+  .sidebar-nav-item:hover .sidebar-nav-icon {
+    @apply text-slate-200;
+  }
+
+  /* --- Table Row Hover --- */
+  .table-row-hover {
+    @apply transition-colors duration-200 ease-out;
+  }
+
+  .table-row-hover:hover {
+    @apply bg-muted/35;
+  }
+
+  /* Admin-specific table row */
+  .table-row-hover-admin:hover {
+    @apply bg-muted/35;
+  }
+
+  /* --- Card Hover --- */
+  .card-hover {
+    @apply rounded-lg border border-border bg-card p-5 text-card-foreground shadow-sm transition-colors duration-200 ease-out;
+  }
+
+  .card-hover:hover {
+    @apply border-primary/30 shadow-md;
+  }
+
+  /* --- Button Hover --- */
+  .btn-hover-primary {
+    @apply rounded-lg bg-primary font-semibold text-primary-foreground transition-colors duration-200;
+  }
+
+  .btn-hover-primary:hover {
+    @apply bg-primary/90;
+  }
+
+  .btn-hover-secondary {
+    @apply rounded-lg border border-border bg-card font-semibold text-foreground transition-colors duration-200;
+  }
+
+  .btn-hover-secondary:hover {
+    @apply border-primary/25 bg-muted/60;
+  }
+
+  .btn-hover-ghost {
+    @apply rounded-lg text-muted-foreground transition-colors duration-200;
+  }
+
+  .btn-hover-ghost:hover {
+    @apply bg-muted/60 text-foreground;
+  }
+
+  .btn-hover-danger {
+    @apply transition-all duration-200 rounded-lg text-muted-foreground;
+  }
+
+  .btn-hover-danger:hover {
+    @apply bg-danger/10 text-danger;
+  }
+
+  /* --- Icon Button Hover --- */
+  .icon-btn {
+    @apply rounded-lg p-2 text-muted-foreground transition-colors duration-200;
+  }
+
+  .icon-btn:hover {
+    @apply bg-muted/60 text-foreground;
+  }
+
+  .icon-btn-primary {
+    @apply transition-all duration-200 rounded-lg p-2 text-primary;
+  }
+
+  .icon-btn-primary:hover {
+    @apply bg-primary/10;
+  }
+
+  /* --- Link Hover --- */
+  .link-hover {
+    @apply transition-colors duration-200;
+  }
+
+  .link-hover:hover {
+    @apply text-primary;
+  }
+
+  /* --- List Item Hover --- */
+  .list-item-hover {
+    @apply transition-all duration-200 rounded-lg;
+  }
+
+  .list-item-hover:hover {
+    @apply bg-muted/35;
+  }
+
+  /* --- Dropdown/Menu Item Hover --- */
+  .dropdown-item {
+    @apply flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm transition-colors duration-200 text-muted-foreground cursor-pointer;
+  }
+
+  .dropdown-item:hover {
+    @apply bg-muted/55 text-foreground;
+  }
+
+  .dropdown-item-primary:hover {
+    @apply bg-primary/10 text-primary;
+  }
+
+  .dropdown-item-danger:hover {
+    @apply bg-danger/10 text-danger;
+  }
+
+  /* --- Focus States (Unified) --- */
+  .focus-state {
+    @apply outline-none transition-all duration-200;
+  }
+
+  .focus-state:focus-visible {
+    @apply ring-2 ring-primary/20 ring-offset-2 ring-offset-background;
+  }
+
+  .focus-state-input {
+    @apply h-11 rounded-lg border border-input bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-colors duration-200;
+  }
+
+  .focus-state-input:focus {
+    @apply border-primary/40 ring-4 ring-primary/10;
+  }
+
+  /* --- Badge/Tab Hover --- */
+  .badge-hover {
+    @apply rounded-full px-2.5 py-1 text-xs font-semibold transition-colors duration-200;
+  }
+
+  .badge-hover:hover {
+    @apply bg-primary/10 text-primary;
+  }
+
+  /* --- Avatar Hover --- */
+  .avatar-hover {
+    @apply transition-all duration-200;
+  }
+
+  .avatar-hover:hover {
+    @apply scale-105 ring-2 ring-primary/20;
+  }
+
+  /* --- Chip/Tag Hover --- */
+  .chip-hover {
+    @apply rounded-full border border-border bg-muted/30 px-2.5 py-1 text-xs font-semibold transition-colors duration-200;
+  }
+
+  .chip-hover:hover {
+    @apply border-primary/30 bg-primary/5 text-primary;
+  }
+
+  /* --- Stat Card Hover --- */
+  .stat-card-hover {
+    @apply transition-colors duration-200;
+  }
+
+  .stat-card-hover:hover {
+    @apply border-primary/30 shadow-md;
   }
 }
 
 @layer utilities {
+
+  /* Font tiếng Việt - đảm bảo hiển thị đúng dấu */
+  .font-vietnam {
+    font-family: 'Be Vietnam Pro', 'Roboto', 'Nunito', system-ui, sans-serif;
+    font-kerning: normal;
+    font-feature-settings: 'kern' 1, 'liga' 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-smooth: always;
+  }
+
+  /* Kiểm soát dấu tiếng Việt - đảm bảo letter-spacing không phá vỡ dấu */
+  .viet-text {
+    -webkit-text-combine-upright: none;
+    text-combine-upright: none;
+    text-transform: none;
+    letter-spacing: 0.01em;
+    word-spacing: 0.02em;
+  }
+
   /* Marquee fade: mask thay vì overlay – không đè trắng lên chữ */
   .marquee-fade-edges {
     mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
-    -webkit-mask-image: linear-gradient(
-      to right,
-      transparent 0%,
-      black 8%,
-      black 92%,
-      transparent 100%
-    );
+    -webkit-mask-image: linear-gradient(to right,
+        transparent 0%,
+        black 8%,
+        black 92%,
+        transparent 100%);
     mask-size: 100% 100%;
   }
 
@@ -373,7 +891,7 @@ h6 {
   }
 
   .hover-lift {
-    @apply transition-all duration-300 hover:-translate-y-0.5;
+    @apply transition-colors duration-200;
   }
 
   .focus-ring {
@@ -386,19 +904,17 @@ h6 {
 
   .app-shell {
     @apply bg-slate-50 text-slate-900;
-    background-image: radial-gradient(
-      ellipse at top left,
-      rgba(16, 185, 129, 0.05),
-      transparent 50%
-    );
+    background-image: radial-gradient(ellipse at top left,
+        rgba(16, 185, 129, 0.05),
+        transparent 50%);
   }
 
   .app-panel {
-    @apply border border-border/40 bg-white text-slate-900 shadow-[0_1px_3px_rgba(0, 0, 0, 0.04)] backdrop-blur-sm rounded-2xl;
+    @apply rounded-lg border border-border bg-card p-5 text-card-foreground shadow-sm;
   }
 
   .app-panel:hover {
-    @apply border-emerald-500/40 ring-2 ring-emerald-500/10 shadow-[0_8px_24px_-8px_rgba(16, 185, 129, 0.12)];
+    @apply border-primary/30 shadow-md;
   }
 
   .app-header {
@@ -406,12 +922,256 @@ h6 {
   }
 
   .app-input {
-    @apply border border-border/60 bg-white text-slate-900 placeholder:text-slate-400 rounded-xl;
+    @apply h-11 rounded-lg border border-input bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground;
   }
 
   .app-input:focus-visible,
   .app-input:focus {
-    @apply border-emerald-500/40 ring-4 ring-emerald-500/10 outline-none;
+    @apply border-primary/40 ring-4 ring-primary/10 outline-none;
+  }
+
+  .ds-surface-card {
+    @apply rounded-2xl border border-border/70 bg-card text-card-foreground shadow-sm duration-200;
+    transition-property: border-color, box-shadow, transform;
+    box-shadow: 0 14px 32px -24px rgba(15, 23, 42, 0.24);
+  }
+
+  .ds-surface-card:hover {
+    @apply border-primary/20 shadow-md;
+    transform: translateY(-1px);
+  }
+
+  .ds-page-header {
+    @apply mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between;
+  }
+
+  .ds-page-header-main {
+    @apply min-w-0 flex-1;
+  }
+
+  .ds-page-heading {
+    @apply text-3xl font-bold tracking-tight text-foreground;
+  }
+
+  .ds-page-description {
+    @apply mt-2 max-w-3xl text-sm leading-6 text-muted-foreground;
+  }
+
+  .ds-page-actions {
+    @apply flex shrink-0 flex-wrap items-center gap-2;
+  }
+
+  .ds-page-icon {
+    @apply inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary;
+  }
+
+  .role-dashboard-shell {
+    @apply bg-slate-50/80 text-foreground;
+    background-image:
+      radial-gradient(circle at top left, rgba(16, 185, 129, 0.06), transparent 32%),
+      radial-gradient(circle at top right, rgba(20, 184, 166, 0.04), transparent 28%),
+      linear-gradient(180deg, rgba(248, 250, 252, 0.96), rgba(255, 255, 255, 0.98));
+  }
+
+  .role-dashboard-topbar {
+    @apply sticky top-0 z-40 flex h-16 items-center gap-4 border-b border-border/80 bg-white/90 px-4 shadow-sm backdrop-blur-xl md:px-6;
+  }
+
+  .role-dashboard-main {
+    @apply flex-1 p-4 lg:p-6;
+  }
+
+  .role-dashboard-content {
+    @apply mx-auto w-full max-w-[1600px] space-y-6;
+  }
+
+  .role-topbar-icon {
+    @apply inline-flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-colors duration-200 hover:bg-muted/60 hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 focus:ring-offset-background;
+  }
+
+  .role-topbar-search {
+    @apply h-11 w-full max-w-md items-center gap-3 rounded-xl border border-border bg-card/80 px-4 text-sm font-medium text-muted-foreground shadow-sm transition-colors duration-200 hover:border-primary/20 hover:bg-card hover:text-foreground;
+  }
+
+  .role-topbar-kbd,
+  .role-command-palette-kbd {
+    @apply inline-flex h-6 items-center gap-1 rounded-lg border border-border bg-background px-2 text-[11px] font-semibold uppercase tracking-normal text-muted-foreground;
+  }
+
+  .role-topbar-notification-dot {
+    @apply absolute -right-1 -top-1 inline-flex min-h-[20px] min-w-[20px] items-center justify-center rounded-full border-2 border-white bg-danger px-1 text-[10px] font-semibold leading-none text-white;
+  }
+
+  .role-sidebar-shell {
+    @apply border-r border-white/10 bg-slate-950;
+    background-image: linear-gradient(180deg, #0b1120 0%, #08111e 48%, #070d18 100%);
+    box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.03);
+  }
+
+  .role-sidebar-top {
+    @apply border-b border-white/10;
+  }
+
+  .role-sidebar-compact-stack {
+    @apply flex flex-col items-center gap-2;
+  }
+
+  .role-sidebar-brand-icon,
+  .role-sidebar-compact-action {
+    @apply inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-slate-900 text-slate-200 transition-colors duration-200 hover:border-white/20 hover:bg-slate-800 hover:text-white;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+
+  .role-sidebar-brand-icon {
+    @apply bg-primary text-primary-foreground hover:bg-primary/95 hover:text-primary-foreground;
+  }
+
+  .role-sidebar-brand-panel {
+    @apply block rounded-2xl border border-white/10 p-3.5 transition-colors duration-200 hover:border-white/20;
+    background:
+      linear-gradient(180deg, rgba(15, 23, 42, 0.88), rgba(15, 23, 42, 0.64)),
+      rgba(255, 255, 255, 0.03);
+    box-shadow:
+      0 18px 36px -28px rgba(2, 6, 23, 0.85),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .role-sidebar-brand-panel:hover {
+    background:
+      linear-gradient(180deg, rgba(15, 23, 42, 0.94), rgba(15, 23, 42, 0.7)),
+      rgba(255, 255, 255, 0.04);
+  }
+
+  .role-sidebar-brand-head {
+    @apply flex items-start gap-3;
+  }
+
+  .role-sidebar-brand-mark {
+    @apply flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white p-2 shadow-sm;
+  }
+
+  .role-sidebar-section-eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400;
+  }
+
+  .role-sidebar-brand-name {
+    @apply text-sm font-semibold tracking-[0.02em] text-slate-100;
+  }
+
+  .role-sidebar-brand-body {
+    @apply mt-3 border-t border-white/10 pt-3;
+  }
+
+  .role-sidebar-brand-title {
+    @apply text-[15px] font-semibold tracking-[-0.01em] text-white;
+  }
+
+  .role-sidebar-brand-description {
+    @apply pt-1 text-[12.5px] font-medium leading-5 text-slate-400;
+  }
+
+  .role-sidebar-profile-card,
+  .role-sidebar-command-trigger {
+    @apply flex items-center gap-3 rounded-xl border border-white/10 px-3 py-2.5 transition-colors duration-200 hover:border-white/20;
+    background-color: rgba(255, 255, 255, 0.03);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .role-sidebar-role-chip {
+    @apply inline-flex shrink-0 items-center rounded-md border border-white/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-300;
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .role-sidebar-command-trigger {
+    @apply mt-3 w-full text-left;
+  }
+
+  .role-sidebar-profile-card:hover,
+  .role-sidebar-command-trigger:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .role-sidebar-command-icon {
+    @apply inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-slate-900 text-slate-300;
+  }
+
+  .role-sidebar-divider {
+    @apply mt-4 h-px bg-white/10;
+  }
+
+  .role-sidebar-group-shell {
+    @apply space-y-2;
+  }
+
+  .role-sidebar-group-heading {
+    @apply flex items-center gap-3 px-2;
+  }
+
+  .role-sidebar-group-label {
+    @apply text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500;
+  }
+
+  .role-sidebar-group-rule {
+    @apply h-px flex-1 bg-gradient-to-r from-white/10 to-transparent;
+  }
+
+  .role-sidebar-nav-item {
+    @apply relative flex items-center rounded-xl border border-transparent py-2.5 text-sm font-medium text-slate-400 transition-colors duration-200 hover:text-slate-100;
+  }
+
+  .role-sidebar-nav-item-active {
+    @apply border-primary/20 text-primary;
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.12), rgba(16, 185, 129, 0.05));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+
+  .role-sidebar-nav-item-active::before {
+    content: '';
+    position: absolute;
+    left: 0.6rem;
+    top: 50%;
+    height: 1.1rem;
+    width: 2px;
+    transform: translateY(-50%);
+    border-radius: 9999px;
+    background-color: rgba(16, 185, 129, 0.95);
+  }
+
+  .role-sidebar-nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .role-sidebar-nav-icon-box {
+    @apply inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-slate-900 transition-colors duration-200;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+
+  .role-sidebar-nav-icon-box-active {
+    @apply border-primary/20 bg-primary/10;
+  }
+
+  .role-sidebar-nav-label {
+    @apply block truncate text-[13.5px] font-medium tracking-[-0.01em];
+  }
+
+  .role-sidebar-badge {
+    @apply inline-flex min-w-[24px] items-center justify-center rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary;
+  }
+
+  .role-sidebar-footer {
+    @apply border-t border-white/10 p-3;
+  }
+
+  .role-sidebar-profile-avatar {
+    @apply flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-slate-900;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+
+  .role-dashboard-shell :is(div, section, article, aside).rounded-xl.border.bg-white,
+  .role-dashboard-shell :is(div, section, article, aside).rounded-2xl.border.bg-white,
+  .role-dashboard-shell :is(div, section, article, aside).rounded-3xl.border.bg-white {
+    border-color: hsl(var(--border) / 0.72);
+    box-shadow: 0 14px 32px -24px rgba(15, 23, 42, 0.22);
   }
 
   /* Noise chỉ nằm trên nền, không đè lên chữ (trước đây z-50 khiến toàn trang bị “cát” trên typography) */
@@ -431,25 +1191,24 @@ h6 {
 
   /* Landing page design system - màu chữ, button, hover, effects */
   .landing-card {
-    @apply bg-white border rounded-2xl transition-all duration-300;
+    @apply rounded-lg border bg-card transition-colors duration-200;
     border-color: hsl(var(--border) / 0.5);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   }
 
   .landing-card:hover {
     border-color: hsl(var(--primary) / 0.4);
-    box-shadow: 0 16px 40px -12px rgba(var(--primary-shadow), 0.12);
-    @apply ring-2 ring-primary/10;
+    box-shadow: 0 12px 28px -18px rgba(15, 23, 42, 0.35);
   }
 
   .landing-badge {
-    @apply inline-flex items-center gap-2 px-4 py-2 rounded-full border text-primary text-sm font-semibold;
+    @apply inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold text-primary;
     background-color: hsl(var(--primary) / 0.08);
     border-color: hsl(var(--primary) / 0.12);
   }
 
   .landing-heading {
-    @apply text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground tracking-tighter leading-[0.95] text-balance;
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold text-foreground tracking-normal leading-tight text-balance;
   }
 
   .landing-heading-muted {
@@ -470,11 +1229,9 @@ h6 {
 
   .landing-btn-primary {
     @apply inline-flex items-center justify-center gap-2.5 text-primary-foreground font-semibold rounded-xl transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98] landing-focus;
-    background: linear-gradient(
-      180deg,
-      hsl(var(--landing-primary-top)) 0%,
-      hsl(var(--landing-primary-bottom)) 100%
-    );
+    background: linear-gradient(180deg,
+        hsl(var(--landing-primary-top)) 0%,
+        hsl(var(--landing-primary-bottom)) 100%);
     box-shadow:
       0 8px 30px -5px rgba(var(--primary-shadow), 0.28),
       inset 0 1px 0 0 hsl(0 0% 100% / 0.12);
@@ -502,7 +1259,7 @@ h6 {
 
   /* Thẻ nổi depth (glass / layering) */
   .landing-float-card {
-    @apply rounded-3xl border border-white/90 bg-white/95 backdrop-blur-xl;
+    @apply rounded-xl border border-white/90 bg-white/95 backdrop-blur-xl;
     box-shadow:
       0 32px 64px -28px rgba(15, 23, 42, 0.14),
       0 0 0 1px rgba(15, 23, 42, 0.04);
@@ -549,43 +1306,37 @@ h6 {
    * Trái giữ #fff đặc cho chữ; giữa sụt alpha nhanh; phải hoàn toàn trong suốt.
    */
   .hero-gradient-overlay {
-    background: linear-gradient(
-      90deg,
-      #ffffff 0%,
-      #ffffff 26%,
-      rgba(255, 255, 255, 0.42) 34%,
-      rgba(255, 255, 255, 0.06) 40%,
-      rgba(255, 255, 255, 0) 44%,
-      transparent 100%
-    );
+    background: linear-gradient(90deg,
+        #ffffff 0%,
+        #ffffff 26%,
+        rgba(255, 255, 255, 0.42) 34%,
+        rgba(255, 255, 255, 0.06) 40%,
+        rgba(255, 255, 255, 0) 44%,
+        transparent 100%);
     pointer-events: none;
   }
 
   @media (min-width: 1024px) {
     .hero-gradient-overlay {
-      background: linear-gradient(
-        90deg,
-        #ffffff 0%,
-        #ffffff 24%,
-        rgba(255, 255, 255, 0.38) 33%,
-        rgba(255, 255, 255, 0.04) 39%,
-        rgba(255, 255, 255, 0) 43%,
-        transparent 100%
-      );
+      background: linear-gradient(90deg,
+          #ffffff 0%,
+          #ffffff 24%,
+          rgba(255, 255, 255, 0.38) 33%,
+          rgba(255, 255, 255, 0.04) 39%,
+          rgba(255, 255, 255, 0) 43%,
+          transparent 100%);
     }
   }
 
   @media (max-width: 1023px) {
     .hero-gradient-overlay {
-      background: linear-gradient(
-        90deg,
-        #ffffff 0%,
-        #ffffff 32%,
-        rgba(255, 255, 255, 0.4) 42%,
-        rgba(255, 255, 255, 0.05) 48%,
-        rgba(255, 255, 255, 0) 52%,
-        transparent 100%
-      );
+      background: linear-gradient(90deg,
+          #ffffff 0%,
+          #ffffff 32%,
+          rgba(255, 255, 255, 0.4) 42%,
+          rgba(255, 255, 255, 0.05) 48%,
+          rgba(255, 255, 255, 0) 52%,
+          transparent 100%);
     }
   }
 
@@ -597,14 +1348,12 @@ h6 {
   /** Chân hero: tan vào #f9fafb (gradient only) */
   .hero-bottom-fade {
     height: min(42vh, 420px);
-    background: linear-gradient(
-      to bottom,
-      rgba(249, 250, 251, 0) 0%,
-      rgba(249, 250, 251, 0.25) 28%,
-      rgba(249, 250, 251, 0.65) 58%,
-      rgba(249, 250, 251, 0.92) 82%,
-      #f9fafb 100%
-    );
+    background: linear-gradient(to bottom,
+        rgba(249, 250, 251, 0) 0%,
+        rgba(249, 250, 251, 0.25) 28%,
+        rgba(249, 250, 251, 0.65) 58%,
+        rgba(249, 250, 251, 0.92) 82%,
+        #f9fafb 100%);
     mask-image: linear-gradient(to bottom, transparent 0%, black 22%, black 100%);
     -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 22%, black 100%);
   }
@@ -621,6 +1370,7 @@ h6 {
   }
 
   @keyframes hero-network-drift-column {
+
     0%,
     100% {
       transform: rotateX(9deg) rotateY(-14deg) rotateZ(-2deg) translateZ(0);
@@ -639,15 +1389,14 @@ h6 {
     right: -10%;
     height: 42%;
     z-index: 8;
-    background: radial-gradient(
-      ellipse 75% 50% at 50% 0%,
-      rgba(0, 166, 133, 0.16),
-      transparent 72%
-    );
+    background: radial-gradient(ellipse 75% 50% at 50% 0%,
+        rgba(0, 166, 133, 0.16),
+        transparent 72%);
     opacity: 0.9;
   }
 
   @keyframes hero-network-drift {
+
     0%,
     100% {
       transform: rotateX(12deg) rotateY(-18deg) rotateZ(-3deg) translateZ(0) translateY(0);
@@ -673,12 +1422,10 @@ h6 {
   /* Glass + bóng khuếch tán — thẻ “bay” trên nền */
   .hero-card-float {
     @apply rounded-[14px] border border-white/80;
-    background: linear-gradient(
-      155deg,
-      rgba(255, 255, 255, 0.92) 0%,
-      rgba(255, 255, 255, 0.78) 38%,
-      rgba(252, 254, 253, 0.85) 100%
-    );
+    background: linear-gradient(155deg,
+        rgba(255, 255, 255, 0.92) 0%,
+        rgba(255, 255, 255, 0.78) 38%,
+        rgba(252, 254, 253, 0.85) 100%);
     backdrop-filter: blur(24px) saturate(1.2);
     -webkit-backdrop-filter: blur(24px) saturate(1.2);
     box-shadow:
@@ -702,6 +1449,7 @@ h6 {
   }
 
   @keyframes hero-card-levitate-a {
+
     0%,
     100% {
       transform: rotateX(12deg) rotateY(-24deg) translateZ(80px) translateY(0);
@@ -713,6 +1461,7 @@ h6 {
   }
 
   @keyframes hero-card-levitate-b {
+
     0%,
     100% {
       transform: rotateX(-6deg) rotateY(18deg) translateZ(60px) translateY(0);
@@ -810,7 +1559,7 @@ h6 {
 
   /* Live badge */
   .live-badge {
-    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold;
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold;
     background: hsl(var(--primary) / 0.1);
     border: 1px solid hsl(var(--primary) / 0.2);
     color: hsl(var(--primary));
@@ -849,11 +1598,20 @@ h6 {
 
   /* Trang công cụ AI công khai (/ai-cv-scanner, /salary-predictor) */
   .ai-tool-panel {
-    @apply rounded-2xl border border-border/50 bg-card text-foreground shadow-[0_12px_40px_-8px_rgba(15,23,42,0.08)] dark:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.35)];
+    @apply rounded-xl border border-border/50 bg-card text-foreground;
+    box-shadow: 0 12px 40px -8px rgba(15, 23, 42, 0.08);
+  }
+
+  .dark .ai-tool-panel {
+    box-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.35);
   }
 
   .ai-tool-panel--lift {
-    @apply transition-all duration-300 hover:border-primary/20 hover:shadow-[0_16px_48px_-12px_rgba(16,185,129,0.1)];
+    @apply transition-all duration-300 hover:border-primary/20;
+  }
+
+  .ai-tool-panel--lift:hover {
+    box-shadow: 0 16px 48px -12px rgba(16, 185, 129, 0.1);
   }
 }
 
@@ -877,11 +1635,9 @@ button {
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: radial-gradient(
-    400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(var(--primary-shadow), 0.18),
-    transparent 40%
-  );
+  background: radial-gradient(400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(var(--primary-shadow), 0.18),
+      transparent 40%);
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
@@ -897,6 +1653,7 @@ button {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -930,6 +1687,7 @@ button {
 }
 
 @keyframes float-y {
+
   0%,
   100% {
     transform: translateY(0px);
@@ -953,6 +1711,7 @@ button {
 }
 
 @keyframes scroll-bounce {
+
   0%,
   100% {
     transform: translateY(0);
@@ -1013,6 +1772,37 @@ button {
   animation: shimmer 2s infinite;
 }
 
+/* Skeleton Loading System */
+.skeleton {
+  @apply relative overflow-hidden bg-muted/40 rounded-lg;
+}
+
+.skeleton::after {
+  content: '';
+  @apply absolute inset-0 -translate-x-full;
+  background: linear-gradient(90deg,
+      transparent 0%,
+      hsl(var(--primary) / 0.05) 50%,
+      transparent 100%);
+  animation: shimmer 2s infinite;
+}
+
+.skeleton-text {
+  @apply h-4 w-full skeleton;
+}
+
+.skeleton-title {
+  @apply h-8 w-3/4 skeleton;
+}
+
+.skeleton-avatar {
+  @apply size-12 rounded-full skeleton;
+}
+
+.skeleton-image {
+  @apply aspect-video w-full skeleton;
+}
+
 /* Company pages - Blog-style hero: off-white + blurred photo overlay */
 .company-hero-bg {
   position: relative;
@@ -1038,16 +1828,14 @@ button {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(248, 249, 250, 0.7) 0%,
-    rgba(255, 255, 255, 0.5) 100%
-  );
+  background: linear-gradient(to bottom,
+      rgba(248, 249, 250, 0.7) 0%,
+      rgba(255, 255, 255, 0.5) 100%);
   pointer-events: none;
   z-index: 1;
 }
 
-.company-hero-bg > * {
+.company-hero-bg>* {
   position: relative;
   z-index: 10;
 }
@@ -1125,6 +1913,7 @@ button {
 }
 
 @keyframes blob-float {
+
   0%,
   100% {
     transform: translate(0, 0) scale(1);
@@ -1166,64 +1955,180 @@ button {
 
 /* Blog — phong cách báo: thân bài serif, tiêu đề phụ có gạch dưới */
 .article-body {
-  font-family: 'Source Serif 4', Georgia, Cambria, 'Times New Roman', serif;
-  font-size: 1.125rem;
-  line-height: 1.82;
-  color: hsl(var(--foreground) / 0.92);
+  font-family: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  font-size: 1.15rem;
+  line-height: 1.85;
+  color: hsl(var(--foreground) / 0.94);
   font-optical-sizing: auto;
+  @apply viet-text;
 }
 
-.article-body > p:first-of-type {
-  font-size: 1.2rem;
-  line-height: 1.75;
-  color: hsl(var(--foreground) / 0.95);
+.article-body>p:first-of-type {
+  @apply text-xl md:text-2xl font-serif text-foreground/95 mb-8 leading-relaxed;
 }
 
 .article-body .lead,
 .article-body p.lead {
-  font-size: 1.2rem;
-  line-height: 1.75;
-  color: hsl(var(--foreground) / 0.95);
-  margin-bottom: 1.5rem;
+  @apply text-xl md:text-2xl font-serif text-foreground/95 mb-8 leading-relaxed;
 }
 
 .article-body h2 {
   font-family: 'Source Serif 4', Georgia, serif;
-  font-size: 1.35rem;
-  font-weight: 700;
-  line-height: 1.35;
-  letter-spacing: -0.015em;
-  margin-top: 2.25rem;
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid hsl(var(--border));
-  color: hsl(var(--foreground));
+  @apply text-2xl md:text-3xl font-bold tracking-normal mt-12 mb-6 pb-3 border-b border-border/50 text-foreground;
 }
 
-.article-body h2:first-child {
-  margin-top: 0;
+.article-body h3 {
+  font-family: 'Source Serif 4', Georgia, serif;
+  @apply text-xl md:text-2xl font-bold tracking-normal mt-10 mb-4 text-foreground/90;
 }
 
 .article-body p {
-  margin-bottom: 1.25rem;
+  @apply mb-6;
+}
+
+.article-body ul,
+.article-body ol {
+  @apply mb-8 ml-6 space-y-3;
+}
+
+.article-body ul {
+  @apply list-disc;
+}
+
+.article-body ol {
+  @apply list-decimal;
+}
+
+.article-body blockquote {
+  @apply relative pl-8 pr-6 py-6 my-10 border-l-4 border-primary bg-primary/5 rounded-r-2xl italic text-xl text-foreground font-serif;
+}
+
+.article-body img {
+  @apply rounded-xl my-10 shadow-2xl shadow-primary/5 border border-border/40;
+}
+
+.article-body code {
+  @apply px-1.5 py-0.5 rounded bg-muted font-mono text-[0.9em] text-primary-foreground bg-primary/10;
+}
+
+.article-body pre {
+  @apply p-6 rounded-xl bg-slate-950 text-slate-50 my-8 overflow-x-auto font-mono text-sm leading-relaxed;
 }
 
 .article-body .article-callout {
-  font-family: Outfit, system-ui, sans-serif;
-  font-size: 0.9375rem;
-  line-height: 1.65;
-  margin-top: 2rem;
-  margin-bottom: 2rem;
-  border-left: 3px solid hsl(var(--primary));
-  background: hsl(var(--primary) / 0.06);
-  padding: 1.25rem 1.5rem;
-  border-radius: 0 0.75rem 0.75rem 0;
+  @apply font-vietnam text-base leading-relaxed my-10 border-l-4 border-primary bg-primary/5 p-6 rounded-r-2xl shadow-sm;
 }
 
-.article-body .article-callout p {
-  margin-bottom: 0.75rem;
-}
+/* ── Emerald Intelligence Premium Tokens ── */
+@layer utilities {
+  .landing-hero-mesh {
+    background-image:
+      radial-gradient(at 0% 0%, hsla(161, 84%, 39%, 0.15) 0, transparent 50%),
+      radial-gradient(at 50% 0%, hsla(217, 91%, 60%, 0.1) 0, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(161, 84%, 39%, 0.15) 0, transparent 50%);
+  }
 
-.article-body .article-callout p:last-child {
-  margin-bottom: 0;
+  .glass-premium {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+  }
+
+  .hero-highlight-text {
+    @apply font-extrabold tracking-tight;
+    background: linear-gradient(to right, #10b981, #34d399);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* ── Blue Gradient Page Background (Blog & Reports) ── */
+  .page-hero-bg-blue {
+    position: relative;
+    background:
+      radial-gradient(ellipse 120% 80% at 20% 0%, hsl(217 91% 96%) 0%, transparent 55%),
+      radial-gradient(ellipse 100% 70% at 80% 30%, hsl(217 91% 94%) 0%, transparent 50%),
+      radial-gradient(ellipse 80% 60% at 50% 100%, hsl(220 14% 98%) 0%, transparent 45%),
+      linear-gradient(to bottom, hsl(217 91% 98%) 0%, hsl(0 0% 100%) 40%, hsl(220 14% 98.5%) 100%);
+  }
+
+  .page-hero-bg-blue .page-hero-pattern {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.4;
+    background-image: radial-gradient(circle at 1px 1px, hsl(217 91% 60% / 0.06) 1px, transparent 0);
+    background-size: 32px 32px;
+  }
+
+  .page-hero-bg-blue.page-hero-grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3Cfilter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .page-hero-bg-blue .page-hero-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  .page-hero-bg-blue .page-hero-blob-1 {
+    width: 600px;
+    height: 600px;
+    top: -200px;
+    right: -150px;
+    background: hsl(217 91% 88%);
+    animation: blob-float 20s ease-in-out infinite;
+  }
+
+  .page-hero-bg-blue .page-hero-blob-2 {
+    width: 500px;
+    height: 500px;
+    bottom: -150px;
+    left: -100px;
+    background: hsl(217 91% 90%);
+    animation: blob-float 25s ease-in-out infinite reverse;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .page-hero-bg-blue .page-hero-blob {
+      animation: none;
+    }
+  }
+
+  .page-content-bg-blue {
+    position: relative;
+  }
+
+  .page-content-bg-blue::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(ellipse 60% 40% at 0% 0%, hsl(217 91% 97% / 0.5) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 30% at 100% 100%, hsl(217 91% 96% / 0.3) 0%, transparent 45%);
+  }
+
+  .page-content-bg-blue::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.25;
+    background-image: radial-gradient(circle at 1px 1px, hsl(217 91% 60% / 0.04) 1px, transparent 0);
+    background-size: 40px 40px;
+  }
+
+  /* ── Blue Report Panel (Employer Reports Section) ── */
+  .report-panel-blue {
+    background: linear-gradient(135deg, hsl(217 91% 97%) 0%, hsl(220 14% 98%) 100%);
+    border: 1px solid hsl(217 91% 90% / 0.5);
+    box-shadow: 0 4px 24px hsl(217 91% 60% / 0.08);
+  }
 }

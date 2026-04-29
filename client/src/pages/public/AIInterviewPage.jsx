@@ -40,7 +40,7 @@ const FEATURES = [
   },
   {
     title: 'Tư duy nhà tuyển dụng',
-    desc: 'Tình huống và behavioral question để luyện diễn đạt, STAR và phản biện có cấu trúc.',
+    desc: 'Tình huống và câu hỏi hành vi để luyện diễn đạt, STAR và phản biện có cấu trúc.',
     icon: Mic,
   },
   {
@@ -52,15 +52,15 @@ const FEATURES = [
 
 const ROLES = [
   { value: 'software', label: 'Công nghệ / Kỹ thuật phần mềm' },
-  { value: 'business', label: 'Kinh doanh / Sales' },
+  { value: 'business', label: 'Kinh doanh / Bán hàng' },
   { value: 'marketing', label: 'Marketing / Truyền thông' },
   { value: 'general', label: 'Tổng quát / Văn phòng' },
 ];
 
 const LEVELS = [
-  { value: 'junior', label: 'Junior / 1–3 năm' },
-  { value: 'mid', label: 'Mid / 3–5 năm' },
-  { value: 'senior', label: 'Senior / 5+ năm' },
+  { value: 'junior', label: 'Cấp cơ bản / 1–3 năm' },
+  { value: 'mid', label: 'Cấp trung / 3–5 năm' },
+  { value: 'senior', label: 'Cấp cao / 5+ năm' },
 ];
 
 const QUESTION_BANK = {
@@ -70,34 +70,34 @@ const QUESTION_BANK = {
       hint: 'Nêu bài toán, lý do chọn công nghệ, trade-off và kết quả đo lường được.',
     },
     {
-      q: 'Khi production gặp sự cố latency tăng đột biến, bạn ưu tiên các bước nào?',
-      hint: 'Giảm thiểu ảnh hưởng người dùng, quan sát, giả thuyết, rollback/canary, hậu kiểm.',
+      q: 'Khi môi trường vận hành thật gặp sự cố độ trễ tăng đột biến, bạn ưu tiên các bước nào?',
+      hint: 'Giảm thiểu ảnh hưởng người dùng, quan sát, giả thuyết, quay lui/phát hành thăm dò, hậu kiểm.',
     },
     {
-      q: 'Bạn cân bằng giữa “ship nhanh” và chất lượng code như thế nào?',
-      hint: 'Rủi ro nghiệp vụ, technical debt có kiểm soát, tiêu chí review và test tối thiểu.',
+      q: 'Bạn cân bằng giữa phát hành nhanh và chất lượng mã nguồn như thế nào?',
+      hint: 'Rủi ro nghiệp vụ, nợ kỹ thuật có kiểm soát, tiêu chí rà soát và kiểm thử tối thiểu.',
     },
     {
       q: 'Một đồng nghiệp không đồng ý với quyết định kỹ thuật của bạn. Bạn xử lý ra sao?',
-      hint: 'Dữ liệu, tiêu chí, prototype nhỏ, đồng thuận với stakeholder.',
+      hint: 'Dữ liệu, tiêu chí, nguyên mẫu nhỏ, đồng thuận với các bên liên quan.',
     },
     {
       q: 'Trong 90 ngày đầu ở vị trí mới, bạn sẽ làm gì để tạo giá trị?',
-      hint: 'Onboarding, map hệ thống/con người, quick win có đo lường, lộ trình 30-60-90.',
+      hint: 'Hòa nhập, lập sơ đồ hệ thống/con người, kết quả nhanh có đo lường, lộ trình 30-60-90.',
     },
   ],
   business: [
     {
-      q: 'Kể một deal khó — bạn đã vượt qua bằng cách nào?',
-      hint: 'Bên mua, pain point, phản đối, cách dẫn dắt và kết quả (số liệu nếu có).',
+      q: 'Kể một thương vụ khó — bạn đã vượt qua bằng cách nào?',
+      hint: 'Bên mua, điểm đau, phản đối, cách dẫn dắt và kết quả (số liệu nếu có).',
     },
     {
-      q: 'Làm sao bạn xây dựng pipeline bán hàng bền vững thay vì chỉ “chạy nước rút”?',
-      hint: 'ICP, kênh, chuẩn hóa script, CRM, theo dõi conversion.',
+      q: 'Làm sao bạn xây dựng phễu bán hàng bền vững thay vì chỉ “chạy nước rút”?',
+      hint: 'Chân dung khách hàng lý tưởng, kênh, chuẩn hóa kịch bản, CRM, theo dõi chuyển đổi.',
     },
     {
       q: 'Khách hàng so sánh bạn với đối thủ rẻ hơn. Bạn trả lời thế nào?',
-      hint: 'Giá trị, rủi ro, case study, ROI, điều khoản linh hoạt.',
+      hint: 'Giá trị, rủi ro, ví dụ triển khai, tỷ suất hoàn vốn, điều khoản linh hoạt.',
     },
     {
       q: 'Mô tả lần bạn không đạt chỉ tiêu và bài học rút ra.',
@@ -105,29 +105,29 @@ const QUESTION_BANK = {
     },
     {
       q: 'Bạn ưu tiên khách hàng mới hay giữ chân khách hiện hữu khi nguồn lực hạn chế?',
-      hint: 'Unit economics, LTV, chiến lược phân bổ, ví dụ cụ thể.',
+      hint: 'Hiệu quả kinh tế trên từng đơn vị, giá trị vòng đời khách hàng, chiến lược phân bổ, ví dụ cụ thể.',
     },
   ],
   marketing: [
     {
-      q: 'Chiến dịch gần đây bạn chạy — mục tiêu, kênh và KPI là gì?',
-      hint: 'Funnel, creative insight, tối ưu, bài học A/B.',
+      q: 'Chiến dịch gần đây bạn chạy — mục tiêu, kênh và chỉ số đo lường là gì?',
+      hint: 'Phễu chuyển đổi, thấu hiểu sáng tạo, tối ưu, bài học thử nghiệm A/B.',
     },
     {
-      q: 'Làm sao bạn đo hiệu quả brand vs performance trong cùng ngân sách?',
-      hint: 'Attribution, holdout, brand lift, blended CAC/ROAS.',
+      q: 'Làm sao bạn đo hiệu quả thương hiệu và hiệu suất trong cùng ngân sách?',
+      hint: 'Ghi nhận đóng góp kênh, nhóm đối chứng, mức tăng nhận diện thương hiệu, chi phí khách hàng/hiệu quả quảng cáo tổng hợp.',
     },
     {
       q: 'Khi có khủng hoảng truyền thông, bạn phản ứng theo quy trình nào?',
-      hint: 'Xác thực, thông điệp, kênh, timeline, trách nhiệm pháp lý/PR.',
+      hint: 'Xác thực, thông điệp, kênh phản hồi, mốc thời gian, trách nhiệm pháp lý và truyền thông.',
     },
     {
-      q: 'Bạn thuyết phục leadership đầu tư vào một kênh mới chưa chứng minh được ROI?',
-      hint: 'Giả thuyết, pilot nhỏ, ngưỡng go/no-go, rủi ro.',
+      q: 'Bạn thuyết phục ban lãnh đạo đầu tư vào một kênh mới chưa chứng minh được tỷ suất hoàn vốn như thế nào?',
+      hint: 'Giả thuyết, thử nghiệm nhỏ, ngưỡng tiếp tục/dừng, rủi ro.',
     },
     {
-      q: 'Content nào “ăn” với audience của bạn và vì sao?',
-      hint: 'Insight khách hàng, format, phân phối, lặp lại/scale.',
+      q: 'Nội dung nào phù hợp với nhóm khán giả của bạn và vì sao?',
+      hint: 'Thấu hiểu khách hàng, định dạng, phân phối, lặp lại/mở rộng.',
     },
   ],
   general: [
@@ -140,8 +140,8 @@ const QUESTION_BANK = {
       hint: 'STAR: tình huống, nhiệm vụ, hành động, kết quả định lượng.',
     },
     {
-      q: 'Bạn xử lý deadline gấp và nhiều stakeholder như thế nào?',
-      hint: 'Ưu tiên, giao tiếp, phạm vi, escalate khi cần.',
+      q: 'Bạn xử lý hạn chót gấp và nhiều bên liên quan như thế nào?',
+      hint: 'Ưu tiên, giao tiếp, phạm vi, báo cáo lên cấp cao hơn khi cần.',
     },
     {
       q: 'Điểm yếu bạn đang cải thiện là gì?',
@@ -231,7 +231,7 @@ const AIInterviewPage = () => {
 
   return (
     <AIPublicToolShell
-      kicker="HireAI · Ứng viên"
+      kicker="HireBOT · Ứng viên"
       icon={User}
       title={titleNode}
       description="Luyện trả lời phỏng vấn tuyển dụng: chọn ngành và cấp độ, duyệt câu hỏi mẫu và xin gợi ý AI cho từng câu — giúp bạn tự tin trước vòng phỏng vấn doanh nghiệp."
@@ -346,7 +346,7 @@ const AIInterviewPage = () => {
             <div className="flex min-h-[560px] flex-col md:flex-row">
               <div className="relative flex flex-1 items-center justify-center bg-muted/30 p-8">
                 <div className="flex flex-col items-center gap-6">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/20 text-primary">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20 text-primary">
                     <Bot className="size-6" strokeWidth={1.5} />
                   </div>
                   <div className="text-center">
@@ -377,7 +377,7 @@ const AIInterviewPage = () => {
                     &quot;{current.q}&quot;
                   </h3>
                   <div className="rounded-xl border border-primary/10 bg-primary/5 p-4">
-                    <p className="mb-2 text-base font-semibold uppercase tracking-wider text-primary">
+                    <p className="mb-2 text-base font-semibold uppercase tracking-normal text-primary">
                       Gợi ý khung trả lời
                     </p>
                     <p className="text-base font-medium leading-relaxed text-muted-foreground">
@@ -413,7 +413,7 @@ const AIInterviewPage = () => {
                     <div className="mt-4 space-y-3 rounded-xl border border-border/60 bg-muted/30 p-4">
                       {aiExtra.framework ? (
                         <div>
-                          <p className="mb-1 text-base font-semibold uppercase tracking-wider text-muted-foreground">
+                          <p className="mb-1 text-base font-semibold uppercase tracking-normal text-muted-foreground">
                             Khung (AI)
                           </p>
                           <p className="text-base font-medium leading-relaxed text-foreground">
@@ -423,7 +423,7 @@ const AIInterviewPage = () => {
                       ) : null}
                       {aiExtra.hints?.length > 0 ? (
                         <div>
-                          <p className="mb-2 text-base font-semibold uppercase tracking-wider text-muted-foreground">
+                          <p className="mb-2 text-base font-semibold uppercase tracking-normal text-muted-foreground">
                             Gợi ý chi tiết
                           </p>
                           <ul className="list-disc space-y-1.5 pl-4 text-sm font-medium text-foreground/90">

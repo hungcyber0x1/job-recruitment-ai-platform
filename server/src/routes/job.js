@@ -10,14 +10,14 @@ router.get('/', JobController.getJobs);
 router.get(
   '/my-jobs',
   protect,
-  authorize('employer', 'admin'),
+  authorize('recruiter', 'admin'),
   JobController.getMyJobs.bind(JobController)
 );
 router.get('/:id', idParamValidator, validate, JobController.getJob);
 router.post(
   '/',
   protect,
-  authorize('employer', 'admin'),
+  authorize('recruiter', 'admin'),
   jobValidator,
   validate,
   JobController.createJob.bind(JobController)
@@ -25,7 +25,7 @@ router.post(
 router.put(
   '/:id',
   protect,
-  authorize('employer', 'admin'),
+  authorize('recruiter', 'admin'),
   idParamValidator,
   jobValidator,
   validate,
@@ -34,7 +34,7 @@ router.put(
 router.delete(
   '/:id',
   protect,
-  authorize('employer', 'admin'),
+  authorize('recruiter', 'admin'),
   idParamValidator,
   validate,
   JobController.deleteJob.bind(JobController)

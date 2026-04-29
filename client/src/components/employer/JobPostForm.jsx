@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
-import { Briefcase, MapPin, DollarSign, Clock, Plus, Save, Sparkles } from 'lucide-react';
+import { Briefcase, MapPin, DollarSign, Clock, Plus, Save, Sparkles, Users } from 'lucide-react';
 import Card from '../common/Card';
 import Button from '../common/Button';
 import Input from '../common/Input';
@@ -22,6 +22,8 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
       location: '',
       salary_min: '',
       salary_max: '',
+      salary_negotiable: false,
+      vacancies: 1,
       description: '',
       requirements: '',
       benefits: '',
@@ -43,15 +45,15 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
     <form onSubmit={handleSubmit} className="space-y-10">
       <Card className="border border-border bg-white p-10 shadow-premium">
         <div className="flex items-center gap-4 mb-10">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-white shadow-premium">
+          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary text-white shadow-premium">
             <Plus size={28} />
           </div>
           <div>
-            <h2 className="text-3xl font-black leading-tight text-foreground">
+            <h2 className="text-3xl font-bold leading-tight text-foreground">
               {initialData ? 'Chỉnh sửa tin tuyển dụng' : 'Đăng tin tuyển dụng mới'}
             </h2>
-            <p className="mt-1 text-base font-bold uppercase tracking-widest text-txt-light">
-              Hãy cung cấp đầy đủ thông tin để AI Matching hoạt động tốt nhất
+            <p className="mt-1 text-base font-bold uppercase tracking-normal text-txt-light">
+              Hãy cung cấp đầy đủ thông tin để hệ thống gợi ý và sàng lọc hoạt động tốt nhất
             </p>
           </div>
         </div>
@@ -65,19 +67,19 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
               onChange={handleChange}
               placeholder="VD: Senior Frontend Developer (React)"
               required
-              icon={<Briefcase size={18} />}
+              icon={Briefcase}
             />
           </div>
 
           <div className="space-y-3">
-            <label className="ml-1 text-sm font-black uppercase tracking-widest text-txt-light">
+            <label className="ml-1 text-sm font-bold uppercase tracking-normal text-txt-light">
               Lĩnh vực / Ngành nghề
             </label>
             <select
               name="category_id"
               value={formData.category_id}
               onChange={handleChange}
-              className="w-full appearance-none rounded-2xl border border-border bg-muted px-6 py-4 font-medium outline-none transition-all focus:border-secondary focus:bg-white"
+              className="w-full appearance-none rounded-xl border border-border bg-muted px-6 py-4 font-medium outline-none transition-all focus:border-secondary focus:bg-white"
               required
             >
               <option value="">Chọn lĩnh vực</option>
@@ -90,14 +92,14 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
           </div>
 
           <div className="space-y-3">
-            <label className="ml-1 text-sm font-black uppercase tracking-widest text-txt-light">
+            <label className="ml-1 text-sm font-bold uppercase tracking-normal text-txt-light">
               Hình thức làm việc
             </label>
             <select
               name="type"
               value={formData.type}
               onChange={handleChange}
-              className="w-full appearance-none rounded-2xl border border-border bg-muted px-6 py-4 font-medium outline-none transition-all focus:border-secondary focus:bg-white"
+              className="w-full appearance-none rounded-xl border border-border bg-muted px-6 py-4 font-medium outline-none transition-all focus:border-secondary focus:bg-white"
             >
               <option value="full-time">Toàn thời gian</option>
               <option value="part-time">Bán thời gian</option>
@@ -113,7 +115,7 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
             onChange={handleChange}
             placeholder="VD: Quận 1, TP. HCM"
             required
-            icon={<MapPin size={18} />}
+            icon={MapPin}
           />
 
           <Input
@@ -123,7 +125,7 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
             value={formData.deadline}
             onChange={handleChange}
             min={todayYmdLocal()}
-            icon={<Clock size={18} />}
+            icon={Clock}
           />
 
           <Input
@@ -133,7 +135,7 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
             value={formData.salary_min}
             onChange={handleChange}
             placeholder="VD: 15,000,000"
-            icon={<DollarSign size={18} />}
+            icon={DollarSign}
           />
 
           <Input
@@ -143,21 +145,57 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
             value={formData.salary_max}
             onChange={handleChange}
             placeholder="VD: 25,000,000"
-            icon={<DollarSign size={18} />}
+            icon={DollarSign}
           />
+
+          <Input
+            label="Số lượng tuyển dụng"
+            name="vacancies"
+            type="number"
+            value={formData.vacancies}
+            onChange={handleChange}
+            placeholder="VD: 3"
+            icon={Users}
+            min="1"
+          />
+        </div>
+
+        <div className="flex items-center justify-between rounded-xl border border-border bg-muted px-6 py-4">
+          <div className="flex items-center gap-3">
+            <DollarSign size={20} className="text-txt-light" />
+            <div>
+              <p className="text-sm font-bold text-foreground">Lương thỏa thuận</p>
+              <p className="text-sm text-txt-light">Cho phép ứng viên thương lượng mức lương</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setFormData((prev) => ({ ...prev, salary_negotiable: !prev.salary_negotiable }))}
+            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 ${
+              formData.salary_negotiable ? 'bg-emerald-500' : 'bg-gray-300'
+            }`}
+            role="switch"
+            aria-checked={formData.salary_negotiable}
+          >
+            <span
+              className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                formData.salary_negotiable ? 'translate-x-5' : 'translate-x-0'
+              }`}
+            />
+          </button>
         </div>
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2 space-y-8">
           <Card className="border border-border bg-white p-10 shadow-card">
-            <h3 className="mb-8 flex items-center gap-3 text-xl font-black text-foreground">
+            <h3 className="mb-8 flex items-center gap-3 text-xl font-bold text-foreground">
               <div className="h-6 w-1.5 rounded-full bg-secondary"></div>
               Chi tiết công việc
             </h3>
             <div className="space-y-8">
               <div className="space-y-3">
-                <label className="ml-1 text-sm font-black uppercase tracking-widest text-txt-light">
+                <label className="ml-1 text-sm font-bold uppercase tracking-normal text-txt-light">
                   Mô tả công việc
                 </label>
                 <textarea
@@ -171,7 +209,7 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
                 />
               </div>
               <div className="space-y-3">
-                <label className="ml-1 text-sm font-black uppercase tracking-widest text-txt-light">
+                <label className="ml-1 text-sm font-bold uppercase tracking-normal text-txt-light">
                   Yêu cầu ứng viên
                 </label>
                 <textarea
@@ -185,7 +223,7 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
                 />
               </div>
               <div className="space-y-3">
-                <label className="ml-1 text-sm font-black uppercase tracking-widest text-txt-light">
+                <label className="ml-1 text-sm font-bold uppercase tracking-normal text-txt-light">
                   Quyền lợi
                 </label>
                 <textarea
@@ -208,14 +246,14 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
               className="absolute -right-4 -top-4 opacity-10 group-hover:rotate-12 transition-transform duration-500"
               size={120}
             />
-            <h4 className="text-xl font-black mb-4">AI Optimizer</h4>
+            <h4 className="text-xl font-bold mb-4">AI Optimizer</h4>
             <p className="mb-8 text-base font-medium leading-relaxed text-white/70">
               Hệ thống AI của chúng tôi sẽ phân tích các từ khóa trong mô tả của bạn để đảm bảo tin
               tuyển dụng tiếp cận đúng đối tượng ứng viên nhất.
             </p>
             <div className="space-y-4">
               <div className="flex items-center justify-between text-sm font-bold">
-                <span className="uppercase tracking-widest text-white/60">Độ phủ từ khóa</span>
+                <span className="uppercase tracking-normal text-white/60">Độ phủ từ khóa</span>
                 <span className="text-accent">85%</span>
               </div>
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/5">
@@ -228,7 +266,7 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
             <Button
               type="submit"
               variant="primary"
-              className="w-full gap-3 rounded-3xl bg-primary py-5 text-lg font-black text-white shadow-premium"
+              className="w-full gap-3 rounded-xl bg-primary py-5 text-lg font-bold text-white shadow-premium"
             >
               <Save size={24} />
               {initialData ? 'Cập nhật tin' : 'Đăng tuyển ngay'}
@@ -236,7 +274,7 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
             <Button
               type="button"
               variant="outline"
-              className="w-full rounded-3xl border border-border bg-white py-5 font-bold text-txt-muted hover:text-secondary"
+              className="w-full rounded-xl border border-border bg-white py-5 font-bold text-txt-muted hover:text-secondary"
               onClick={onCancel}
             >
               Hủy bỏ
@@ -256,6 +294,8 @@ JobPostForm.propTypes = {
     location: PropTypes.string,
     salary_min: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     salary_max: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    salary_negotiable: PropTypes.oneOfType([PropTypes.number, PropTypes.bool]),
+    vacancies: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     description: PropTypes.string,
     requirements: PropTypes.string,
     benefits: PropTypes.string,

@@ -1,6 +1,6 @@
 import { cn } from '@/utils';
 
-/** Độ dày nét mặc định — đồng bộ giao diện HireAI (UI list, nav, card) */
+/** Độ dày nét mặc định — đồng bộ giao diện HireBOT (UI list, nav, card) */
 export const LUCIDE_STROKE_WIDTH = 1.5;
 
 /**

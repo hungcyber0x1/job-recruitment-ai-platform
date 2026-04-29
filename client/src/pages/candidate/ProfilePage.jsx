@@ -1,38 +1,253 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
+  ArrowRight,
   Briefcase,
   Building2,
   Camera,
+  Clock3,
+  DollarSign,
+  Github,
   Globe,
+  Globe2,
   GraduationCap,
+  Linkedin,
   Mail,
   MapPin,
   Pencil,
   Phone,
   Puzzle,
+  Sparkles,
+  Target,
   User,
 } from 'lucide-react';
+
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/utils/cn';
+import { getUserFullName } from '@/utils';
+import { decodeHtml } from '@/utils/sanitizeHtml';
+
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import candidateService from '../../services/candidateService';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Progress } from '@/components/ui/progress';
 
-const defaultLanguages = [];
+const SURFACE_CARD_CLASS =
+  'rounded-lg border border-slate-200 bg-white shadow-sm transition-all hover:border-emerald-200/80 hover:shadow-md';
+const PROFILE_SECTION_CLASS =
+  'overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition-all hover:border-emerald-200/80 hover:shadow-md';
+
+const toneStyles = {
+  emerald: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
+  sky: 'bg-sky-50 text-sky-700 ring-sky-100',
+  violet: 'bg-violet-50 text-violet-700 ring-violet-100',
+  amber: 'bg-amber-50 text-amber-700 ring-amber-100',
+  slate: 'bg-slate-50 text-slate-700 ring-slate-100',
+};
+
+const AVATAR_MAX_SIZE_BYTES = 5 * 1024 * 1024;
+
+function cleanText(value) {
+  if (!value) return '';
+  return decodeHtml(String(value));
+}
+
+function normalizeList(value, pickName = true) {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .map((item) => {
+      if (typeof item === 'string') return item;
+      if (!item) return null;
+      return pickName ? item.name || item.title || item.label || item.value : item;
+    })
+    .filter(Boolean);
+}
+
+function formatSalary(profile) {
+  const salaryMin = Number(profile?.expected_salary_min || 0);
+  const salaryMax = Number(profile?.expected_salary_max || 0);
+
+  if (salaryMin > 0 && salaryMax > 0) {
+    return `${(salaryMin / 1000000).toFixed(0)}M - ${(salaryMax / 1000000).toFixed(0)}M`;
+  }
+
+  if (salaryMin > 0) {
+    return `Từ ${(salaryMin / 1000000).toFixed(0)}M`;
+  }
+
+  if (salaryMax > 0) {
+    return `Đến ${(salaryMax / 1000000).toFixed(0)}M`;
+  }
+
+  return 'Thỏa thuận';
+}
+
+function formatPeriod(item) {
+  if (item?.period) return item.period;
+  if (item?.startDate && item?.endDate) return `${item.startDate} - ${item.endDate}`;
+  if (item?.start_date && item?.end_date) return `${item.start_date} - ${item.end_date}`;
+  if (item?.start_date) return `${item.start_date} - Hiện tại`;
+  return 'Chưa cập nhật';
+}
+
+function languageProgress(language) {
+  if (typeof language?.value === 'number') {
+    return Math.min(100, Math.max(0, language.value));
+  }
+
+  const level = String(language?.level || '').toLowerCase();
+  if (level.includes('expert') || level.includes('native') || level.includes('thành thạo')) {
+    return 100;
+  }
+  if (level.includes('advanced') || level.includes('nâng cao')) return 80;
+  if (level.includes('intermediate') || level.includes('trung')) return 60;
+  if (level.includes('beginner') || level.includes('cơ bản')) return 35;
+  return 70;
+}
+
+const InfoRow = ({ icon: Icon, label, value }) => (
+  <div className="flex items-start gap-3 rounded-lg border border-slate-200/80 bg-slate-50/70 p-3 transition-colors hover:border-emerald-100 hover:bg-white">
+    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-slate-500 ring-1 ring-inset ring-slate-100">
+      <Icon size={16} />
+    </div>
+    <div className="min-w-0">
+      <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">{label}</p>
+      <p className="mt-1 break-words text-sm font-semibold text-slate-800">
+        {value || 'Chưa cập nhật'}
+      </p>
+    </div>
+  </div>
+);
+
+const MetricTile = ({ label, value, helper, icon: Icon, tone = 'emerald' }) => (
+  <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-md">
+    <div className="flex items-start justify-between gap-3">
+      <div className="min-w-0">
+        <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">{label}</p>
+        <p className="mt-1 text-2xl font-bold tracking-tight text-slate-950 tabular-nums">{value}</p>
+        {helper ? <p className="mt-1 line-clamp-2 text-xs font-medium leading-5 text-slate-500">{helper}</p> : null}
+      </div>
+      <div
+        className={cn(
+          'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset',
+          toneStyles[tone] || toneStyles.emerald
+        )}
+      >
+        <Icon className="h-4 w-4" />
+      </div>
+    </div>
+  </div>
+);
+
+const SectionHeader = ({ icon: Icon, title, subtitle, meta, tone = 'emerald', action }) => (
+  <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <div className="flex min-w-0 items-start gap-3">
+      <div
+        className={cn(
+          'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset',
+          toneStyles[tone] || toneStyles.emerald
+        )}
+      >
+        <Icon className="h-4 w-4" />
+      </div>
+      <div className="min-w-0">
+        <h2 className="text-base font-bold tracking-tight text-slate-950">{title}</h2>
+        {subtitle ? <p className="mt-1 text-sm font-medium leading-6 text-slate-500">{subtitle}</p> : null}
+      </div>
+    </div>
+    <div className="flex shrink-0 items-center gap-2">
+      {meta ? (
+        <span className="inline-flex h-8 items-center rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs font-bold text-slate-600">
+          {meta}
+        </span>
+      ) : null}
+      {action}
+    </div>
+  </div>
+);
+
+const ChipList = ({ items, tone = 'slate', empty = 'Chưa cập nhật' }) => {
+  if (!items.length) {
+    return <p className="text-sm font-medium text-slate-400">{empty}</p>;
+  }
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {items.map((item) => (
+        <span
+          key={item}
+          className={cn('rounded-lg px-2.5 py-1.5 text-xs font-semibold ring-1 ring-inset', toneStyles[tone])}
+        >
+          {item}
+        </span>
+      ))}
+    </div>
+  );
+};
+
+const EmptyPanel = ({ message, action }) => (
+  <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50/70 px-5 py-8 text-center">
+    <p className="text-sm font-medium leading-6 text-slate-500">{message}</p>
+    {action ? <div className="mt-4">{action}</div> : null}
+  </div>
+);
+
+const SocialLink = ({ href, icon: Icon, label, className }) => (
+  <a
+    href={href}
+    target="_blank"
+    rel="noreferrer"
+    aria-label={label}
+    className={cn(
+      'flex h-10 w-10 items-center justify-center rounded-lg ring-1 ring-inset transition-transform hover:-translate-y-0.5',
+      className
+    )}
+  >
+    <Icon size={16} />
+  </a>
+);
+
+const CertificationCard = ({ item }) => (
+  <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-4 transition-colors hover:border-amber-200 hover:bg-white">
+    <div className="flex items-start gap-3">
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-100">
+        <Sparkles className="h-4 w-4" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <h3 className="text-sm font-bold text-slate-900">{item.name || 'Chứng chỉ'}</h3>
+        <p className="mt-1 text-sm text-slate-500">
+          {[item.organization, item.year].filter(Boolean).join(' • ') || 'Chưa cập nhật'}
+        </p>
+        {item.url ? (
+          <a
+            href={item.url}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-emerald-600 hover:text-emerald-700"
+          >
+            Xem chứng chỉ
+            <ArrowRight className="h-3.5 w-3.5" />
+          </a>
+        ) : null}
+      </div>
+    </div>
+  </div>
+);
 
 const ProfilePage = () => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const { showNotification } = useNotification();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const avatarInputRef = useRef(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await candidateService.getProfile();
+        const response = await candidateService.getFullProfile();
         setProfile(response.data?.data ?? null);
       } catch (error) {
         console.error('Failed to fetch profile', error);
@@ -41,264 +256,515 @@ const ProfilePage = () => {
         setLoading(false);
       }
     };
+
     fetchProfile();
   }, [showNotification]);
 
-  const displayName =
-    user?.fullName || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'Ứng viên';
-  const title = profile?.title || profile?.current_job_title || 'Chuyên viên';
-  const location = profile?.location || 'Hà Nội, Việt Nam';
-  const email = user?.email || '—';
-  const phone = profile?.phone || 'Chưa cập nhật';
+  const {
+    displayName,
+    title,
+    location,
+    email,
+    phone,
+    bio,
+    careerObjective,
+    skillList,
+    languages,
+    experiences,
+    education,
+    certifications,
+    socialLinks,
+    statusConfig,
+    expectedSalary,
+    preferredWorkTypes,
+    preferredLocations,
+    targetIndustries,
+    yearsExperience,
+    lastUpdatedStr,
+  } = useMemo(() => {
+    const updatedAt = profile?.updated_at || user?.updated_at || new Date().toISOString();
 
-  const skills = profile?.skills || [];
-  const skillList = Array.isArray(skills)
-    ? skills.map((s) => (typeof s === 'string' ? s : s?.name || s))
-    : [];
+    return {
+      displayName: getUserFullName(user) || 'Ứng viên',
+      title: profile?.title || profile?.current_job_title || 'Chuyên viên',
+      location: profile?.location || 'Chưa cập nhật',
+      email: user?.email || 'Chưa cập nhật',
+      phone: profile?.phone || 'Chưa cập nhật',
+      bio: cleanText(profile?.bio),
+      careerObjective: cleanText(profile?.career_objective),
+      skillList: normalizeList(profile?.skills),
+      languages: Array.isArray(profile?.languages) ? profile.languages : [],
+      experiences: Array.isArray(profile?.experiences) ? profile.experiences : [],
+      education: Array.isArray(profile?.education) ? profile.education : [],
+      certifications: Array.isArray(profile?.certifications) ? profile.certifications : [],
+      socialLinks: profile?.social_links || {},
+      expectedSalary: formatSalary(profile),
+      preferredWorkTypes: normalizeList(profile?.preferred_job_types),
+      preferredLocations: normalizeList(profile?.preferred_locations),
+      targetIndustries: normalizeList(profile?.target_industries),
+      yearsExperience: profile?.years_of_experience ?? null,
+      lastUpdatedStr: new Date(updatedAt).toLocaleDateString('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      }),
+    };
+  }, [profile, user]);
 
-  const languages =
-    profile?.languages && profile.languages.length > 0 ? profile.languages : defaultLanguages;
+  const handleAvatarChange = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
 
-  const experiences = profile?.experiences || [];
-  const education = profile?.education || [];
+    if (!file) return;
 
-  const lastUpdated = profile?.updated_at || user?.updated_at || new Date().toISOString();
-  const lastUpdatedStr = new Date(lastUpdated).toLocaleDateString('vi-VN', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
+    if (!file.type.startsWith('image/')) {
+      showNotification('Vui lòng chọn tệp ảnh hợp lệ.', 'error');
+      return;
+    }
+
+    if (file.size > AVATAR_MAX_SIZE_BYTES) {
+      showNotification('Ảnh đại diện không được vượt quá 5MB.', 'error');
+      return;
+    }
+
+    setAvatarUploading(true);
+    try {
+      const response = await candidateService.uploadAvatar(file);
+      const nextAvatarUrl = response.data?.data?.avatar_url || response.data?.avatar_url;
+
+      if (nextAvatarUrl) {
+        updateUser({ avatar_url: nextAvatarUrl });
+        setProfile((prev) => ({ ...(prev || {}), avatar_url: nextAvatarUrl }));
+      }
+
+      showNotification('Cập nhật ảnh đại diện thành công!', 'success');
+    } catch (error) {
+      console.error('Failed to upload avatar', error);
+      showNotification(
+        error.response?.data?.message || 'Không thể tải ảnh lên. Vui lòng thử lại.',
+        'error'
+      );
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
 
   if (loading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <div className="h-12 w-12 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
       </div>
     );
   }
 
+  const numericYearsExperience = Number(yearsExperience || 0);
+  const experienceMetricValue = numericYearsExperience > 0 ? `${yearsExperience}+` : '0';
+  const experienceText = numericYearsExperience > 0 ? `${yearsExperience} năm` : 'Chưa cập nhật';
+  const avatarUrl = user?.avatar_url || profile?.avatar_url;
+  const hasSocialLinks = Boolean(
+    socialLinks?.linkedin || socialLinks?.github || socialLinks?.portfolio || socialLinks?.website
+  );
+
   return (
-    <div className="min-h-screen bg-muted/30 pb-16">
-      {/* Page title */}
-      <div className="mb-6 flex items-center gap-2">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
-          <User className="h-4 w-4" />
-        </div>
-        <h1 className="text-xl font-bold text-foreground">Hồ sơ ứng viên</h1>
-      </div>
+    <div className="min-h-screen bg-slate-50/40 pb-14 animate-fade-in">
+      <input
+        ref={avatarInputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
+        className="hidden"
+        onChange={handleAvatarChange}
+      />
 
-      <div className="grid gap-6 lg:grid-cols-[380px_1fr] lg:items-start">
-        {/* Left column: Profile summary */}
-        <div className="space-y-6">
-          {/* Personal info card */}
-          <Card className="overflow-hidden rounded-xl border bg-card shadow-sm">
-            <CardContent className="p-6">
-              <div className="relative inline-block">
-                <Avatar className="h-28 w-28 rounded-full border-4 border-primary/20">
-                  <AvatarImage src={user?.avatar_url} alt={displayName} />
-                  <AvatarFallback className="bg-primary/15 text-lg font-semibold text-primary">
-                    {displayName.charAt(0) || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-primary text-white shadow">
-                  <Camera className="h-4 w-4" />
-                </span>
-              </div>
-              <h2 className="mt-4 text-xl font-bold text-foreground">{displayName}</h2>
-              <p className="mt-1 text-base font-medium text-primary">{title}</p>
-              <ul className="mt-4 space-y-3 text-base text-muted-foreground">
-                <li className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
-                  {location}
-                </li>
-                <li className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 shrink-0 text-muted-foreground" />
-                  {email}
-                </li>
-                <li className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 shrink-0 text-muted-foreground" />
-                  {phone}
-                </li>
-              </ul>
-              <div className="mt-6 flex flex-col gap-2">
-                <Button asChild className="w-full rounded-lg bg-primary hover:bg-primary/90">
-                  <Link to="/candidate/profile/edit" className="gap-2">
-                    <Pencil className="h-4 w-4" />
-                    Chỉnh sửa hồ sơ
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" className="w-full rounded-lg">
-                  <Link to="/candidate/profile/projects/new" className="gap-2">
-                    <Briefcase className="h-4 w-4" />
-                    Thêm dự án
-                  </Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+      <section className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_84%)]">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-40"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px)',
+            backgroundSize: '32px 32px',
+          }}
+        />
 
-          {/* Skills card */}
-          <Card className="rounded-xl border bg-card shadow-sm">
-            <CardContent className="p-6">
-              <h3 className="flex items-center gap-2 text-base font-semibold text-foreground">
-                <Puzzle className="h-4 w-4 text-primary" />
-                Kỹ năng
-              </h3>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {skillList.length > 0 ? (
-                  skillList.map((name) => (
-                    <span
-                      key={name}
-                      className="rounded-lg bg-primary/10 px-3 py-1.5 text-base font-medium text-primary"
-                    >
-                      {name}
+        <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="grid gap-5 lg:items-stretch">
+            <Card className="rounded-lg border-white/80 bg-white/90 shadow-sm backdrop-blur">
+              <CardContent className="p-5 sm:p-6">
+                <div className="flex flex-col gap-5 md:flex-row md:items-center">
+                  <button
+                    type="button"
+                    onClick={() => avatarInputRef.current?.click()}
+                    disabled={avatarUploading}
+                    className="group relative mx-auto shrink-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70 md:mx-0"
+                    aria-label="Đổi ảnh đại diện"
+                  >
+                    <Avatar className="h-28 w-28 rounded-2xl border border-white shadow-lg shadow-emerald-900/10 ring-1 ring-slate-200/80">
+                      <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />
+                      <AvatarFallback className="bg-emerald-50 text-4xl font-bold text-emerald-700">
+                        {displayName.charAt(0) || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="absolute -bottom-2 -right-2 flex h-9 w-9 items-center justify-center rounded-full border border-white bg-slate-950 text-white shadow-sm transition group-hover:scale-105 group-hover:bg-emerald-600">
+                      <Camera className="h-4 w-4" />
                     </span>
-                  ))
-                ) : (
-                  <p className="text-base text-muted-foreground">Chưa có kỹ năng nào.</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                  </button>
 
-          {/* Languages card */}
-          <Card className="rounded-xl border bg-card shadow-sm">
-            <CardContent className="p-6">
-              <h3 className="flex items-center gap-2 text-base font-semibold text-foreground">
-                <Globe className="h-4 w-4 text-primary" />
-                Ngôn ngữ
-              </h3>
-              <ul className="mt-4 space-y-4">
-                {languages.length > 0 ? (
-                  languages.map((lang, index) => (
-                    <li key={lang.id || lang.name || `lang-${index}`}>
-                      <div className="flex justify-between text-base">
-                        <span className="font-medium text-foreground">{lang.name || lang}</span>
-                        <span className="text-muted-foreground">{lang.level || ''}</span>
-                      </div>
-                      <Progress
-                        value={typeof lang.value === 'number' ? lang.value : 100}
-                        className="mt-1.5 h-1.5 bg-muted"
-                      />
-                    </li>
-                  ))
-                ) : (
-                  <p className="text-base text-muted-foreground">Chưa cập nhật ngoại ngữ.</p>
-                )}
-              </ul>
-            </CardContent>
-          </Card>
+                  <div className="min-w-0 flex-1 text-center md:text-left">
+                    <div className="flex flex-wrap justify-center gap-2 md:justify-start">
+                      <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+                        <User className="h-3.5 w-3.5" />
+                        Hồ sơ ứng viên
+                      </span>
+                      <span className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-bold text-slate-600">
+                        Cập nhật {lastUpdatedStr}
+                      </span>
+                    </div>
+
+                    <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+                      {displayName}
+                    </h1>
+                    <p className="mt-2 text-base font-semibold text-emerald-700">{title}</p>
+                    <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-slate-600">
+                      Hồ sơ nghề nghiệp được trình bày theo cấu trúc rõ ràng, giúp nhà tuyển dụng nắm nhanh năng lực,
+                      kinh nghiệm và mức độ sẵn sàng của bạn.
+                    </p>
+
+                    <div className="mt-4 flex flex-wrap justify-center gap-2 md:justify-start">
+                      <span className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-600">
+                        <MapPin className="h-3.5 w-3.5 text-emerald-600" />
+                        {location}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-600">
+                        <Clock3 className="h-3.5 w-3.5 text-emerald-600" />
+                        {experienceText}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-600">
+                        <DollarSign className="h-3.5 w-3.5 text-emerald-600" />
+                        {expectedSalary}
+                      </span>
+                    </div>
+
+                    <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center md:justify-start">
+                      <Button asChild className="h-10 rounded-lg bg-slate-950 px-4 text-sm font-bold text-white hover:bg-emerald-700">
+                        <Link to="/candidate/profile/edit">
+                          <Pencil className="h-4 w-4" />
+                          Chỉnh sửa hồ sơ
+                        </Link>
+                      </Button>
+                      <Button asChild variant="outline" className="h-10 rounded-lg bg-white px-4 text-sm font-bold text-slate-700">
+                        <Link to="/candidate/resume">
+                          <Briefcase className="h-4 w-4 text-emerald-600" />
+                          Quản lý CV
+                        </Link>
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                  <MetricTile
+                    label="Năm kinh nghiệm"
+                    value={experienceMetricValue}
+                    helper="Kinh nghiệm đã khai báo"
+                    icon={Clock3}
+                    tone="emerald"
+                  />
+                  <MetricTile
+                    label="Kỹ năng"
+                    value={skillList.length}
+                    helper="Kỹ năng chuyên môn"
+                    icon={Puzzle}
+                    tone="sky"
+                  />
+                  <MetricTile
+                    label="Ngôn ngữ"
+                    value={languages.length}
+                    helper="Ngoại ngữ sử dụng"
+                    icon={Globe}
+                    tone="violet"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+          </div>
         </div>
+      </section>
 
-        {/* Right column: Main content */}
-        <div className="space-y-6">
-          {/* About */}
-          <Card className="rounded-xl border bg-card shadow-sm">
-            <CardContent className="p-6">
-              <h3 className="text-base font-semibold text-foreground">Giới thiệu bản thân</h3>
-              <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-                {profile?.bio || 'Chưa có giới thiệu bản thân.'}
-              </p>
-            </CardContent>
-          </Card>
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <section className="space-y-5">
+            <Card className={PROFILE_SECTION_CLASS}>
+              <CardContent className="p-5 sm:p-6">
+                <SectionHeader
+                  icon={Sparkles}
+                  title="Giới thiệu bản thân"
+                  subtitle="Tóm tắt thế mạnh, phong cách làm việc và giá trị bạn có thể mang lại."
+                  tone="emerald"
+                />
+                {bio ? (
+                  <p className="whitespace-pre-line text-sm leading-7 text-slate-600">{bio}</p>
+                ) : (
+                  <EmptyPanel
+                    message="Chưa có phần giới thiệu cá nhân. Hãy bổ sung để nhà tuyển dụng hiểu rõ thế mạnh của bạn."
+                    action={
+                      <Button asChild size="sm" className="rounded-lg bg-emerald-600 font-semibold text-white hover:bg-emerald-700">
+                        <Link to="/candidate/profile/edit">Bổ sung giới thiệu</Link>
+                      </Button>
+                    }
+                  />
+                )}
 
-          {/* Work experience */}
-          <Card className="rounded-xl border bg-card shadow-sm">
-            <CardContent className="p-6">
-              <h3 className="text-base font-semibold text-foreground">Kinh nghiệm làm việc</h3>
-              <div className="mt-6 space-y-8">
+                {careerObjective ? (
+                  <div className="mt-5 rounded-lg border border-amber-100 bg-amber-50/60 p-4">
+                    <div className="mb-2 flex items-center gap-2 text-sm font-bold text-amber-800">
+                      <Target className="h-4 w-4" />
+                      Mục tiêu nghề nghiệp
+                    </div>
+                    <p className="whitespace-pre-line text-sm leading-7 text-slate-600">{careerObjective}</p>
+                  </div>
+                ) : null}
+              </CardContent>
+            </Card>
+
+            <Card className={PROFILE_SECTION_CLASS}>
+              <CardContent className="p-5 sm:p-6">
+                <SectionHeader
+                  icon={Briefcase}
+                  title="Kinh nghiệm làm việc"
+                  subtitle="Các vai trò, trách nhiệm và kết quả nổi bật trong quá trình làm việc."
+                  meta={`${experiences.length} mục`}
+                  tone="emerald"
+                  action={
+                    <Button asChild variant="outline" size="sm" className="h-8 rounded-lg bg-white text-xs font-bold">
+                      <Link to="/candidate/profile/edit">Cập nhật</Link>
+                    </Button>
+                  }
+                />
+
                 {experiences.length > 0 ? (
-                  experiences.map((exp, i) => (
-                    <div key={i} className="flex gap-4">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-white">
-                        {i === 0 ? (
-                          <Briefcase className="h-5 w-5" />
-                        ) : (
-                          <Building2 className="h-5 w-5" />
-                        )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-start justify-between gap-2">
-                          <div>
-                            <h4 className="font-semibold text-foreground">
-                              {exp.title || exp.position}
-                            </h4>
-                            <p className="text-base text-muted-foreground">{exp.company}</p>
+                  <div className="space-y-4">
+                    {experiences.map((experience, index) => {
+                      const description = cleanText(experience.description || experience.desc);
+
+                      return (
+                        <div
+                          key={experience.id || `${experience.company}-${index}`}
+                          className="relative rounded-lg border border-slate-200 bg-slate-50/70 p-4 transition-colors hover:border-emerald-200 hover:bg-white"
+                        >
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                            <div className="min-w-0">
+                              <h3 className="text-base font-bold text-slate-950">
+                                {experience.title || experience.position || 'Vị trí chưa cập nhật'}
+                              </h3>
+                              <p className="mt-1 flex items-center gap-2 text-sm font-semibold text-slate-500">
+                                <Building2 className="h-4 w-4" />
+                                {experience.company || 'Công ty chưa cập nhật'}
+                              </p>
+                            </div>
+                            <span className="inline-flex w-fit rounded-lg bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 ring-1 ring-inset ring-slate-200">
+                              {formatPeriod(experience)}
+                            </span>
                           </div>
-                          <span
-                            className={`text-base ${i === 0 ? 'text-primary' : 'text-muted-foreground'}`}
-                          >
-                            {exp.period ||
-                              (exp.startDate && exp.endDate
-                                ? `${exp.startDate} - ${exp.endDate}`
-                                : '') ||
-                              '—'}
-                          </span>
+                          {description ? (
+                            <ul className="mt-4 space-y-2 border-t border-slate-200/80 pt-4">
+                              {description
+                                .split(/\n|•|\.\s+/)
+                                .filter(Boolean)
+                                .slice(0, 5)
+                                .map((line, lineIndex) => (
+                                  <li
+                                    key={`${experience.id || index}-${lineIndex}`}
+                                    className="flex gap-2 text-sm leading-6 text-slate-600"
+                                  >
+                                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+                                    <span>{line.trim()}</span>
+                                  </li>
+                                ))}
+                            </ul>
+                          ) : null}
                         </div>
-                        {(exp.description || exp.desc) && (
-                          <ul className="mt-3 list-inside list-disc space-y-1 text-base text-muted-foreground">
-                            {(exp.description || exp.desc)
-                              .split(/\n|•|\.\s+/)
-                              .filter(Boolean)
-                              .slice(0, 5)
-                              .map((line, j) => (
-                                <li key={j}>{line.trim()}</li>
-                              ))}
-                          </ul>
-                        )}
-                      </div>
-                    </div>
-                  ))
+                      );
+                    })}
+                  </div>
                 ) : (
-                  <p className="text-base text-muted-foreground">
-                    Chưa có thông tin. Hãy chỉnh sửa hồ sơ để thêm kinh nghiệm.
-                  </p>
+                  <EmptyPanel
+                    message="Dữ liệu kinh nghiệm làm việc chưa được bổ sung."
+                    action={
+                      <Button asChild size="sm" className="rounded-lg bg-emerald-600 font-semibold text-white hover:bg-emerald-700">
+                        <Link to="/candidate/profile/edit">Thêm kinh nghiệm</Link>
+                      </Button>
+                    }
+                  />
                 )}
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          {/* Education */}
-          <Card className="rounded-xl border bg-card shadow-sm">
-            <CardContent className="p-6">
-              <h3 className="text-base font-semibold text-foreground">Học vấn</h3>
-              <div className="mt-6 space-y-6">
-                {education.length > 0 ? (
-                  education.map((edu, i) => (
-                    <div key={i} className="flex gap-4">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-white">
-                        <GraduationCap className="h-5 w-5" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h4 className="font-semibold text-foreground">
-                          {edu.degree || edu.major || edu.school}
-                        </h4>
-                        <p className="text-base text-muted-foreground">
-                          {edu.school || edu.university} |{' '}
-                          {edu.period ||
-                            (edu.startDate && edu.endDate ? `${edu.startDate}-${edu.endDate}` : '')}
-                        </p>
-                        {edu.gpa && (
-                          <p className="mt-1 text-base text-muted-foreground">GPA: {edu.gpa}</p>
-                        )}
-                      </div>
+            <div className="grid gap-5 xl:grid-cols-2">
+              <Card className={PROFILE_SECTION_CLASS}>
+                <CardContent className="p-5 sm:p-6">
+                  <SectionHeader
+                    icon={GraduationCap}
+                    title="Học vấn"
+                    subtitle="Nền tảng đào tạo và chứng nhận học thuật."
+                    meta={`${education.length} mục`}
+                    tone="violet"
+                  />
+                  {education.length > 0 ? (
+                    <div className="space-y-3">
+                      {education.map((item, index) => (
+                        <div
+                          key={item.id || `${item.school}-${index}`}
+                          className="rounded-lg border border-slate-200 bg-slate-50/70 p-4 transition-colors hover:border-violet-200 hover:bg-white"
+                        >
+                          <div className="flex gap-3">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-violet-50 text-violet-700 ring-1 ring-inset ring-violet-100">
+                              <GraduationCap size={18} />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <h3 className="text-sm font-bold text-slate-950">
+                                {item.degree || item.major || item.school || 'Chương trình học'}
+                              </h3>
+                              <p className="mt-1 text-sm font-semibold text-slate-500">
+                                {item.school || item.university || 'Trường chưa cập nhật'}
+                              </p>
+                              <div className="mt-2 flex flex-wrap gap-2">
+                                <span className="inline-flex rounded-lg bg-white px-2.5 py-1 text-xs font-semibold text-violet-700 ring-1 ring-inset ring-violet-100">
+                                  {formatPeriod(item)}
+                                </span>
+                                {item.gpa ? (
+                                  <span className="inline-flex rounded-lg bg-white px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-100">
+                                    GPA: {item.gpa}
+                                  </span>
+                                ) : null}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))
+                  ) : (
+                    <EmptyPanel message="Thông tin học vấn đang được cập nhật." />
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card className={PROFILE_SECTION_CLASS}>
+                <CardContent className="p-5 sm:p-6">
+                  <SectionHeader
+                    icon={Sparkles}
+                    title="Chứng chỉ & giải thưởng"
+                    subtitle="Minh chứng bổ sung cho năng lực chuyên môn."
+                    meta={`${certifications.length} mục`}
+                    tone="amber"
+                  />
+                  {certifications.length > 0 ? (
+                    <div className="space-y-3">
+                      {certifications.map((item, index) => (
+                        <CertificationCard key={item.id || `${item.name}-${index}`} item={item} />
+                      ))}
+                    </div>
+                  ) : (
+                    <EmptyPanel message="Chưa có chứng chỉ hoặc giải thưởng được thêm vào hồ sơ." />
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+
+          <aside className="space-y-4 lg:sticky lg:top-6 lg:self-start">
+            <Card className={SURFACE_CARD_CLASS}>
+              <CardContent className="p-5">
+                <SectionHeader icon={User} title="Thông tin liên hệ" tone="emerald" />
+                <div className="grid gap-2.5">
+                  <InfoRow icon={MapPin} label="Vị trí" value={location} />
+                  <InfoRow icon={Mail} label="Email" value={email} />
+                  <InfoRow icon={Phone} label="Điện thoại" value={phone} />
+                  <InfoRow icon={DollarSign} label="Lương kỳ vọng" value={expectedSalary} />
+                  <InfoRow icon={Clock3} label="Kinh nghiệm" value={experienceText} />
+                </div>
+
+                {hasSocialLinks ? (
+                  <div className="mt-5 border-t border-slate-100 pt-5">
+                    <p className="mb-3 text-xs font-bold uppercase tracking-[0.12em] text-slate-400">Liên kết</p>
+                    <div className="flex flex-wrap gap-2">
+                      {socialLinks.linkedin ? (
+                        <SocialLink href={socialLinks.linkedin} icon={Linkedin} label="LinkedIn" className="bg-sky-50 text-sky-700 ring-sky-100" />
+                      ) : null}
+                      {socialLinks.github ? (
+                        <SocialLink href={socialLinks.github} icon={Github} label="GitHub" className="bg-slate-950 text-white ring-slate-900" />
+                      ) : null}
+                      {socialLinks.portfolio ? (
+                        <SocialLink href={socialLinks.portfolio} icon={Globe2} label="Hồ sơ dự án" className="bg-violet-50 text-violet-700 ring-violet-100" />
+                      ) : null}
+                      {socialLinks.website ? (
+                        <SocialLink href={socialLinks.website} icon={Globe} label="Website" className="bg-emerald-50 text-emerald-700 ring-emerald-100" />
+                      ) : null}
+                    </div>
+                  </div>
+                ) : null}
+              </CardContent>
+            </Card>
+
+            <Card className={SURFACE_CARD_CLASS}>
+              <CardContent className="p-5">
+                <SectionHeader icon={Briefcase} title="Mong muốn công việc" tone="sky" />
+                <div className="space-y-4">
+                  <div>
+                    <p className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-slate-400">Hình thức làm việc</p>
+                    <ChipList items={preferredWorkTypes} tone="sky" />
+                  </div>
+                  <div>
+                    <p className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-slate-400">Địa điểm</p>
+                    <ChipList items={preferredLocations} />
+                  </div>
+                  <div>
+                    <p className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-slate-400">Ngành nghề mục tiêu</p>
+                    <ChipList items={targetIndustries} tone="violet" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className={SURFACE_CARD_CLASS}>
+              <CardContent className="p-5">
+                <SectionHeader icon={Puzzle} title="Kỹ năng" meta={`${skillList.length}`} tone="emerald" />
+                <ChipList items={skillList} tone="emerald" empty="Chưa xác định kỹ năng cốt lõi" />
+              </CardContent>
+            </Card>
+
+            <Card className={SURFACE_CARD_CLASS}>
+              <CardContent className="p-5">
+                <SectionHeader icon={Globe} title="Ngôn ngữ" tone="sky" />
+                {languages.length > 0 ? (
+                  <div className="space-y-4">
+                    {languages.map((language, index) => {
+                      const name = language.name || language.language || language;
+                      const level = language.level || 'Chưa cập nhật';
+                      const progress = languageProgress(language);
+
+                      return (
+                        <div key={language.id || name || index}>
+                          <div className="mb-2 flex items-center justify-between gap-3">
+                            <span className="text-sm font-semibold text-slate-800">{name}</span>
+                            <span className="rounded-lg bg-sky-50 px-2 py-1 text-xs font-semibold text-sky-700 ring-1 ring-inset ring-sky-100">
+                              {level}
+                            </span>
+                          </div>
+                          <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+                            <div className="h-full rounded-full bg-sky-500" style={{ width: `${progress}%` }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 ) : (
-                  <p className="text-base text-muted-foreground">
-                    Chưa có thông tin. Hãy chỉnh sửa hồ sơ để thêm học vấn.
-                  </p>
+                  <p className="text-sm font-medium text-slate-400">Hệ thống chưa ghi nhận ngoại ngữ</p>
                 )}
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </aside>
         </div>
-      </div>
-
-      {/* Footer */}
-      <footer className="mt-12 text-center text-base text-muted-foreground">
-        © {new Date().getFullYear()} Hồ sơ ứng viên. Cập nhật lần cuối: {lastUpdatedStr}
-      </footer>
+      </main>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Search, MapPin, X, SlidersHorizontal, ChevronDown, Briefcase } from 'lucide-react';
+import { Search, MapPin, X, SlidersHorizontal, Briefcase, Check, ChevronDown } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -17,16 +17,74 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { EmptyState } from '@/components/common';
+import {
+  cn,
+  filterJobLocationOptions,
+  getJobLocationDisplayLabel,
+  resolveJobLocationValue,
+} from '@/utils';
 import JobCard from '../../components/candidate/jobs/JobCard';
 import JobFilterSidebar from '../../components/candidate/jobs/JobFilterSidebar';
 import useDebounce from '../../hooks/useDebounce';
 import api from '../../services/api';
 
 const QUICK_FILTERS = [
-  { label: 'Full-time', value: 'fulltime' },
-  { label: 'Remote', value: 'remote' },
+  { label: 'Toàn thời gian', value: 'fulltime', typeValue: 'full_time' },
+  { label: 'Từ xa', value: 'remote', typeValue: 'remote' },
   { label: 'Hà Nội', value: 'Ha Noi' },
   { label: 'Hồ Chí Minh', value: 'Ho Chi Minh' },
+];
+
+const JOB_TYPE_QUERY_VALUES = {
+  'Toàn thời gian': 'full_time',
+  'Bán thời gian': 'part_time',
+  'Hợp đồng': 'contract',
+  'Thực tập': 'internship',
+  'Từ xa': 'remote',
+  fulltime: 'full_time',
+  full_time: 'full_time',
+  part_time: 'part_time',
+  remote: 'remote',
+  contract: 'contract',
+  internship: 'internship',
+};
+
+const getJobTypeQueryValue = (value = '') => JOB_TYPE_QUERY_VALUES[String(value).trim()] || value;
+
+const locationOptions = [
+  { value: 'all', label: 'Toàn quốc' },
+  { value: 'Ha Noi', label: 'Hà Nội' },
+  { value: 'Ho Chi Minh', label: 'Hồ Chí Minh' },
+  { value: 'Da Nang', label: 'Đà Nẵng' },
+  { value: 'Remote', label: 'Làm việc từ xa' },
+];
+
+const getLocationOption = (value = '') =>
+  locationOptions.find((option) => option.value.toLowerCase() === String(value).trim().toLowerCase());
+
+const getLocationDisplayLabel = (value = '') => {
+  const normalizedValue = String(value || '').trim();
+  if (!normalizedValue) return '';
+  return getLocationOption(normalizedValue)?.label || normalizedValue;
+};
+
+const resolveLocationValue = (value = '') => {
+  const normalizedValue = String(value || '').trim();
+  if (!normalizedValue) return '';
+
+  const normalizedQuery = normalizedValue.toLowerCase();
+  const matchedOption = locationOptions.find(
+    (option) =>
+      option.label.toLowerCase() === normalizedQuery || option.value.toLowerCase() === normalizedQuery
+  );
+
+  return matchedOption ? (matchedOption.value === 'all' ? '' : matchedOption.value) : normalizedValue;
+};
+
+const sortOptions = [
+  { value: 'relevance', label: 'Phù hợp nhất' },
+  { value: 'newest', label: 'Mới nhất' },
+  { value: 'salary', label: 'Lương cao nhất' },
 ];
 
 const JobsPage = () => {
@@ -38,9 +96,15 @@ const JobsPage = () => {
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [selectedLocation, setSelectedLocation] = useState(searchParams.get('location') || '');
   const [sortBy, setSortBy] = useState('relevance');
-  const [filters, setFilters] = useState({ type: [], category_id: null });
+  const [filters, setFilters] = useState({
+    type: [],
+    category_id: searchParams.get('category_id') || null,
+  });
   const limit = 10;
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [isLocationOpen, setIsLocationOpen] = useState(false);
+  const [locationQuery, setLocationQuery] = useState(searchParams.get('location') || '');
+  const locationRef = useRef(null);
 
   const debouncedSearch = useDebounce(searchTerm, 500);
 
@@ -55,6 +119,38 @@ const JobsPage = () => {
     [debouncedSearch, selectedLocation, filters.category_id, filters.type]
   );
   const prevFilterSigRef = useRef(null);
+
+  useEffect(() => {
+    const nextSearch = searchParams.get('search') || '';
+    const nextLocation = searchParams.get('location') || '';
+    const nextCategoryId = searchParams.get('category_id') || null;
+
+    if (nextSearch !== searchTerm) {
+      setSearchTerm(nextSearch);
+    }
+
+    if (nextLocation !== selectedLocation) {
+      setSelectedLocation(nextLocation);
+      setLocationQuery(getJobLocationDisplayLabel(nextLocation));
+    }
+
+    setFilters((prev) =>
+      prev.category_id === nextCategoryId ? prev : { ...prev, category_id: nextCategoryId }
+    );
+  }, [searchParams, searchTerm, selectedLocation]);
+
+  // Handle outside click for location dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (locationRef.current && !locationRef.current.contains(event.target)) {
+        setIsLocationOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const filteredLocations = useMemo(() => filterJobLocationOptions(locationQuery), [locationQuery]);
 
   useEffect(() => {
     let cancelled = false;
@@ -74,7 +170,7 @@ const JobsPage = () => {
           search: debouncedSearch || undefined,
           location: selectedLocation || undefined,
           category_id: filters.category_id || undefined,
-          type: filters.type.length > 0 ? filters.type[0] : undefined,
+          type: filters.type.length > 0 ? getJobTypeQueryValue(filters.type[0]) : undefined,
           limit,
           offset: (currentPage - 1) * limit,
         };
@@ -82,7 +178,7 @@ const JobsPage = () => {
         if (cancelled) return;
         if (response.data.success) {
           setJobs(response.data.data || []);
-          setTotalJobs(response.data.total || 0);
+          setTotalJobs(response.data.meta?.pagination?.total || 0);
         }
       } catch (error) {
         if (!cancelled) console.error('Error fetching jobs:', error);
@@ -104,24 +200,13 @@ const JobsPage = () => {
     else nextParams.delete('search');
     if (selectedLocation) nextParams.set('location', selectedLocation);
     else nextParams.delete('location');
+    if (filters.category_id) nextParams.set('category_id', filters.category_id);
+    else nextParams.delete('category_id');
     if (nextParams.toString() !== searchParams.toString()) {
       setSearchParams(nextParams, { replace: true });
     }
-  }, [searchParams, searchTerm, selectedLocation, setSearchParams]);
+  }, [filters.category_id, searchParams, searchTerm, selectedLocation, setSearchParams]);
 
-  const locationOptions = [
-    { value: 'all', label: 'Toàn quốc' },
-    { value: 'Ha Noi', label: 'Hà Nội' },
-    { value: 'Ho Chi Minh', label: 'Hồ Chí Minh' },
-    { value: 'Da Nang', label: 'Đà Nẵng' },
-    { value: 'Remote', label: 'Làm việc từ xa' },
-  ];
-
-  const sortOptions = [
-    { value: 'relevance', label: 'Phù hợp nhất (AI)' },
-    { value: 'newest', label: 'Mới nhất' },
-    { value: 'salary', label: 'Lương cao nhất' },
-  ];
 
   const applyQuickFilter = (item) => {
     if (item.value === 'fulltime' || item.value === 'remote') {
@@ -132,27 +217,38 @@ const JobsPage = () => {
           : [item.label],
       }));
     } else {
-      setSelectedLocation(selectedLocation === item.value ? '' : item.value);
+      const nextLocation = item.value === 'all' ? '' : item.value;
+      setSelectedLocation(nextLocation);
+      setLocationQuery(item.label === 'Toàn quốc' ? '' : item.label);
     }
+  };
+
+  const handleSearch = () => {
+    const nextLocation = resolveJobLocationValue(locationQuery);
+    setSelectedLocation(nextLocation);
+    setLocationQuery(getJobLocationDisplayLabel(nextLocation) || String(locationQuery || '').trim());
+    setIsLocationOpen(false);
   };
 
   return (
     <div className="min-h-screen bg-emerald-50/30">
       {/* Hero - professional background: mesh gradient, dot pattern, grain, ambient blobs */}
-      <section className="page-hero-bg page-hero-grain relative overflow-hidden">
-        <div className="page-hero-pattern" aria-hidden />
-        <div className="page-hero-blob page-hero-blob-1" aria-hidden />
-        <div className="page-hero-blob page-hero-blob-2" aria-hidden />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_30%_20%,hsl(var(--primary)/0.06),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_70%_80%,hsl(var(--primary)/0.04),transparent_50%)]" />
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+      <section className="page-hero-bg page-hero-grain relative overflow-visible">
+        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+          <div className="page-hero-pattern" />
+          <div className="page-hero-blob page-hero-blob-1" />
+          <div className="page-hero-blob page-hero-blob-2" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_30%_20%,hsl(var(--primary)/0.06),transparent_50%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_70%_80%,hsl(var(--primary)/0.04),transparent_50%)]" />
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+        </div>
 
         <div className="container relative z-10 mx-auto max-w-6xl px-4 pt-14 pb-12 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-bold uppercase tracking-widest text-primary"
+              className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-bold uppercase tracking-normal text-primary"
             >
               <Briefcase className="size-3.5" />
               Hơn 8.000+ việc làm mới mỗi tháng
@@ -161,7 +257,7 @@ const JobsPage = () => {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.05 }}
-              className="text-3xl font-black tracking-tight text-foreground sm:text-4xl md:text-4xl lg:text-5xl"
+              className="text-3xl font-bold tracking-normal text-foreground sm:text-4xl md:text-4xl lg:text-5xl"
             >
               Tìm việc làm phù hợp với bạn
             </motion.h1>
@@ -171,7 +267,7 @@ const JobsPage = () => {
               transition={{ delay: 0.1 }}
               className="mt-3 text-base font-medium leading-relaxed text-muted-foreground md:text-lg"
             >
-              Khám phá cơ hội từ các công ty hàng đầu với AI matching thông minh
+              Khám phá cơ hội từ các công ty hàng đầu với trải nghiệm tìm việc rõ ràng và nhanh gọn
             </motion.p>
           </div>
 
@@ -180,17 +276,18 @@ const JobsPage = () => {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="mx-auto mt-8 max-w-4xl"
+            className="relative z-20 mx-auto mt-8 max-w-4xl"
           >
-            <div className="bg-white p-2 rounded-2xl border border-slate-100 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.06)] flex flex-col sm:flex-row gap-2 dark:bg-slate-900 dark:border-slate-800">
-              <div className="relative flex flex-1 items-center rounded-xl bg-slate-50/80 transition-colors focus-within:bg-slate-100/80 dark:bg-slate-800 dark:focus-within:bg-slate-700">
+            <div className="flex flex-col gap-2 rounded-2xl border border-border/60 bg-white/95 p-2 shadow-[0_18px_60px_-24px_rgba(15,23,42,0.18)] backdrop-blur sm:flex-row dark:border-slate-800 dark:bg-slate-900/95">
+              <div className="relative flex flex-1 items-center rounded-xl border border-transparent bg-muted/35 transition-[border-color,background-color,box-shadow] duration-200 hover:bg-muted/45 focus-within:border-primary/15 focus-within:bg-white focus-within:shadow-sm dark:bg-slate-800/80 dark:hover:bg-slate-800 dark:focus-within:border-emerald-500/20 dark:focus-within:bg-slate-900">
                 <Search className="absolute left-4 size-5 text-slate-400" aria-hidden />
                 <Input
                   type="search"
                   placeholder="Vị trí, kỹ năng, công ty..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="h-14 border-0 bg-transparent pl-12 pr-10 text-base font-medium text-slate-700 placeholder:text-slate-400 focus-visible:ring-0 shadow-none dark:text-slate-200"
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                  className="h-14 border-0 bg-transparent pl-12 pr-10 text-base font-semibold text-slate-700 placeholder:text-slate-400/90 focus-visible:ring-0 shadow-none dark:text-slate-200"
                   aria-label="Tìm kiếm việc làm"
                 />
                 {searchTerm && (
@@ -205,33 +302,95 @@ const JobsPage = () => {
                 )}
               </div>
 
-              <div className="flex shrink-0 items-center rounded-xl bg-slate-50/80 transition-colors focus-within:bg-slate-100/80 sm:min-w-[200px] dark:bg-slate-800 dark:focus-within:bg-slate-700">
+              <div
+                className="relative flex shrink-0 items-center rounded-xl border border-transparent bg-muted/35 transition-[border-color,background-color,box-shadow] duration-200 hover:bg-muted/45 focus-within:border-primary/15 focus-within:bg-white focus-within:shadow-sm sm:min-w-[240px] dark:bg-slate-800/80 dark:hover:bg-slate-800 dark:focus-within:border-emerald-500/20 dark:focus-within:bg-slate-900"
+                ref={locationRef}
+              >
                 <MapPin className="ml-4 size-5 shrink-0 text-slate-400" aria-hidden />
-                <Select
-                  value={selectedLocation || 'all'}
-                  onValueChange={(v) => setSelectedLocation(v === 'all' ? '' : v)}
-                >
-                  <SelectTrigger className="h-14 w-full border-0 bg-transparent px-3 text-base font-medium text-slate-700 focus:ring-0 focus:ring-offset-0 shadow-none dark:text-slate-200">
-                    <SelectValue placeholder="Toàn quốc" />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-xl border-slate-100 shadow-xl">
-                    <SelectItem value="all" className="text-base font-medium py-3 cursor-pointer">
-                      Toàn quốc
-                    </SelectItem>
-                    {locationOptions.map((opt) => (
-                      <SelectItem
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    placeholder="Toàn quốc"
+                    value={isLocationOpen ? locationQuery : getJobLocationDisplayLabel(selectedLocation)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setLocationQuery(val);
+                      if (!isLocationOpen) setIsLocationOpen(true);
+                    }}
+                    onFocus={() => {
+                      setIsLocationOpen(true);
+                      setLocationQuery(getJobLocationDisplayLabel(selectedLocation));
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleSearch();
+                      }
+                    }}
+                    className="h-14 w-full border-0 bg-transparent px-3 text-base font-semibold text-slate-700 placeholder:text-slate-400/90 outline-none focus:ring-0 shadow-none dark:text-slate-200"
+                    aria-label="Địa điểm"
+                  />
+                </div>
+                <ChevronDown
+                  className={`mr-3 size-4 text-slate-400 transition-transform duration-200 ${isLocationOpen ? 'rotate-180' : ''}`}
+                />
+
+                {/* Combobox Dropdown */}
+                {isLocationOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    className="absolute left-0 right-0 top-[calc(100%+0.625rem)] z-50 max-h-[320px] overflow-y-auto overflow-x-hidden rounded-2xl border border-border/70 bg-white/95 p-2 shadow-[0_20px_48px_-24px_rgba(15,23,42,0.35)] backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/95"
+                  >
+                    {filteredLocations.map((opt) => (
+                      <button
                         key={opt.value}
-                        value={opt.value}
-                        className="text-base font-medium py-3 cursor-pointer"
+                        type="button"
+                        onClick={() => {
+                          const val = opt.value === 'all' ? '' : opt.value;
+                          setSelectedLocation(val);
+                          setLocationQuery(opt.label);
+                          setIsLocationOpen(false);
+                        }}
+                        className={cn(
+                          'flex w-full items-center justify-between rounded-xl px-3.5 py-3 text-left text-base font-semibold leading-6 transition-[color,background-color,box-shadow] duration-150',
+                          selectedLocation === (opt.value === 'all' ? '' : opt.value)
+                            ? 'bg-primary/6 text-primary shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.08)] dark:bg-primary/12'
+                            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
+                        )}
                       >
-                        {opt.label}
-                      </SelectItem>
+                        <span className="truncate">{opt.label}</span>
+                        {(selectedLocation === (opt.value === 'all' ? '' : opt.value) ||
+                          (opt.value === 'all' && !selectedLocation)) && (
+                            <Check size={14} className="text-primary" />
+                          )}
+                      </button>
                     ))}
-                  </SelectContent>
-                </Select>
+
+                    {filteredLocations.length === 0 && (
+                      <div className="px-3 py-4 text-center">
+                        <p className="text-base font-medium text-slate-500">
+                          Không tìm thấy "{locationQuery}"
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedLocation(resolveJobLocationValue(locationQuery));
+                            setIsLocationOpen(false);
+                          }}
+                          className="mt-3 inline-flex items-center rounded-xl border border-border/60 bg-muted/20 px-3.5 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/5"
+                        >
+                          Sử dụng địa điểm này
+                        </button>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
               </div>
 
-              <Button className="h-14 shrink-0 px-10 text-sm font-black uppercase tracking-[0.1em] bg-emerald-50 text-emerald-950 hover:bg-emerald-100 border border-transparent rounded-xl transition-all dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50">
+              <Button
+                onClick={handleSearch}
+                className="h-14 shrink-0 rounded-xl border border-transparent bg-emerald-50 px-10 text-base font-bold tracking-normal text-emerald-950 transition-all hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50"
+              >
                 TÌM KIẾM
               </Button>
             </div>
@@ -248,11 +407,10 @@ const JobsPage = () => {
                     key={item.value}
                     type="button"
                     onClick={() => applyQuickFilter(item)}
-                    className={`rounded-full border px-4 py-2 text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 ${
-                      isActive
-                        ? 'border-transparent bg-primary text-primary-foreground hover:bg-primary/90'
-                        : 'border-border bg-transparent hover:bg-primary/10 hover:text-primary'
-                    }`}
+                    className={`rounded-full border px-4 py-2 text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 ${isActive
+                      ? 'border-transparent bg-primary text-primary-foreground hover:bg-primary/90'
+                      : 'border-border bg-transparent hover:bg-primary/10 hover:text-primary'
+                      }`}
                   >
                     {item.label}
                   </button>
@@ -277,7 +435,7 @@ const JobsPage = () => {
           <Sheet open={mobileFilterOpen} onOpenChange={setMobileFilterOpen}>
             <SheetContent side="left" className="flex w-full max-w-sm flex-col p-0">
               <SheetHeader className="shrink-0 border-b px-6 py-4">
-                <SheetTitle className="text-lg font-bold tracking-tight">Bộ lọc</SheetTitle>
+                <SheetTitle className="text-lg font-bold tracking-normal">Bộ lọc</SheetTitle>
               </SheetHeader>
               <div className="flex-1 overflow-y-auto p-4">
                 <JobFilterSidebar filters={filters} setFilters={setFilters} embedded />
@@ -295,7 +453,7 @@ const JobsPage = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="lg:hidden text-base font-black uppercase tracking-widest"
+                  className="lg:hidden text-base font-bold uppercase tracking-normal"
                   onClick={() => setMobileFilterOpen(true)}
                   aria-label="Mở bộ lọc"
                 >
@@ -322,11 +480,11 @@ const JobsPage = () => {
             {loading ? (
               <div className="flex flex-col gap-4">
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <Skeleton key={i} className="h-44 w-full rounded-2xl" />
+                  <Skeleton key={i} className="h-44 w-full rounded-xl" />
                 ))}
               </div>
             ) : jobs.length === 0 ? (
-              <Card className="overflow-hidden rounded-2xl border-border/60">
+              <Card className="overflow-hidden rounded-xl border-border/60">
                 <CardContent className="p-0">
                   <EmptyState
                     variant="robotSearch"

@@ -5,31 +5,31 @@ import { Brain, Zap, UserCheck, ShieldCheck, BarChart3 } from 'lucide-react';
 const values = [
   {
     icon: Brain,
-    title: 'AI phân tích chuyên sâu',
-    description: 'Hiểu kỹ năng, kinh nghiệm và tiềm năng của bạn thông qua phân tích NLP tiên tiến',
+    title: 'Phân tích chuyên sâu',
+    description: 'Hiểu kỹ năng, kinh nghiệm và tiềm năng của bạn thông qua phân tích dữ liệu hiệu quả',
     stat: '94.7%',
     statLabel: 'độ chính xác',
   },
   {
     icon: UserCheck,
     title: 'Cá nhân hóa hoàn toàn',
-    description: 'Mỗi gợi ý được điều chỉnh riêng dựa trên profile, mục tiêu và hành vi của bạn',
+    description: 'Mỗi gợi ý được điều chỉnh riêng dựa trên hồ sơ, mục tiêu và hành vi của bạn',
     stat: '12x',
     statLabel: 'hiệu quả hơn',
   },
   {
     icon: Zap,
     title: 'Kết nối tức thì',
-    description: 'Từ phân tích CV đến gợi ý việc làm chỉ trong vài giây nhờ AI real-time',
+    description: 'Từ phân tích CV đến gợi ý việc làm chỉ trong vài giây nhờ AI thời gian thực',
     stat: '3.2s',
     statLabel: 'thời gian phản hồi',
   },
   {
     icon: BarChart3,
-    title: 'Lộ trình rõ ràng',
-    description: 'Career roadmap được AI xây dựng dựa trên xu hướng thị trường và mục tiêu cá nhân',
-    stat: '5 năm',
-    statLabel: 'kế hoạch sự nghiệp',
+    title: 'Định hướng rõ ràng',
+    description: 'AI gợi ý các bước ưu tiên dựa trên xu hướng thị trường và mục tiêu cá nhân của bạn',
+    stat: '24/7',
+    statLabel: 'tư vấn liên tục',
   },
   {
     icon: ShieldCheck,
@@ -51,12 +51,12 @@ const ValueProposition = () => {
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="text-center mb-10 space-y-5"
         >
-          <span className="landing-badge">Tại sao chọn HireAI</span>
+          <span className="landing-badge">Tại sao chọn HireBOT</span>
           <h2 className="landing-heading">
-            AI là trung tâm <span className="landing-heading-muted">mọi trải nghiệm</span>
+            Hệ thống là trung tâm <span className="landing-heading-muted">mọi trải nghiệm</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed font-medium max-w-[65ch]">
-            Không chỉ là công cụ tìm việc — HireAI là người đồng hành thông minh trong hành trình sự
+            Không chỉ là công cụ tìm việc — HireBOT là người đồng hành thông minh trong hành trình sự
             nghiệp của bạn
           </p>
         </motion.div>
@@ -80,10 +80,10 @@ const ValueProposition = () => {
                     />
                   </div>
                   <div className="text-right">
-                    <p className="text-foreground font-extrabold text-lg tabular-nums tracking-tight">
+                    <p className="text-foreground font-extrabold text-lg tabular-nums tracking-normal">
                       {item.stat}
                     </p>
-                    <p className="text-muted-foreground text-base font-medium uppercase tracking-wider">
+                    <p className="text-muted-foreground text-base font-medium uppercase tracking-normal">
                       {item.statLabel}
                     </p>
                   </div>

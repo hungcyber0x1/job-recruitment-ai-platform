@@ -1,0 +1,488 @@
+-- =============================================================================
+-- INCREMENTAL MIGRATION SCRIPT (Preserves existing data)
+-- =============================================================================
+-- This script will:
+-- 1. Rename old tables to new schema names
+-- 2. Add new columns to existing tables
+-- 3. Update enum values
+-- 4. Add soft delete columns where missing
+-- 5. Create new tables
+-- =============================================================================
+-- Execute in MySQL directly:
+-- mysql -h localhost -P 3306 -u root -p030204 recruitment_db < 048_incremental_migration.sql
+-- =============================================================================
+
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- =============================================================================
+-- PHASE 1: RENAME OLD TABLES TO NEW NAMES
+-- =============================================================================
+
+-- Rename employers -> company_profiles
+RENAME TABLE employers TO company_profiles;
+
+-- Rename candidates -> candidate_profiles
+RENAME TABLE candidates TO candidate_profiles;
+
+-- Rename conversations -> chatbot_conversations
+RENAME TABLE conversations TO chatbot_conversations;
+
+-- Rename chat_messages -> chatbot_messages
+RENAME TABLE chat_messages TO chatbot_messages;
+
+-- Rename ticket_messages -> support_messages
+RENAME TABLE ticket_messages TO support_messages;
+
+-- =============================================================================
+-- PHASE 2: UPDATE USERS TABLE
+-- =============================================================================
+
+-- Update role enum to include 'recruiter'
+ALTER TABLE users 
+MODIFY COLUMN role ENUM('admin', 'recruiter', 'candidate') NOT NULL;
+
+-- Update existing 'employer' to 'recruiter'
+UPDATE users SET role = 'recruiter' WHERE role = 'employer';
+
+-- Update status enum
+ALTER TABLE users 
+MODIFY COLUMN status ENUM('active', 'pending', 'inactive', 'banned', 'locked') NOT NULL DEFAULT 'pending';
+
+-- Add missing columns if they don't exist
+ALTER TABLE users
+ADD COLUMN IF NOT EXISTS oauth_provider VARCHAR(50) NULL AFTER address,
+ADD COLUMN IF NOT EXISTS oauth_provider_id VARCHAR(255) NULL AFTER oauth_provider,
+ADD COLUMN IF NOT EXISTS password_updated_at DATETIME NULL AFTER locked_by,
+ADD COLUMN IF NOT EXISTS deleted_at DATETIME NULL AFTER updated_at,
+ADD INDEX IF NOT EXISTS idx_users_deleted_at (deleted_at),
+ADD INDEX IF NOT EXISTS idx_users_oauth (oauth_provider, oauth_provider_id);
+
+-- =============================================================================
+-- PHASE 3: UPDATE COMPANY_PROFILES TABLE
+-- =============================================================================
+
+-- Add missing columns
+ALTER TABLE company_profiles
+ADD COLUMN IF NOT EXISTS slug VARCHAR(255) NOT NULL UNIQUE AFTER name,
+ADD COLUMN IF NOT EXISTS cover_image_url VARCHAR(500) NULL AFTER logo_url,
+ADD COLUMN IF NOT EXISTS founded_year INT NULL AFTER industry,
+ADD COLUMN IF NOT EXISTS tax_code VARCHAR(50) NULL AFTER founded_year,
+ADD COLUMN IF NOT EXISTS locations JSON NULL AFTER headquarters,
+ADD COLUMN IF NOT EXISTS short_description VARCHAR(500) NULL AFTER industry,
+ADD COLUMN IF NOT EXISTS full_description TEXT NULL AFTER short_description,
+ADD COLUMN IF NOT EXISTS culture_description TEXT NULL AFTER full_description,
+ADD COLUMN IF NOT EXISTS benefits_description TEXT NULL AFTER culture_description,
+ADD COLUMN IF NOT EXISTS facebook_url VARCHAR(500) NULL AFTER benefits_description,
+ADD COLUMN IF NOT EXISTS linkedin_url VARCHAR(500) NULL AFTER facebook_url,
+ADD COLUMN IF NOT EXISTS twitter_url VARCHAR(500) NULL AFTER linkedin_url,
+ADD COLUMN IF NOT EXISTS verified_at DATETIME NULL AFTER is_verified,
+ADD COLUMN IF NOT EXISTS verified_by INT UNSIGNED NULL AFTER verified_at,
+ADD COLUMN IF NOT EXISTS flagged_at DATETIME NULL AFTER verified_by,
+ADD COLUMN IF NOT EXISTS flagged_reason TEXT NULL AFTER flagged_at,
+ADD COLUMN IF NOT EXISTS moderation_status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending' AFTER is_flagged,
+ADD COLUMN IF NOT EXISTS moderation_notes TEXT NULL AFTER moderation_status,
+ADD COLUMN IF NOT EXISTS total_jobs INT NOT NULL DEFAULT 0 AFTER moderation_notes,
+ADD COLUMN IF NOT EXISTS total_views INT NOT NULL DEFAULT 0 AFTER total_jobs,
+ADD COLUMN IF NOT EXISTS deleted_at DATETIME NULL AFTER updated_at;
+
+-- Generate slugs from company_name if empty
+UPDATE company_profiles SET slug = LOWER(REPLACE(REPLACE(REPLACE(company_name, ' ', '-'), '&', 'and'), '--', '-')) WHERE slug IS NULL OR slug = '';
+
+-- Add indexes
+ALTER TABLE company_profiles
+ADD INDEX IF NOT EXISTS idx_company_slug (slug),
+ADD INDEX IF NOT EXISTS idx_company_industry (industry),
+ADD INDEX IF NOT EXISTS idx_company_verified (is_verified),
+ADD INDEX IF NOT EXISTS idx_company_deleted (deleted_at);
+
+-- =============================================================================
+-- PHASE 4: UPDATE CANDIDATE_PROFILES TABLE
+-- =============================================================================
+
+-- Add missing columns
+ALTER TABLE candidate_profiles
+ADD COLUMN IF NOT EXISTS current_salary DECIMAL(15, 0) NULL AFTER experience_years,
+ADD COLUMN IF NOT EXISTS expected_salary DECIMAL(15, 0) NULL AFTER current_salary,
+ADD COLUMN IF NOT EXISTS preferred_job_types JSON NULL AFTER experience,
+ADD COLUMN IF NOT EXISTS preferred_locations JSON NULL AFTER preferred_job_types,
+ADD COLUMN IF NOT EXISTS preferred_salary DECIMAL(15, 0) NULL AFTER preferred_locations,
+ADD COLUMN IF NOT EXISTS cover_letter_url VARCHAR(500) NULL AFTER resume_url,
+ADD COLUMN IF NOT EXISTS portfolio_url VARCHAR(500) NULL AFTER cover_letter_url,
+ADD COLUMN IF NOT EXISTS linkedin_url VARCHAR(500) NULL AFTER portfolio_url,
+ADD COLUMN IF NOT EXISTS github_url VARCHAR(500) NULL AFTER linkedin_url,
+ADD COLUMN IF NOT EXISTS ai_profile_complete BOOLEAN NOT NULL DEFAULT FALSE AFTER github_url,
+ADD COLUMN IF NOT EXISTS ai_last_analyzed_at DATETIME NULL AFTER ai_profile_complete;
+
+-- =============================================================================
+-- PHASE 5: UPDATE JOBS TABLE
+-- =============================================================================
+
+-- Update status enum
+ALTER TABLE jobs
+MODIFY COLUMN status ENUM('draft', 'pending', 'published', 'rejected', 'closed', 'archived', 'expired') NOT NULL DEFAULT 'draft';
+
+-- Rename employer_id -> company_id (using new column approach)
+ALTER TABLE jobs ADD COLUMN company_id INT UNSIGNED NULL AFTER category_id;
+
+-- Copy employer_id data to company_id (since they're the same IDs)
+UPDATE jobs j 
+INNER JOIN employers e ON j.employer_id = e.id
+SET j.company_id = e.id;
+
+-- Drop the old foreign key first
+SET @fk_name = (SELECT CONSTRAINT_NAME FROM information_schema.KEY_COLUMN_USAGE 
+               WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'jobs' 
+               AND COLUMN_NAME = 'employer_id' AND REFERENCED_TABLE_NAME = 'employers');
+SET @sql = IF(@fk_name IS NOT NULL, CONCAT('ALTER TABLE jobs DROP FOREIGN KEY `', @fk_name, '`'), 'SELECT 1');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- Rename and set constraints
+ALTER TABLE jobs
+DROP COLUMN IF EXISTS employer_id,
+MODIFY COLUMN company_id INT UNSIGNED NOT NULL,
+ADD COLUMN IF NOT EXISTS job_embedding JSON NULL AFTER description,
+ADD COLUMN IF NOT EXISTS location_id INT UNSIGNED NULL AFTER salary_currency,
+ADD COLUMN IF NOT EXISTS location_text VARCHAR(255) NULL AFTER location_id,
+ADD COLUMN IF NOT EXISTS experience_min INT NULL AFTER location_text,
+ADD COLUMN IF NOT EXISTS experience_max INT NULL AFTER experience_min,
+ADD COLUMN IF NOT EXISTS education_required ENUM('high_school', 'college', 'bachelor', 'master', 'phd', 'any') DEFAULT 'any' AFTER experience_max,
+ADD COLUMN IF NOT EXISTS work_arrangement ENUM('onsite', 'remote', 'hybrid') NOT NULL DEFAULT 'onsite' AFTER job_type,
+ADD COLUMN IF NOT EXISTS moderation_status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending' AFTER status,
+ADD COLUMN IF NOT EXISTS rejection_reason TEXT NULL AFTER moderation_status,
+ADD COLUMN IF NOT EXISTS moderation_notes TEXT NULL AFTER rejection_reason,
+ADD COLUMN IF NOT EXISTS published_at DATETIME NULL AFTER moderation_notes,
+ADD COLUMN IF NOT EXISTS expires_at DATETIME NULL AFTER published_at,
+ADD COLUMN IF NOT EXISTS unique_views INT NOT NULL DEFAULT 0 AFTER views,
+ADD COLUMN IF NOT EXISTS applications_count INT NOT NULL DEFAULT 0 AFTER unique_views,
+ADD COLUMN IF NOT EXISTS slug VARCHAR(200) NOT NULL AFTER title,
+ADD COLUMN IF NOT EXISTS salary_negotiable BOOLEAN NOT NULL DEFAULT FALSE AFTER salary_currency;
+
+-- Generate slugs from title if empty
+UPDATE jobs SET slug = LOWER(REPLACE(REPLACE(REPLACE(title, ' ', '-'), '&', 'and'), '--', '-')) WHERE slug IS NULL OR slug = '';
+
+-- Add foreign key to company_profiles
+ALTER TABLE jobs
+ADD CONSTRAINT fk_jobs_company FOREIGN KEY (company_id) REFERENCES company_profiles(id) ON DELETE CASCADE;
+
+-- Add indexes
+ALTER TABLE jobs
+ADD INDEX IF NOT EXISTS idx_job_status (status),
+ADD INDEX IF NOT EXISTS idx_job_published (published_at),
+ADD INDEX IF NOT EXISTS idx_job_deadline (deadline),
+ADD INDEX IF NOT EXISTS idx_job_company (company_id),
+ADD INDEX IF NOT EXISTS idx_job_status_created (status, created_at);
+
+-- =============================================================================
+-- PHASE 6: UPDATE APPLICATIONS TABLE
+-- =============================================================================
+
+-- Update status enum
+ALTER TABLE applications
+MODIFY COLUMN status ENUM(
+    'pending', 'screening', 'reviewed', 'shortlisted', 
+    'interviewing', 'offered', 'hired', 
+    'rejected', 'withdrawn', 'accepted', 'declined'
+) NOT NULL DEFAULT 'pending';
+
+-- Add new columns
+ALTER TABLE applications
+ADD COLUMN IF NOT EXISTS answers JSON NULL AFTER cover_letter,
+ADD COLUMN IF NOT EXISTS ai_screening_completed_at DATETIME NULL AFTER ai_score,
+ADD COLUMN IF NOT EXISTS offer_details JSON NULL AFTER internal_notes;
+
+-- =============================================================================
+-- PHASE 7: UPDATE BLOG_POSTS TABLE
+-- =============================================================================
+
+-- Add missing columns
+ALTER TABLE blog_posts
+ADD COLUMN IF NOT EXISTS video_url VARCHAR(500) NULL AFTER image_url,
+ADD COLUMN IF NOT EXISTS tags JSON NULL AFTER category,
+ADD COLUMN IF NOT EXISTS scheduled_at DATETIME NULL AFTER is_published,
+ADD COLUMN IF NOT EXISTS meta_title VARCHAR(500) NULL AFTER rejection_reason,
+ADD COLUMN IF NOT EXISTS meta_description TEXT NULL AFTER meta_title,
+ADD COLUMN IF NOT EXISTS share_count INT NOT NULL DEFAULT 0 AFTER view_count,
+ADD COLUMN IF NOT EXISTS deleted_at DATETIME NULL AFTER updated_at,
+ADD INDEX IF NOT EXISTS idx_blog_deleted (deleted_at);
+
+-- Update author_type enum
+ALTER TABLE blog_posts
+MODIFY COLUMN author_type ENUM('admin', 'recruiter') NOT NULL;
+
+-- Rename employer_id -> company_id in blog_posts
+ALTER TABLE blog_posts 
+ADD COLUMN company_id INT UNSIGNED NULL AFTER author_user_id;
+
+-- Copy employer_id to company_id
+UPDATE blog_posts SET company_id = employer_id WHERE employer_id IS NOT NULL;
+
+-- Drop old foreign key and add new one
+SET @fk_blog_emp = (SELECT CONSTRAINT_NAME FROM information_schema.KEY_COLUMN_USAGE 
+                    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_posts' 
+                    AND COLUMN_NAME = 'employer_id' AND REFERENCED_TABLE_NAME = 'employers');
+SET @sql_blog = IF(@fk_blog_emp IS NOT NULL, CONCAT('ALTER TABLE blog_posts DROP FOREIGN KEY `', @fk_blog_emp, '`'), 'SELECT 1');
+PREPARE stmt_blog FROM @sql_blog;
+EXECUTE stmt_blog;
+DEALLOCATE PREPARE stmt_blog;
+
+ALTER TABLE blog_posts
+DROP COLUMN IF EXISTS employer_id;
+
+ALTER TABLE blog_posts
+ADD CONSTRAINT fk_blog_company FOREIGN KEY (company_id) REFERENCES company_profiles(id) ON DELETE SET NULL;
+
+-- =============================================================================
+-- PHASE 8: UPDATE SKILL_GAPS TABLE
+-- =============================================================================
+
+RENAME TABLE skill_gaps TO skill_gaps_new;
+
+CREATE TABLE skill_gaps (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    candidate_id INT UNSIGNED NOT NULL,
+    skill_id INT UNSIGNED NOT NULL,
+    current_level ENUM('none', 'beginner', 'intermediate', 'advanced', 'expert') NOT NULL,
+    target_level ENUM('beginner', 'intermediate', 'advanced', 'expert') NOT NULL,
+    priority INT NOT NULL DEFAULT 1,
+    resources JSON NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (candidate_id) REFERENCES candidate_profiles(id) ON DELETE CASCADE,
+    FOREIGN KEY (skill_id) REFERENCES skills(id) ON DELETE CASCADE,
+    INDEX idx_gap_candidate (candidate_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Copy data if exists
+INSERT IGNORE INTO skill_gaps (id, candidate_id, skill_id, created_at, updated_at)
+SELECT id, candidate_id, skill_id, created_at, updated_at FROM skill_gaps_new;
+DROP TABLE skill_gaps_new;
+
+-- =============================================================================
+-- PHASE 9: UPDATE CAREER_PATHS TABLE
+-- =============================================================================
+
+ALTER TABLE career_paths
+ADD COLUMN IF NOT EXISTS target_roles JSON NULL AFTER description,
+ADD COLUMN IF NOT EXISTS skill_gaps JSON NULL AFTER target_roles,
+ADD COLUMN IF NOT EXISTS timeline_months INT NULL AFTER skill_gaps;
+
+-- =============================================================================
+-- PHASE 10: UPDATE INTERVIEW_SESSIONS TABLE
+-- =============================================================================
+
+ALTER TABLE interview_sessions
+ADD COLUMN IF NOT EXISTS application_id INT UNSIGNED NULL AFTER candidate_id,
+ADD COLUMN IF NOT EXISTS focus_area VARCHAR(100) NULL AFTER difficulty_level,
+ADD COLUMN IF NOT EXISTS started_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER notes,
+ADD COLUMN IF NOT EXISTS completed_at DATETIME NULL AFTER started_at,
+ADD CONSTRAINT fk_interview_application FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE SET NULL;
+
+-- =============================================================================
+-- PHASE 11: UPDATE SCREENING_RESULTS TABLE
+-- =============================================================================
+
+RENAME TABLE screening_results TO application_screening_old;
+
+CREATE TABLE application_screening (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    application_id INT UNSIGNED NOT NULL,
+    question TEXT NOT NULL,
+    answer TEXT NULL,
+    ai_score INT NULL,
+    ai_feedback TEXT NULL,
+    relevance_rating ENUM('highly_relevant', 'relevant', 'somewhat_relevant', 'not_relevant') NULL,
+    analyzed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE CASCADE,
+    INDEX idx_screening_application (application_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Copy data
+INSERT INTO application_screening (id, application_id, question_text, answer_text, ai_score, ai_feedback, created_at)
+SELECT id, application_id, question_text, answer_text, ai_score, ai_feedback, created_at FROM application_screening_old;
+
+DROP TABLE application_screening_old;
+
+-- =============================================================================
+-- PHASE 12: UPDATE SUPPORT TICKETS TABLE
+-- =============================================================================
+
+ALTER TABLE support_tickets
+ADD COLUMN IF NOT EXISTS description TEXT NULL AFTER subject,
+ADD COLUMN IF NOT EXISTS assigned_to INT UNSIGNED NULL AFTER status,
+ADD COLUMN IF NOT EXISTS resolved_at DATETIME NULL AFTER updated_at;
+
+-- Update category enum
+ALTER TABLE support_tickets
+MODIFY COLUMN category ENUM('technical', 'billing', 'account', 'feature_request', 'bug_report', 'other') NOT NULL DEFAULT 'other',
+MODIFY COLUMN status ENUM('open', 'in_progress', 'waiting_response', 'resolved', 'closed') NOT NULL DEFAULT 'open';
+
+-- =============================================================================
+-- PHASE 13: UPDATE CHATBOT TABLES
+-- =============================================================================
+
+ALTER TABLE chatbot_conversations
+ADD COLUMN IF NOT EXISTS application_id INT UNSIGNED NULL AFTER user_id,
+ADD COLUMN IF NOT EXISTS context JSON NULL AFTER title,
+ADD COLUMN IF NOT EXISTS message_count INT NOT NULL DEFAULT 0 AFTER context,
+ADD COLUMN IF NOT EXISTS tokens_used INT NULL AFTER message_count,
+ADD COLUMN IF NOT EXISTS ended_at DATETIME NULL AFTER updated_at,
+ADD CONSTRAINT fk_conv_application FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE SET NULL,
+ADD INDEX IF NOT EXISTS idx_conv_application (application_id);
+
+ALTER TABLE chatbot_messages
+ADD COLUMN IF NOT EXISTS sender_type ENUM('user', 'ai', 'system') NOT NULL DEFAULT 'user' AFTER sender_id,
+ADD COLUMN IF NOT EXISTS message_type ENUM('text', 'html', 'markdown', 'attachment') NOT NULL DEFAULT 'text' AFTER content,
+ADD COLUMN IF NOT EXISTS attachments JSON NULL AFTER message_type,
+ADD COLUMN IF NOT EXISTS ai_model VARCHAR(50) NULL AFTER attachments,
+ADD COLUMN IF NOT EXISTS tokens_used INT NULL AFTER ai_model,
+ADD COLUMN IF NOT EXISTS processing_time_ms INT NULL AFTER tokens_used,
+ADD COLUMN IF NOT EXISTS is_helpful BOOLEAN NULL AFTER processing_time_ms;
+
+-- =============================================================================
+-- PHASE 14: CREATE NEW TABLES
+-- =============================================================================
+
+-- USER PREFERENCES
+CREATE TABLE IF NOT EXISTS user_preferences (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL UNIQUE,
+    language VARCHAR(10) NOT NULL DEFAULT 'vi',
+    timezone VARCHAR(50) NOT NULL DEFAULT 'Asia/Ho_Chi_Minh',
+    theme ENUM('light', 'dark', 'system') NOT NULL DEFAULT 'system',
+    notify_email_application BOOLEAN NOT NULL DEFAULT TRUE,
+    notify_email_message BOOLEAN NOT NULL DEFAULT TRUE,
+    notify_email_job_alert BOOLEAN NOT NULL DEFAULT TRUE,
+    notify_push_all BOOLEAN NOT NULL DEFAULT TRUE,
+    profile_visibility ENUM('public', 'connections', 'private') NOT NULL DEFAULT 'public',
+    show_online_status BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- LOCATIONS
+CREATE TABLE IF NOT EXISTS locations (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    slug VARCHAR(100) NOT NULL UNIQUE,
+    type ENUM('country', 'region', 'city', 'district') NOT NULL DEFAULT 'city',
+    parent_id INT UNSIGNED NULL,
+    timezone VARCHAR(50) NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (parent_id) REFERENCES locations(id) ON DELETE SET NULL,
+    INDEX idx_location_slug (slug),
+    INDEX idx_location_type (type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- NOTIFICATIONS
+CREATE TABLE IF NOT EXISTS notifications (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NULL,
+    reference_type ENUM('application', 'job', 'message', 'blog', 'system') NULL,
+    reference_id INT UNSIGNED NULL,
+    channel ENUM('in_app', 'email', 'push', 'sms') NOT NULL DEFAULT 'in_app',
+    is_sent BOOLEAN NOT NULL DEFAULT FALSE,
+    sent_at DATETIME NULL,
+    is_read BOOLEAN NOT NULL DEFAULT FALSE,
+    read_at DATETIME NULL,
+    metadata JSON NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_notification_user (user_id),
+    INDEX idx_notification_read (is_read),
+    INDEX idx_notification_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =============================================================================
+-- PHASE 15: INSERT DEFAULT PREFERENCES
+-- =============================================================================
+
+INSERT IGNORE INTO user_preferences (user_id)
+SELECT id FROM users;
+
+-- =============================================================================
+-- PHASE 16: INSERT REFERENCE DATA
+-- =============================================================================
+
+-- Categories
+INSERT IGNORE INTO categories (id, name, slug, description, icon, color, sort_order) VALUES
+(1, 'Information Technology', 'information-technology', 'Software development and IT', '💻', '#007bff', 1),
+(2, 'Marketing & Sales', 'marketing-sales', 'Marketing and sales roles', '📈', '#28a745', 2),
+(3, 'Finance & Accounting', 'finance-accounting', 'Finance and accounting', '💰', '#ffc107', 3),
+(4, 'Human Resources', 'human-resources', 'HR and recruiting', '👥', '#17a2b8', 4),
+(5, 'Engineering', 'engineering', 'Engineering positions', '⚙️', '#6c757d', 5),
+(6, 'Design & Creative', 'design-creative', 'Design and creative', '🎨', '#e83e8c', 6);
+
+-- Sample Skills
+INSERT IGNORE INTO skills (id, name, slug, category) VALUES
+(1, 'JavaScript', 'javascript', 'Programming'),
+(2, 'TypeScript', 'typescript', 'Programming'),
+(3, 'Python', 'python', 'Programming'),
+(4, 'React', 'react', 'Framework'),
+(5, 'Node.js', 'nodejs', 'Framework'),
+(6, 'SQL', 'sql', 'Database'),
+(7, 'Communication', 'communication', 'Soft Skill'),
+(8, 'Problem Solving', 'problem-solving', 'Soft Skill');
+
+-- Sample Locations
+INSERT IGNORE INTO locations (id, name, slug, type) VALUES
+(1, 'Vietnam', 'vietnam', 'country'),
+(2, 'Hanoi', 'hanoi', 'city'),
+(3, 'Ho Chi Minh City', 'ho-chi-minh-city', 'city'),
+(4, 'Da Nang', 'da-nang', 'city');
+
+-- Sample System Settings
+INSERT IGNORE INTO system_settings (key_name, value, value_type, description, is_public) VALUES
+('FEATURE_AI_CHATBOT', 'true', 'boolean', 'Enable AI chatbot', TRUE),
+('FEATURE_AI_MATCHING', 'true', 'boolean', 'Enable AI matching', TRUE),
+('SITE_NAME', 'Job Recruitment Platform', 'string', 'Site name', TRUE),
+('SUPPORT_EMAIL', 'support@recruitment.vn', 'string', 'Support email', TRUE);
+
+-- =============================================================================
+-- PHASE 17: CLEANUP
+-- =============================================================================
+
+-- Drop legacy columns if any remain (check first)
+-- ALTER TABLE users DROP COLUMN IF EXISTS is_active; -- UNCOMMENT ONLY IF READY TO BREAK OLD CODE
+
+-- Re-enable foreign key checks
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- =============================================================================
+-- VERIFICATION
+-- =============================================================================
+
+SELECT 'Migration completed successfully!' AS status, NOW() AS completed_at;
+
+-- Show final table list
+SHOW TABLES;
+
+-- Record counts
+SELECT 'users' AS tbl, COUNT(*) AS cnt FROM users
+UNION ALL SELECT 'company_profiles', COUNT(*) FROM company_profiles
+UNION ALL SELECT 'candidate_profiles', COUNT(*) FROM candidate_profiles
+UNION ALL SELECT 'jobs', COUNT(*) FROM jobs
+UNION ALL SELECT 'applications', COUNT(*) FROM applications
+UNION ALL SELECT 'blog_posts', COUNT(*) FROM blog_posts
+UNION ALL SELECT 'categories', COUNT(*) FROM categories
+UNION ALL SELECT 'skills', COUNT(*) FROM skills
+UNION ALL SELECT 'locations', COUNT(*) FROM locations
+UNION ALL SELECT 'chatbot_conversations', COUNT(*) FROM chatbot_conversations
+UNION ALL SELECT 'chatbot_messages', COUNT(*) FROM chatbot_messages
+UNION ALL SELECT 'user_preferences', COUNT(*) FROM user_preferences
+UNION ALL SELECT 'system_settings', COUNT(*) FROM system_settings;
+
+-- =============================================================================
+-- NEXT STEPS:
+-- 1. Update application code to use new table names
+-- 2. Update User model to reference candidate_profiles.company_id
+-- 3. Update Job model to reference company_profiles
+-- 4. Update foreign key references
+-- =============================================================================

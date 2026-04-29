@@ -11,7 +11,7 @@ const CompanyCard = ({ company }) => {
         {/* Optional Cover Image */}
       </div>
       <div className="px-6 pt-12 pb-6 relative flex flex-col flex-1">
-        <div className="w-16 h-16 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-center justify-center absolute -top-8 left-6 group-hover:scale-105 transition-transform duration-300 overflow-hidden">
+        <div className="w-16 h-16 bg-white rounded-xl border border-slate-100 shadow-sm flex items-center justify-center absolute -top-8 left-6 group-hover:scale-105 transition-transform duration-300 overflow-hidden">
           <img
             src={
               company.logo || `https://ui-avatars.com/api/?name=${company.name}&background=random`
@@ -22,14 +22,14 @@ const CompanyCard = ({ company }) => {
         </div>
 
         <div className="flex flex-col flex-1 text-left">
-          <h3 className="text-[1.15rem] font-bold text-slate-800 mb-1 line-clamp-1 group-hover:text-primary transition-colors leading-snug tracking-tight">
+          <h3 className="text-lg font-bold text-slate-800 mb-1 line-clamp-1 group-hover:text-primary transition-colors leading-snug tracking-normal">
             {company.name}
           </h3>
-          <p className="text-[0.85rem] font-medium text-slate-500 mb-5 truncate">
+          <p className="text-sm font-medium text-slate-500 mb-5 truncate">
             {company.industry}
           </p>
 
-          <div className="space-y-2.5 mb-6 text-[0.85rem]">
+          <div className="space-y-2.5 mb-6 text-sm">
             <div className="flex items-center gap-2.5 font-medium text-slate-600">
               <MapPin size={16} className="text-slate-400 flex-shrink-0" />
               <span className="truncate">{company.location}</span>
@@ -45,8 +45,8 @@ const CompanyCard = ({ company }) => {
           </div>
 
           <Link
-            to={`/candidate/companies/${company.id}`}
-            className="block w-full py-2.5 rounded-xl bg-slate-50 text-slate-600 font-bold text-center text-sm hover:bg-muted/55 hover:text-primary transition-colors mt-auto"
+            to={`/companies/${company.id}`}
+            className="block w-full py-2.5 rounded-xl bg-slate-50 text-slate-600 font-bold text-center text-sm btn-hover-secondary"
           >
             Xem chi tiết
           </Link>

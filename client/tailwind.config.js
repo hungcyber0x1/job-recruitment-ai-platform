@@ -2,7 +2,7 @@
  * Cấu hình Tailwind cho client.
  *
  * - `colors`: map tới biến HSL trong `src/index.css` (semantic: primary, card, …).
- * - `fontFamily.sans`: Outfit; `article`: serif cho nội dung blog.
+ * - `fontFamily.sans`: Be Vietnam Pro; `article`: serif cho nội dung blog.
  * - `extend`: shadow, animation — giữ `content` trỏ đủ file JSX/TSX để JIT không bỏ sót class.
  *
  * @type {import('tailwindcss').Config}
@@ -53,6 +53,60 @@ export default {
         'txt-light': 'hsl(215 20% 72%)',
         'state-success': 'hsl(var(--su))',
         'state-danger': 'hsl(var(--er))',
+        success: {
+          DEFAULT: 'hsl(var(--success))',
+          50: '#f0fdf4',
+          100: '#dcfce7',
+          200: '#bbf7d0',
+          400: '#4ade80',
+          500: '#22c55e',
+          600: '#16a34a',
+          700: '#15803d',
+          800: '#166534',
+        },
+        warning: {
+          DEFAULT: 'hsl(var(--warning))',
+          50: '#fefce8',
+          100: '#fef9c3',
+          200: '#fef08a',
+          400: '#facc15',
+          500: '#eab308',
+          600: '#ca8a04',
+          700: '#a16207',
+          800: '#854d0e',
+        },
+        danger: {
+          DEFAULT: 'hsl(var(--danger))',
+          50: '#fef2f2',
+          100: '#fee2e2',
+          200: '#fecaca',
+          400: '#f87171',
+          500: '#ef4444',
+          600: '#dc2626',
+          700: '#b91c1c',
+          800: '#991b1b',
+        },
+        error: {
+          DEFAULT: 'hsl(var(--danger))',
+          50: '#fef2f2',
+          100: '#fee2e2',
+          200: '#fecaca',
+          400: '#f87171',
+          500: '#ef4444',
+          600: '#dc2626',
+          700: '#b91c1c',
+          800: '#991b1b',
+        },
+        neutral: {
+          DEFAULT: 'hsl(var(--neutral))',
+          50: '#f9fafb',
+          100: '#f3f4f6',
+          200: '#e5e7eb',
+          500: '#6b7280',
+          600: '#4b5563',
+          700: '#374151',
+          800: '#1f2937',
+        },
         'primary-50': '#ecfdf5',
         'primary-100': '#d1fae5',
         'primary-200': '#a7f3d0',
@@ -107,49 +161,50 @@ export default {
         },
       },
       boxShadow: {
-        premium: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-        super: '0 8px 32px -12px rgba(0, 0, 0, 0.03)',
-        glow: '0 0 20px rgba(99, 102, 241, 0.4)',
-        'blue-glow': '0 0 25px rgba(0, 102, 255, 0.3)',
-        glass: '0 8px 32px 0 rgba(31, 38, 135, 0.05)',
-        'ai-glow': '0 0 15px rgba(0, 255, 170, 0.3)',
+        premium: '0 14px 28px -18px rgba(15, 23, 42, 0.28)',
+        super: '0 8px 24px -16px rgba(15, 23, 42, 0.16)',
+        glow: '0 0 20px rgba(16, 185, 129, 0.24)',
+        'blue-glow': '0 0 20px rgba(16, 185, 129, 0.20)',
+        glass: '0 8px 28px -18px rgba(15, 23, 42, 0.18)',
+        'ai-glow': '0 0 18px rgba(20, 184, 166, 0.22)',
         solid: '2px 2px 0px 0px currentColor',
         'solid-sm': '1px 1px 0px 0px currentColor',
       },
-      fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+       fontFamily: {
+        sans: ['"Be Vietnam Pro"', '"Roboto"', '"Nunito"', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         /** Nội dung bài viết / phong cách báo in */
         article: ['"Source Serif 4"', 'Georgia', 'Cambria', 'Times New Roman', 'serif'],
         mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
       },
-      /** Cỡ chữ tổng thể lớn hơn mặc định — dễ đọc trên dashboard & marketing */
+      /** Unified product typography scale. Keep rem stable so shared utilities remain predictable. */
       fontSize: {
-        xs: ['0.875rem', { lineHeight: '1.375rem' }],
-        sm: ['0.9375rem', { lineHeight: '1.5rem' }],
-        base: ['1.0625rem', { lineHeight: '1.625rem' }],
-        lg: ['1.1875rem', { lineHeight: '1.8125rem' }],
-        xl: ['1.3125rem', { lineHeight: '1.875rem' }],
-        '2xl': ['1.5625rem', { lineHeight: '2.125rem' }],
-        '3xl': ['1.9375rem', { lineHeight: '2.375rem' }],
-        '4xl': ['2.375rem', { lineHeight: '2.875rem' }],
-        '5xl': ['3.125rem', { lineHeight: '1.1' }],
-        '6xl': ['3.875rem', { lineHeight: '1.1' }],
+        xs: ['0.875rem', { lineHeight: '1.25rem' }],     // 14px -> 15.75px
+        sm: ['1rem', { lineHeight: '1.5rem' }],            // 14px -> 15.75px
+        base: ['1.125rem', { lineHeight: '1.75rem' }],    // 16px -> 18px
+        lg: ['1.25rem', { lineHeight: '2rem' }],          // 18px -> 20.25px
+        xl: ['1.375rem', { lineHeight: '2rem' }],         // 20px -> 22.5px
+        '2xl': ['1.625rem', { lineHeight: '2.25rem' }],  // 24px -> 29.25px
+        '3xl': ['2rem', { lineHeight: '2.5rem' }],       // 30px -> 36px
+        '4xl': ['2.5rem', { lineHeight: '2.75rem' }],     // 36px -> 45px
+        '5xl': ['3.25rem', { lineHeight: '1.15' }],      // 48px -> 58.5px
+        '6xl': ['4rem', { lineHeight: '1.1' }],          // 60px -> 72px
       },
       borderRadius: {
         none: '0px',
         sm: '0.25rem',
-        md: '0.5rem',
-        lg: '0.75rem',
-        xl: '1rem',
-        '2xl': '1.25rem',
-        '3xl': '1.5rem',
+        md: '0.375rem',
+        lg: '0.5rem',
+        xl: '0.5rem',
+        '2xl': '0.5rem',
+        '3xl': '0.5rem',
         full: '9999px',
       },
       animation: {
         'fade-in': 'fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
         'slide-up': 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-        scanline: 'scanline 8s linear infinite',
-        glitch: 'glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite',
+        'scanline': 'scanline 8s linear infinite',
+        'glitch': 'glitch 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite',
+        'spin-slow': 'spin 3s linear infinite',
       },
       keyframes: {
         fadeIn: {

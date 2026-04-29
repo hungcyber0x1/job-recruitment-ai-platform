@@ -39,10 +39,12 @@ export const DESIGN_COLORS = {
   },
 
   // Semantic Colors
-  success: '#10b981', // #10b981 green
-  warning: '#F59E0B', // #F59E0B amber
-  error: '#EF4444', // #EF4444 red
-  info: '#14B8A6',
+  success: '#22C55E',
+  warning: '#EAB308',
+  error: '#EF4444',
+  danger: '#EF4444',
+  neutral: '#6B7280',
+  info: '#10b981',
 
   // Neutral Slate
   slate: {
@@ -77,53 +79,53 @@ export const DESIGN_COLORS = {
 export const TYPOGRAPHY = {
   // Headings
   h1: {
-    size: '48px', // 3rem
-    lineHeight: '56px', // 3.5rem
-    weight: 900, // Black
-    tracking: '-2px', // -0.05em
+    size: '30px',
+    lineHeight: '38px',
+    weight: 700,
+    tracking: '0',
   },
   h2: {
-    size: '36px', // 2.25rem
-    lineHeight: '44px', // 2.75rem
-    weight: 900,
-    tracking: '-1.5px',
+    size: '24px',
+    lineHeight: '32px',
+    weight: 700,
+    tracking: '0',
   },
   h3: {
-    size: '28px', // 1.75rem
-    lineHeight: '36px', // 2.25rem
-    weight: 800, // ExtraBold
-    tracking: '-1px',
+    size: '20px',
+    lineHeight: '28px',
+    weight: 700,
+    tracking: '0',
   },
   h4: {
-    size: '24px', // 1.5rem
-    lineHeight: '32px', // 2rem
-    weight: 700, // Bold
+    size: '18px',
+    lineHeight: '28px',
+    weight: 600,
   },
   h5: {
-    size: '20px', // 1.25rem
-    lineHeight: '28px', // 1.75rem
-    weight: 700,
+    size: '16px',
+    lineHeight: '24px',
+    weight: 600,
   },
   h6: {
-    size: '16px', // 1rem
-    lineHeight: '24px', // 1.5rem
-    weight: 600, // SemiBold
+    size: '14px',
+    lineHeight: '20px',
+    weight: 600,
   },
 
   // Body
   body: {
     base: {
       size: '16px',
-      lineHeight: '24px', // 1.5rem
+      lineHeight: '24px',
       weight: 400,
     },
     small: {
-      size: '14px', // 0.875rem
-      lineHeight: '20px',
+      size: '14px',
+      lineHeight: '22px',
       weight: 400,
     },
     large: {
-      size: '18px', // 1.125rem
+      size: '18px',
       lineHeight: '28px',
       weight: 400,
     },
@@ -131,16 +133,16 @@ export const TYPOGRAPHY = {
 
   // Special
   caption: {
-    size: '12px', // 0.75rem
-    lineHeight: '16px', // 1rem
-    weight: 500, // Medium
-    letter: '0.02em', // Increased tracking
+    size: '12px',
+    lineHeight: '16px',
+    weight: 500,
+    letter: '0',
   },
   label: {
-    size: '14px', // 0.875rem
+    size: '14px',
     lineHeight: '20px',
-    weight: 600, // SemiBold
-    letter: '0.01em',
+    weight: 600,
+    letter: '0',
   },
 };
 
@@ -173,12 +175,12 @@ export const SPACING = {
  */
 export const BORDER_RADIUS = {
   none: '0px',
-  sm: '4px', // 0.25rem
-  md: '8px', // 0.5rem
-  lg: '12px', // 0.75rem
-  xl: '16px', // 1rem
-  '2xl': '20px', // 1.25rem
-  '3xl': '24px', // 1.5rem
+  sm: '4px',
+  md: '6px',
+  lg: '8px',
+  xl: '8px',
+  '2xl': '8px',
+  '3xl': '8px',
   full: '9999px', // Full circular
 };
 
@@ -227,28 +229,28 @@ export const GRID = {
  */
 export const BUTTON_VARIANTS = {
   primary: {
-    base: 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white',
-    small: 'px-3 py-1.5 text-sm',
-    medium: 'px-6 py-2.5 text-base',
-    large: 'px-8 py-3.5 text-lg',
+    base: 'bg-primary text-primary-foreground hover:bg-primary/90',
+    small: 'h-9 px-3 text-sm rounded-lg',
+    medium: 'h-10 px-4 text-sm rounded-lg',
+    large: 'h-11 px-5 text-sm rounded-lg',
   },
   secondary: {
-    base: 'bg-muted/60 hover:bg-muted/80 active:bg-muted text-foreground transition-colors duration-200 ease-out',
-    small: 'px-3 py-1.5 text-sm',
-    medium: 'px-6 py-2.5 text-base',
-    large: 'px-8 py-3.5 text-lg',
+    base: 'border border-border bg-card text-foreground hover:bg-muted/60',
+    small: 'h-9 px-3 text-sm rounded-lg',
+    medium: 'h-10 px-4 text-sm rounded-lg',
+    large: 'h-11 px-5 text-sm rounded-lg',
   },
   ghost: {
-    base: 'bg-transparent hover:bg-muted/35 active:bg-muted/55 text-foreground transition-colors duration-200 ease-out',
-    small: 'px-3 py-1.5 text-sm',
-    medium: 'px-6 py-2.5 text-base',
-    large: 'px-8 py-3.5 text-lg',
+    base: 'bg-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground',
+    small: 'h-9 px-3 text-sm rounded-lg',
+    medium: 'h-10 px-4 text-sm rounded-lg',
+    large: 'h-11 px-5 text-sm rounded-lg',
   },
   destructive: {
-    base: 'bg-red-600 hover:bg-red-700 active:bg-red-800 text-white',
-    small: 'px-3 py-1.5 text-sm',
-    medium: 'px-6 py-2.5 text-base',
-    large: 'px-8 py-3.5 text-lg',
+    base: 'bg-danger text-white hover:bg-danger/90',
+    small: 'h-9 px-3 text-sm rounded-lg',
+    medium: 'h-10 px-4 text-sm rounded-lg',
+    large: 'h-11 px-5 text-sm rounded-lg',
   },
 };
 

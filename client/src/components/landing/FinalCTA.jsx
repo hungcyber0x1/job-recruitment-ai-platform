@@ -12,7 +12,7 @@ const FinalCTA = () => {
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="relative overflow-hidden rounded-3xl bg-muted/50 border border-primary/10 shadow-[0_0_0_1px_rgba(16,185,129,0.05)_inset]"
+          className="relative overflow-hidden rounded-xl bg-muted/50 border border-primary/10 shadow-[0_0_0_1px_rgba(16,185,129,0.05)_inset]"
         >
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/[0.06] rounded-full blur-[100px]" />
@@ -38,7 +38,7 @@ const FinalCTA = () => {
               Bắt đầu miễn phí — không cần thẻ tín dụng
             </motion.div>
 
-            <h2 className="text-4xl md:text-5xl lg:text-7xl font-extrabold text-foreground tracking-tighter leading-[1.05] mb-6 text-balance">
+            <h2 className="text-4xl md:text-5xl lg:text-7xl font-extrabold text-foreground tracking-normal leading-[1.05] mb-6 text-balance">
               Đừng bỏ lỡ <span className="text-primary">công việc phù hợp</span> với bạn
             </h2>
 

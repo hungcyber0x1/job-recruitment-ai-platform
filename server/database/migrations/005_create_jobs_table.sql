@@ -2,9 +2,9 @@
 -- Tin tuyển dụng, phụ thuộc employers + categories
 
 CREATE TABLE IF NOT EXISTS jobs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    employer_id INT NOT NULL,
-    category_id INT,
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    employer_id INT UNSIGNED NOT NULL,
+    category_id INT UNSIGNED,
     title VARCHAR(150) NOT NULL,
     description TEXT NOT NULL,
     requirements TEXT,

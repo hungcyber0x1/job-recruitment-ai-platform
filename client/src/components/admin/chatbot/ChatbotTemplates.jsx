@@ -19,7 +19,6 @@ const ChatbotTemplates = () => {
     { value: 'career_advice', label: 'Tư vấn nghề nghiệp' },
     { value: 'resume_analysis', label: 'Hỗ trợ CV và resume' },
     { value: 'interview_prep', label: 'Chuẩn bị phỏng vấn' },
-    { value: 'job_matching', label: 'Tìm kiếm việc làm' },
   ];
 
   useEffect(() => {
@@ -95,7 +94,7 @@ const ChatbotTemplates = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-black text-foreground">Mẫu câu hỏi gợi ý</h2>
+          <h2 className="text-xl font-bold text-foreground">Mẫu câu hỏi gợi ý</h2>
           <p className="text-base text-muted-foreground">
             Quản lý các câu hỏi gợi ý cho người dùng
           </p>
@@ -115,8 +114,8 @@ const ChatbotTemplates = () => {
         </div>
       ) : (
         groupedTemplates.map((group) => (
-          <div key={group.value} className="rounded-2xl border border-border bg-card p-6">
-            <h3 className="mb-4 flex items-center gap-2 text-lg font-black text-foreground">
+          <div key={group.value} className="rounded-xl border border-border bg-card p-6">
+            <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-foreground">
               <div className="h-2 w-2 rounded-full bg-primary" />
               {group.label}
               <span className="text-sm font-normal text-muted-foreground">
@@ -180,9 +179,9 @@ const ChatbotTemplates = () => {
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-2xl rounded-2xl bg-card p-6">
+          <div className="w-full max-w-2xl rounded-xl bg-card p-6">
             <div className="mb-6 flex items-center justify-between">
-              <h3 className="text-xl font-black text-foreground">
+              <h3 className="text-xl font-bold text-foreground">
                 {editingTemplate ? 'Chỉnh sửa mẫu' : 'Thêm mẫu mới'}
               </h3>
               <button

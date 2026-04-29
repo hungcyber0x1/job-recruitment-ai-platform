@@ -32,26 +32,26 @@ const Modal = ({ isOpen, onClose, title, children, footer }) => {
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
+        className="absolute inset-0 bg-slate-950/45 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
       {/* Modal Content */}
-      <div className="relative bg-paper w-full max-w-lg rounded-3xl shadow-2xl border border-white/50 animate-in zoom-in-95 duration-200 overflow-hidden">
-        <div className="p-6 border-b border-secondary-100 flex items-center justify-between">
-          <h3 className="text-xl font-bold text-txt-main">{title}</h3>
+      <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-border/70 bg-card shadow-2xl animate-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between border-b border-border px-6 py-5">
+          <h3 className="text-xl font-semibold tracking-tight text-foreground">{title}</h3>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-secondary-50 rounded-xl text-txt-light hover:text-txt-main transition-colors"
+            className="role-topbar-icon h-9 w-9"
           >
             <X size={20} />
           </button>
         </div>
 
-        <div className="p-8">{children}</div>
+        <div className="px-6 py-6 sm:px-7">{children}</div>
 
         {footer && (
-          <div className="p-6 border-t border-secondary-100 bg-secondary-50/50 flex justify-end gap-3">
+          <div className="flex justify-end gap-3 border-t border-border bg-muted/25 px-6 py-4">
             {footer}
           </div>
         )}

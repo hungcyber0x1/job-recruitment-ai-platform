@@ -1,0 +1,126 @@
+-- =============================================================================
+-- COMPLETE DATABASE RESET AND MIGRATION SCRIPT
+-- This script will:
+-- 1. Drop the old database
+-- 2. Create new database with new schema
+-- 3. Insert all seed data
+-- =============================================================================
+-- WARNING: THIS WILL DELETE ALL EXISTING DATA
+-- BACKUP YOUR DATA BEFORE RUNNING!
+-- =============================================================================
+
+-- Configuration
+SET @OLD_DB_NAME = 'recruitment_db';
+SET @NEW_DB_NAME = 'recruitment_db_v2';
+
+-- =============================================================================
+-- PHASE 1: CLEANUP OLD SCHEMA
+-- =============================================================================
+
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- Drop old tables in correct order (child tables first)
+DROP TABLE IF EXISTS `application_screening`;
+DROP TABLE IF EXISTS `screening_results`;
+DROP TABLE IF EXISTS `application_history`;
+DROP TABLE IF EXISTS `applications`;
+DROP TABLE IF EXISTS `ai_job_matches`;
+DROP TABLE IF EXISTS `ai_resume_analysis`;
+DROP TABLE IF EXISTS `saved_jobs`;
+DROP TABLE IF EXISTS `job_skills`;
+DROP TABLE IF EXISTS `interview_answers`;
+DROP TABLE IF EXISTS `interview_questions`;
+DROP TABLE IF EXISTS `interview_sessions`;
+DROP TABLE IF EXISTS `skill_gaps`;
+DROP TABLE IF EXISTS `career_paths`;
+DROP TABLE IF EXISTS `chatbot_analytics`;
+DROP TABLE IF EXISTS `chat_messages`;
+DROP TABLE IF EXISTS `conversations`;
+DROP TABLE IF EXISTS `activity_logs`;
+DROP TABLE IF EXISTS `support_messages`;
+DROP TABLE IF EXISTS `support_tickets`;
+DROP TABLE IF EXISTS `email_logs`;
+DROP TABLE IF EXISTS `notifications`;
+DROP TABLE IF EXISTS `ticket_messages`;
+DROP TABLE IF EXISTS `candidate_skills`;
+DROP TABLE IF EXISTS `skills`;
+DROP TABLE IF EXISTS `blog_posts`;
+DROP TABLE IF EXISTS `content_pages`;
+DROP TABLE IF EXISTS `banners`;
+DROP TABLE IF EXISTS `ai_prompts`;
+DROP TABLE IF EXISTS `system_settings`;
+DROP TABLE IF EXISTS `jobs`;
+DROP TABLE IF EXISTS `categories`;
+DROP TABLE IF EXISTS `candidate_profiles`;
+DROP TABLE IF EXISTS `company_profiles`;
+DROP TABLE IF EXISTS `employers`;
+DROP TABLE IF EXISTS `candidates`;
+DROP TABLE IF EXISTS `user_preferences`;
+DROP TABLE IF EXISTS `locations`;
+DROP TABLE IF EXISTS `chatbot_conversations`;
+DROP TABLE IF EXISTS `chatbot_messages`;
+DROP TABLE IF EXISTS `chatbot_analytics`;
+DROP TABLE IF EXISTS `user_preferences`;
+DROP TABLE IF EXISTS `users`;
+
+-- =============================================================================
+-- PHASE 2: CREATE NEW DATABASE AND SCHEMA
+-- =============================================================================
+
+-- Drop and recreate database
+-- DROP DATABASE IF EXISTS recruitment_db;
+-- CREATE DATABASE recruitment_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- USE recruitment_db;
+
+-- Run the new schema
+-- SOURCE database/migrations/045_new_schema_complete.sql;
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- =============================================================================
+-- PHASE 3: INSERT SEED DATA
+-- =============================================================================
+
+-- SOURCE database/seeds/100_new_schema_seeds.sql;
+
+-- =============================================================================
+-- PHASE 4: VERIFICATION
+-- =============================================================================
+
+-- Check table counts
+SELECT 'users' AS table_name, COUNT(*) AS record_count FROM users
+UNION ALL SELECT 'company_profiles', COUNT(*) FROM company_profiles
+UNION ALL SELECT 'candidate_profiles', COUNT(*) FROM candidate_profiles
+UNION ALL SELECT 'categories', COUNT(*) FROM categories
+UNION ALL SELECT 'skills', COUNT(*) FROM skills
+UNION ALL SELECT 'locations', COUNT(*) FROM locations
+UNION ALL SELECT 'jobs', COUNT(*) FROM jobs
+UNION ALL SELECT 'applications', COUNT(*) FROM applications
+UNION ALL SELECT 'blog_posts', COUNT(*) FROM blog_posts
+UNION ALL SELECT 'system_settings', COUNT(*) FROM system_settings
+UNION ALL SELECT 'user_preferences', COUNT(*) FROM user_preferences;
+
+-- =============================================================================
+-- POST-MIGRATION CHECKLIST
+-- =============================================================================
+-- 
+-- 1. Update application code to use new table names:
+--    - employers → company_profiles
+--    - candidates → candidate_profiles
+--    - users.role = 'employer' → 'recruiter'
+--
+-- 2. Update foreign key references in application code
+--
+-- 3. Update API response formats to match new schema
+--
+-- 4. Test all CRUD operations for each module
+--
+-- 5. Verify AI features work with new schema
+--
+-- 6. Check that soft delete (deleted_at) is handled correctly
+--
+-- 7. Update any raw SQL queries in the codebase
+--
+-- 8. Verify that indexes are being used correctly (EXPLAIN queries)
+--
+-- =============================================================================

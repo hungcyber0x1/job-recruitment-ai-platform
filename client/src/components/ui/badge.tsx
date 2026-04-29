@@ -4,16 +4,29 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/utils/index';
 
 const badgeVariants = cva(
-  'inline-flex items-center rounded-full border px-2.5 py-0.5 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+  'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold leading-5 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2',
   {
     variants: {
       variant: {
-        default: 'border-transparent bg-primary text-primary-foreground hover:bg-primary/80',
+        default: 'bg-muted text-muted-foreground border-border',
+        primary: 'bg-primary/10 text-primary border-primary/20',
         secondary:
-          'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80',
+          'bg-muted text-muted-foreground border-border',
         destructive:
-          'border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80',
-        outline: 'text-foreground',
+          'bg-danger/10 text-danger-700 border-danger/20',
+        danger: 'bg-danger/10 text-danger-700 border-danger/20',
+        error: 'bg-danger/10 text-danger-700 border-danger/20',
+        rejected: 'bg-danger/10 text-danger-700 border-danger/20',
+        outline: 'bg-card text-foreground border-border',
+        emerald: 'bg-success/10 text-success-700 border-success/20',
+        success: 'bg-success/10 text-success-700 border-success/20',
+        green: 'bg-success/10 text-success-700 border-success/20',
+        warning: 'bg-warning/10 text-warning-700 border-warning/25',
+        pending: 'bg-warning/10 text-warning-700 border-warning/25',
+        yellow: 'bg-warning/10 text-warning-700 border-warning/25',
+        inactive: 'bg-muted text-muted-foreground border-border',
+        neutral: 'bg-muted text-muted-foreground border-border',
+        indigo: 'bg-primary/10 text-primary border-primary/20',
       },
     },
     defaultVariants: {

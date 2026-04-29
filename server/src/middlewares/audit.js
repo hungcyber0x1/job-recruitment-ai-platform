@@ -6,12 +6,13 @@ const logger = require('../utils/logger');
  */
 function auditMiddleware(req, res, next) {
   const userId = req.user ? req.user.id : 'anonymous';
-  const role = req.user ? req.user.role : 'guest';
+  const rawRole = req.user ? req.user.role : 'guest';
+  const role = rawRole === 'employer' ? 'recruiter' : rawRole;
   const { method, originalUrl } = req;
   const timestamp = new Date().toISOString();
 
   // Only log admin or privileged actions
-  if (role === 'admin' || role === 'employer') {
+  if (role === 'admin' || role === 'recruiter') {
     logger.info({
       timestamp,
       userId,

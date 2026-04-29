@@ -19,9 +19,9 @@ export const AVATAR_SIZES = {
  * @readonly
  */
 export const BUTTON_SIZES = {
-  sm: 'px-4 py-2 text-sm rounded-xl',
-  md: 'px-6 py-3 text-sm rounded-2xl',
-  lg: 'px-8 py-4 text-base rounded-2xl',
+  sm: 'px-4 py-2 text-sm rounded-lg',
+  md: 'px-5 py-3 text-sm rounded-lg',
+  lg: 'px-6 py-3.5 text-sm rounded-lg',
 };
 
 /**

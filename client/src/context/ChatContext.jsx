@@ -3,13 +3,51 @@ import React, { createContext, useState, useContext, useCallback, useEffect, use
 import chatbotService from '../services/chatbotService';
 import { useAuth } from './AuthContext';
 import { useFeatureFlags } from './FeatureFlagsContext';
-import { API_ORIGIN } from '../config';
+import { SOCKET_ORIGIN } from '../config';
 import { createClientId } from '../utils/clientId';
 
-const ChatContext = createContext();
+const MAX_MESSAGE_LENGTH = 10000; // Safety limit
+const isAuthError = (error) => {
+  const status = error?.response?.status;
+  return status === 401 || status === 403;
+};
+
+const isSocketDebugEnabled = () =>
+  typeof window !== 'undefined' && window.localStorage?.getItem('chat_socket_debug') === '1';
+
+const logSocketDebug = (method, ...args) => {
+  if (!isSocketDebugEnabled()) return;
+  if (method === 'error') {
+    console.error(...args);
+    return;
+  }
+  console.warn(...args);
+};
+
+const noopAsync = async () => {};
+
+const CHAT_CONTEXT_DEFAULT_VALUE = {
+  messages: [],
+  conversations: [],
+  activeConversation: null,
+  isLoading: false,
+  suggestedQuestions: [],
+  chatbotEnabled: false,
+  sendMessage: noopAsync,
+  createConversation: noopAsync,
+  renameConversation: noopAsync,
+  deleteConversation: noopAsync,
+  clearHistory: noopAsync,
+  uploadFile: noopAsync,
+  switchConversation: () => {},
+  fetchConversations: noopAsync,
+  fetchHistory: noopAsync,
+};
+
+const ChatContext = createContext(CHAT_CONTEXT_DEFAULT_VALUE);
 
 export const ChatProvider = ({ children }) => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, loading: authLoading, user } = useAuth();
   const { isEnabled } = useFeatureFlags();
   const chatbotEnabled = isEnabled('ai_chatbot');
   const [messages, setMessages] = useState([]);
@@ -17,6 +55,7 @@ export const ChatProvider = ({ children }) => {
   const [activeConversation, setActiveConversation] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [suggestedQuestions, setSuggestedQuestions] = useState([]);
+  const [streamingMessageId, setStreamingMessageId] = useState(null);
   const socketRef = useRef(null);
   /** Tránh hiện tin nhắn / hội thoại của phiên trước khi đổi user hoặc sau logout → login. */
   const chatSessionUserIdRef = useRef(null);
@@ -24,6 +63,7 @@ export const ChatProvider = ({ children }) => {
   const fetchSuggestedQuestionsRef = useRef(null);
   /** Tránh kẹt loading khi emit socket mà server không trả chat:response / chat:error */
   const socketLoadingTimeoutRef = useRef(null);
+  const socketAttemptRef = useRef(0);
 
   const clearSocketLoadingTimeout = useCallback(() => {
     if (socketLoadingTimeoutRef.current) {
@@ -33,7 +73,11 @@ export const ChatProvider = ({ children }) => {
   }, []);
 
   const fetchConversations = useCallback(async () => {
-    if (!chatbotEnabled) {
+    if (authLoading) {
+      return;
+    }
+
+    if (!isAuthenticated || !chatbotEnabled) {
       setConversations([]);
       return;
     }
@@ -56,12 +100,17 @@ export const ChatProvider = ({ children }) => {
         setActiveConversation(list[0]?.id || null);
       }
     } catch (error) {
+      if (isAuthError(error)) {
+        setConversations([]);
+        setActiveConversation(null);
+        return;
+      }
       console.error('Failed to fetch conversations:', error);
     }
-  }, [activeConversation, chatbotEnabled]);
+  }, [activeConversation, authLoading, chatbotEnabled, isAuthenticated]);
 
   const fetchHistory = useCallback(async () => {
-    if (!activeConversation || !chatbotEnabled) return;
+    if (authLoading || !isAuthenticated || !activeConversation || !chatbotEnabled) return;
 
     try {
       const response = await chatbotService.getHistory(activeConversation);
@@ -77,12 +126,20 @@ export const ChatProvider = ({ children }) => {
       }));
       setMessages(history);
     } catch (error) {
+      if (isAuthError(error)) {
+        setMessages([]);
+        return;
+      }
       console.error('Failed to fetch chat history:', error);
     }
-  }, [activeConversation, chatbotEnabled]);
+  }, [activeConversation, authLoading, chatbotEnabled, isAuthenticated]);
 
   const fetchSuggestedQuestions = useCallback(async () => {
-    if (!chatbotEnabled) {
+    if (authLoading) {
+      return;
+    }
+
+    if (!isAuthenticated || !chatbotEnabled) {
       setSuggestedQuestions([]);
       return;
     }
@@ -96,15 +153,19 @@ export const ChatProvider = ({ children }) => {
           : [];
       setSuggestedQuestions(questions);
     } catch (error) {
+      if (isAuthError(error)) {
+        setSuggestedQuestions([]);
+        return;
+      }
       console.error('Failed to fetch suggested questions:', error);
     }
-  }, [chatbotEnabled]);
+  }, [authLoading, chatbotEnabled, isAuthenticated]);
 
   fetchConversationsRef.current = fetchConversations;
   fetchSuggestedQuestionsRef.current = fetchSuggestedQuestions;
 
   useEffect(() => {
-    if (!isAuthenticated || !chatbotEnabled) {
+    if (authLoading || !isAuthenticated || !chatbotEnabled) {
       if (socketRef.current) {
         socketRef.current.disconnect();
         socketRef.current = null;
@@ -120,10 +181,11 @@ export const ChatProvider = ({ children }) => {
         const { io } = await import('socket.io-client');
         if (cancelled) return;
 
-        const socket = io(API_ORIGIN, {
+        const socket = io(SOCKET_ORIGIN, {
           auth: { token },
           path: '/socket.io',
           reconnectionAttempts: 3,
+          transports: ['websocket'],
         });
 
         if (cancelled) {
@@ -133,16 +195,81 @@ export const ChatProvider = ({ children }) => {
 
         socketRef.current = socket;
 
+        socket.on('connect', () => {
+          socketAttemptRef.current = 0;
+          logSocketDebug('info', '[Socket] Connected:', socket.id);
+        });
+
+        socket.on('disconnect', (reason) => {
+          logSocketDebug('info', '[Socket] Disconnected:', socket.id, reason);
+        });
+
+        socket.on('connect_error', (err) => {
+          socketAttemptRef.current += 1;
+          logSocketDebug('warn', '[Socket] Connection error:', err.message);
+          if (err.message && err.message.includes('Authentication error')) {
+            socket.disconnect();
+            socket.emit('auth:invalidated', { message: err.message });
+          }
+        });
+
+        socket.on('auth:invalidated', () => {
+          console.warn('[Socket] Auth invalidated — server restarted or token expired');
+          socket.disconnect();
+          socketRef.current = null;
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.history.pushState(null, '', '/login');
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        });
+
         socket.on('chat:response', (data) => {
           clearSocketLoadingTimeout();
-          const aiMsg = {
-            id: createClientId(),
-            text: data?.message,
-            isAi: true,
-            createdAt: data?.timestamp,
-          };
-          setMessages((prev) => [...prev, aiMsg]);
-          setIsLoading(false);
+          // If we're in streaming mode, finalize the streaming message instead of adding a new one
+          if (streamingMessageId) {
+            const rawText = data?.message || '';
+            const truncatedText =
+              String(rawText).length > MAX_MESSAGE_LENGTH
+                ? String(rawText).slice(0, MAX_MESSAGE_LENGTH) + '...[truncated]'
+                : rawText;
+            setMessages((prev) => {
+              const lastIdx = prev.length - 1;
+              if (lastIdx >= 0 && prev[lastIdx].id === streamingMessageId) {
+                const updated = [...prev];
+                updated[lastIdx] = {
+                  ...updated[lastIdx],
+                  text: truncatedText || updated[lastIdx].text || '...',
+                  isStreaming: false,
+                  createdAt: data?.timestamp,
+                };
+                return updated;
+              }
+              // Fallback: add new message if streaming message not found
+              return [
+                ...prev,
+                {
+                  id: createClientId(),
+                  text: truncatedText,
+                  isAi: true,
+                  createdAt: data?.timestamp,
+                },
+              ];
+            });
+            setStreamingMessageId(null);
+            setIsLoading(false);
+          } else {
+            // Non-streaming mode: add the complete response as a new message
+            const rawText = data?.message || '';
+            const truncatedText =
+              String(rawText).length > MAX_MESSAGE_LENGTH
+                ? String(rawText).slice(0, MAX_MESSAGE_LENGTH) + '...[truncated]'
+                : rawText;
+            setMessages((prev) => [
+              ...prev,
+              { id: createClientId(), text: truncatedText, isAi: true, createdAt: data?.timestamp },
+            ]);
+            setIsLoading(false);
+          }
           const nextConvId = data?.conversationId;
           if (nextConvId != null) {
             setActiveConversation((current) => {
@@ -155,9 +282,62 @@ export const ChatProvider = ({ children }) => {
           }
         });
 
+        socket.on('chat:chunk', (data) => {
+          // Handle streaming chunks for real-time display
+          if (streamingMessageId) {
+            const chunk = data?.chunk || '';
+            setMessages((prev) => {
+              const lastIdx = prev.length - 1;
+              if (lastIdx >= 0 && prev[lastIdx].id === streamingMessageId) {
+                const updated = [...prev];
+                const newText = updated[lastIdx].text + chunk;
+                if (String(newText).length <= MAX_MESSAGE_LENGTH) {
+                  updated[lastIdx] = { ...updated[lastIdx], text: newText };
+                }
+                return updated;
+              }
+              return prev;
+            });
+          }
+        });
+
+        socket.on('chat:typing', (data) => {
+          if (data?.isTyping && !streamingMessageId) {
+            // Create a placeholder streaming message
+            const tempId = createClientId();
+            setStreamingMessageId(tempId);
+            setMessages((prev) => [
+              ...prev,
+              { id: tempId, text: '', isAi: true, isStreaming: true },
+            ]);
+          } else if (!data?.isTyping && streamingMessageId) {
+            // Finalize the streaming message
+            setMessages((prev) => {
+              const lastIdx = prev.length - 1;
+              if (lastIdx >= 0 && prev[lastIdx].id === streamingMessageId) {
+                const updated = [...prev];
+                updated[lastIdx] = {
+                  ...updated[lastIdx],
+                  text: updated[lastIdx].text || '...',
+                  isStreaming: false,
+                };
+                return updated;
+              }
+              return prev;
+            });
+            setStreamingMessageId(null);
+            setIsLoading(false);
+          }
+        });
+
         socket.on('chat:error', (error) => {
           clearSocketLoadingTimeout();
-          console.error('Socket error:', error);
+          logSocketDebug('error', 'Socket error:', error);
+          // Clear streaming state if error occurs
+          if (streamingMessageId) {
+            setMessages((prev) => prev.filter((m) => m.id !== streamingMessageId));
+            setStreamingMessageId(null);
+          }
           setIsLoading(false);
           const text =
             (typeof error?.message === 'string' && error.message.trim()) ||
@@ -177,12 +357,15 @@ export const ChatProvider = ({ children }) => {
         socketRef.current = null;
       }
     };
-  }, [chatbotEnabled, isAuthenticated, clearSocketLoadingTimeout]);
+  }, [authLoading, chatbotEnabled, isAuthenticated, clearSocketLoadingTimeout]);
 
   const sendMessage = async (text) => {
     if (!isAuthenticated) {
       return;
     }
+    // Truncate input to prevent abuse
+    const safeText = String(text || '').slice(0, MAX_MESSAGE_LENGTH);
+
     if (!chatbotEnabled) {
       setMessages((prev) => [
         ...prev,
@@ -195,7 +378,7 @@ export const ChatProvider = ({ children }) => {
       return;
     }
 
-    const userMsg = { id: createClientId(), text, isAi: false };
+    const userMsg = { id: createClientId(), text: safeText, isAi: false };
     setMessages((prev) => [...prev, userMsg]);
     setIsLoading(true);
 
@@ -206,18 +389,21 @@ export const ChatProvider = ({ children }) => {
         setIsLoading(false);
       }, 120_000);
       socketRef.current.emit('chat:message', {
-        message: text,
+        message: safeText,
         conversationId: activeConversation,
       });
     } else {
       try {
-        const response = await chatbotService.sendMessage(text, activeConversation);
+        const response = await chatbotService.sendMessage(safeText, activeConversation);
+        // Truncate AI response
+        const rawText = response.data?.data?.message || response.data?.message || '';
+        const truncatedText =
+          String(rawText).length > MAX_MESSAGE_LENGTH
+            ? String(rawText).slice(0, MAX_MESSAGE_LENGTH) + '...[truncated]'
+            : rawText;
         const aiMsg = {
           id: createClientId(),
-          text:
-            response.data?.data?.message ||
-            response.data?.message ||
-            'AI chatbot is unavailable right now.',
+          text: truncatedText,
           isAi: true,
         };
         setMessages((prev) => [...prev, aiMsg]);
@@ -338,6 +524,10 @@ export const ChatProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    if (authLoading) {
+      return;
+    }
+
     if (!isAuthenticated || !chatbotEnabled) {
       chatSessionUserIdRef.current = null;
       setConversations([]);
@@ -360,11 +550,18 @@ export const ChatProvider = ({ children }) => {
 
     fetchConversationsRef.current?.();
     fetchSuggestedQuestionsRef.current?.();
-  }, [isAuthenticated, chatbotEnabled, user?.id]);
+  }, [authLoading, isAuthenticated, chatbotEnabled, user?.id]);
 
   useEffect(() => {
     fetchHistory();
-  }, [fetchHistory]);
+  }, [fetchHistory, activeConversation]);
+
+  // Dedicated effect to clear timeout on unmount and dependency changes
+  useEffect(() => {
+    return () => {
+      clearSocketLoadingTimeout();
+    };
+  }, [clearSocketLoadingTimeout]);
 
   return (
     <ChatContext.Provider
@@ -396,4 +593,4 @@ ChatProvider.propTypes = {
 };
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const useChat = () => useContext(ChatContext);
+export const useChat = () => useContext(ChatContext) || CHAT_CONTEXT_DEFAULT_VALUE;

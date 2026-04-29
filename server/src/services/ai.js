@@ -1,8 +1,8 @@
 /**
- * Tích hợp AI cho gateway: Gemini (mặc định), OpenAI, hoặc Poe API (OpenAI-compatible, AI_PROVIDER=poe).
- * - Embedding: tìm kiếm ngữ nghĩa / ghép nối hồ sơ.
- * - Chat tư vấn nghề: hội thoại đa lượt với system prompt cố định.
- * - generateContent: một lượt (moderation, gợi ý, roadmap JSON, …).
+ * Tich hop AI cho gateway: Gemini (mac dinh), OpenAI, hoac Poe API (OpenAI-compatible, AI_PROVIDER=poe).
+ * - Embedding: tim kiem ngu nghia / ghep noi ho so.
+ * - Chat tu van nghe: hoi thoai da luot voi system prompt co dinh.
+ * - generateContent: mot luot (moderation, goi y, structured JSON, ...).
  */
 const axios = require('axios');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
@@ -11,7 +11,7 @@ const aiConfig = require('../config/ai.config');
 const chatbotServiceConfig = require('../config/chatbot-service.config');
 const logger = require('../utils/logger');
 
-/** 503/429/lỗi tạm từ nhà cung cấp — nên retry hoặc đổi model. */
+/** 503/429/loi tam tu nha cung cap - nen retry hoac doi model. */
 function isRetryableAiError(error) {
   const msg = String(error?.message || '');
   const status = error?.status || error?.statusCode || error?.response?.status;
@@ -35,20 +35,20 @@ const CAREER_COUNSELOR_INSTRUCTION =
   'You help candidates find the right career path, prepare for interviews, ' +
   'and improve their professional profiles. Always be supportive and practical.';
 
-/** Phản hồi thân thiện khi API trả 404/429 hoặc lỗi không mong đợi. */
+/** Phan hoi than thien khi API tra 404/429 hoac loi khong mong doi. */
 function careerAdviceErrorMessage(error) {
   const msg = error?.message || '';
   if (/429|quota exceeded|Too Many Requests|rate limit/i.test(msg)) {
     return (
-      'Hệ thống AI tạm hết hạn mức (quota) hoặc quá tải. ' +
-      'Hãy thử lại sau vài phút; nếu vẫn lỗi, kiểm tra billing/API key hoặc đổi model trong cấu hình server.'
+      'He thong AI tam het han muc (quota) hoac qua tai. ' +
+      'Hay thu lai sau vai phut; neu van loi, kiem tra billing/API key hoac doi model trong cau hinh server.'
     );
   }
   if (/404|not found|model/i.test(msg) && /invalid|not found|does not exist/i.test(msg)) {
     return (
-      'Model AI không còn khả dụng với API key này. ' +
-      'Cần cập nhật AI_MODEL / AI_MODEL_FALLBACKS (Gemini), OPENAI_MODEL / OPENAI_MODEL_FALLBACKS (OpenAI), ' +
-      'hoặc POE_BOT / POE_BOT_FALLBACKS (Poe) trên server.'
+      'Model AI khong con kha dung voi API key nay. ' +
+      'Can cap nhat AI_MODEL / AI_MODEL_FALLBACKS (Gemini), OPENAI_MODEL / OPENAI_MODEL_FALLBACKS (OpenAI), ' +
+      'hoac POE_BOT / POE_BOT_FALLBACKS (Poe) tren server.'
     );
   }
   if (
@@ -56,9 +56,9 @@ function careerAdviceErrorMessage(error) {
     /poe|subscription|api access/i.test(msg)
   ) {
     return (
-      'Poe API từ chối: bot/model này cần gói Poe (subscription) phù hợp để gọi qua API, ' +
-      'hoặc bạn cần đổi POE_BOT sang model/bot mà tài khoản Poe của bạn được phép dùng qua API. ' +
-      'Có thể tạm dùng AI_PROVIDER=openai + OPENAI_API_KEY hoặc AI_PROVIDER=gemini + AI_API_KEY.'
+      'Poe API tu choi: bot/model nay can goi Poe (subscription) phu hop de goi qua API, ' +
+      'hoac ban can doi POE_BOT sang model/bot ma tai khoan Poe cua ban duoc phep dung qua API. ' +
+      'Co the tam dung AI_PROVIDER=openai + OPENAI_API_KEY hoac AI_PROVIDER=gemini + AI_API_KEY.'
     );
   }
   return "I apologize, but I'm having trouble processing your request right now. Please try again later.";
@@ -71,9 +71,9 @@ class AIService {
     this.openai = null;
     this.genAI = null;
     this.model = null;
-    /** Gemini client chỉ dùng cho embedding khi AI_PROVIDER=poe */
+    /** Gemini client chi dung cho embedding khi AI_PROVIDER=poe */
     this.embeddingGemini = null;
-    /** OpenAI gốc chỉ dùng cho embedding khi AI_PROVIDER=poe */
+    /** OpenAI goc chi dung cho embedding khi AI_PROVIDER=poe */
     this.embeddingOpenAI = null;
 
     const p = aiConfig.provider;
@@ -123,7 +123,7 @@ class AIService {
     return !!this.genAI;
   }
 
-  /** Tạo vector embedding cho đoạn văn (tìm kiếm ngữ nghĩa, so khớp). */
+  /** Tao vector embedding cho doan van (tim kiem ngu nghia, so khop). */
   async embedContent(text) {
     try {
       if (this.openaiClientKind === 'openai') {
@@ -162,8 +162,8 @@ class AIService {
   }
 
   /**
-   * Tư vấn nghề nghiệp qua chat đa lượt.
-   * Thử lần lượt các model trong danh sách (404/429 khác nhau theo model).
+   * Tu van nghe nghiep qua chat da luot.
+   * Thu lan luot cac model trong danh sach (404/429 khac nhau theo model).
    */
   async generateCareerAdvice(userData, userMessage, contextMessages = []) {
     if (chatbotServiceConfig.enabled) {
@@ -199,7 +199,7 @@ class AIService {
     return this._generateCareerAdviceGemini(history, prompt, generationConfig);
   }
 
-  /** Ủy quyền sinh câu trả lời cho dịch vụ Flask (CHATBOT_SERVICE_URL). */
+  /** Uy quyen sinh cau tra loi cho dich vu Flask (CHATBOT_SERVICE_URL). */
   async _generateCareerAdviceViaHttp(userData, userMessage, contextMessages) {
     const headers = { 'Content-Type': 'application/json' };
     if (chatbotServiceConfig.secret) {
@@ -329,7 +329,7 @@ class AIService {
     return careerAdviceErrorMessage(lastError);
   }
 
-  /** Sinh nội dung một lượt (không phải chat có lịch sử). Retry + đổi model khi 503/429. */
+  /** Sinh noi dung mot luot (khong phai chat co lich su). Retry + doi model khi 503/429. */
   async generateContent(prompt) {
     const maxTokens = aiConfig.options.contentMaxTokens ?? 4096;
     const temperature = aiConfig.options.temperature;
@@ -377,7 +377,7 @@ class AIService {
               }
               if (retry && mi < models.length - 1) {
                 logger.warn(
-                  `generateContent: switch model ${modelName} → next after ${String(error?.message || error).slice(0, 100)}`
+                  `generateContent: switch model ${modelName} -> next after ${String(error?.message || error).slice(0, 100)}`
                 );
                 break;
               }
@@ -433,7 +433,7 @@ class AIService {
             }
             if (retry && mi < models.length - 1) {
               logger.warn(
-                `generateContent: switch model ${modelName} → next after ${String(error?.message || error).slice(0, 100)}`
+                `generateContent: switch model ${modelName} -> next after ${String(error?.message || error).slice(0, 100)}`
               );
               break;
             }
@@ -451,8 +451,8 @@ class AIService {
   }
 
   /**
-   * Chuẩn hóa phản hồi AI: bỏ fence ```json, cắt đoạn JSON hợp lệ.
-   * Dùng chung cho phân tích CV / ghép việc (tránh trùng logic).
+   * Chuan hoa phan hoi AI: bo fence ```json, cat doan JSON hop le.
+   * Dung chung cho phan tich CV / ghep viec (tranh trung logic).
    */
   cleanJsonResponse(response) {
     let cleaned = response.trim();
@@ -470,7 +470,7 @@ class AIService {
     return cleaned;
   }
 
-  /** Gợi ý việc làm phù hợp theo kỹ năng (AI xếp hạng, có fallback). */
+  /** Goi y viec lam phu hop theo ky nang (AI xep hang, co fallback). */
   async recommendJobs(candidateSkills, jobs) {
     try {
       if (!this._configured()) return jobs.slice(0, 3);
@@ -478,7 +478,7 @@ class AIService {
       const prompt = `
         Rank the following jobs for a candidate with these skills: ${candidateSkills.join(', ')}.
         Jobs: ${JSON.stringify(jobs.map((j) => ({ id: j.id, title: j.title, skills: j.skills })))}
-        
+
         Return a JSON array of the top 3 matching job IDs. Match based on skill overlap and relevance.
         Return ONLY valid JSON, no markdown.
       `;
@@ -492,7 +492,7 @@ class AIService {
     }
   }
 
-  /** Kiểm duyệt nội dung tin tuyển (lừa đảo, nội dung xấu, …). */
+  /** Kiem duyet noi dung tin tuyen (lua dao, noi dung xau, ...). */
   async moderateJob(jobData) {
     try {
       if (!this._configured()) return { isFlagged: false, note: 'AI Moderation unavailable' };
@@ -522,27 +522,7 @@ class AIService {
     }
   }
 
-  /** Tạo một câu hỏi sàng lọc ứng viên theo yêu cầu tin tuyển. */
-  async generateScreeningQuestion(jobData) {
-    try {
-      if (!this._configured()) return 'Tell us more about your experience.';
-
-      const prompt = `
-        Based on this job, generate ONE brief open-ended screening question for candidates.
-        Title: ${jobData.title}
-        Requirements: ${jobData.requirements || 'N/A'}
-        
-        Example: "How many years of React experience do you have?" or "Tell us about a time you handled a difficult client."
-        Return ONLY the question text.
-      `;
-
-      return await this.generateContent(prompt);
-    } catch {
-      return 'Tell us why you are a good fit for this position.';
-    }
-  }
-
-  /** Lộ trình nghề nghiệp có cấu trúc (JSON) theo hồ sơ và vị trí mục tiêu. */
+  /** Lo trinh nghe nghiep co cau truc (JSON) theo ho so va vi tri muc tieu. */
   async generateCareerRoadmap(candidateData, targetRole) {
     try {
       if (!this._configured()) return null;
@@ -563,7 +543,7 @@ class AIService {
           }
         ],
         "market_outlook": string
-        
+
         Return ONLY valid JSON.
       `;
 
@@ -571,6 +551,115 @@ class AIService {
       return JSON.parse(this.cleanJsonResponse(text));
     } catch (error) {
       logger.error('AI Career Roadmap Error:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Analyze CV/resume and extract structured data.
+   * @param {string} cvText - Raw text extracted from CV/resume
+   * @param {string} jobDescription - Optional job description for tailored suggestions
+   * @returns {object} Extracted structured data from CV
+   */
+  async analyzeCV(cvText, jobDescription = null) {
+    try {
+      if (!this._configured()) {
+        return null;
+      }
+
+      let prompt = `
+Ban la chuyen gia phan tich ho so tuyen dung. Hay phan tich CV sau va trich xuat thong tin cau truc.
+
+CV:
+${cvText}
+`;
+
+      if (jobDescription) {
+        prompt += `
+\n\nJob Description de so sanh:
+${jobDescription}
+
+Hay dung JD nay de neu cac ky nang can bo sung va goi y dieu chinh CV. Khong cham diem hoac tra ve phan tram phu hop.`;
+      }
+
+      prompt += `
+\n\nTra ve JSON voi cau truc sau (CHI JSON, khong markdown):
+{
+  "name": "Ten ung vien",
+  "email": "Email",
+  "phone": "So dien thoai",
+  "title": "Vi tri hien tai/muc tieu",
+  "summary": "Tom tat ho so (2-3 cau)",
+  "skills": ["danh sach ky nang cung va mem"],
+  "experience_years": so_nam_kinh_nghiem,
+  "education": [
+    {
+      "degree": "Bang cap",
+      "institution": "Truong/To chuc",
+      "year": "Nam"
+    }
+  ],
+  "experience": [
+    {
+      "title": "Chuc danh",
+      "company": "Cong ty",
+      "duration": "Thoi gian",
+      "highlights": ["Mo ta cong viec chinh"]
+    }
+  ],
+  "certifications": ["Cac chung chi"],
+  "languages": ["Ngon ngu + trinh do"],
+  "missing_skills": ["Ky nang con thieu so voi JD"],
+  "improvement_suggestions": ["Goi y cai thien ho so"]
+}`;
+
+      const text = await this.generateContent(prompt);
+      const parsed = JSON.parse(this.cleanJsonResponse(text));
+      return {
+        success: true,
+        data: parsed,
+      };
+    } catch (error) {
+      logger.error('AI CV Analysis Error:', error);
+      return {
+        success: false,
+        error: error.message,
+        data: null,
+      };
+    }
+  }
+
+  /**
+   * Generate cover letter based on CV and job description.
+   */
+  async generateCoverLetter(cvData, jobDescription, candidateName) {
+    try {
+      if (!this._configured()) {
+        return null;
+      }
+
+      const prompt = `
+Viet mot cover letter chuyen nghiep bang tieng Viet cho ung vien:
+
+Thong tin ung vien:
+- Ten: ${candidateName || 'Ung vien'}
+- Ky nang: ${cvData?.skills?.join(', ') || 'N/A'}
+- Kinh nghiem: ${cvData?.experience_years || 'N/A'} nam
+- Muc tieu: ${cvData?.title || 'N/A'}
+
+Mo ta cong viec:
+${jobDescription}
+
+Yeu cau:
+- Do dai 200-300 tu
+- Giong van chuyen nghiep, tu tin nhung khong kieu ngao
+- Neu bat diem manh phu hop voi JD
+- Ket thuc bang loi keu goi hanh dong
+`;
+
+      return await this.generateContent(prompt);
+    } catch (error) {
+      logger.error('AI Cover Letter Error:', error);
       return null;
     }
   }

@@ -2,8 +2,8 @@
 -- Thông tin nhà tuyển dụng / doanh nghiệp, phụ thuộc users
 
 CREATE TABLE IF NOT EXISTS employers (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL UNIQUE,
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL UNIQUE,
     company_name VARCHAR(255) NOT NULL,
     company_website VARCHAR(255),
     company_logo VARCHAR(255),

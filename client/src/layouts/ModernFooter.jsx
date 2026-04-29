@@ -18,7 +18,7 @@ const footerLinks = [
     title: 'Tài nguyên',
     links: [
       { label: 'Blog kiến thức', path: '/blog' },
-      { label: 'Định hướng nghề nghiệp', path: '/career' },
+      { label: 'Mức lương thị trường', path: '/salary-predictor' },
       { label: 'Chat tư vấn AI', path: '/chat' },
       { label: 'Danh mục ngành', path: '/categories' },
     ],
@@ -73,7 +73,7 @@ const ModernFooter = () => {
           {/* Link columns */}
           {footerLinks.map((col) => (
             <div key={col.title} className="space-y-4">
-              <h4 className="text-sm font-bold uppercase tracking-widest text-slate-400">
+              <h4 className="text-sm font-bold uppercase tracking-normal text-slate-400">
                 {col.title}
               </h4>
               <ul className="space-y-3">
@@ -93,7 +93,7 @@ const ModernFooter = () => {
 
           {/* Contact */}
           <div className="space-y-4">
-            <h4 className="text-sm font-bold uppercase tracking-widest text-slate-400">Liên hệ</h4>
+            <h4 className="text-sm font-bold uppercase tracking-normal text-slate-400">Liên hệ</h4>
             <div className="space-y-3">
               <a
                 href="#"
@@ -110,11 +110,11 @@ const ModernFooter = () => {
                 +84 28 7300 1234
               </a>
               <a
-                href="mailto:contact@hireai.vn"
+                href="mailto:contact@hirebot.vn"
                 className="flex items-start gap-3 text-sm font-medium text-slate-500 hover:text-slate-300 transition-colors"
               >
                 <Mail className="size-4 text-primary mt-0.5 shrink-0" aria-hidden />
-                contact@hireai.vn
+                contact@hirebot.vn
               </a>
             </div>
           </div>
@@ -123,7 +123,7 @@ const ModernFooter = () => {
         {/* Bottom bar */}
         <div className="py-6 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-base font-medium text-slate-500">
-            © {new Date().getFullYear()} HireAI. Phát triển tại Việt Nam.
+            © {new Date().getFullYear()} HireBOT. Phát triển tại Việt Nam.
           </p>
           <div className="flex items-center gap-6">
             <Link

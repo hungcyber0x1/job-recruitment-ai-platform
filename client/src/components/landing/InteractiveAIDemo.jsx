@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 const conversation = [
   {
     role: 'user',
-    text: 'Tôi có 3 năm kinh nghiệm Frontend, muốn chuyển sang Fullstack. Nên bắt đầu từ đâu?',
+    text: 'Tôi có 3 năm kinh nghiệm lập trình giao diện, muốn chuyển sang full-stack. Nên bắt đầu từ đâu?',
     delay: 800,
   },
   {
@@ -14,22 +14,22 @@ const conversation = [
     text: 'Dựa trên hồ sơ của bạn, tôi phân tích được:',
     delay: 1500,
     details: [
-      { icon: Brain, label: 'Kỹ năng hiện tại', value: 'React, TypeScript, CSS — Mạnh ở Frontend' },
+      { icon: Brain, label: 'Kỹ năng hiện tại', value: 'React, TypeScript, CSS — Mạnh về giao diện người dùng' },
       {
         icon: Target,
         label: 'Lộ trình đề xuất',
         value: 'Học Node.js + PostgreSQL trong 3-6 tháng',
       },
-      { icon: TrendingUp, label: 'Cơ hội việc làm', value: '23 vị trí Fullstack phù hợp 85%+' },
+      { icon: TrendingUp, label: 'Cơ hội việc làm', value: '23 vị trí full-stack phù hợp 85%+' },
     ],
   },
   {
     role: 'ai',
-    text: 'Với nền tảng Frontend vững, bạn chỉ cần bổ sung Backend skills. Tôi gợi ý lộ trình 6 tháng:',
+    text: 'Với nền tảng giao diện vững, bạn chỉ cần bổ sung kỹ năng backend. Tôi gợi ý lộ trình 6 tháng:',
     delay: 2500,
     steps: [
       'Tháng 1-2: Node.js & Express cơ bản',
-      'Tháng 3-4: Database & API design',
+      'Tháng 3-4: Cơ sở dữ liệu & thiết kế API',
       'Tháng 5-6: DevOps & dự án thực tế',
     ],
   },
@@ -39,7 +39,7 @@ const suggestionChips = [
   'Xem lộ trình chi tiết',
   'Gợi ý khóa học',
   'Việc làm phù hợp',
-  'Mức lương Fullstack',
+  'Mức lương full-stack',
 ];
 
 const TypingIndicator = () => (
@@ -54,7 +54,7 @@ const TypingIndicator = () => (
         />
       ))}
     </div>
-    <span className="text-muted-foreground text-sm font-medium">AI đang phân tích...</span>
+    <span className="text-muted-foreground text-sm font-medium">Đang phân tích...</span>
   </div>
 );
 
@@ -111,13 +111,13 @@ const InteractiveAIDemo = () => {
         >
           <span className="landing-badge">
             <Bot size={14} aria-hidden />
-            AI Career Mentor
+            Cố vấn nghề nghiệp
           </span>
           <h2 className="landing-heading">
-            Trải nghiệm AI tư vấn <span className="landing-heading-muted">thực tế</span>
+            Trải nghiệm tư vấn <span className="landing-heading-muted">thực tế</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed font-medium max-w-[65ch]">
-            AI hiểu ngữ cảnh, phân tích chuyên sâu và đưa ra lời khuyên nghề nghiệp được cá nhân hóa
+            Hệ thống hiểu ngữ cảnh, phân tích chuyên sâu và đưa ra lời khuyên nghề nghiệp được cá nhân hóa
             cho riêng bạn
           </p>
         </motion.div>
@@ -129,7 +129,7 @@ const InteractiveAIDemo = () => {
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           className="max-w-3xl mx-auto"
         >
-          <div className="landing-card rounded-3xl overflow-hidden shadow-[0_20px_60px_-15px_rgba(16,185,129,0.06)]">
+          <div className="landing-card rounded-xl overflow-hidden shadow-[0_20px_60px_-15px_rgba(16,185,129,0.06)]">
             {/* Chat Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-border/40">
               <div className="flex items-center gap-3">
@@ -137,7 +137,7 @@ const InteractiveAIDemo = () => {
                   <Bot size={20} className="text-primary" />
                 </div>
                 <div>
-                  <p className="text-foreground text-base font-bold">HireAI Career Mentor</p>
+                  <p className="text-foreground text-base font-bold">Cố vấn nghề nghiệp HireBOT</p>
                   <p className="text-primary text-base font-medium flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
                     Sẵn sàng tư vấn
@@ -146,7 +146,7 @@ const InteractiveAIDemo = () => {
               </div>
               <div className="flex items-center gap-2 text-muted-foreground text-sm font-bold">
                 <Sparkles size={12} className="text-primary" />
-                GPT-4 Powered
+                Hỗ trợ bởi GPT-4
               </div>
             </div>
 
@@ -157,12 +157,12 @@ const InteractiveAIDemo = () => {
             >
               {!hasStarted ? (
                 <div className="h-full flex flex-col items-center justify-center text-center space-y-6">
-                  <div className="w-16 h-16 rounded-2xl bg-primary/8 border border-primary/12 flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-xl bg-primary/8 border border-primary/12 flex items-center justify-center">
                     <Bot size={28} className="text-primary" />
                   </div>
                   <div className="space-y-2">
                     <p className="text-foreground font-bold text-lg">
-                      Xin chào! Tôi là AI Career Mentor
+                      Xin chào! Tôi là cố vấn nghề nghiệp
                     </p>
                     <p className="text-muted-foreground text-base max-w-sm">
                       Hãy xem tôi tư vấn nghề nghiệp như thế nào qua cuộc trò chuyện mẫu
@@ -171,10 +171,10 @@ const InteractiveAIDemo = () => {
                   <button
                     onClick={() => setHasStarted(true)}
                     className="landing-btn-primary px-6 py-3 text-sm"
-                    aria-label="Xem demo trực tiếp cuộc trò chuyện AI"
+                    aria-label="Xem bản minh họa trực tiếp cuộc trò chuyện"
                   >
                     <Sparkles size={16} aria-hidden />
-                    Xem demo trực tiếp
+                    Xem minh họa trực tiếp
                   </button>
                 </div>
               ) : (
@@ -190,7 +190,7 @@ const InteractiveAIDemo = () => {
                       >
                         {msg.role === 'user' ? (
                           <div className="flex items-end gap-2 max-w-[85%]">
-                            <div className="bg-primary/8 border border-primary/12 rounded-2xl rounded-br-sm px-5 py-3">
+                            <div className="bg-primary/8 border border-primary/12 rounded-xl rounded-br-sm px-5 py-3">
                               <p className="text-foreground text-base leading-relaxed">
                                 {msg.text}
                               </p>
@@ -205,7 +205,7 @@ const InteractiveAIDemo = () => {
                               <Bot size={14} className="text-primary" />
                             </div>
                             <div className="space-y-3">
-                              <div className="bg-white border border-border/40 rounded-2xl rounded-tl-sm px-5 py-3 shadow-sm">
+                              <div className="bg-white border border-border/40 rounded-xl rounded-tl-sm px-5 py-3 shadow-sm">
                                 <p className="text-foreground/80 text-base leading-relaxed">
                                   {msg.text}
                                 </p>
@@ -224,7 +224,7 @@ const InteractiveAIDemo = () => {
                                         <detail.icon size={14} className="text-primary" />
                                       </div>
                                       <div>
-                                        <p className="text-muted-foreground text-base font-bold uppercase tracking-wider">
+                                        <p className="text-muted-foreground text-base font-bold uppercase tracking-normal">
                                           {detail.label}
                                         </p>
                                         <p className="text-foreground text-base font-medium mt-0.5">
@@ -293,7 +293,7 @@ const InteractiveAIDemo = () => {
               <div className="flex items-center gap-3 bg-muted/50 border border-border/40 rounded-xl px-4 py-3">
                 <input
                   type="text"
-                  placeholder="Hỏi AI bất cứ điều gì về sự nghiệp..."
+                  placeholder="Hỏi bất cứ điều gì về sự nghiệp..."
                   className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 outline-none font-medium"
                   readOnly
                 />

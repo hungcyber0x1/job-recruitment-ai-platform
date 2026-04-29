@@ -35,11 +35,11 @@ function hashStr(s) {
 }
 
 const EXPERIENCE_OPTIONS = [
-  { value: 'fresher', label: 'Dưới 1 năm (Fresher)' },
-  { value: 'junior', label: '1–3 năm (Junior)' },
-  { value: 'mid', label: '3–5 năm (Mid-level)' },
-  { value: 'senior', label: '5–8 năm (Senior)' },
-  { value: 'expert', label: 'Trên 8 năm (Expert / Manager)' },
+  { value: 'fresher', label: 'Dưới 1 năm (Mới tốt nghiệp)' },
+  { value: 'junior', label: '1–3 năm (Cấp cơ bản)' },
+  { value: 'mid', label: '3–5 năm (Cấp trung)' },
+  { value: 'senior', label: '5–8 năm (Cấp cao)' },
+  { value: 'expert', label: 'Trên 8 năm (Chuyên gia / Quản lý)' },
 ];
 
 const LOCATION_OPTIONS = [
@@ -47,7 +47,7 @@ const LOCATION_OPTIONS = [
   { value: 'hn', label: 'Hà Nội' },
   { value: 'dn', label: 'Đà Nẵng' },
   { value: 'other', label: 'Khác (Toàn quốc)' },
-  { value: 'remote', label: 'Remote (Quốc tế)' },
+  { value: 'remote', label: 'Từ xa (quốc tế)' },
 ];
 
 const INDUSTRY_OPTIONS = [
@@ -153,10 +153,10 @@ const SalaryPredictorPage = () => {
 
   return (
     <AIPublicToolShell
-      kicker="HireAI · Ứng viên"
+      kicker="HireBOT · Ứng viên"
       icon={DollarSign}
       title={titleNode}
-      description="Ước lượng khoảng lương tham khảo theo chức danh, kinh nghiệm, ngành và khu vực — hỗ trợ ứng viên định hướng kỳ vọng và đàm phán offer. Số liệu mô hình nội bộ HireAI, không thay thế khảo sát lương tại từng công ty."
+      description="Ước lượng khoảng lương tham khảo theo chức danh, kinh nghiệm, ngành và khu vực — hỗ trợ ứng viên định hướng kỳ vọng và đàm phán đề nghị tuyển dụng. Số liệu mô hình nội bộ HireBOT, không thay thế khảo sát lương tại từng công ty."
     >
       <div className="mx-auto flex max-w-6xl flex-col gap-8 lg:flex-row">
         <div
@@ -184,7 +184,7 @@ const SalaryPredictorPage = () => {
                     required
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="VD: Senior Frontend Developer, Marketing Manager…"
+                    placeholder="VD: Lập trình viên giao diện cấp cao, Quản lý Marketing…"
                     className="h-12 rounded-xl border-border/60 bg-muted/50 pl-11 text-base"
                   />
                 </div>
@@ -321,7 +321,7 @@ const SalaryPredictorPage = () => {
                   <Badge variant="secondary" className="mb-3 text-sm font-bold">
                     Báo cáo tham khảo 2026
                   </Badge>
-                  <h2 className="text-2xl font-black text-foreground md:text-3xl">
+                  <h2 className="text-2xl font-bold text-foreground md:text-3xl">
                     {formData.title.trim()}
                   </h2>
                   <p className="mt-1 text-base font-medium text-muted-foreground">
@@ -345,7 +345,7 @@ const SalaryPredictorPage = () => {
                       <TrendingUp className="size-4" aria-hidden />
                     </div>
                   </div>
-                  <p className="text-2xl font-black tabular-nums text-foreground md:text-4xl">
+                  <p className="text-2xl font-bold tabular-nums text-foreground md:text-4xl">
                     {formatCurrency(estimate.mid)}
                   </p>
                   <p className="mt-2 flex items-center gap-1 text-base font-bold text-primary">
@@ -358,7 +358,7 @@ const SalaryPredictorPage = () => {
                   <p className="mb-4 text-base font-bold text-muted-foreground">
                     Khoảng lương phổ biến
                   </p>
-                  <p className="text-xl font-black text-primary md:text-2xl">
+                  <p className="text-xl font-bold text-primary md:text-2xl">
                     {formatCurrency(estimate.low)} – {formatCurrency(estimate.high)}
                   </p>
                   <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-muted">
@@ -381,7 +381,7 @@ const SalaryPredictorPage = () => {
                   Với <strong className="text-primary">{formData.title.trim()}</strong> tại{' '}
                   <strong>{labelOf(LOCATION_OPTIONS, formData.location)}</strong>, nhóm{' '}
                   <strong>{labelOf(INDUSTRY_OPTIONS, formData.industry)}</strong> thường có biên độ
-                  offer rộng hơn khi kinh nghiệm nằm ở mức{' '}
+                  đề nghị lương rộng hơn khi kinh nghiệm nằm ở mức{' '}
                   <strong>{labelOf(EXPERIENCE_OPTIONS, formData.experience)}</strong>. Hãy dùng
                   khoảng lương như một cọc mốc đàm phán, kèm phúc lợi và lộ trình thăng tiến.
                 </p>

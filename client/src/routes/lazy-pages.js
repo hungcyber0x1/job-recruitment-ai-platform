@@ -23,7 +23,6 @@ export const SalaryPredictorPage = React.lazy(
   () => import('../pages/public/SalaryPredictorPage.jsx')
 );
 export const CategoriesPage = React.lazy(() => import('../pages/public/CategoriesPage.jsx'));
-export const CareerPage = React.lazy(() => import('../pages/public/CareerPage.jsx'));
 export const BlogPage = React.lazy(() => import('../pages/public/BlogPage.jsx'));
 export const BlogPostPage = React.lazy(() => import('../pages/public/BlogPostPage.jsx'));
 export const NotFoundPage = React.lazy(() => import('../pages/public/NotFoundPage.jsx'));
@@ -39,7 +38,7 @@ export const CandidateJobDetailPage = React.lazy(
   () => import('../pages/candidate/JobDetailPage.jsx')
 );
 export const CandidateCompaniesPage = React.lazy(
-  () => import('../pages/candidate/CompaniesPage.jsx')
+  () => import('../pages/candidate/SavedCompaniesPage.jsx')
 );
 export const CandidateCompanyDetailPage = React.lazy(
   () => import('../pages/candidate/CompanyDetailPage.jsx')
@@ -47,20 +46,26 @@ export const CandidateCompanyDetailPage = React.lazy(
 export const CandidateNotificationsPage = React.lazy(
   () => import('../pages/candidate/NotificationsPage.jsx')
 );
+export const CandidateMessagesPage = React.lazy(
+  () => import('../pages/candidate/MessagesPage.jsx')
+);
+export const CandidateInterviewSchedulePage = React.lazy(
+  () => import('../pages/candidate/InterviewSchedulePage.jsx')
+);
 export const CandidateChatCareerPage = React.lazy(
   () => import('../pages/candidate/ChatCareerPage.jsx')
-);
-export const CareerRoadmapPage = React.lazy(
-  () => import('../pages/candidate/CareerRoadmapPage.jsx')
-);
-export const CareerSuggestionsPage = React.lazy(
-  () => import('../pages/candidate/CareerSuggestionsPage.jsx')
 );
 export const CandidateSettingsPage = React.lazy(
   () => import('../pages/candidate/settings/CandidateSettingsPage.jsx')
 );
 export const EditProfilePage = React.lazy(() => import('../pages/candidate/EditProfilePage.jsx'));
 export const AddProjectPage = React.lazy(() => import('../pages/candidate/AddProjectPage.jsx'));
+export const ProfileAnalyticsPage = React.lazy(
+  () => import('../pages/candidate/ProfileAnalyticsPage.jsx')
+);
+export const InterviewPrepPage = React.lazy(
+  () => import('../pages/candidate/InterviewPrepPage.jsx')
+);
 
 // —— Employer ——
 export const EmployerDashboard = React.lazy(() => import('../pages/employer/DashboardPage.jsx'));
@@ -83,18 +88,31 @@ export const SavedCandidatesPage = React.lazy(
   () => import('../pages/employer/SavedCandidatesPage.jsx')
 );
 export const MessagesPage = React.lazy(() => import('../pages/employer/MessagesPage.jsx'));
-export const InterviewSchedulePage = React.lazy(
+export const EmployerInterviewSchedulePage = React.lazy(
   () => import('../pages/employer/InterviewSchedulePage.jsx')
 );
 export const EmployerSettingsPage = React.lazy(
   () => import('../pages/employer/EmployerSettingsPage.jsx')
 );
+export const RecruitmentReportPage = React.lazy(
+  () => import('../pages/employer/RecruitmentReportPage.jsx')
+);
 export const EmployerBlogPage = React.lazy(() => import('../pages/employer/EmployerBlogPage.jsx'));
+export const RecruiterNotificationsPage = React.lazy(
+  () => import('../pages/employer/NotificationsPage.jsx')
+);
+// Talent Pool Management - Preview page for professional candidate management
+export const TalentPoolPreviewPage = React.lazy(
+  () => import('../pages/employer/TalentPoolPreviewPage.jsx')
+);
 
 // —— Admin ——
 export const AdminDashboardPage = React.lazy(() => import('../pages/admin/DashboardPage.jsx'));
 export const UsersPage = React.lazy(() => import('../pages/admin/UsersPage.jsx'));
 export const AdminJobsPage = React.lazy(() => import('../pages/admin/AdminJobsPage.jsx'));
+export const AdminJobEditorPage = React.lazy(
+  () => import('../pages/admin/AdminJobEditorPage.jsx')
+);
 export const AdminCompaniesPage = React.lazy(() => import('../pages/admin/CompaniesPage.jsx'));
 export const AdminApplicationsPage = React.lazy(
   () => import('../pages/admin/AdminApplicationsPage.jsx')
@@ -113,7 +131,6 @@ export const AdminCategoriesPage = React.lazy(
   () => import('../pages/admin/AdminCategoriesPage.jsx')
 );
 export const AdminSettingsPage = React.lazy(() => import('../pages/admin/AdminSettingsPage.jsx'));
-export const AdminLogsPage = React.lazy(() => import('../pages/admin/AdminLogsPage.jsx'));
 export const AdminChatbotPage = React.lazy(() => import('../pages/admin/AdminChatbotPage.jsx'));
 export const AdminAnalyticsPage = React.lazy(() => import('../pages/admin/AdminAnalyticsPage.jsx'));
 export const AdminModerationPage = React.lazy(
@@ -128,3 +145,11 @@ export const AdminFeatureFlagsPage = React.lazy(
   () => import('../pages/admin/AdminFeatureFlagsPage.jsx')
 );
 export const AdminBlogPage = React.lazy(() => import('../pages/admin/AdminBlogPage.jsx'));
+export const HomepageCMSPage = React.lazy(() => import('../pages/admin/HomepageCMSPage.jsx'));
+export const SkillManagementPage = React.lazy(() => import('../pages/admin/SkillManagementPage.jsx'));
+export const AdminPermissionsPage = React.lazy(() => import('../pages/admin/AdminPermissionsPage.jsx'));
+export const AIToolsAdminPage = React.lazy(() => import('../pages/admin/AIToolsAdminPage.jsx'));
+export const EmailLogsPage = React.lazy(() => import('../pages/admin/EmailLogsPage.jsx'));
+export const AdminNotificationsPage = React.lazy(
+  () => import('../pages/admin/NotificationsPage.jsx')
+);

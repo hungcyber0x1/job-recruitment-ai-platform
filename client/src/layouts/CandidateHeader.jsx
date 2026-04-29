@@ -10,7 +10,6 @@ import {
   LogOut,
   Menu,
   Settings,
-  Sparkles,
   User,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -37,7 +36,7 @@ const CandidateHeader = ({ onMenuClick }) => {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center px-6">
+      <div className="container flex h-14 items-center px-6">
         {/* Mobile Menu Button */}
         <Button variant="ghost" size="icon" className="lg:hidden mr-2" onClick={onMenuClick}>
           <Menu className="h-5 w-5" />
@@ -46,9 +45,9 @@ const CandidateHeader = ({ onMenuClick }) => {
 
         {/* Logo & Title */}
         <div className="flex items-center gap-2 mr-6">
-          <Logo className="h-12 w-auto" />
+          <Logo className="h-9 w-auto" />
           <div className="ml-2 pl-2 border-l border-border hidden md:block">
-            <p className="text-base font-medium text-muted-foreground">Ứng viên</p>
+            <p className="text-sm font-medium text-muted-foreground">Ứng viên</p>
           </div>
         </div>
 
@@ -79,65 +78,83 @@ const CandidateHeader = ({ onMenuClick }) => {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* User Menu */}
+          {/* Logout Button */}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={handleLogout} 
+            title="Đăng xuất" 
+            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 hidden sm:flex"
+          >
+            <LogOut className="h-5 w-5" />
+          </Button>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                <Avatar className="h-9 w-9">
+              <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0 flex items-center justify-center group focus-visible:ring-offset-0">
+                <Avatar className="h-8 w-8 border-2 border-transparent group-hover:border-primary/20 transition-all duration-300">
                   <AvatarImage src={user?.avatar_url} alt={user?.fullName} />
-                  <AvatarFallback className="bg-primary-600 text-white">
+                  <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">
                     {user?.fullName?.charAt(0) || user?.first_name?.charAt(0) || 'U'}
                   </AvatarFallback>
                 </Avatar>
+                <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 border-2 border-white group-hover:scale-110 transition-transform duration-300"></span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-base font-medium leading-none">
-                    {user?.fullName || `${user?.first_name} ${user?.last_name}` || 'Ứng viên'}
-                  </p>
-                  <p className="text-base leading-none text-muted-foreground">{user?.email}</p>
+            <DropdownMenuContent className="w-72 p-2 rounded-xl border-slate-100 shadow-xl" align="end" forceMount>
+              <DropdownMenuLabel className="font-normal p-4">
+                <div className="flex items-center gap-4">
+                  <div className="relative shrink-0">
+                    <Avatar className="h-12 w-12 border-2 border-primary/10 shadow-sm">
+                      <AvatarImage src={user?.avatar_url} alt={user?.fullName} />
+                      <AvatarFallback className="bg-primary/10 text-primary font-bold text-lg">
+                        {user?.fullName?.charAt(0) || user?.first_name?.charAt(0) || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full bg-emerald-500 border-2 border-white shadow-sm"></span>
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-base font-bold leading-none text-slate-800 line-clamp-1">
+                      {user?.fullName || `${user?.first_name} ${user?.last_name}` || 'Ứng viên'}
+                    </p>
+                    <p className="text-sm font-medium text-slate-500 truncate max-w-[150px]">
+                      {user?.email}
+                    </p>
+                  </div>
                 </div>
               </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/candidate/dashboard">
-                  <Activity className="mr-2 h-4 w-4" />
-                  Dashboard
+              <DropdownMenuSeparator className="bg-slate-100 my-1 mx-2" />
+              <DropdownMenuItem asChild className="p-3 my-1 cursor-pointer hover:bg-slate-50 focus:bg-slate-50 transition-colors rounded-xl text-slate-700">
+                <Link to="/candidate/dashboard" className="flex items-center">
+                  <Activity className="mr-3 h-5 w-5 text-slate-500" />
+                  <span className="text-sm font-semibold">Bảng điều khiển</span>
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/candidate/profile">
-                  <User className="mr-2 h-4 w-4" />
-                  Hồ sơ cá nhân
+              <DropdownMenuItem asChild className="p-3 my-1 cursor-pointer hover:bg-slate-50 focus:bg-slate-50 transition-colors rounded-xl text-slate-700">
+                <Link to="/candidate/profile" className="flex items-center">
+                  <User className="mr-3 h-5 w-5 text-slate-500" />
+                  <span className="text-sm font-semibold">Hồ sơ cá nhân</span>
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/candidate/resume">
-                  <FileText className="mr-2 h-4 w-4" />
-                  CV / Resume
+              <DropdownMenuItem asChild className="p-3 my-1 cursor-pointer hover:bg-slate-50 focus:bg-slate-50 transition-colors rounded-xl text-slate-700">
+                <Link to="/candidate/resume" className="flex items-center">
+                  <FileText className="mr-3 h-5 w-5 text-slate-500" />
+                  <span className="text-sm font-semibold">CV / Resume</span>
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/candidate/settings">
-                  <Settings className="mr-2 h-4 w-4" />
-                  Cài đặt
+              <DropdownMenuItem asChild className="p-3 my-1 cursor-pointer hover:bg-slate-50 focus:bg-slate-50 transition-colors rounded-xl text-slate-700">
+                <Link to="/candidate/settings" className="flex items-center">
+                  <Settings className="mr-3 h-5 w-5 text-slate-500" />
+                  <span className="text-sm font-semibold">Cài đặt</span>
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/">
-                  <Home className="mr-2 h-4 w-4" />
-                  Về trang chủ
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
+              <DropdownMenuSeparator className="bg-slate-100 my-1 mx-2" />
               <DropdownMenuItem
                 onClick={handleLogout}
-                className="cursor-pointer text-red-500 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/30"
+                className="p-3 my-1 cursor-pointer text-red-600 focus:text-red-700 focus:bg-red-50 hover:bg-red-50 transition-colors rounded-xl group"
               >
-                <LogOut className="mr-2 h-4 w-4" />
-                Đăng xuất
+                <LogOut className="mr-3 h-5 w-5 text-red-500 group-hover:text-red-600" />
+                <span className="text-sm font-bold">Đăng xuất</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

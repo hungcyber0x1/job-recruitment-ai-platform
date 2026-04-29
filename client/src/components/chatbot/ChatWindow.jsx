@@ -26,10 +26,10 @@ const ChatWindow = ({ messages, isLoading, onSendMessage, onClearHistory }) => {
             <Sparkles size={20} />
           </div>
           <div>
-            <h3 className="font-black text-slate-900 leading-tight">HireAI Smart Assistant</h3>
+            <h3 className="font-bold text-slate-900 leading-tight">HireBOT Smart Assistant</h3>
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-              <span className="text-sm uppercase font-bold text-slate-400 tracking-widest">
+              <span className="text-sm uppercase font-bold text-slate-400 tracking-normal">
                 Active Model v4.0
               </span>
             </div>
@@ -53,7 +53,7 @@ const ChatWindow = ({ messages, isLoading, onSendMessage, onClearHistory }) => {
           {messages.length === 0 && !isLoading && (
             <div className="h-full flex flex-col items-center justify-center text-center max-w-sm mx-auto opacity-40 py-20">
               <Sparkles size={60} className="text-primary-600 mb-6 animate-pulse" />
-              <p className="font-black text-slate-900 text-lg uppercase tracking-tight">
+              <p className="font-bold text-slate-900 text-lg uppercase tracking-normal">
                 Bắt đầu trò chuyện
               </p>
               <p className="text-base font-medium text-slate-500 mt-2">

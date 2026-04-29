@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS system_settings (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   setting_key VARCHAR(100) NOT NULL UNIQUE,
   setting_value TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -8,15 +8,13 @@ CREATE TABLE IF NOT EXISTS system_settings (
 
 -- Insert default settings
 INSERT IGNORE INTO system_settings (setting_key, setting_value) VALUES
-  ('site_name', 'HireAI - Nền tảng tuyển dụng thông minh'),
+  ('site_name', 'HireBOT - Nền tảng tuyển dụng thông minh'),
   ('site_description', 'Kết nối nhà tuyển dụng và ứng viên thông qua công nghệ AI hiện đại'),
-  ('contact_email', 'contact@hireai.vn'),
-  ('support_email', 'support@hireai.vn'),
+  ('contact_email', 'contact@hirebot.vn'),
+  ('support_email', 'support@hirebot.vn'),
   ('maintenance_mode', 'false'),
   ('allow_registration', 'true'),
   ('default_language', 'vi'),
   ('ai_chatbot', 'true'),
   ('ai_resume_analysis', 'true'),
-  ('ai_job_matching', 'true'),
-  ('ai_moderation', 'true'),
-  ('ai_career_roadmap', 'true');
+  ('ai_moderation', 'true');

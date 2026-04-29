@@ -2,8 +2,8 @@
 -- Câu trả lời của ứng viên và đánh giá AI
 
 CREATE TABLE IF NOT EXISTS interview_answers (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    question_id INT NOT NULL,
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    question_id INT UNSIGNED NOT NULL,
     answer_text TEXT,
     ai_feedback TEXT,
     score DECIMAL(5,2),

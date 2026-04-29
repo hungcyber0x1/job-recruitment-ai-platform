@@ -1,111 +1,198 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {
-  Code,
-  Briefcase,
-  Megaphone,
-  Database,
-  Layers,
-  Users,
-  Sparkles,
-  TrendingUp,
-  ArrowUpRight,
-  ArrowRight,
-} from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { categoryService } from '@/services';
+import { renderCategoryIcon, unwrapCategoryListResponse } from '@/utils';
 
-const categoriesRaw = [
-  { name: 'Công nghệ thông tin', icon: Code, count: 1247 },
-  { name: 'Kinh doanh & Sales', icon: Briefcase, count: 853 },
-  { name: 'Marketing / PR', icon: Megaphone, count: 467 },
-  { name: 'Tài chính / Ngân hàng', icon: Database, count: 921 },
-  { name: 'Thiết kế / Sáng tạo', icon: Layers, count: 318 },
-  { name: 'Nhân sự / HR', icon: Users, count: 243 },
-  { name: 'Dữ liệu & AI', icon: Sparkles, count: 156 },
-  { name: 'Quản trị dự án', icon: TrendingUp, count: 208 },
-];
-const categories = [...categoriesRaw]
-  .sort((a, b) => b.count - a.count)
-  .map((c) => ({ ...c, count: c.count.toLocaleString('vi-VN') }));
+const numberFormatter = new Intl.NumberFormat('vi-VN');
+
+const getSortPriority = (category) =>
+  Number.isFinite(category.sortOrder) && category.sortOrder > 0
+    ? category.sortOrder
+    : Number.MAX_SAFE_INTEGER;
+
+const formatNumber = (value) =>
+  numberFormatter.format(Number.isFinite(value) ? value : 0);
 
 const JobCategories = () => {
-  return (
-    <section className="py-16 bg-background relative overflow-hidden">
-      <div className="container mx-auto px-6 max-w-7xl relative z-10">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-12">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="max-w-2xl space-y-5"
-          >
-            <p className="text-base font-semibold text-muted-foreground uppercase tracking-wider">
-              Ngành nghề
-            </p>
-            <h2 className="text-4xl md:text-6xl font-extrabold text-foreground leading-[0.95] tracking-tighter">
-              Khám phá <span className="text-primary">cơ hội theo ngành</span>
-            </h2>
-          </motion.div>
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-          <Link
-            to="/categories"
-            className="landing-link group flex items-center gap-3 text-sm font-semibold rounded landing-focus"
-          >
-            Xem tất cả
-            <ArrowUpRight
-              size={16}
-              className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
-            />
-          </Link>
-        </div>
+  useEffect(() => {
+    let cancelled = false;
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {categories.map((cat, i) => (
-            <motion.div
-              key={cat.name}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.06, type: 'spring', stiffness: 100, damping: 20 }}
-              viewport={{ once: true }}
-            >
-              <Link
-                to={`/jobs?category=${encodeURIComponent(cat.name)}`}
-                className="group landing-card relative p-6 bg-background rounded-2xl flex flex-col h-full card-premium-hover shadow-sm"
-                onMouseMove={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  e.currentTarget.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
-                  e.currentTarget.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
-                }}
+    (async () => {
+      try {
+        const response = await categoryService.getAllCategories();
+        if (!cancelled) {
+          setCategories(unwrapCategoryListResponse(response));
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error('JobCategories:', error);
+          setCategories([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const visibleCategories = useMemo(() => {
+    return [...categories]
+      .filter((category) => category.isActive && category.jobCount > 0)
+      .sort(
+        (a, b) =>
+          getSortPriority(a) - getSortPriority(b) ||
+          b.jobCount - a.jobCount ||
+          a.name.localeCompare(b.name, 'vi')
+      )
+      .slice(0, 8);
+  }, [categories]);
+
+  const topCategory = useMemo(() => {
+    return (
+      [...categories]
+        .filter((category) => category.isActive && category.jobCount > 0)
+        .sort((a, b) => b.jobCount - a.jobCount || a.name.localeCompare(b.name, 'vi'))[0] ||
+      null
+    );
+  }, [categories]);
+
+  if (loading) {
+    return (
+      <section className="relative overflow-hidden border-t border-border/40 bg-background py-16">
+        <div className="container relative z-10 mx-auto max-w-7xl px-6 md:px-8">
+          <div className="space-y-5">
+            <Skeleton className="h-4 w-40 rounded-full" />
+            <Skeleton className="h-12 w-full max-w-2xl rounded-xl" />
+            <Skeleton className="h-5 w-full max-w-xl rounded-full" />
+            <Skeleton className="h-5 w-full max-w-lg rounded-full" />
+          </div>
+
+          <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <div
+                key={index}
+                className="rounded-xl border border-border/60 bg-white p-6 shadow-sm"
               >
-                <div className="size-11 rounded-xl bg-muted/60 text-muted-foreground border border-border flex items-center justify-center mb-5 group-hover:bg-primary/10 group-hover:text-primary group-hover:border-primary/20 transition-all duration-300">
-                  <cat.icon size={20} strokeWidth={1.8} aria-hidden="true" />
-                </div>
+                <Skeleton className="h-12 w-12 rounded-xl" />
+                <Skeleton className="mt-5 h-6 w-3/4 rounded-full" />
+                <Skeleton className="mt-3 h-4 w-full rounded-full" />
+                <Skeleton className="mt-2 h-4 w-5/6 rounded-full" />
+                <Skeleton className="mt-8 h-12 w-full rounded-xl" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
-                <h3 className="text-base font-bold text-foreground leading-snug mb-2 group-hover:text-foreground transition-colors">
-                  {cat.name}
-                </h3>
+  if (visibleCategories.length === 0) {
+    return null;
+  }
 
-                <div className="mt-auto pt-4 flex items-end justify-between">
-                  <div>
-                    <p className="text-2xl font-extrabold tabular-nums tracking-tight leading-none text-foreground">
-                      {cat.count}
-                    </p>
-                    <p className="text-base text-muted-foreground font-medium mt-1">
-                      việc làm đang mở
+  return (
+    <section className="relative overflow-hidden border-t border-border/40 bg-background py-16">
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+      <div className="absolute right-0 top-10 h-48 w-48 rounded-full bg-primary/[0.05] blur-3xl" />
+
+      <div className="container relative z-10 mx-auto max-w-7xl px-6 md:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="max-w-3xl space-y-5"
+        >
+          <div className="flex items-center gap-3">
+            <div className="section-accent-line" />
+            <p className="text-base font-bold uppercase tracking-normal text-primary">
+              Ngành nghề nổi bật
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            <h2 className="text-3xl font-bold leading-[1.08] tracking-normal text-foreground md:text-4xl">
+              Khám phá cơ hội <span className="text-primary">theo từng ngành</span>
+            </h2>
+
+            <p className="max-w-2xl text-base font-medium leading-relaxed text-muted-foreground">
+              Dữ liệu ngành nghề được đồng bộ từ khu vực quản trị và hiển thị nhất quán trên
+              trang chủ, danh sách việc làm và trang ngành nghề.
+            </p>
+          </div>
+        </motion.div>
+
+        <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {visibleCategories.map((category, index) => {
+            const isTopDemand = topCategory?.id === category.id;
+
+            return (
+              <motion.article
+                key={category.id}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.06, type: 'spring', stiffness: 100, damping: 20 }}
+                viewport={{ once: true }}
+                className="h-full"
+              >
+                <Link
+                  to={`/jobs?category_id=${category.id}`}
+                  className="landing-card card-premium-hover group flex h-full flex-col rounded-xl bg-white p-6"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex size-12 items-center justify-center rounded-xl border border-primary/12 bg-primary/8 text-primary transition-all duration-300 group-hover:border-primary group-hover:bg-primary group-hover:text-white">
+                      {renderCategoryIcon(category, { size: 22, strokeWidth: 1.9 })}
+                    </div>
+
+                    {isTopDemand ? (
+                      <span className="rounded-full border border-primary/15 bg-primary/[0.06] px-3 py-1 text-xs font-semibold text-primary">
+                        Nhu cầu cao
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <div className="mt-5 space-y-3">
+                    <h3 className="text-xl font-bold tracking-normal text-foreground transition-colors duration-300 group-hover:text-primary">
+                      {category.name}
+                    </h3>
+
+                    <p className="line-clamp-3 min-h-[4.75rem] text-base leading-relaxed text-muted-foreground">
+                      {category.description ||
+                        'Tổng hợp các vị trí đang tuyển và kỹ năng được tìm kiếm nhiều trong lĩnh vực này.'}
                     </p>
                   </div>
-                  <div className="opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                    <ArrowRight
-                      size={16}
-                      className="text-muted-foreground group-hover:text-primary transition-colors"
-                      aria-hidden="true"
-                    />
+
+                  <div className="mt-auto border-t border-border/50 pt-5">
+                    <div className="flex items-end justify-between gap-4">
+                      <div>
+                        <p className="text-sm font-semibold text-muted-foreground">
+                          Cơ hội hiện có
+                        </p>
+                        <p className="mt-1 text-3xl font-bold leading-none tracking-normal text-foreground tabular-nums">
+                          {formatNumber(category.jobCount)}
+                        </p>
+                      </div>
+
+                      <div className="flex size-10 items-center justify-center rounded-xl border border-border/60 bg-slate-50 text-muted-foreground transition-all duration-300 group-hover:border-primary group-hover:bg-primary group-hover:text-white">
+                        <ArrowRight size={18} aria-hidden="true" />
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
+                </Link>
+              </motion.article>
+            );
+          })}
         </div>
       </div>
     </section>

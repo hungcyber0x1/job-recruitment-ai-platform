@@ -8,21 +8,21 @@ const ChatWidget = React.lazy(() => import('./ChatWidget'));
 
 /** Bubble chat: chỉ khi đã đăng nhập + bật ai_chatbot (trang /chat cũng bọc PrivateRoute). */
 const ChatWidgetGate = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
   const { isEnabled } = useFeatureFlags();
   const { pathname } = useLocation();
 
   const hireAi = isEnabled('ai_chatbot');
+  const isDedicatedChatSurface =
+    pathname === '/chat' ||
+    pathname === '/candidate/chat' ||
+    pathname.startsWith('/admin/chatbot');
 
-  if (!isAuthenticated || !hireAi) {
+  if (loading || !isAuthenticated || !hireAi) {
     return null;
   }
 
-  if (pathname.startsWith('/admin')) {
-    return null;
-  }
-
-  if (pathname === '/login' || pathname === '/register') {
+  if (pathname === '/login' || pathname === '/register' || isDedicatedChatSurface) {
     return null;
   }
 

@@ -42,7 +42,7 @@ export const fallbackFeatureCatalog = {
       id: 'ai-cv-scanner',
       title: 'AI CV Scanner',
       description:
-        'Candidate-facing resume check (keywords, ATS-style signals) before applying on HireAI.',
+        'Candidate-facing resume check (keywords, ATS-style signals) before applying on HireBOT.',
       path: '/ai-cv-scanner',
       enabled: true,
     },
@@ -52,13 +52,6 @@ export const fallbackFeatureCatalog = {
       description:
         'Reference salary band by role, experience, industry, and location for offer discussions.',
       path: '/salary-predictor',
-      enabled: true,
-    },
-    {
-      id: 'career-roadmap',
-      title: 'Career Roadmap',
-      description: 'See a guided growth path based on profile maturity and role direction.',
-      path: '/candidate/career-roadmap',
       enabled: true,
     },
   ],

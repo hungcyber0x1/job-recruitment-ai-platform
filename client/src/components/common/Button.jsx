@@ -2,36 +2,40 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
+import { Slot } from '@radix-ui/react-slot';
 import { cva } from 'class-variance-authority';
 import { cn } from '../../utils/cn';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center font-bold rounded-2xl transition-all duration-300 active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none focus-ring',
+  'inline-flex items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-[color,background-color,border-color,box-shadow,transform] duration-200 ease-out active:translate-y-px disabled:pointer-events-none disabled:opacity-50 focus-ring',
   {
     variants: {
       variant: {
         primary:
-          'bg-primary text-white shadow-card hover:bg-primary/90 border border-transparent hover-lift hover-glow',
+          'border border-primary bg-primary text-primary-foreground shadow-sm hover:bg-primary/92',
         secondary:
-          'bg-secondary text-secondary-foreground hover:bg-secondary/92 border border-transparent hover-lift',
+          'border border-border bg-card text-foreground shadow-sm hover:border-primary/20 hover:bg-muted/60',
         outline:
-          'bg-transparent text-foreground border border-white/10 hover:border-primary/60 hover:text-primary hover:bg-primary/10 shadow-sm hover-lift',
-        ghost: 'bg-transparent text-slate-400 hover:text-primary hover:bg-primary/10 hover-scale',
+          'border border-border bg-card text-foreground shadow-sm hover:border-primary/20 hover:bg-muted/60',
+        ghost:
+          'border border-transparent bg-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground',
         danger:
-          'bg-error/10 text-error hover:bg-error hover:text-white transition-all duration-300 hover-lift',
+          'border border-danger bg-danger text-white shadow-sm hover:bg-danger/92',
+        destructive:
+          'border border-danger bg-danger text-white shadow-sm hover:bg-danger/92',
         white:
-          'bg-slate-900 text-foreground shadow-card hover:shadow-glow border border-white/10 hover:bg-slate-800 hover-lift',
+          'border border-border bg-card text-foreground shadow-sm hover:border-primary/20 hover:bg-muted/60',
         glass:
-          'glass text-primary border border-white/10 hover:bg-slate-900/90 shadow-glass hover-lift',
-        accent: 'bg-accent text-white shadow-card hover:bg-accent/90 hover-lift hover-glow',
+          'border border-border bg-card/80 text-foreground shadow-sm hover:border-primary/20 hover:bg-muted/60',
+        accent:
+          'border border-primary bg-primary text-primary-foreground shadow-sm hover:bg-primary/92',
       },
       size: {
-        sm: 'px-4 py-2 text-sm rounded-xl',
-        md: 'px-6 py-3.5 text-base rounded-2xl',
-        lg: 'px-8 py-4.5 text-lg rounded-2xl',
-        xl: 'px-10 py-5.5 text-xl rounded-[1.5rem]',
-        icon: 'p-3.5 rounded-xl',
+        sm: 'h-9 px-3.5 text-sm',
+        md: 'h-10 px-4 text-sm',
+        lg: 'h-11 px-5 text-sm',
+        xl: 'h-12 px-6 text-sm',
+        icon: 'h-10 w-10 p-0',
       },
       fullWidth: {
         true: 'w-full',
@@ -45,28 +49,26 @@ const buttonVariants = cva(
   }
 );
 
-const IconWrapper = ({ icon: Icon, side, size }) => {
+const IconWrapper = ({ icon: Icon, size }) => {
   if (!Icon) return null;
-  const iconSize = size === 'sm' ? 14 : size === 'lg' || size === 'xl' ? 20 : 18;
-  const margin = side === 'left' ? 'mr-2' : 'ml-2';
+  const iconSize = size === 'sm' ? 16 : size === 'lg' || size === 'xl' ? 20 : 18;
 
   if (React.isValidElement(Icon)) {
     return React.cloneElement(Icon, {
       size: Icon.props.size || iconSize,
-      className: cn(margin, 'shrink-0', Icon.props.className),
+      className: cn('shrink-0', Icon.props.className),
     });
   }
 
   if (typeof Icon === 'function' || typeof Icon === 'object') {
     const Comp = Icon;
-    return <Comp size={iconSize} className={cn(margin, 'shrink-0')} />;
+    return <Comp size={iconSize} className="shrink-0" />;
   }
-  return <span className={cn(margin, 'shrink-0')}>{Icon}</span>;
+  return <span className="shrink-0">{Icon}</span>;
 };
 
 IconWrapper.propTypes = {
   icon: PropTypes.oneOfType([PropTypes.element, PropTypes.elementType, PropTypes.node]),
-  side: PropTypes.oneOf(['left', 'right']).isRequired,
   size: PropTypes.oneOf(['sm', 'md', 'lg', 'xl', 'icon']),
 };
 
@@ -77,7 +79,8 @@ const Button = React.forwardRef(
       variant,
       size,
       className,
-      isLoading = false,
+      isLoading: isLoadingProp = false,
+      loading, // Destructure to prevent leaking to DOM
       leftIcon: LeftIcon,
       rightIcon: RightIcon,
       disabled,
@@ -86,24 +89,35 @@ const Button = React.forwardRef(
       type = 'button',
       fullWidth,
       renderAs,
+      asChild = false,
       ...props
     },
     ref
   ) => {
+    const isLoading = isLoadingProp || loading;
     const content = (
       <>
         {isLoading ? (
-          <Loader2 className="w-4 h-4 mr-2 animate-spin shrink-0" />
+          <Loader2 className="h-4 w-4 animate-spin shrink-0" />
         ) : (
-          <IconWrapper icon={LeftIcon} side="left" size={size} />
+          <IconWrapper icon={LeftIcon} size={size} />
         )}
-        <span>{children}</span>
-        {!isLoading && <IconWrapper icon={RightIcon} side="right" size={size} />}
+        <span className="min-w-0 text-center">{children}</span>
+        {!isLoading && <IconWrapper icon={RightIcon} size={size} />}
       </>
     );
 
     const classes = cn(buttonVariants({ variant, size, fullWidth }), className);
     const isDisabled = disabled || isLoading;
+
+    // asChild: delegate rendering to the child element via Radix Slot
+    if (asChild) {
+      return (
+        <Slot className={classes} ref={ref} {...props}>
+          {children}
+        </Slot>
+      );
+    }
 
     if (to) {
       if (isDisabled) {
@@ -169,6 +183,7 @@ const Button = React.forwardRef(
 Button.displayName = 'Button';
 
 Button.propTypes = {
+  asChild: PropTypes.bool,
   children: PropTypes.node,
   variant: PropTypes.oneOf([
     'primary',
@@ -176,6 +191,7 @@ Button.propTypes = {
     'outline',
     'ghost',
     'danger',
+    'destructive',
     'white',
     'glass',
     'accent',

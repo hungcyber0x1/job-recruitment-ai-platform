@@ -1,625 +1,953 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
-  Plus,
-  Edit2,
-  Trash2,
-  X,
-  Search,
+  ArrowUpRight,
+  Briefcase,
   ChevronDown,
   ChevronRight,
   Code2,
+  Edit2,
+  Factory,
+  GraduationCap,
+  Hotel,
+  Landmark,
+  LayoutGrid,
+  Loader2,
   Megaphone,
   Palette,
-  Building2,
-  GraduationCap,
-  Landmark,
-  Hotel,
+  Plus,
+  RotateCcw,
+  Search,
+  ShieldCheck,
   ShoppingBag,
-  Factory,
-  Truck,
-  Briefcase,
+  Sparkles,
   Tags,
-  LayoutGrid,
+  Trash2,
+  Truck,
+  X,
 } from 'lucide-react';
-import adminService from '../../services/adminService';
-import AdminLayout from '../../layouts/AdminLayout';
 
-const MOCK_SUB_INDUSTRIES = [];
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { useNotification } from '@/context/NotificationContext';
+import adminService from '@/services/adminService';
 
-const MOCK_SKILL_TAGS = [];
+const INPUT_CLASS =
+  'h-11 w-full rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100';
+const TEXTAREA_CLASS =
+  'w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100';
 
-const getCategoryIcon = (name) => {
-  const n = String(name || '').toLowerCase();
-  const iconCls = 'text-emerald-600 dark:text-emerald-400';
-  const size = 18;
-  if (n.includes('công nghệ') || n.includes('it') || n.includes('tech') || n.includes('phần mềm'))
-    return <Code2 size={size} className={iconCls} strokeWidth={2} />;
+function SectionCard({ icon: Icon, title, description, action, className = '', children, ...props }) {
+  return (
+    <section
+      className={`rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition-all hover:border-emerald-200/70 hover:shadow-md sm:p-6 ${className}`}
+      {...props}
+    >
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex min-w-0 items-start gap-3">
+          {Icon ? (
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100">
+              <Icon className="h-4 w-4" />
+            </div>
+          ) : null}
+          <div className="min-w-0">
+            <h2 className="text-base font-bold tracking-normal text-slate-950">{title}</h2>
+            {description ? (
+              <p className="mt-1 text-sm leading-6 text-slate-500">{description}</p>
+            ) : null}
+          </div>
+        </div>
+        {action}
+      </div>
+      <div className="mt-6">{children}</div>
+    </section>
+  );
+}
+
+function formatNumber(value) {
+  return Number(value || 0).toLocaleString('vi-VN');
+}
+
+function getCategoryIcon(name = '') {
+  const normalized = String(name || '').toLowerCase();
+
   if (
-    n.includes('marketing') ||
-    n.includes('truyền thông') ||
-    n.includes('media') ||
-    n.includes('bán hàng') ||
-    n.includes('kinh doanh')
-  )
-    return <Megaphone size={size} className={iconCls} strokeWidth={2} />;
-  if (n.includes('bất động sản') || n.includes('real'))
-    return <Building2 size={size} className={iconCls} strokeWidth={2} />;
-  if (n.includes('giáo dục') || n.includes('đào tạo'))
-    return <GraduationCap size={size} className={iconCls} strokeWidth={2} />;
-  if (n.includes('kế toán') || n.includes('tài chính') || n.includes('finance'))
-    return <Landmark size={size} className={iconCls} strokeWidth={2} />;
-  if (n.includes('khách sạn') || n.includes('du lịch') || n.includes('nhà hàng'))
-    return <Hotel size={size} className={iconCls} strokeWidth={2} />;
-  if (n.includes('logistics') || n.includes('vận tải') || n.includes('kho bãi'))
-    return <Truck size={size} className={iconCls} strokeWidth={2} />;
-  if (n.includes('kỹ thuật') || n.includes('sản xuất') || n.includes('cơ khí'))
-    return <Factory size={size} className={iconCls} strokeWidth={2} />;
-  if (n.includes('bán lẻ') || n.includes('thương mại'))
-    return <ShoppingBag size={size} className={iconCls} strokeWidth={2} />;
-  return <Palette size={size} className={iconCls} strokeWidth={2} />;
-};
+    normalized.includes('công nghệ') ||
+    normalized.includes('it') ||
+    normalized.includes('phần mềm') ||
+    normalized.includes('developer')
+  ) {
+    return Code2;
+  }
+
+  if (normalized.includes('marketing') || normalized.includes('truyền thông') || normalized.includes('nội dung')) {
+    return Megaphone;
+  }
+
+  if (normalized.includes('kế toán') || normalized.includes('tài chính') || normalized.includes('ngân hàng')) {
+    return Landmark;
+  }
+
+  if (
+    normalized.includes('kinh doanh') ||
+    normalized.includes('bán hàng') ||
+    normalized.includes('sale') ||
+    normalized.includes('account')
+  ) {
+    return ShoppingBag;
+  }
+
+  if (
+    normalized.includes('nhân sự') ||
+    normalized.includes('hành chính') ||
+    normalized.includes('vận hành')
+  ) {
+    return Briefcase;
+  }
+
+  if (
+    normalized.includes('kỹ thuật') ||
+    normalized.includes('sản xuất') ||
+    normalized.includes('công nghiệp')
+  ) {
+    return Factory;
+  }
+
+  if (normalized.includes('thiết kế') || normalized.includes('sáng tạo') || normalized.includes('ux')) {
+    return Palette;
+  }
+
+  if (normalized.includes('giáo dục') || normalized.includes('đào tạo')) {
+    return GraduationCap;
+  }
+
+  if (normalized.includes('y tế') || normalized.includes('chăm sóc') || normalized.includes('dược')) {
+    return ShieldCheck;
+  }
+
+  if (normalized.includes('khách sạn') || normalized.includes('du lịch') || normalized.includes('dịch vụ')) {
+    return Hotel;
+  }
+
+  if (normalized.includes('logistics') || normalized.includes('vận tải') || normalized.includes('kho')) {
+    return Truck;
+  }
+
+  return LayoutGrid;
+}
+
+function normalizeCategories(payload = []) {
+  return payload.map((item) => ({
+    id: Number(item?.id ?? 0),
+    name: String(item?.name ?? ''),
+    description: String(item?.description ?? ''),
+    slug: String(item?.slug ?? ''),
+    jobCount: Number(item?.job_count ?? item?.jobs_count ?? item?.jobCount ?? 0),
+    isActive: Boolean(Number(item?.is_active ?? item?.isActive ?? 1)),
+  }));
+}
+
+function normalizeSkills(payload = []) {
+  return payload.map((item) => ({
+    id: Number(item?.id ?? 0),
+    name: String(item?.name ?? ''),
+    categoryId:
+      item?.category_id != null
+        ? Number(item.category_id)
+        : item?.categoryId != null
+          ? Number(item.categoryId)
+          : null,
+    isActive: Boolean(Number(item?.is_active ?? item?.isActive ?? 1)),
+  }));
+}
 
 const AdminCategoriesPage = () => {
+  const { showNotification } = useNotification();
   const [categories, setCategories] = useState([]);
   const [skills, setSkills] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState('');
   const [expandedId, setExpandedId] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [editingItem, setEditingItem] = useState(null);
-  const [formData, setFormData] = useState({ name: '', description: '' });
-  const [modalMode, setModalMode] = useState('category'); // 'category' | 'skill'
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+  });
 
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const [catRes, skillRes] = await Promise.all([
+
+      const [categoriesRes, skillsRes] = await Promise.all([
         adminService.getCategories(),
         adminService.getSkills(),
       ]);
-      const catData = Array.isArray(catRes?.data?.data)
-        ? catRes.data.data
-        : Array.isArray(catRes?.data)
-          ? catRes.data
+
+      const categoryPayload = Array.isArray(categoriesRes?.data?.data)
+        ? categoriesRes.data.data
+        : Array.isArray(categoriesRes?.data)
+          ? categoriesRes.data
           : [];
-      const skillData = Array.isArray(skillRes?.data?.data)
-        ? skillRes.data.data
-        : Array.isArray(skillRes?.data)
-          ? skillRes.data
+
+      const skillPayload = Array.isArray(skillsRes?.data?.data)
+        ? skillsRes.data.data
+        : Array.isArray(skillsRes?.data)
+          ? skillsRes.data
           : [];
-      setCategories(
-        catData.map((c) => ({
-          id: c?.id ?? 0,
-          name: String(c?.name ?? ''),
-          description: String(c?.description ?? ''),
-          job_count: Number(c?.job_count ?? 0),
-        }))
-      );
-      setSkills(
-        skillData.map((s) => ({
-          id: s?.id ?? 0,
-          name: String(s?.name ?? ''),
-          description: String(s?.description ?? ''),
-          category_id: s?.category_id ?? null,
-        }))
-      );
+
+      setCategories(normalizeCategories(categoryPayload));
+      setSkills(normalizeSkills(skillPayload));
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Failed to fetch categories:', error);
+      setCategories([]);
+      setSkills([]);
+      showNotification('Không tải được dữ liệu ngành nghề', 'error');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [showNotification]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    try {
-      if (modalMode === 'category') {
-        if (editingItem) {
-          await adminService.updateCategory(editingItem.id, formData);
-        } else {
-          await adminService.createCategory(formData);
-        }
-      } else {
-        if (editingItem) {
-          await adminService.updateSkill(editingItem.id, formData);
-        } else {
-          await adminService.createSkill(formData);
-        }
-      }
-      setShowModal(false);
-      setEditingItem(null);
-      setFormData({ name: '', description: '' });
-      fetchData();
-    } catch (error) {
-      console.error('Error saving:', error);
-    }
-  };
+  const hydratedCategories = useMemo(
+    () =>
+      categories
+        .map((category) => {
+          const linkedSkills = skills
+            .filter((skill) => skill.categoryId === category.id)
+            .sort((a, b) => a.name.localeCompare(b.name, 'vi'));
 
-  const handleDelete = async (id, isCategory) => {
-    if (!window.confirm('Bạn có chắc chắn muốn xóa?')) return;
-    try {
-      if (isCategory) await adminService.deleteCategory(id);
-      else await adminService.deleteSkill(id);
-      fetchData();
-    } catch (error) {
-      console.error('Error deleting:', error);
-    }
-  };
+          return {
+            ...category,
+            linkedSkills,
+            skillCount: linkedSkills.length,
+            activeSkillCount: linkedSkills.filter((skill) => skill.isActive).length,
+          };
+        })
+        .sort((a, b) => {
+          const scoreA = a.jobCount * 3 + a.skillCount;
+          const scoreB = b.jobCount * 3 + b.skillCount;
+          if (scoreA !== scoreB) return scoreB - scoreA;
+          return a.name.localeCompare(b.name, 'vi');
+        }),
+    [categories, skills]
+  );
 
-  const openModal = (item = null, mode = 'category') => {
-    setModalMode(mode);
-    if (item) {
-      setEditingItem(item);
-      setFormData({ name: item.name, description: item.description || '' });
-    } else {
-      setEditingItem(null);
-      setFormData({ name: '', description: '' });
+  const filteredCategories = useMemo(() => {
+    const keyword = search.trim().toLowerCase();
+
+    return hydratedCategories.filter((category) => {
+      if (!keyword) return true;
+
+      return (
+        category.name.toLowerCase().includes(keyword) ||
+        category.description.toLowerCase().includes(keyword) ||
+        category.linkedSkills.some((skill) => skill.name.toLowerCase().includes(keyword))
+      );
+    });
+  }, [hydratedCategories, search]);
+
+  useEffect(() => {
+    if (expandedId && !filteredCategories.some((category) => category.id === expandedId)) {
+      setExpandedId(null);
     }
+  }, [expandedId, filteredCategories]);
+
+  const openModal = (category = null) => {
+    setEditingCategory(category);
+    setFormData({
+      name: category?.name || '',
+      description: category?.description || '',
+    });
     setShowModal(true);
   };
 
-  const filteredCategories = categories.filter(
-    (c) => !search.trim() || (c.name && c.name.toLowerCase().includes(search.toLowerCase()))
-  );
+  const closeModal = () => {
+    setShowModal(false);
+    setEditingCategory(null);
+    setFormData({
+      name: '',
+      description: '',
+    });
+    setSaving(false);
+  };
 
-  const statsCards = useMemo(() => {
-    const totalIndustries = categories.length;
-    const activeSkills = skills.length;
-    const topByJobs = [...categories].sort(
-      (a, b) => (Number(b.job_count) || 0) - (Number(a.job_count) || 0)
-    )[0];
-    return [
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!formData.name.trim()) {
+      showNotification('Vui lòng nhập tên ngành nghề', 'error');
+      return;
+    }
+
+    try {
+      setSaving(true);
+
+      const payload = {
+        name: formData.name.trim(),
+        description: formData.description.trim(),
+        is_active: editingCategory?.isActive ?? true,
+      };
+
+      if (editingCategory) {
+        await adminService.updateCategory(editingCategory.id, payload);
+        showNotification('Đã cập nhật ngành nghề', 'success');
+      } else {
+        await adminService.createCategory(payload);
+        showNotification('Đã thêm ngành nghề mới', 'success');
+      }
+
+      closeModal();
+      fetchData();
+    } catch (error) {
+      console.error('Failed to save category:', error);
+      showNotification('Lỗi khi lưu ngành nghề', 'error');
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (categoryId) => {
+    if (!window.confirm('Xóa ngành nghề này khỏi taxonomy?')) return;
+
+    try {
+      await adminService.deleteCategory(categoryId);
+      showNotification('Đã xóa ngành nghề', 'success');
+
+      if (expandedId === categoryId) {
+        setExpandedId(null);
+      }
+
+      fetchData();
+    } catch (error) {
+      console.error('Failed to delete category:', error);
+      showNotification('Lỗi khi xóa ngành nghề', 'error');
+    }
+  };
+
+  const leadingCategory = useMemo(() => {
+    if (!hydratedCategories.length) return null;
+
+    return hydratedCategories.reduce((best, category) => {
+      const bestScore = (best?.jobCount || 0) * 3 + (best?.skillCount || 0);
+      const currentScore = category.jobCount * 3 + category.skillCount;
+      return currentScore > bestScore ? category : best;
+    }, hydratedCategories[0]);
+  }, [hydratedCategories]);
+
+  const statsCards = useMemo(
+    () => [
       {
         label: 'Tổng danh mục',
-        value: totalIndustries,
-        hint: 'Ngành / lĩnh vực đang cấu hình',
+        value: formatNumber(categories.length),
+        helper: 'Nhóm taxonomy dùng cho tuyển dụng, nội dung và lọc tìm kiếm.',
+        icon: LayoutGrid,
+        valueClass: 'text-3xl',
       },
       {
-        label: 'Kỹ năng (tags)',
-        value: activeSkills,
-        hint: 'Dùng cho bộ lọc & gợi ý AI',
+        label: 'Danh mục có kỹ năng',
+        value: formatNumber(hydratedCategories.filter((category) => category.skillCount > 0).length),
+        helper: `Đang gắn ${formatNumber(skills.length)} kỹ năng đang phục vụ matching và hồ sơ.`,
+        icon: Code2,
+        valueClass: 'text-3xl',
       },
       {
-        label: 'Ngành có nhiều tin nhất',
-        value: topByJobs?.name || '—',
-        hint:
-          topByJobs && (topByJobs.job_count ?? 0) > 0
-            ? `${topByJobs.job_count} tin đang gắn`
-            : 'Chưa có tin tuyển dụng gắn danh mục',
-        isText: true,
+        label: 'Ngành nổi bật hiện tại',
+        value: leadingCategory?.name || 'Chưa có dữ liệu',
+        helper: leadingCategory
+          ? `${formatNumber(leadingCategory.jobCount)} tin tuyển dụng và ${formatNumber(leadingCategory.skillCount)} kỹ năng liên kết.`
+          : 'Thêm danh mục để bắt đầu cấu hình taxonomy cho hệ thống.',
+        icon: Briefcase,
+        valueClass: 'text-lg leading-7',
       },
-    ];
-  }, [categories, skills]);
+    ],
+    [categories.length, hydratedCategories, leadingCategory, skills.length]
+  );
 
   const trendBars = useMemo(() => {
-    const rows = categories
-      .map((c) => ({ label: c.name, value: Number(c.job_count) || 0 }))
-      .filter((r) => r.value > 0)
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 8);
-    const max = Math.max(...rows.map((r) => r.value), 1);
-    return rows.map((r) => ({ ...r, pct: Math.round((r.value / max) * 100) }));
-  }, [categories]);
+    const source = hydratedCategories
+      .filter((category) => category.jobCount > 0 || category.skillCount > 0)
+      .slice(0, 6);
+
+    const maxValue = Math.max(
+      1,
+      ...source.map((category) => Math.max(category.jobCount, category.skillCount))
+    );
+
+    return source.map((category) => ({
+      id: category.id,
+      name: category.name,
+      jobCount: category.jobCount,
+      skillCount: category.skillCount,
+      width: `${Math.max(12, Math.round((Math.max(category.jobCount, category.skillCount) / maxValue) * 100))}%`,
+    }));
+  }, [hydratedCategories]);
+
+  const emptySearch = search.trim().length > 0 && !filteredCategories.length;
 
   return (
-    <AdminLayout>
-      <div className="mx-auto max-w-6xl space-y-8 pb-8 text-slate-900">
-        <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-base font-bold uppercase tracking-[0.2em] text-emerald-600/90">
-              Cấu hình hệ thống
-            </p>
-            <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">
-              Ngành nghề &amp; kỹ năng
-            </h1>
-            <p className="mt-2 max-w-xl text-base leading-relaxed text-slate-500">
-              Quản lý danh mục ngành và từ khóa kỹ năng phục vụ bộ lọc tìm việc, gợi ý AI và báo
-              cáo.
-            </p>
-          </div>
-        </div>
+    <div className="min-h-screen bg-slate-50/40 pb-16 animate-fade-in">
+      <section className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.14),transparent_36%),radial-gradient(circle_at_top_right,rgba(59,130,246,0.08),transparent_30%)]" />
+        <div className="pointer-events-none absolute inset-0 opacity-[0.18] [background-image:linear-gradient(rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,0.06)_1px,transparent_1px)] [background-size:28px_28px]" />
 
-        <div className="grid gap-4 sm:grid-cols-3">
-          {statsCards.map((card) => (
-            <div
-              key={card.label}
-              className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
-            >
-              <p className="text-base font-bold uppercase tracking-wider text-slate-400">
-                {card.label}
-              </p>
-              <p
-                className={`mt-2 font-black text-slate-900 ${card.isText ? 'text-lg leading-snug' : 'text-2xl tabular-nums'}`}
-              >
-                {card.value}
-              </p>
-              {card.hint ? (
-                <p className="mt-2 text-base leading-relaxed text-slate-500">{card.hint}</p>
-              ) : null}
-            </div>
-          ))}
-        </div>
-
-        <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm">
-          <div className="border-b border-slate-100 bg-gradient-to-br from-slate-50/80 to-white px-5 py-5 sm:px-6">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <div className="flex min-w-0 items-start gap-3">
-                <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
-                  <LayoutGrid size={20} strokeWidth={2} />
-                </span>
-                <div className="min-w-0">
-                  <h2 className="text-lg font-black text-slate-900">Danh sách danh mục</h2>
-                  <p className="mt-0.5 text-base text-slate-500">
-                    Mở rộng từng dòng để xem nhóm phụ và tag kỹ năng (theo dữ liệu thật từ API).
-                  </p>
+        <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+          <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+              <div className="max-w-3xl">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge className="rounded-full border-emerald-200 bg-white/90 px-3 py-1 text-xs font-semibold text-emerald-700 shadow-sm">
+                    Admin workspace
+                  </Badge>
+                  <Badge className="rounded-full border-slate-200 bg-white/80 px-3 py-1 text-xs font-semibold text-slate-600 shadow-sm">
+                    Taxonomy management
+                  </Badge>
                 </div>
-              </div>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <div className="relative min-w-[220px] flex-1 sm:max-w-xs lg:max-w-sm">
-                  <Search
-                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                    size={18}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Lọc theo tên ngành..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-base font-medium text-slate-900 shadow-inner shadow-slate-100/50 placeholder:text-slate-400 focus:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => openModal(null, 'category')}
-                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-base font-bold text-white shadow-md shadow-emerald-600/15 transition hover:bg-emerald-700 active:scale-[0.98]"
-                >
-                  <Plus size={18} strokeWidth={2.5} />
-                  Thêm danh mục
-                </button>
-              </div>
-            </div>
-          </div>
 
-          {!loading && filteredCategories.length > 0 && (
-            <div className="hidden border-b border-slate-100 bg-slate-50/60 px-6 py-2.5 text-base font-bold uppercase tracking-wider text-slate-400 md:grid md:grid-cols-[2.5rem,2.75rem,1fr,auto,auto] md:items-center md:gap-3 md:pl-[calc(1.5rem+0.25rem)]">
-              <span className="sr-only">Mở rộng</span>
-              <span className="sr-only">Biểu tượng</span>
-              <span>Danh mục</span>
-              <span className="text-center">Hoạt động</span>
-              <span className="text-center pr-1">Thao tác</span>
-            </div>
-          )}
-
-          {loading ? (
-            <div className="flex h-52 items-center justify-center">
-              <div className="h-10 w-10 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-500" />
-            </div>
-          ) : (
-            <div className="divide-y divide-slate-100">
-              {filteredCategories.length === 0 ? (
-                <div className="px-6 py-16 text-center">
-                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
-                    <LayoutGrid size={28} strokeWidth={1.5} />
+                <div className="mt-4 space-y-4">
+                  <div>
+                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-700">
+                      Taxonomy dữ liệu
+                    </p>
+                    <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+                      Ngành nghề
+                    </h1>
                   </div>
-                  <p className="mt-4 text-base font-bold text-slate-800">
-                    {categories.length === 0
-                      ? 'Chưa có danh mục nào'
-                      : 'Không khớp bộ lọc tìm kiếm'}
+
+                  <p className="max-w-2xl text-sm leading-7 text-slate-600 sm:text-[15px]">
+                    Quản lý danh mục ngành nghề dùng xuyên suốt cho tin tuyển dụng, blog, bộ lọc tìm
+                    kiếm và logic matching. Bố cục mới giữ nguyên nghiệp vụ nhưng làm rõ hơn mối quan hệ
+                    giữa danh mục, kỹ năng và mức độ sử dụng thực tế.
                   </p>
-                  <p className="mx-auto mt-2 max-w-sm text-base text-slate-500">
-                    {categories.length === 0
-                      ? 'Tạo danh mục đầu tiên để gắn tin tuyển dụng và phân loại kỹ năng.'
-                      : 'Thử từ khóa khác hoặc xóa ô tìm kiếm.'}
-                  </p>
-                  {categories.length === 0 ? (
-                    <button
-                      type="button"
-                      onClick={() => openModal(null, 'category')}
-                      className="mt-6 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-base font-bold text-white shadow-md hover:bg-emerald-700"
-                    >
-                      <Plus size={18} />
-                      Thêm danh mục
-                    </button>
-                  ) : null}
-                </div>
-              ) : (
-                filteredCategories.map((cat) => {
-                  const isExpanded = expandedId === cat.id;
-                  const jobCount = cat.job_count ?? 0;
-                  const skillCount = skills.filter((s) => s.category_id === cat.id).length;
-                  const isQuiet = jobCount === 0 && skillCount === 0;
-                  return (
-                    <div key={cat.id} className="bg-white">
-                      <div
-                        role="button"
-                        tabIndex={0}
-                        aria-expanded={isExpanded}
-                        aria-controls={`category-panel-${cat.id}`}
-                        id={`category-row-${cat.id}`}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            setExpandedId(isExpanded ? null : cat.id);
-                          }
-                        }}
-                        className={`group flex cursor-pointer flex-col gap-3 px-4 py-4 transition-colors sm:flex-row sm:items-center sm:gap-3 sm:px-6 md:grid md:grid-cols-[2.5rem,2.75rem,1fr,auto,auto] md:items-center md:gap-3 ${
-                          isExpanded ? 'bg-emerald-50/40' : 'hover:bg-slate-50/90'
-                        }`}
-                        onClick={() => setExpandedId(isExpanded ? null : cat.id)}
+
+                  <div className="rounded-2xl border border-emerald-200/80 bg-white/85 p-4 shadow-sm backdrop-blur">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="space-y-1">
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">
+                          Phạm vi quản trị
+                        </p>
+                        <p className="text-sm leading-6 text-slate-600">
+                          Màn này tập trung vào CRUD danh mục ngành nghề. Kỹ năng đi sâu theo job và hồ
+                          sơ ứng viên, nên không còn đứng riêng ở sidebar; admin chỉ đi tới khi thật sự
+                          cần.
+                        </p>
+                      </div>
+
+                      <Link
+                        to="/admin/skills"
+                        className="inline-flex min-h-11 w-full items-center justify-center gap-2 self-start rounded-lg border border-emerald-200 bg-white px-4 py-2.5 text-sm font-semibold text-emerald-700 shadow-sm transition hover:border-emerald-300 hover:bg-emerald-50 sm:min-h-[44px] sm:w-auto sm:shrink-0 sm:whitespace-nowrap"
                       >
-                        <button
-                          type="button"
-                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-200/80 bg-white text-slate-500 shadow-sm transition group-hover:border-emerald-200 group-hover:text-emerald-600"
-                          aria-label={isExpanded ? 'Thu gọn' : 'Mở rộng'}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setExpandedId(isExpanded ? null : cat.id);
-                          }}
-                        >
-                          {isExpanded ? (
-                            <ChevronDown size={18} className="text-emerald-600" />
-                          ) : (
-                            <ChevronRight size={18} />
-                          )}
-                        </button>
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/12 to-emerald-600/5 ring-1 ring-emerald-500/10">
-                          {getCategoryIcon(cat.name)}
-                        </div>
-                        <div className="min-w-0 flex-1 md:min-w-0">
-                          <p className="font-bold text-slate-900">{cat.name}</p>
-                          {cat.description ? (
-                            <p className="mt-0.5 line-clamp-1 text-base text-slate-500">
-                              {cat.description}
-                            </p>
-                          ) : null}
-                        </div>
-                        <div className="flex flex-wrap items-center gap-2 md:justify-center">
-                          <span
-                            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-base font-semibold tabular-nums ${
-                              jobCount > 0
-                                ? 'border-emerald-200/80 bg-emerald-50 text-emerald-800'
-                                : 'border-slate-200 bg-slate-50 text-slate-500'
-                            }`}
-                          >
-                            <Briefcase size={13} className="opacity-70" />
-                            {jobCount} tin
-                          </span>
-                          <span
-                            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-base font-semibold tabular-nums ${
-                              skillCount > 0
-                                ? 'border-sky-200/80 bg-sky-50 text-sky-900'
-                                : 'border-slate-200 bg-slate-50 text-slate-500'
-                            }`}
-                          >
-                            <Tags size={13} className="opacity-70" />
-                            {skillCount} kỹ năng
-                          </span>
-                          {isQuiet ? (
-                            <span className="hidden text-base font-medium uppercase tracking-wide text-slate-400 sm:inline">
-                              Chưa gắn dữ liệu
-                            </span>
-                          ) : null}
-                        </div>
-                        <div
-                          className="flex items-center justify-center gap-1 border-t border-slate-100 pt-3 sm:border-0 sm:pt-0"
-                          onClick={(e) => e.stopPropagation()}
-                          onKeyDown={(e) => e.stopPropagation()}
-                          role="presentation"
-                        >
-                          <button
-                            type="button"
-                            onClick={() => openModal(cat, 'category')}
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-transparent text-slate-500 transition hover:border-slate-200 hover:bg-white hover:text-emerald-700"
-                            title="Sửa danh mục"
-                          >
-                            <Edit2 size={17} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(cat.id, true)}
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-transparent text-slate-500 transition hover:border-red-100 hover:bg-red-50 hover:text-red-600"
-                            title="Xóa danh mục"
-                          >
-                            <Trash2 size={17} />
-                          </button>
+                        Quản lý kỹ năng phụ trợ
+                        <ArrowUpRight className="h-4 w-4" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3 lg:justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-11 rounded-lg border-slate-200 px-4 text-sm font-semibold text-slate-700"
+                  onClick={() => {
+                    setSearch('');
+                    setExpandedId(null);
+                  }}
+                >
+                  <RotateCcw className="mr-2 h-4 w-4" />
+                  Làm sạch bộ lọc
+                </Button>
+
+                <Button
+                  type="button"
+                  className="h-11 rounded-lg bg-emerald-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700"
+                  onClick={() => openModal()}
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Thêm ngành nghề
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-3">
+              {statsCards.map((item) => {
+                const Icon = item.icon;
+
+                return (
+                  <div
+                    key={item.label}
+                    className="rounded-2xl border border-slate-200/70 bg-white/90 p-5 shadow-sm backdrop-blur"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                          {item.label}
+                        </p>
+                        <div className={`mt-3 font-bold tracking-tight text-slate-950 ${item.valueClass}`}>
+                          {item.value}
                         </div>
                       </div>
 
-                      {isExpanded && (
+                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100">
+                        <Icon className="h-5 w-5" />
+                      </div>
+                    </div>
+
+                    <p className="mt-3 text-sm leading-6 text-slate-500">{item.helper}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="space-y-6">
+          <SectionCard
+            icon={Tags}
+            title="Danh sách ngành nghề"
+            description="Mở rộng từng dòng để xem mô tả danh mục, số tin tuyển dụng đang dùng và các kỹ năng liên kết bên dưới."
+            action={
+              <Button
+                type="button"
+                variant="outline"
+                className="h-10 rounded-lg border-slate-200 px-4 text-sm font-semibold text-slate-700"
+                onClick={fetchData}
+                disabled={loading}
+              >
+                {loading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <RotateCcw className="mr-2 h-4 w-4" />
+                )}
+                Làm mới
+              </Button>
+            }
+          >
+            <div className="space-y-5">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div className="relative w-full max-w-xl">
+                  <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                    className={`${INPUT_CLASS} pl-11`}
+                    placeholder="Tìm theo tên ngành nghề, mô tả hoặc kỹ năng liên kết..."
+                  />
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge className="rounded-full border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
+                    {formatNumber(filteredCategories.length)} danh mục hiển thị
+                  </Badge>
+                  <Badge className="rounded-full border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                    {formatNumber(skills.length)} kỹ năng đã đồng bộ
+                  </Badge>
+                </div>
+              </div>
+
+              {loading ? (
+                <div className="flex min-h-[320px] flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 text-slate-500">
+                  <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+                  <p className="text-sm font-medium">Đang tải dữ liệu taxonomy...</p>
+                </div>
+              ) : emptySearch ? (
+                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 px-6 py-12 text-center">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm ring-1 ring-inset ring-slate-200">
+                    <Search className="h-6 w-6" />
+                  </div>
+                  <h3 className="mt-4 text-lg font-semibold text-slate-900">Không tìm thấy danh mục phù hợp</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-500">
+                    Thử đổi từ khóa tìm kiếm hoặc làm sạch bộ lọc để xem lại toàn bộ taxonomy hiện có.
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="mt-5 h-10 rounded-lg border-slate-200 px-4 text-sm font-semibold text-slate-700"
+                    onClick={() => setSearch('')}
+                  >
+                    <RotateCcw className="mr-2 h-4 w-4" />
+                    Xóa từ khóa
+                  </Button>
+                </div>
+              ) : !filteredCategories.length ? (
+                <div className="rounded-2xl border border-dashed border-emerald-200 bg-emerald-50/40 px-6 py-12 text-center">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-emerald-600 shadow-sm ring-1 ring-inset ring-emerald-100">
+                    <Sparkles className="h-6 w-6" />
+                  </div>
+                  <h3 className="mt-4 text-lg font-semibold text-slate-900">Chưa có danh mục ngành nghề</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-500">
+                    Hãy tạo nhóm đầu tiên để hệ thống bắt đầu phân loại tin tuyển dụng, blog và kỹ năng.
+                  </p>
+                  <Button
+                    type="button"
+                    className="mt-5 h-10 rounded-lg bg-emerald-600 px-4 text-sm font-semibold text-white hover:bg-emerald-700"
+                    onClick={() => openModal()}
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Thêm ngành nghề đầu tiên
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {filteredCategories.map((category) => {
+                    const Icon = getCategoryIcon(category.name);
+                    const isExpanded = expandedId === category.id;
+                    const isUnused = category.jobCount === 0 && category.skillCount === 0;
+
+                    return (
+                      <div
+                        key={category.id}
+                        className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:border-emerald-200 hover:shadow-md"
+                      >
                         <div
-                          id={`category-panel-${cat.id}`}
-                          role="region"
-                          aria-labelledby={`category-row-${cat.id}`}
-                          className="space-y-4 border-t border-slate-100 bg-slate-50/40 px-4 py-5 sm:px-6 md:pl-24"
+                          role="button"
+                          tabIndex={0}
+                          className="w-full cursor-pointer text-left"
+                          onClick={() =>
+                            setExpandedId((current) => (current === category.id ? null : category.id))
+                          }
+                          onKeyDown={(event) => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                              event.preventDefault();
+                              setExpandedId((current) => (current === category.id ? null : category.id));
+                            }
+                          }}
                         >
-                          <div>
-                            <p className="text-base font-bold uppercase tracking-wider text-slate-500 mb-2">
-                              Nhóm ngành phụ
-                            </p>
-                            <ul className="space-y-1">
-                              {MOCK_SUB_INDUSTRIES.map((sub, i) => (
-                                <li
-                                  key={i}
-                                  className="flex items-center justify-between py-1.5 text-base text-slate-600"
-                                >
-                                  {sub}
-                                  <button
-                                    type="button"
-                                    className="text-base font-medium text-emerald-400 hover:underline"
-                                  >
-                                    Sửa
-                                  </button>
-                                </li>
-                              ))}
-                              <li>
-                                <button
+                          <div className="flex flex-col gap-4 p-5 lg:flex-row lg:items-start lg:justify-between">
+                            <div className="flex min-w-0 items-start gap-4">
+                              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100">
+                                <Icon className="h-5 w-5" />
+                              </div>
+
+                              <div className="min-w-0">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <h3 className="text-base font-semibold text-slate-950">{category.name}</h3>
+                                  <Badge className="rounded-full border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                                    {formatNumber(category.jobCount)} tin
+                                  </Badge>
+                                  <Badge className="rounded-full border-sky-200 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-700">
+                                    {formatNumber(category.skillCount)} kỹ năng
+                                  </Badge>
+                                  {isUnused ? (
+                                    <Badge className="rounded-full border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                                      Chưa gắn dữ liệu
+                                    </Badge>
+                                  ) : null}
+                                </div>
+
+                                <p className="mt-2 text-sm leading-6 text-slate-500">
+                                  {category.description || 'Chưa có mô tả. Danh mục này có thể được dùng để tổ chức dữ liệu và điều hướng nội dung trong hệ thống.'}
+                                </p>
+
+                                <div className="mt-3 flex flex-wrap gap-3 text-xs font-medium text-slate-500">
+                                  <span className="inline-flex items-center gap-2 rounded-full bg-slate-50 px-3 py-1">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                                    {category.activeSkillCount
+                                      ? `${formatNumber(category.activeSkillCount)} kỹ năng đang hoạt động`
+                                      : 'Chưa có kỹ năng hoạt động'}
+                                  </span>
+                                  <span className="inline-flex items-center gap-2 rounded-full bg-slate-50 px-3 py-1">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-sky-500" />
+                                    {category.jobCount > 0
+                                      ? 'Đang có tin tuyển dụng sử dụng'
+                                      : 'Chưa có tin tuyển dụng gắn danh mục'}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between gap-2 lg:justify-end">
+                              <div className="flex items-center gap-2">
+                                <Button
                                   type="button"
-                                  className="text-base font-semibold text-emerald-400 hover:underline flex items-center gap-1 mt-1"
+                                  variant="outline"
+                                  className="h-9 rounded-lg border-slate-200 px-3 text-sm font-semibold text-slate-700"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    openModal(category);
+                                  }}
                                 >
-                                  <Plus size={12} />
-                                  Thêm nhóm phụ
-                                </button>
-                              </li>
-                            </ul>
-                          </div>
-                          <div>
-                            <p className="text-base font-bold uppercase tracking-wider text-slate-500 mb-2">
-                              Từ khóa kỹ năng (tags)
-                            </p>
-                            <div className="flex flex-wrap gap-2">
-                              {(skills.filter((s) => s.category_id === cat.id).slice(0, 6).length
-                                ? skills
-                                    .filter((s) => s.category_id === cat.id)
-                                    .slice(0, 6)
-                                    .map((s) => s.name)
-                                : MOCK_SKILL_TAGS
-                              ).map((tag, i) => (
-                                <span
-                                  key={i}
-                                  className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 text-base font-medium text-emerald-400"
+                                  <Edit2 className="mr-2 h-4 w-4" />
+                                  Sửa
+                                </Button>
+
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  className="h-9 rounded-lg border-rose-200 px-3 text-sm font-semibold text-rose-600 hover:bg-rose-50"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    handleDelete(category.id);
+                                  }}
                                 >
-                                  {tag}
-                                  <button
-                                    type="button"
-                                    className="hover:text-red-400"
-                                    aria-label="Xóa tag"
-                                  >
-                                    <X size={12} />
-                                  </button>
-                                </span>
-                              ))}
-                              <button
-                                type="button"
-                                className="text-base font-semibold text-emerald-400 hover:underline flex items-center gap-1"
-                              >
-                                <Plus size={12} />
-                                Thêm tag
-                              </button>
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Xóa
+                                </Button>
+                              </div>
+
+                              <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500">
+                                {isExpanded ? (
+                                  <ChevronDown className="h-4 w-4" />
+                                ) : (
+                                  <ChevronRight className="h-4 w-4" />
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      )}
-                    </div>
-                  );
-                })
+
+                        {isExpanded ? (
+                          <div className="border-t border-slate-200 bg-slate-50/60 px-5 py-5 sm:px-6">
+                            <div className="grid gap-4 sm:grid-cols-3">
+                              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                                  Tin tuyển dụng
+                                </p>
+                                <div className="mt-3 text-2xl font-bold tracking-tight text-slate-950">
+                                  {formatNumber(category.jobCount)}
+                                </div>
+                                <p className="mt-1 text-sm text-slate-500">
+                                  Tin đang dùng danh mục này trong hệ thống.
+                                </p>
+                              </div>
+
+                              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                                  Kỹ năng liên kết
+                                </p>
+                                <div className="mt-3 text-2xl font-bold tracking-tight text-slate-950">
+                                  {formatNumber(category.skillCount)}
+                                </div>
+                                <p className="mt-1 text-sm text-slate-500">
+                                  {category.activeSkillCount
+                                    ? `${formatNumber(category.activeSkillCount)} kỹ năng đang hoạt động.`
+                                    : 'Chưa có kỹ năng hoạt động trong nhóm này.'}
+                                </p>
+                              </div>
+
+                              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                                  Trạng thái taxonomy
+                                </p>
+                                <div className="mt-3">
+                                  <Badge
+                                    className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                                      isUnused
+                                        ? 'border-slate-200 bg-slate-50 text-slate-600'
+                                        : 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                                    }`}
+                                  >
+                                    {isUnused ? 'Cần bổ sung dữ liệu' : 'Đang được sử dụng'}
+                                  </Badge>
+                                </div>
+                                <p className="mt-3 text-sm text-slate-500">
+                                  Giúp admin biết nhóm nào đang có tác động thực tế lên tuyển dụng.
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                  <h4 className="text-sm font-semibold text-slate-950">Kỹ năng trong ngành</h4>
+                                  <p className="mt-1 text-sm text-slate-500">
+                                    Dùng để mở rộng matching và bộ lọc tìm kiếm theo taxonomy này.
+                                  </p>
+                                </div>
+
+                                <Link
+                                  to="/admin/skills"
+                                  className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 transition hover:text-emerald-800"
+                                >
+                                  Mở quản lý kỹ năng
+                                  <ArrowUpRight className="h-4 w-4" />
+                                </Link>
+                              </div>
+
+                              {category.linkedSkills.length ? (
+                                <div className="mt-4 flex flex-wrap gap-2">
+                                  {category.linkedSkills.map((skill) => (
+                                    <Badge
+                                      key={skill.id}
+                                      className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                                        skill.isActive
+                                          ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                                          : 'border-slate-200 bg-slate-50 text-slate-500'
+                                      }`}
+                                    >
+                                      {skill.name}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              ) : (
+                                <div className="mt-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm leading-6 text-slate-500">
+                                  Danh mục này chưa có kỹ năng nào được liên kết. Bạn có thể thêm kỹ năng mới
+                                  trong màn hình phụ trợ để làm giàu taxonomy cho matching.
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ) : null}
+                      </div>
+                    );
+                  })}
+                </div>
               )}
             </div>
-          )}
-        </div>
+          </SectionCard>
 
-        <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm">
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h3 className="text-lg font-black text-slate-900">
-                Phân bổ tin tuyển dụng theo ngành
-              </h3>
-              <p className="text-base text-slate-500">
-                Tỷ lệ tương đối theo số tin đang gắn từng danh mục (chuẩn hóa theo ngành có nhiều
-                tin nhất).
-              </p>
-            </div>
-          </div>
-          {trendBars.length === 0 ? (
-            <div className="mt-8 rounded-xl border border-dashed border-slate-200 bg-slate-50/50 px-4 py-10 text-center text-base text-slate-500">
-              Chưa có tin tuyển dụng gắn danh mục — biểu đồ sẽ hiển thị khi có dữ liệu.
-            </div>
-          ) : (
-            <div className="mt-6 space-y-4">
-              {trendBars.map((item) => (
-                <div
-                  key={item.label}
-                  className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4"
-                >
-                  <span className="w-full text-base font-semibold text-slate-700 sm:w-52 sm:shrink-0">
-                    {item.label}
-                  </span>
-                  <div className="flex min-w-0 flex-1 items-center gap-3">
-                    <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-100">
+          <SectionCard
+            icon={Briefcase}
+            title="Phân bổ tuyển dụng theo ngành"
+            description="Biểu đồ nhanh cho biết nơi dữ liệu tuyển dụng đang tập trung nhiều nhất để ưu tiên taxonomy hợp lý."
+          >
+            {!trendBars.length ? (
+              <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 px-6 py-10 text-center text-sm leading-6 text-slate-500">
+                Chưa có đủ dữ liệu để hiển thị phân bổ. Khi danh mục bắt đầu được gắn vào tin tuyển dụng hoặc kỹ
+                năng, biểu đồ này sẽ tự động cập nhật.
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {trendBars.map((item) => (
+                  <div key={item.id} className="grid gap-3 lg:grid-cols-[220px_minmax(0,1fr)_90px] lg:items-center">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">{item.name}</p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {formatNumber(item.jobCount)} tin tuyển dụng · {formatNumber(item.skillCount)} kỹ năng
+                      </p>
+                    </div>
+
+                    <div className="h-3 overflow-hidden rounded-full bg-slate-100">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 transition-all duration-500"
-                        style={{ width: `${item.pct}%` }}
+                        className="h-full rounded-full bg-[linear-gradient(90deg,#10b981_0%,#34d399_100%)]"
+                        style={{ width: item.width }}
                       />
                     </div>
-                    <span className="w-14 shrink-0 text-right text-base font-bold tabular-nums text-slate-800">
-                      {item.value}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
 
-        {showModal && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-            onClick={() => setShowModal(false)}
-          >
-            <div
-              className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-slate-900">
-                  {editingItem ? 'Chỉnh sửa' : 'Thêm mới'}
-                </h3>
+                    <div className="text-right text-sm font-semibold text-emerald-700">
+                      {formatNumber(Math.max(item.jobCount, item.skillCount))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </SectionCard>
+        </div>
+      </main>
+
+      {showModal ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-2xl overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_30px_90px_-36px_rgba(15,23,42,0.45)]">
+            <div className="border-b border-slate-200 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_100%)] px-6 py-5 sm:px-7">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge className="rounded-full border-emerald-200 bg-white px-3 py-1 text-xs font-semibold text-emerald-700 shadow-sm">
+                      Taxonomy editor
+                    </Badge>
+                  </div>
+                  <h2 className="mt-3 text-2xl font-bold tracking-tight text-slate-950">
+                    {editingCategory ? 'Chỉnh sửa ngành nghề' : 'Thêm ngành nghề mới'}
+                  </h2>
+                  <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">
+                    Cập nhật tên nhóm và mô tả ngắn để admin, biên tập và hệ thống matching cùng hiểu đúng vai
+                    trò của danh mục này.
+                  </p>
+                </div>
+
                 <button
                   type="button"
-                  onClick={() => setShowModal(false)}
-                  className="p-2 rounded-lg text-slate-500 hover:bg-muted/55 hover:text-foreground"
+                  onClick={closeModal}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:border-slate-300 hover:text-slate-700"
+                  aria-label="Đóng"
                 >
-                  <X size={20} />
+                  <X className="h-5 w-5" />
                 </button>
               </div>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-base font-semibold text-slate-600 mb-1.5">Tên</label>
+            </div>
+
+            <form onSubmit={handleSubmit} className="px-6 py-6 sm:px-7">
+              <div className="space-y-5">
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-900" htmlFor="category-name">
+                    Tên ngành nghề
+                  </label>
                   <input
-                    type="text"
+                    id="category-name"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-                    placeholder="Nhập tên..."
+                    onChange={(event) =>
+                      setFormData((current) => ({ ...current, name: event.target.value }))
+                    }
+                    className={INPUT_CLASS}
+                    placeholder="Ví dụ: Công nghệ thông tin"
+                    autoFocus
                   />
                 </div>
-                <div>
-                  <label className="block text-base font-semibold text-slate-600 mb-1.5">
+
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-900" htmlFor="category-description">
                     Mô tả
                   </label>
                   <textarea
+                    id="category-description"
+                    rows={5}
                     value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    rows={3}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 resize-none"
-                    placeholder="Nhập mô tả (tùy chọn)..."
+                    onChange={(event) =>
+                      setFormData((current) => ({ ...current, description: event.target.value }))
+                    }
+                    className={TEXTAREA_CLASS}
+                    placeholder="Mô tả ngắn về phạm vi nghề nghiệp, kỹ năng đặc trưng hoặc mục đích sử dụng danh mục trong hệ thống."
                   />
                 </div>
-                <div className="flex gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="flex-1 rounded-xl border border-slate-200 bg-white py-2.5 font-semibold text-slate-900 hover:bg-muted/55"
-                  >
-                    Hủy
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 rounded-xl bg-emerald-500 py-2.5 font-semibold text-white hover:bg-emerald-600"
-                  >
-                    Lưu
-                  </button>
+
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4">
+                  <p className="text-sm font-semibold text-emerald-800">Gợi ý nhập liệu</p>
+                  <p className="mt-2 text-sm leading-6 text-emerald-700/90">
+                    Mô tả nên giúp phân biệt rõ danh mục này với các nhóm gần nhau, để khi gắn vào job,
+                    blog hoặc kỹ năng thì logic phân loại vẫn nhất quán trên toàn hệ thống.
+                  </p>
                 </div>
-              </form>
-            </div>
+              </div>
+
+              <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-11 rounded-lg border-slate-200 px-5 text-sm font-semibold text-slate-700"
+                  onClick={closeModal}
+                  disabled={saving}
+                >
+                  Hủy
+                </Button>
+
+                <Button
+                  type="submit"
+                  className="h-11 rounded-lg bg-emerald-600 px-5 text-sm font-semibold text-white hover:bg-emerald-700"
+                  disabled={saving}
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Đang lưu...
+                    </>
+                  ) : editingCategory ? (
+                    'Lưu cập nhật'
+                  ) : (
+                    'Tạo ngành nghề'
+                  )}
+                </Button>
+              </div>
+            </form>
           </div>
-        )}
-      </div>
-    </AdminLayout>
+        </div>
+      ) : null}
+    </div>
   );
 };
 

@@ -7,14 +7,11 @@ import {
   Briefcase,
   Building,
   FileText,
-  HeartPulse,
-  Home,
   LayoutDashboard,
   LogOut,
   Menu,
   Search,
   Settings,
-  ShieldAlert,
   User,
   Users,
   MenuSquare,
@@ -37,14 +34,14 @@ const ADMIN_ROUTE_META = [
   {
     match: '/admin/dashboard',
     title: 'Dashboard',
-    description: 'Theo dõi nhanh tình trạng vận hành, kiểm duyệt và sức khỏe nền tảng.',
-    action: { to: '/admin/moderation', label: 'Mở kiểm duyệt', icon: ShieldAlert },
+    description: 'Theo dõi nhanh tình trạng vận hành, tin đăng và sức khỏe nền tảng.',
+    action: { to: '/admin/jobs?status=pending_review', label: 'Job chờ duyệt', icon: Briefcase },
   },
   {
     match: '/admin/users',
     title: 'Người dùng',
     description: 'Tìm kiếm, lọc và quản lý tài khoản trong hệ thống.',
-    action: { to: '/admin/users?status=pending', label: 'Xem chờ duyệt', icon: Users },
+    action: { to: '/admin/users?status=pending_verification', label: 'Xem chờ duyệt', icon: Users },
   },
   {
     match: '/admin/companies',
@@ -60,25 +57,25 @@ const ADMIN_ROUTE_META = [
     match: '/admin/jobs',
     title: 'Việc làm',
     description: 'Theo dõi chất lượng tin đăng và xử lý các tin cần kiểm duyệt.',
-    action: { to: '/admin/jobs?status=pending', label: 'Job chờ duyệt', icon: Briefcase },
+    action: { to: '/admin/jobs?status=pending_review', label: 'Job chờ duyệt', icon: Briefcase },
+  },
+  {
+    match: '/admin/moderation',
+    title: 'Hang doi xu ly',
+    description: 'Hang doi noi bo tong hop cac muc can duyet nhanh tu Jobs, Companies va Blog.',
+    action: { to: '/admin/jobs?status=pending_review', label: 'Mo Jobs', icon: Briefcase },
   },
   {
     match: '/admin/applications',
     title: 'Hồ sơ ứng tuyển',
     description: 'Giám sát pipeline ứng tuyển và các hồ sơ cần xử lý.',
-    action: { to: '/admin/applications?status=screening', label: 'Sàng lọc AI', icon: FileText },
-  },
-  {
-    match: '/admin/logs',
-    title: 'Nhật ký hệ thống',
-    description: 'Theo dõi sự cố, hành vi bất thường và tín hiệu cần cảnh báo.',
-    action: { to: '/admin/service-health', label: 'Xem sức khỏe', icon: Activity },
+    action: { to: '/admin/applications?status=screening', label: 'Hồ sơ đang xử lý', icon: FileText },
   },
   {
     match: '/admin/service-health',
     title: 'Sức khỏe dịch vụ',
     description: 'Theo dõi trạng thái các service và độ ổn định của hệ thống.',
-    action: { to: '/admin/logs', label: 'Mở logs', icon: HeartPulse },
+    action: { to: '/admin/analytics', label: 'Mở analytics', icon: Activity },
   },
   {
     match: '/admin/settings',
@@ -133,7 +130,7 @@ const AdminHeader = ({ onMenuClick }) => {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center px-6">
+      <div className="container flex h-14 items-center px-6">
         {/* Mobile Menu Button */}
         <Button variant="ghost" size="icon" className="lg:hidden mr-2" onClick={onMenuClick}>
           <Menu className="h-5 w-5" />
@@ -142,28 +139,27 @@ const AdminHeader = ({ onMenuClick }) => {
 
         {/* Logo & Title */}
         <div className="flex items-center gap-2 mr-6">
-          <div className="hidden sm:flex items-center justify-center h-9 w-9 rounded-lg bg-primary text-primary-foreground">
-            <MenuSquare className="h-5 w-5" />
+          <div className="hidden sm:flex items-center justify-center h-8 w-8 rounded-lg bg-primary text-primary-foreground transform scale-90 origin-left">
+            <MenuSquare className="h-4.5 w-4.5" />
           </div>
           <div className="hidden lg:block">
-            <div className="text-lg font-semibold">{routeMeta.title}</div>
-            <p className="text-base text-muted-foreground hidden md:block">
+            <div className="text-base font-bold leading-none">{routeMeta.title}</div>
+            <p className="text-[13px] text-muted-foreground hidden md:block mt-1 leading-none">
               {routeMeta.description}
             </p>
           </div>
         </div>
 
-        {/* Search */}
         <div className="flex flex-1 items-center justify-end md:justify-between">
           <div className="hidden md:flex relative w-full max-w-sm">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Tìm kiếm..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleSearch}
-              className="pl-9 w-full md:w-[300px]"
+              className="pl-8 h-8.5 w-full md:w-[280px] text-sm bg-muted/40 border-transparent focus:bg-background transition-all"
             />
           </div>
 
@@ -194,52 +190,75 @@ const AdminHeader = ({ onMenuClick }) => {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* User Menu */}
+            {/* Logout Button */}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handleLogout} 
+              title="Đăng xuất" 
+              className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 hidden sm:flex"
+            >
+              <LogOut className="h-5 w-5" />
+            </Button>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                  <Avatar className="h-9 w-9">
-                    <AvatarFallback className="bg-primary text-primary-foreground">
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0 flex items-center justify-center group focus-visible:ring-offset-0">
+                  <Avatar className="h-8 w-8 border-2 border-transparent group-hover:border-primary/20 transition-all duration-300">
+                    <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">
                       {getUserInitials()}
                     </AvatarFallback>
                   </Avatar>
+                  <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 border-2 border-white group-hover:scale-110 transition-transform duration-300"></span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-base font-medium leading-none">
-                      {user?.fullName || `${user?.first_name} ${user?.last_name}`}
-                    </p>
-                    <p className="text-base leading-none text-muted-foreground">{user?.email}</p>
+              <DropdownMenuContent className="w-72 p-2 rounded-xl border-slate-100 shadow-xl" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal p-4">
+                  <div className="flex items-center gap-4">
+                    <div className="relative shrink-0">
+                      <Avatar className="h-12 w-12 border-2 border-primary/10 shadow-sm">
+                        <AvatarFallback className="bg-primary/10 text-primary font-bold text-lg">
+                          {getUserInitials()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full bg-emerald-500 border-2 border-white shadow-sm"></span>
+                    </div>
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-base font-bold leading-none text-slate-800">
+                        {user?.fullName || `${user?.first_name} ${user?.last_name}`}
+                      </p>
+                      <p className="text-sm font-medium text-slate-500 truncate max-w-[150px]">
+                        {user?.email}
+                      </p>
+                    </div>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to="/admin/dashboard">
-                    <LayoutDashboard className="mr-2 h-4 w-4" />
-                    Dashboard
+                <DropdownMenuSeparator className="bg-slate-100 my-1 mx-2" />
+                <DropdownMenuItem asChild className="p-3 my-1 cursor-pointer hover:bg-slate-50 focus:bg-slate-50 transition-colors rounded-xl text-slate-700">
+                  <Link to="/admin/dashboard" className="flex items-center">
+                    <LayoutDashboard className="mr-3 h-5 w-5 text-slate-500" />
+                    <span className="text-sm font-semibold">Bảng điều khiển</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/">
-                    <Home className="mr-2 h-4 w-4" />
-                    Trang chủ
+                <DropdownMenuItem asChild className="p-3 my-1 cursor-pointer hover:bg-slate-50 focus:bg-slate-50 transition-colors rounded-xl text-slate-700">
+                  <Link to="/admin/profile" className="flex items-center">
+                    <User className="mr-3 h-5 w-5 text-slate-500" />
+                    <span className="text-sm font-semibold">Hồ sơ cá nhân</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/admin/profile">
-                    <User className="mr-2 h-4 w-4" />
-                    Hồ sơ
+                <DropdownMenuItem asChild className="p-3 my-1 cursor-pointer hover:bg-slate-50 focus:bg-slate-50 transition-colors rounded-xl text-slate-700">
+                  <Link to="/admin/settings" className="flex items-center">
+                    <Settings className="mr-3 h-5 w-5 text-slate-500" />
+                    <span className="text-sm font-semibold">Cài đặt</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator className="bg-slate-100 my-1 mx-2" />
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  className="text-destructive focus:text-destructive"
+                  className="p-3 my-1 cursor-pointer text-red-600 focus:text-red-700 focus:bg-red-50 hover:bg-red-50 transition-colors rounded-xl group"
                 >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Đăng xuất
+                  <LogOut className="mr-3 h-5 w-5 text-red-500 group-hover:text-red-600" />
+                  <span className="text-sm font-bold">Đăng xuất</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

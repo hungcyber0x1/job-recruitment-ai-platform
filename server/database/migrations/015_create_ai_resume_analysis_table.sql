@@ -2,8 +2,8 @@
 -- Kết quả phân tích CV bằng AI
 
 CREATE TABLE IF NOT EXISTS ai_resume_analysis (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    candidate_id INT NOT NULL,
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    candidate_id INT UNSIGNED NOT NULL,
     resume_text TEXT,
     resume_url VARCHAR(255),
     overall_score DECIMAL(5,2),

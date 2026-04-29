@@ -1,47 +1,68 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Building2,
   Briefcase,
-  CheckCircle2,
-  ExternalLink,
+  Check,
+  Eye,
   FileText,
+  Flag,
+  MoreVertical,
+  RefreshCw,
+  Loader2,
+  X,
   ShieldAlert,
-  XCircle,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import AdminLayout from '../../layouts/AdminLayout';
 import adminService from '../../services/adminService';
-import applicationService from '../../services/applicationService';
 import { useNotification } from '../../context/NotificationContext';
+import { Badge } from '../../components/ui/badge';
+import PremiumStatCard from '../../components/common/PremiumStatCard';
+import { Button } from '../../components/ui/button';
+import { cn } from '../../utils';
+import Modal from '../../components/common/Modal';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../../components/ui/dropdown-menu';
 
-const FILTERS = ['all', 'jobs', 'companies', 'applications'];
+const FILTERS = [
+  { id: 'all', label: 'Tất cả' },
+  { id: 'jobs', label: 'Tin tuyển dụng' },
+  { id: 'companies', label: 'Doanh nghiệp' },
+  { id: 'blogs', label: 'Bài viết' },
+  { id: 'applications', label: 'Hồ sơ' },
+];
 
 const AdminModerationPage = () => {
   const { showNotification } = useNotification();
   const [activeFilter, setActiveFilter] = useState('all');
   const [loading, setLoading] = useState(true);
-  const [actionKey, setActionKey] = useState('');
-  const [queue, setQueue] = useState({ jobs: [], companies: [], applications: [] });
-  const [stats, setStats] = useState({ moderation: {}, pipeline: {} });
+  const [queue, setQueue] = useState({ jobs: [], companies: [], blogs: [], applications: [] });
+  const [stats, setStats] = useState({ pendingJobs: 0, flaggedJobs: 0, unverifiedCompanies: 0, pendingBlogs: 0 });
+  const [rejectionModal, setRejectionModal] = useState({ isOpen: false, type: 'job', id: null, reason: '' });
+  const [processing, setProcessing] = useState(false);
+  const [processingId, setProcessingId] = useState(null);
 
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const [statsRes, jobsRes, companiesRes, applicationsRes] = await Promise.all([
+      const [statsRes, jobsRes, companiesRes, blogsRes, applicationsRes] = await Promise.all([
         adminService.getStats(),
-        adminService.getJobs({ limit: 8, status: 'pending' }),
-        adminService.getCompanies({ limit: 8, is_verified: false }),
-        adminService.getApplications({ limit: 8, status: 'screening' }),
+        adminService.getJobs({ limit: 50, status: 'pending_review' }),
+        adminService.getCompanies({ limit: 50, is_verified: false }),
+        adminService.getBlogPosts({ limit: 50, status: 'pending' }),
+        adminService.getApplications({ limit: 50, status: 'pending' }),
       ]);
 
       if (statsRes.data?.success) {
         const rawStats = statsRes.data.data || {};
         setStats({
-          moderation: {
-            pendingJobs: Number(rawStats.moderation?.pendingJobs) || 0,
-            flaggedJobs: Number(rawStats.moderation?.flaggedJobs) || 0,
-          },
-          pipeline: rawStats.pipeline || {},
+          pendingJobs: Number(rawStats.moderation?.pendingJobs) || 0,
+          flaggedJobs: Number(rawStats.moderation?.flaggedJobs) || 0,
+          unverifiedCompanies: Number(rawStats.moderation?.unverifiedCompanies) || 0,
+          pendingBlogs: Number(rawStats.moderation?.pendingBlogs) || 0,
         });
       }
 
@@ -49,9 +70,9 @@ const AdminModerationPage = () => {
         Array.isArray(arr)
           ? arr.map((item) => ({
               id: item?.id ?? 0,
-              title: String(item?.title ?? item?.name ?? ''),
+              title: String(item?.title ?? item?.name ?? 'Chưa đặt tên'),
+              subtitle: String(item?.company_name ?? item?.email ?? 'Thông tin bổ sung'),
               status: String(item?.status ?? ''),
-              flagged: Boolean(item?.flagged ?? false),
               created_at: item?.created_at ?? new Date().toISOString(),
             }))
           : [];
@@ -59,331 +80,343 @@ const AdminModerationPage = () => {
       setQueue({
         jobs: sanitizeArray(jobsRes.data?.data),
         companies: sanitizeArray(companiesRes.data?.data),
+        blogs: sanitizeArray(blogsRes.data?.data),
         applications: sanitizeArray(applicationsRes.data?.data),
       });
-    } catch (error) {
-      console.error('Error loading moderation queue:', error);
-      showNotification('Không thể tải danh sách chờ kiểm duyệt.', 'error');
+    } catch (_error) {
+      console.warn('AdminModerationPage fetch error:', _error?.message);
+      showNotification('Lỗi khi tải dữ liệu kiểm duyệt.', 'error');
     } finally {
       setLoading(false);
     }
   }, [showNotification]);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
-  const handleJobStatus = useCallback(
-    async (jobId, status) => {
-      const key = `job-${jobId}-${status}`;
-      try {
-        setActionKey(key);
-        await adminService.updateJobStatus(jobId, status);
-        showNotification(
-          status === 'published' ? 'Đã phê duyệt job thành công.' : 'Đã từ chối job.',
-          'success'
-        );
-        await fetchData();
-      } catch (error) {
-        console.error('Error updating job moderation:', error);
-        showNotification('Không thể cập nhật trạng thái job.', 'error');
-      } finally {
-        setActionKey('');
+  const handleApprove = useCallback(async (type, id) => {
+    const key = `${type}-${id}`;
+    try {
+      setProcessingId(key);
+      if (type === 'job') {
+        await adminService.updateJobStatus(id, 'published');
+      } else {
+        await adminService.updateBlogPostStatus(id, 'published');
       }
-    },
-    [fetchData, showNotification]
-  );
+      showNotification('Đã duyệt thành công.', 'success');
+      fetchData();
+    } catch {
+      showNotification('Lỗi khi duyệt.', 'error');
+    } finally {
+      setProcessingId(null);
+    }
+  }, [fetchData, showNotification]);
 
-  const handleCompanyVerification = useCallback(
-    async (companyId, isVerified) => {
-      const key = `company-${companyId}-${isVerified}`;
-      try {
-        setActionKey(key);
-        await adminService.verifyCompany(companyId, isVerified);
-        showNotification(
-          isVerified ? 'Đã xác minh công ty.' : 'Đã hủy xác minh công ty.',
-          'success'
-        );
-        await fetchData();
-      } catch (error) {
-        console.error('Error updating company verification:', error);
-        showNotification('Không thể cập nhật trạng thái công ty.', 'error');
-      } finally {
-        setActionKey('');
+  const handleOpenReject = useCallback((type, id) => {
+    setRejectionModal({ isOpen: true, type, id, reason: '' });
+  }, []);
+
+  const handleConfirmRejection = async () => {
+    if (!rejectionModal.reason.trim()) {
+      showNotification('Vui lòng nhập lý do từ chối.', 'warning');
+      return;
+    }
+
+    const key = `${rejectionModal.type}-${rejectionModal.id}`;
+    try {
+      setProcessingId(key);
+      setProcessing(true);
+      if (rejectionModal.type === 'job') {
+        await adminService.updateJobStatus(rejectionModal.id, 'rejected', rejectionModal.reason);
+      } else {
+        await adminService.updateBlogPostStatus(rejectionModal.id, 'rejected', rejectionModal.reason);
       }
-    },
-    [fetchData, showNotification]
-  );
+      showNotification('Đã từ chối.', 'success');
+      setRejectionModal({ isOpen: false, type: 'job', id: null, reason: '' });
+      fetchData();
+    } catch {
+      showNotification('Lỗi khi từ chối.', 'error');
+    } finally {
+      setProcessingId(null);
+      setProcessing(false);
+    }
+  };
 
-  const handleApplicationStatus = useCallback(
-    async (applicationId, status) => {
-      const key = `application-${applicationId}-${status}`;
-      try {
-        setActionKey(key);
-        await applicationService.updateStatus(applicationId, status);
-        showNotification(
-          status === 'reviewed' ? 'Đã chuyển hồ sơ sang đã xem.' : 'Đã từ chối hồ sơ.',
-          'success'
-        );
-        await fetchData();
-      } catch (error) {
-        console.error('Error updating application moderation:', error);
-        showNotification('Không thể cập nhật trạng thái hồ sơ.', 'error');
-      } finally {
-        setActionKey('');
-      }
-    },
-    [fetchData, showNotification]
-  );
+  const handleCompanyVerify = useCallback(async (id, verify) => {
+    try {
+      setProcessingId(`company-${id}`);
+      await adminService.verifyCompany(id, verify);
+      showNotification(verify ? 'Đã xác minh doanh nghiệp.' : 'Đã hủy xác minh.', 'success');
+      fetchData();
+    } catch {
+      showNotification('Lỗi khi xử lý doanh nghiệp.', 'error');
+    } finally {
+      setProcessingId(null);
+    }
+  }, [fetchData, showNotification]);
 
-  const items = useMemo(() => {
-    const jobItems = queue.jobs.map((item) => ({
-      id: `job-${item.id}`,
-      entityId: item.id,
+  const buildItems = useCallback(() => {
+    const jobItems = queue.jobs.map(item => ({
+      ...item,
       type: 'jobs',
-      title: item.title || 'Công việc chưa đặt tên',
-      subtitle: item.company_name || 'Công ty chưa rõ',
-      reason: item.flag_reason || 'Đang chờ kiểm duyệt nội dung.',
-      action: `/admin/jobs/${item.id}`,
-      badge: 'Job chờ duyệt',
+      badge: 'Chờ duyệt',
       icon: Briefcase,
-      cta: (
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            disabled={actionKey === `job-${item.id}-published`}
-            onClick={() => handleJobStatus(item.id, 'published')}
-            className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-base font-bold text-white transition hover:bg-emerald-600 disabled:opacity-60 active:scale-95"
-          >
-            <CheckCircle2 size={16} /> Phê duyệt
-          </button>
-          <button
-            type="button"
-            disabled={actionKey === `job-${item.id}-rejected`}
-            onClick={() => handleJobStatus(item.id, 'rejected')}
-            className="inline-flex items-center gap-2 rounded-xl bg-rose-500 px-4 py-2 text-base font-bold text-white transition hover:bg-rose-600 disabled:opacity-60 active:scale-95"
-          >
-            <XCircle size={16} /> Từ chối
-          </button>
-        </div>
-      ),
+      color: 'amber',
+      actionUrl: `/admin/jobs/${item.id}`,
     }));
 
-    const companyItems = queue.companies.map((item) => ({
-      id: `company-${item.id}`,
-      entityId: item.id,
+    const companyItems = queue.companies.map(item => ({
+      ...item,
       type: 'companies',
-      title: item.company_name || item.name || 'Công ty chưa đặt tên',
-      subtitle: item.email || item.company_website || 'Thông tin xác minh chưa đầy đủ',
-      reason: 'Cần xác minh hồ sơ công ty trước khi nhà tuyển dụng vận hành đầy đủ.',
-      action: `/admin/companies/${item.id}`,
-      badge: 'Công ty chờ xác minh',
+      badge: 'Chưa xác minh',
       icon: Building2,
-      cta: (
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            disabled={actionKey === `company-${item.id}-true`}
-            onClick={() => handleCompanyVerification(item.id, true)}
-            className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-base font-bold text-white transition hover:bg-emerald-600 disabled:opacity-60 active:scale-95 shadow-sm shadow-emerald-500/10"
-          >
-            <CheckCircle2 size={16} /> Xác minh
-          </button>
-        </div>
-      ),
+      color: 'blue',
+      actionUrl: `/admin/companies/${item.id}`,
     }));
 
-    const applicationItems = queue.applications.map((item) => ({
-      id: `application-${item.id}`,
-      entityId: item.id,
+    const blogItems = queue.blogs.map(item => ({
+      ...item,
+      type: 'blogs',
+      badge: 'Bài viết mới',
+      icon: FileText,
+      color: 'slate',
+      actionUrl: `/admin/blog`,
+    }));
+
+    const applicationItems = queue.applications.map(item => ({
+      ...item,
       type: 'applications',
-      title: item.candidate_name || item.user_name || `Application #${item.id}`,
-      subtitle: item.job_title || 'Hồ sơ đang screening',
-      reason: 'Đang trong giai đoạn sàng lọc AI và cần admin theo dõi backlog xử lý.',
-      action: `/admin/applications/${item.id}`,
       badge: 'Sàng lọc AI',
       icon: FileText,
-      cta: (
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            disabled={actionKey === `application-${item.id}-reviewed`}
-            onClick={() => handleApplicationStatus(item.id, 'reviewed')}
-            className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-base font-bold text-white transition hover:bg-emerald-600 disabled:opacity-60 active:scale-95"
-          >
-            <CheckCircle2 size={16} /> Đánh dấu đã xem
-          </button>
-          <button
-            type="button"
-            disabled={actionKey === `application-${item.id}-rejected`}
-            onClick={() => handleApplicationStatus(item.id, 'rejected')}
-            className="inline-flex items-center gap-2 rounded-xl bg-rose-500 px-4 py-2 text-base font-bold text-white transition hover:bg-rose-600 disabled:opacity-60 active:scale-95"
-          >
-            <XCircle size={16} /> Từ chối
-          </button>
-          <Link
-            to={`/admin/applications/${item.id}`}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-base font-bold text-slate-600 transition-colors duration-200 ease-out hover:bg-muted/35 hover:text-foreground active:scale-95"
-          >
-            <ExternalLink size={16} /> Xem chi tiết
-          </Link>
-        </div>
-      ),
+      color: 'emerald',
+      actionUrl: `/admin/applications/${item.id}`,
     }));
 
-    const merged = [...jobItems, ...companyItems, ...applicationItems];
-    if (activeFilter === 'all') return merged;
-    return merged.filter((item) => item.type === activeFilter);
-  }, [
-    activeFilter,
-    actionKey,
-    handleApplicationStatus,
-    handleCompanyVerification,
-    handleJobStatus,
-    queue,
-  ]);
+    const merged = [...jobItems, ...companyItems, ...blogItems, ...applicationItems]
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-  const summary = [
-    { label: 'Job chờ duyệt', value: stats.moderation?.pendingJobs || 0 },
-    { label: 'Job bị gắn cờ', value: stats.moderation?.flaggedJobs || 0 },
-    { label: 'Công ty chưa xác minh', value: stats.moderation?.unverifiedCompanies || 0 },
-    { label: 'Sàng lọc AI', value: stats.pipeline?.screening || 0 },
-  ];
-  const moderationModules = [
-    {
-      title: 'Kiểm duyệt Job',
-      description: 'Phê duyệt nhanh tin đăng, rút ngắn thời gian đưa job hợp lệ lên nền tảng.',
-    },
-    {
-      title: 'Xác minh doanh nghiệp',
-      description: 'Xác minh công ty và giảm rủi ro trước khi nhà tuyển dụng tiếp cận ứng viên.',
-    },
-    {
-      title: 'Backlog sàng lọc AI',
-      description: 'Theo dõi backlog hồ sơ screening để cân bằng chất lượng và tốc độ xử lý.',
-    },
-  ];
+    return activeFilter === 'all' ? merged : merged.filter(i => i.type === activeFilter);
+  }, [activeFilter, queue]);
+
+  const items = buildItems();
+
+  const getActionMenu = (item) => {
+    const isProcessing = processingId === `${item.type}-${item.id}`;
+
+    if (item.type === 'jobs' || item.type === 'blogs') {
+      return (
+        <div className="flex items-center gap-2">
+          <Link to={item.actionUrl}>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg">
+              <Eye size={14} />
+            </Button>
+          </Link>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg" disabled={isProcessing}>
+                {isProcessing ? <Loader2 size={14} className="animate-spin" /> : <MoreVertical size={14} />}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40 p-1 shadow-xl border-slate-200/60 rounded-xl">
+              <DropdownMenuItem
+                className="rounded-lg cursor-pointer font-bold text-emerald-600 hover:bg-emerald-50"
+                onClick={() => handleApprove(item.type, item.id)}
+              >
+                <Check size={14} className="mr-2" />Duyệt
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="rounded-lg cursor-pointer font-bold text-red-500 hover:bg-red-50"
+                onClick={() => handleOpenReject(item.type, item.id)}
+              >
+                <X size={14} className="mr-2" />Từ chối
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      );
+    }
+
+    if (item.type === 'companies') {
+      return (
+        <div className="flex items-center gap-2">
+          <Link to={item.actionUrl}>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg">
+              <Eye size={14} />
+            </Button>
+          </Link>
+          <Button
+            size="sm"
+            onClick={() => handleCompanyVerify(item.id, true)}
+            disabled={processingId === `company-${item.id}`}
+            className="h-8 rounded-lg bg-slate-900 px-4 text-xs font-bold text-white hover:bg-slate-800"
+          >
+            Xác minh
+          </Button>
+        </div>
+      );
+    }
+
+    // Applications - just view
+    return (
+      <Link to={item.actionUrl}>
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg">
+          <Eye size={14} />
+        </Button>
+      </Link>
+    );
+  };
+
+  if (loading && queue.jobs.length === 0) {
+    return (
+      <div className="p-32 text-center space-y-6">
+        <Loader2 className="mx-auto h-16 w-16 animate-spin text-emerald-600" />
+        <p className="text-xs font-bold uppercase tracking-normal text-slate-400">Đang đồng bộ dữ liệu...</p>
+      </div>
+    );
+  }
 
   return (
-    <AdminLayout>
-      <div className="space-y-6">
-        <div className="flex flex-col gap-2 border-b border-border pb-6">
-          <span className="inline-flex w-fit items-center gap-2 rounded-full bg-amber-500/10 px-3 py-1 text-base font-bold uppercase tracking-[0.2em] text-amber-600">
-            <ShieldAlert size={14} /> Trung tâm kiểm duyệt
-          </span>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-            Hàng đợi kiểm duyệt tập trung
-          </h1>
-          <p className="max-w-3xl text-base font-medium text-slate-500">
-            Duyệt nhanh công ty, job và backlog sàng lọc AI từ cùng một màn hình. Mục tiêu của trang
-            này là giảm số lần admin phải chuyển qua lại giữa các module vận hành.
-          </p>
+    <div className="space-y-6 pb-12">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold text-slate-900">Hàng đợi Kiểm duyệt</h1>
+          <p className="text-sm text-slate-500">Xử lý nhanh các yêu cầu từ tin tuyển dụng, doanh nghiệp và hồ sơ.</p>
         </div>
+        <Button onClick={fetchData} disabled={loading} variant="outline" className="h-12 rounded-xl">
+          {loading ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
+          <span className="ml-2">Làm mới</span>
+        </Button>
+      </div>
 
-        <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-          {summary.map((item) => (
-            <div
-              key={item.label}
-              className="rounded-2xl border border-border bg-card p-5 shadow-sm"
-            >
-              <p className="text-base font-semibold text-muted-foreground">{item.label}</p>
-              <p className="mt-2 text-3xl font-black text-foreground">{item.value}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-          {moderationModules.map((module) => (
-            <div
-              key={module.title}
-              className="rounded-3xl border border-border bg-card p-6 shadow-sm"
-            >
-              <p className="text-base font-black uppercase tracking-[0.22em] text-muted-foreground">
-                Moderation module
-              </p>
-              <h2 className="mt-3 text-xl font-black text-foreground">{module.title}</h2>
-              <p className="mt-2 text-base leading-6 text-muted-foreground">{module.description}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap gap-3">
-            {FILTERS.map((filter) => (
-              <button
-                key={filter}
-                type="button"
-                onClick={() => setActiveFilter(filter)}
-                className={`rounded-full px-5 py-2 text-base font-bold transition-all duration-300 ${activeFilter === filter ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20' : 'border border-slate-200 bg-white text-slate-500 hover:border-emerald-500/30 hover:text-emerald-500'}`}
-              >
-                {filter === 'all'
-                  ? 'Tất cả'
-                  : filter === 'jobs'
-                    ? 'Job'
-                    : filter === 'companies'
-                      ? 'Công ty'
-                      : 'Hồ sơ'}
-              </button>
-            ))}
-          </div>
-          <div className="text-base font-medium text-muted-foreground">
-            {items.length} mục trong hàng đợi kiểm duyệt
-          </div>
-        </div>
-
-        <div className="rounded-3xl border border-border bg-card shadow-sm">
-          <div className="border-b border-border px-6 py-4">
-            <h2 className="text-xl font-black text-foreground">Hàng đợi hiện tại</h2>
-            <p className="text-base font-medium text-muted-foreground">
-              Tập trung các mục cần admin thao tác ngay.
-            </p>
-          </div>
-          <div className="divide-y divide-border">
-            {loading ? (
-              <div className="px-6 py-12 text-base font-medium text-muted-foreground">
-                Đang tải hàng đợi kiểm duyệt...
-              </div>
-            ) : items.length === 0 ? (
-              <div className="px-6 py-12 text-center text-base font-medium text-muted-foreground">
-                Không có mục nào cần kiểm duyệt ở bộ lọc hiện tại.
-              </div>
-            ) : (
-              items.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex flex-col gap-5 px-6 py-5 xl:flex-row xl:items-center xl:justify-between"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="rounded-2xl bg-muted p-3 text-foreground">
-                      <item.icon size={20} />
-                    </div>
-                    <div>
-                      <div className="flex flex-wrap items-center gap-3">
-                        <h3 className="text-base font-black text-foreground">{item.title}</h3>
-                        <span className="rounded-full bg-state-warning/10 px-3 py-1 text-base font-bold text-state-warning">
-                          {item.badge}
-                        </span>
-                      </div>
-                      <p className="mt-1 text-base font-semibold text-muted-foreground">
-                        {item.subtitle}
-                      </p>
-                      <p className="mt-2 text-base text-muted-foreground">{item.reason}</p>
-                      <Link
-                        to={item.action}
-                        className="mt-3 inline-flex items-center gap-2 text-base font-bold text-foreground hover:text-primary"
-                      >
-                        Xem trang chi tiết <ExternalLink size={14} />
-                      </Link>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2 xl:justify-end">{item.cta}</div>
-                </div>
-              ))
-            )}
-          </div>
+      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <p className="text-xs font-bold uppercase tracking-normal text-slate-400">Internal queue</p>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          Man nay la hang doi thao tac nhanh. Nguon quan ly chinh van nam o Jobs,
+          Companies va Blog.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link
+            to="/admin/jobs?status=pending_review"
+            className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50"
+          >
+            Jobs cho duyet
+          </Link>
+          <Link
+            to="/admin/companies?verification=unverified"
+            className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50"
+          >
+            Companies cho xac minh
+          </Link>
+          <Link
+            to="/admin/blog"
+            className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50"
+          >
+            Blog cho duyet
+          </Link>
         </div>
       </div>
-    </AdminLayout>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <PremiumStatCard title="Tin chờ duyệt" value={stats.pendingJobs} icon={Briefcase} variant="amber" />
+        <PremiumStatCard title="Tin bị gắn cờ" value={stats.flaggedJobs} icon={Flag} variant="red" />
+        <PremiumStatCard title="Công ty mới" value={stats.unverifiedCompanies} icon={Building2} variant="blue" />
+        <PremiumStatCard title="Bài viết mới" value={stats.pendingBlogs} icon={FileText} variant="slate" />
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {FILTERS.map(f => (
+          <button
+            key={f.id}
+            onClick={() => setActiveFilter(f.id)}
+            className={cn(
+              'px-4 py-2 rounded-xl text-sm font-bold transition-all',
+              activeFilter === f.id
+                ? 'bg-slate-900 text-white'
+                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+            )}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-slate-100 bg-slate-50/50">
+                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-normal text-slate-400">Nội dung</th>
+                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-normal text-slate-400">Loại</th>
+                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-normal text-slate-400">Ngày tạo</th>
+                <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-normal text-slate-400">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {items.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-16 text-center">
+                    <ShieldAlert size={32} className="mx-auto mb-3 text-slate-200" />
+                    <p className="font-bold text-slate-400">Không có mục nào cần kiểm duyệt</p>
+                  </td>
+                </tr>
+              ) : (
+                items.map(item => (
+                  <tr key={`${item.type}-${item.id}`} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col">
+                        <span className="font-bold text-slate-900 line-clamp-1">{item.title}</span>
+                        <span className="text-sm text-slate-400 line-clamp-1">{item.subtitle}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <Badge variant={item.color} className="text-xs font-bold uppercase tracking-normal">
+                        {item.badge}
+                      </Badge>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm text-slate-400">
+                        {new Date(item.created_at).toLocaleDateString('vi-VN')}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      {getActionMenu(item)}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <Modal
+        isOpen={rejectionModal.isOpen}
+        onClose={() => setRejectionModal(prev => ({ ...prev, isOpen: false }))}
+        title={rejectionModal.type === 'job' ? 'Từ chối tin tuyển dụng' : 'Từ chối bài viết'}
+        footer={
+          <div className="flex gap-3 w-full">
+            <Button variant="outline" onClick={() => setRejectionModal(prev => ({ ...prev, isOpen: false }))}
+              className="flex-1 rounded-xl h-11 font-bold">Hủy bỏ</Button>
+            <Button
+              onClick={handleConfirmRejection}
+              disabled={processing}
+              className="flex-1 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold shadow-lg shadow-red-500/20"
+            >
+              {processing ? <Loader2 size={16} className="animate-spin" /> : 'Xác nhận từ chối'}
+            </Button>
+          </div>
+        }
+      >
+        <div className="py-4 space-y-4">
+          <p className="text-sm font-bold text-slate-500 uppercase tracking-normal">Lý do từ chối</p>
+          <textarea
+            className="w-full min-h-[100px] rounded-xl border-2 border-slate-100 bg-slate-50 p-4 text-slate-900 focus:border-red-500/30 focus:outline-none focus:ring-4 focus:ring-red-500/5 text-sm"
+            placeholder={`Nhập lý do ${rejectionModal.type === 'job' ? 'tin' : 'bài'} không đạt yêu cầu...`}
+            value={rejectionModal.reason}
+            onChange={(e) => setRejectionModal(prev => ({ ...prev, reason: e.target.value }))}
+          />
+        </div>
+      </Modal>
+    </div>
   );
 };
 

@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { UserCheck, Quote } from 'lucide-react';
+import { decodeHtml } from '../../../utils/sanitizeHtml';
 
 /**
  * @agent frontend-specialist
@@ -24,16 +25,16 @@ const AboutSection = ({ bio }) => {
         </div>
 
         <div className="flex-1">
-          <label className="block text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">
+          <label className="block text-sm font-semibold text-slate-500 uppercase tracking-normal mb-2">
             Identity / Narrative
           </label>
-          <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mb-4">
+          <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-normal mb-4">
             Giới thiệu bản thân
           </h3>
 
           <div className="prose prose-slate dark:prose-invert max-w-none text-slate-600 dark:text-slate-400">
             {bio ? (
-              <p className="text-base leading-relaxed">{bio}</p>
+              <p className="text-base leading-relaxed">{decodeHtml(bio)}</p>
             ) : (
               <p className="italic text-base">
                 Không thể tìm thấy dữ liệu. Hãy cập nhật hồ sơ để hệ thống có thể tiến hành phân

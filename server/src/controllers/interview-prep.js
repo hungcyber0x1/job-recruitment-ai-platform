@@ -10,6 +10,129 @@ class InterviewPrepController {
     const candidate = await CandidateRepository.findByUserId(userId);
     return candidate?.id || null;
   }
+
+  _handleError(res, error, fallbackMessage) {
+    const statusCode = Number(error?.statusCode || error?.status || 500);
+    res.status(statusCode).json({
+      success: false,
+      message: fallbackMessage,
+      error: error.message,
+    });
+  }
+
+  async getNotes(req, res) {
+    try {
+      const candidateId = await this._getCandidateId(req.user.id);
+
+      if (!candidateId) {
+        return res.status(404).json({
+          success: false,
+          message: 'Candidate profile not found',
+        });
+      }
+
+      const notes = await InterviewPrepService.getNotes(candidateId);
+
+      res.json({
+        success: true,
+        data: notes,
+      });
+    } catch (error) {
+      logger.error('Get interview prep notes error:', error);
+      this._handleError(res, error, 'Failed to fetch interview prep notes');
+    }
+  }
+
+  async createNote(req, res) {
+    try {
+      const candidateId = await this._getCandidateId(req.user.id);
+
+      if (!candidateId) {
+        return res.status(404).json({
+          success: false,
+          message: 'Candidate profile not found',
+        });
+      }
+
+      const note = await InterviewPrepService.createNote(candidateId, req.body || {});
+
+      res.status(201).json({
+        success: true,
+        data: note,
+      });
+    } catch (error) {
+      logger.error('Create interview prep note error:', error);
+      this._handleError(res, error, 'Failed to save interview prep note');
+    }
+  }
+
+  async updateNote(req, res) {
+    try {
+      const candidateId = await this._getCandidateId(req.user.id);
+
+      if (!candidateId) {
+        return res.status(404).json({
+          success: false,
+          message: 'Candidate profile not found',
+        });
+      }
+
+      const note = await InterviewPrepService.updateNote(
+        candidateId,
+        Number.parseInt(req.params.noteId, 10),
+        req.body || {}
+      );
+
+      if (!note) {
+        return res.status(404).json({
+          success: false,
+          message: 'Interview prep note not found',
+        });
+      }
+
+      res.json({
+        success: true,
+        data: note,
+      });
+    } catch (error) {
+      logger.error('Update interview prep note error:', error);
+      this._handleError(res, error, 'Failed to update interview prep note');
+    }
+  }
+
+  async deleteNote(req, res) {
+    try {
+      const candidateId = await this._getCandidateId(req.user.id);
+
+      if (!candidateId) {
+        return res.status(404).json({
+          success: false,
+          message: 'Candidate profile not found',
+        });
+      }
+
+      const deleted = await InterviewPrepService.deleteNote(
+        candidateId,
+        Number.parseInt(req.params.noteId, 10)
+      );
+
+      if (!deleted) {
+        return res.status(404).json({
+          success: false,
+          message: 'Interview prep note not found',
+        });
+      }
+
+      res.json({
+        success: true,
+        data: { deleted: true },
+      });
+    } catch (error) {
+      logger.error('Delete interview prep note error:', error);
+      this._handleError(res, error, 'Failed to delete interview prep note');
+    }
+  }
+
   /**
    * Start new interview session
    * POST /api/candidates/interview/start

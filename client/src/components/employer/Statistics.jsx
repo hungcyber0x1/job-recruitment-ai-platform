@@ -1,7 +1,11 @@
 import React from 'react';
 import { ComposedChart, Area, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
-import ChartSurface from '@/components/charts/ChartSurface';
+import ChartSurface, {
+  CHART_LEGEND_STYLE,
+  CHART_TICK_STYLE,
+  CHART_TOOLTIP_STYLE,
+} from '@/components/charts/ChartSurface';
 
 const data = [
   { name: 'T2', views: 400, applications: 12 },
@@ -36,25 +40,26 @@ const Statistics = () => {
             dataKey="name"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: '#64748B', fontSize: 10, fontWeight: 800 }}
+            tick={CHART_TICK_STYLE}
             dy={15}
           />
           <YAxis
             yAxisId="left"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: '#64748B', fontSize: 10, fontWeight: 800 }}
+            tick={CHART_TICK_STYLE}
           />
           <YAxis
             yAxisId="right"
             orientation="right"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: '#64748B', fontSize: 10, fontWeight: 800 }}
+            tick={CHART_TICK_STYLE}
           />
           <Tooltip
             cursor={{ stroke: '#CBD5E1', strokeWidth: 2, strokeDasharray: '5 5' }}
             contentStyle={{
+              ...CHART_TOOLTIP_STYLE,
               backgroundColor: 'rgba(255, 255, 255, 0.8)',
               backdropFilter: 'blur(12px)',
               borderRadius: '20px',
@@ -63,14 +68,14 @@ const Statistics = () => {
               padding: '16px',
             }}
             itemStyle={{
-              fontSize: '11px',
-              fontWeight: '900',
+              fontSize: 16,
+              fontWeight: 700,
               textTransform: 'uppercase',
-              letterSpacing: '0.05em',
+              letterSpacing: 0,
             }}
             labelStyle={{
-              fontSize: '10px',
-              fontWeight: '900',
+              fontSize: 16,
+              fontWeight: 700,
               color: '#475569',
               marginBottom: '8px',
               textTransform: 'uppercase',
@@ -82,12 +87,8 @@ const Statistics = () => {
             iconType="circle"
             iconSize={8}
             wrapperStyle={{
+              ...CHART_LEGEND_STYLE,
               paddingBottom: '40px',
-              fontSize: '10px',
-              fontWeight: '900',
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              color: '#64748B',
             }}
           />
           <Area

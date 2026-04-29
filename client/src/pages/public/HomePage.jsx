@@ -4,8 +4,7 @@ import ModernHero from '../../components/home/ModernHero';
 import TrustedBy from '../../components/home/TrustedBy';
 import QuickStats from '../../components/home/QuickStats';
 import LandingJobSearchSection from '../../components/home/LandingJobSearchSection';
-import HowItWorks from '../../components/home/HowItWorks';
-import MarketInsights from '../../components/home/MarketInsights';
+import JobCategories from '../../components/home/JobCategories';
 import BlogSection from '../../components/home/BlogSection';
 import Testimonials from '../../components/home/Testimonials';
 import CTASection from '../../components/home/CTASection';
@@ -15,7 +14,7 @@ const HomePage = () => {
     <div className="bg-background text-foreground overflow-x-hidden selection:bg-primary/15 selection:text-primary">
       <div className="relative z-[2] min-h-screen flex flex-col">
         <a href="#main-content" className="skip-to-content">
-          Chuyển đến nội dung chính
+          Skip to main content
         </a>
 
         <div id="main-content" className="flex-1">
@@ -34,11 +33,7 @@ const HomePage = () => {
           </ScrollReveal>
 
           <ScrollReveal threshold={0.1}>
-            <HowItWorks />
-          </ScrollReveal>
-
-          <ScrollReveal threshold={0.1}>
-            <MarketInsights />
+            <JobCategories />
           </ScrollReveal>
 
           <ScrollReveal threshold={0.1}>

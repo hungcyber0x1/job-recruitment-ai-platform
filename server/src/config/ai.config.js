@@ -74,8 +74,9 @@ module.exports = {
 
   options: {
     temperature: 0.7,
-    maxTokens: 500,
-    /** JSON một lượt (phân tích CV, roadmap, …) — 500 token dễ cắt giữa chừng → parse lỗi. */
+    /** Career advice chat — 4096 tokens đủ cho response dài, có đệm cho markdown formatting. */
+    maxTokens: 4096,
+    /** JSON một lượt (phân tích CV, structured output, …) — 500 token dễ cắt giữa chừng → parse lỗi. */
     contentMaxTokens: Math.min(
       8192,
       Math.max(1024, parseInt(process.env.AI_CONTENT_MAX_TOKENS || '4096', 10) || 4096)

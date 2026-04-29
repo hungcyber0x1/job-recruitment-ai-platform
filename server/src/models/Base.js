@@ -42,9 +42,30 @@ class BaseRepository {
     return this.findById(id);
   }
 
+  /**
+   * Hard delete — permanently removes a record from the database.
+   */
+  async hardDelete(id) {
+    const [result] = await this.pool.query(`DELETE FROM ${this.tableName} WHERE id = ?`, [id]);
+    return result.affectedRows > 0;
+  }
+
+  /**
+   * Soft delete — marks a record as deleted by setting deleted_at (requires column to exist).
+   */
+  async softDelete(id) {
+    const [result] = await this.pool.query(
+      `UPDATE ${this.tableName} SET deleted_at = UTC_TIMESTAMP() WHERE id = ? AND deleted_at IS NULL`,
+      [id]
+    );
+    return result.affectedRows > 0;
+  }
+
+  /**
+   * Standard delete — defaults to hardDelete. Subclasses often override this for softDelete.
+   */
   async delete(id) {
-    await this.pool.query(`DELETE FROM ${this.tableName} WHERE id = ?`, [id]);
-    return true;
+    return this.hardDelete(id);
   }
 }
 

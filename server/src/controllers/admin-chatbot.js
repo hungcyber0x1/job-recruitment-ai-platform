@@ -24,15 +24,52 @@ class AdminChatbotController {
         [startDate || null, endDate || null]
       );
 
-      // Event breakdown
-      const [events] = await pool.query(
-        'SELECT event_type, COUNT(*) as count FROM chatbot_analytics WHERE created_at >= COALESCE(?, created_at) AND created_at <= COALESCE(?, created_at) GROUP BY event_type',
-        [startDate || null, endDate || null]
-      );
+      // Event breakdown from event-level table (graceful fallback)
+      let events = [];
+      let intents = [];
+      let feedbackPositive = 0;
+      let feedbackNegative = 0;
+      let satisfactionScore = null;
+      try {
+        const [eventsRows] = await pool.query(
+          'SELECT event_type, COUNT(*) as count FROM chatbot_analytics_events WHERE created_at >= COALESCE(?, created_at) AND created_at <= COALESCE(?, created_at) GROUP BY event_type',
+          [startDate || null, endDate || null]
+        );
+        events = eventsRows;
+
+        const [intentsRows] = await pool.query(`
+          SELECT JSON_EXTRACT(event_data, '$.intent') as intent, COUNT(*) as count
+          FROM chatbot_analytics_events
+          WHERE event_type = 'intent_detected'
+            AND created_at >= COALESCE(?, created_at)
+            AND created_at <= COALESCE(?, created_at)
+          GROUP BY intent
+          ORDER BY count DESC
+          LIMIT 10
+        `, [startDate || null, endDate || null]);
+        intents = intentsRows;
+
+        const [feedbackRows] = await pool.query(`
+          SELECT
+            SUM(CASE WHEN JSON_EXTRACT(event_data, '$.is_positive') = 1 THEN 1 ELSE 0 END) as positive,
+            SUM(CASE WHEN JSON_EXTRACT(event_data, '$.is_positive') = 0 THEN 1 ELSE 0 END) as negative
+          FROM chatbot_analytics_events
+          WHERE event_type = 'message_feedback'
+            AND created_at >= COALESCE(?, created_at)
+            AND created_at <= COALESCE(?, created_at)
+        `, [startDate || null, endDate || null]);
+        feedbackPositive = parseInt(feedbackRows[0]?.positive || 0);
+        feedbackNegative = parseInt(feedbackRows[0]?.negative || 0);
+        if (feedbackPositive + feedbackNegative > 0) {
+          satisfactionScore = parseFloat(((feedbackPositive / (feedbackPositive + feedbackNegative)) * 100).toFixed(1));
+        }
+      } catch (_) {
+        // Table may not exist yet - use empty data
+      }
 
       // Hoạt động theo ngày (30 ngày gần nhất)
       const [dailyActivity] = await pool.query(`
-                SELECT 
+                SELECT
                     DATE(created_at) as date,
                     COUNT(*) as conversations
                 FROM conversations
@@ -60,8 +97,15 @@ class AdminChatbotController {
           aiMessages: totalMsgs[0].ai_messages,
           activeUsers: activeUsers[0].total,
           events: events,
+          intentDistribution: intents.map((i) => ({
+            intent: (i.intent || '').replace(/"/g, ''),
+            count: i.count,
+          })),
           dailyActivity: dailyActivity,
           averageMessagesPerConversation: Math.round(avgMsgs[0].average || 0),
+          satisfactionScore,
+          feedbackPositive,
+          feedbackNegative,
         },
       });
     } catch (error) {

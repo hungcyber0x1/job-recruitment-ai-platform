@@ -1,0 +1,26 @@
+-- ============================================
+-- MIGRATION: Sync Models with New Schema
+-- Models updated: User, Candidate, Company, Job, Application, Blog, Chat, ResumeAnalysis, AIJobMatch, SupportTicket
+-- ============================================
+
+SET NAMES utf8mb4;
+
+-- Update applications table - ensure ai_score column exists
+ALTER TABLE applications ADD COLUMN ai_score DECIMAL(5,2) NULL AFTER notes;
+
+-- Update applications table - ensure ai_summary column exists
+ALTER TABLE applications ADD COLUMN ai_summary TEXT NULL AFTER ai_score;
+
+-- Update job_skills - ensure is_required exists
+ALTER TABLE job_skills ADD COLUMN is_required TINYINT(1) NOT NULL DEFAULT 0 AFTER skill_id;
+
+-- Update saved_jobs - ensure created_at exists
+ALTER TABLE saved_jobs ADD COLUMN created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER job_id;
+
+-- Update application_history - ensure action column exists
+ALTER TABLE application_history ADD COLUMN action VARCHAR(50) NOT NULL DEFAULT 'status_change' AFTER application_id;
+
+-- Update candidate_skills - ensure proficiency_level exists
+ALTER TABLE candidate_skills ADD COLUMN proficiency_level ENUM('beginner', 'intermediate', 'advanced', 'expert') DEFAULT 'intermediate' AFTER skill_id;
+
+SELECT 'Model sync completed!' AS status;

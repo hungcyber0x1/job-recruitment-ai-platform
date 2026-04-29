@@ -4,7 +4,7 @@
  */
 require('dotenv').config();
 const app = require('./app');
-const { connectDB } = require('./src/config/database.config');
+const { connectDB, closeDB } = require('./src/config/database.config');
 const logger = require('./src/utils/logger');
 const { getAllowedOrigins } = require('./src/utils/allowedOrigins');
 
@@ -12,10 +12,10 @@ const http = require('http');
 const { Server } = require('socket.io');
 
 const DEFAULT_PORT = Number(process.env.PORT || 5000);
-const FALLBACK_PORT = Number(process.env.PORT_FALLBACK || DEFAULT_PORT + 1);
-const MAX_FALLBACK_PORT = FALLBACK_PORT + 5;
 const DB_RETRY_DELAY_MS = Number(process.env.DB_RETRY_DELAY_MS || 5000);
 const server = http.createServer(app);
+const activeSockets = new Set();
+let isShuttingDown = false;
 
 const io = new Server(server, {
   cors: {
@@ -27,6 +27,13 @@ const io = new Server(server, {
 
 // Đăng ký sự kiện socket (auth JWT, phòng theo user, chatbot).
 require('./socket')(io);
+
+server.on('connection', (socket) => {
+  activeSockets.add(socket);
+  socket.on('close', () => {
+    activeSockets.delete(socket);
+  });
+});
 
 function scheduleDbConnect() {
   const tryConnect = async () => {
@@ -40,29 +47,17 @@ function scheduleDbConnect() {
   tryConnect();
 }
 
-/** Lắng nghe cổng; nếu EADDRINUSE thì thử cổng dự phòng (dev nhiều instance). */
+/** Lắng nghe cổng; nếu EADDRINUSE thì exit để nodemon tự retry sau khi port được giải phóng. */
 function listen(port) {
   server.once('error', (error) => {
-    if (error.code !== 'EADDRINUSE') {
-      logger.error('Failed to start server:', error);
+    if (error.code === 'EADDRINUSE') {
+      logger.error(
+        `Port ${port} is already in use. Exiting so nodemon can retry after the port is freed.`
+      );
       process.exit(1);
       return;
     }
-
-    if (port === DEFAULT_PORT) {
-      logger.warn(`Port ${port} is busy. Retrying on primary fallback port ${FALLBACK_PORT}`);
-      listen(FALLBACK_PORT);
-      return;
-    }
-
-    if (port < MAX_FALLBACK_PORT) {
-      const nextPort = port + 1;
-      logger.warn(`Port ${port} is also busy. Retrying on next available port ${nextPort}`);
-      listen(nextPort);
-      return;
-    }
-
-    logger.error('Failed to start server: Multiple ports already in use.', error);
+    logger.error('Failed to start server:', error);
     process.exit(1);
   });
 
@@ -74,9 +69,49 @@ function listen(port) {
   });
 }
 
-function startServer() {
-  listen(DEFAULT_PORT);
+function shutdown(signal) {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
+
+  logger.info(`${signal} received — shutting down gracefully`);
+
+  const forceShutdownTimer = setTimeout(() => {
+    logger.error('Could not close connections in time, forcefully shutting down');
+    for (const socket of activeSockets) {
+      try {
+        socket.destroy();
+      } catch (_error) {
+        // Ignore best-effort cleanup errors while forcing shutdown.
+      }
+    }
+    process.exit(1);
+  }, 10000);
+
+  if (typeof forceShutdownTimer.unref === 'function') {
+    forceShutdownTimer.unref();
+  }
+
+  io.close(() => {
+    logger.info('Socket.IO server closed');
+  });
+
+  server.close(async () => {
+    logger.info('HTTP server closed');
+    try {
+      await closeDB();
+      clearTimeout(forceShutdownTimer);
+      logger.info('Process terminated successfully');
+      process.exit(0);
+    } catch (err) {
+      clearTimeout(forceShutdownTimer);
+      logger.error('Error during shutdown:', err.message);
+      process.exit(1);
+    }
+  });
 }
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
 
 process.on('unhandledRejection', (reason) => {
   logger.error('UNHANDLED REJECTION — shutting down');
@@ -85,7 +120,7 @@ process.on('unhandledRejection', (reason) => {
   } else {
     logger.error(String(reason));
   }
-  process.exit(1);
+  shutdown('UNHANDLED_REJECTION');
 });
 
 process.on('uncaughtException', (err) => {
@@ -95,7 +130,11 @@ process.on('uncaughtException', (err) => {
   } else {
     logger.error(String(err));
   }
-  process.exit(1);
+  shutdown('UNCAUGHT_EXCEPTION');
 });
+
+function startServer() {
+  listen(DEFAULT_PORT);
+}
 
 startServer();

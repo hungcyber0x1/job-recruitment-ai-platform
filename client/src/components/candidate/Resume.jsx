@@ -33,7 +33,7 @@ const Resume = ({ resume, isUploading, onUpload, onDelete }) => {
         <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-[28px] bg-white shadow-card">
           <Upload size={30} className="text-secondary" />
         </div>
-        <h3 className="mb-2 text-xl font-black text-foreground">
+        <h3 className="mb-2 text-xl font-bold text-foreground">
           {isUploading ? 'Đang tải lên CV...' : 'Tải lên CV mới'}
         </h3>
         <p className="mx-auto max-w-xl text-base font-medium text-txt-muted">
@@ -49,13 +49,13 @@ const Resume = ({ resume, isUploading, onUpload, onDelete }) => {
                 <FileText size={28} />
               </div>
               <div>
-                <h4 className="text-lg font-black text-foreground">
+                <h4 className="text-lg font-bold text-foreground">
                   {resume.name || 'CV hiện tại'}
                 </h4>
                 <p className="text-base font-medium text-txt-muted">
                   Cập nhật: {resume.updatedAt || 'Đang lưu'}
                 </p>
-                <p className="text-base font-bold uppercase tracking-widest text-txt-light">
+                <p className="text-base font-bold uppercase tracking-normal text-txt-light">
                   {formatFileSize(resume.size)}
                 </p>
               </div>
@@ -66,7 +66,7 @@ const Resume = ({ resume, isUploading, onUpload, onDelete }) => {
                 <Button
                   variant="outline"
                   href={resume.url}
-                  className="rounded-2xl"
+                  className="rounded-xl"
                   leftIcon={Download}
                 >
                   Tải xuống
@@ -75,7 +75,7 @@ const Resume = ({ resume, isUploading, onUpload, onDelete }) => {
               <Button
                 type="button"
                 variant="danger"
-                className="rounded-2xl"
+                className="rounded-xl"
                 leftIcon={Trash2}
                 onClick={onDelete}
               >
@@ -86,12 +86,12 @@ const Resume = ({ resume, isUploading, onUpload, onDelete }) => {
         </Card>
       ) : (
         <Card className="p-10 text-center shadow-card">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted text-txt-muted">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-muted text-txt-muted">
             <FileText size={24} />
           </div>
-          <h4 className="mb-2 text-lg font-black text-foreground">Chưa có CV nào được lưu</h4>
+          <h4 className="mb-2 text-lg font-bold text-foreground">Chưa có CV nào được lưu</h4>
           <p className="text-base font-medium text-txt-muted">
-            Tải lên CV để sử dụng nhanh khi ứng tuyển và phân tích hồ sơ với AI.
+            Tải lên CV để sử dụng nhanh khi ứng tuyển và phân tích hồ sơ.
           </p>
         </Card>
       )}
@@ -99,10 +99,10 @@ const Resume = ({ resume, isUploading, onUpload, onDelete }) => {
       <Card className="relative overflow-hidden border-none bg-primary p-8 text-white shadow-premium">
         <Sparkles className="absolute -bottom-6 -right-6 opacity-10" size={120} />
         <div className="relative z-10">
-          <div className="mb-3 w-fit rounded-full bg-white/15 px-3 py-1 text-sm font-black uppercase tracking-widest">
-            AI Resume
+          <div className="mb-3 w-fit rounded-full bg-white/15 px-3 py-1 text-sm font-bold uppercase tracking-normal">
+            CV
           </div>
-          <h4 className="mb-2 text-xl font-black">Tối ưu CV với AI</h4>
+          <h4 className="mb-2 text-xl font-bold">Tối ưu CV</h4>
           <p className="max-w-2xl text-base font-medium text-white/80">
             Sau khi cập nhật CV, bạn có thể dùng các tính năng phân tích hồ sơ, gợi ý cải thiện và
             ghép việc làm.

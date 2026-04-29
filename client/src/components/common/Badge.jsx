@@ -14,7 +14,7 @@ const Badge = ({ children, variant = 'default', icon, className }) => {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-semibold tracking-wide transition-transform duration-200',
+        'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold leading-5 transition-colors duration-200',
         BADGE_VARIANTS[variant] || BADGE_VARIANTS.default,
         className
       )}
@@ -27,7 +27,26 @@ const Badge = ({ children, variant = 'default', icon, className }) => {
 
 Badge.propTypes = {
   children: PropTypes.node.isRequired,
-  variant: PropTypes.oneOf(['default', 'primary', 'success', 'error', 'warning', 'info']),
+  variant: PropTypes.oneOf([
+    'default',
+    'primary',
+    'secondary',
+    'neutral',
+    'inactive',
+    'success',
+    'green',
+    'error',
+    'danger',
+    'destructive',
+    'rejected',
+    'warning',
+    'pending',
+    'yellow',
+    'info',
+    'indigo',
+    'outline',
+    'glass',
+  ]),
   icon: PropTypes.node,
   className: PropTypes.string,
 };

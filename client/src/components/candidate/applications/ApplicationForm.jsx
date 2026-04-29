@@ -28,9 +28,20 @@ const ApplicationForm = ({ job, onClose }) => {
       showNotification('Đã quá hạn nộp hồ sơ cho vị trí này.', 'error');
       return;
     }
+    const hasExistingResume = !!formData.resume_url;
+    if (!hasExistingResume && !resumeFile) {
+      showNotification('Vui lòng tải lên CV của bạn.', 'error');
+      return;
+    }
+    const coverLetter = formData.cover_letter;
+    if (coverLetter.trim().length < 20) {
+      showNotification('Thư giới thiệu phải có ít nhất 20 ký tự.', 'error');
+      return;
+    }
     setLoading(true);
     try {
       let finalResumeUrl = formData.resume_url;
+      const trimmedCoverLetter = formData.cover_letter.trim();
 
       if (resumeFile) {
         const uploadRes = await uploadService.uploadResume(resumeFile);
@@ -38,15 +49,20 @@ const ApplicationForm = ({ job, onClose }) => {
           uploadRes.data?.data?.resume_url || uploadRes.data?.resume_url || finalResumeUrl;
       }
 
-      await api.post(`/applications/${job.id}`, {
-        ...formData,
+      if (!finalResumeUrl) {
+        showNotification('Vui lòng tải lên CV của bạn.', 'error');
+        return;
+      }
+
+      await api.post(`applications/${job.id}`, {
+        cover_letter: trimmedCoverLetter,
         resume_url: finalResumeUrl,
       });
       showNotification('Nộp đơn thành công! Nhà tuyển dụng sẽ xem xét hồ sơ của bạn.', 'success');
       onClose();
     } catch (error) {
-      console.error(error);
-      showNotification(error.response?.data?.message || 'Có lỗi xảy ra', 'error');
+      console.error('ApplicationForm submit error:', error?.message);
+      showNotification(error.response?.data?.message || error.message || 'Có lỗi xảy ra khi nộp hồ sơ.', 'error');
     } finally {
       setLoading(false);
     }
@@ -54,9 +70,21 @@ const ApplicationForm = ({ job, onClose }) => {
 
   return (
     <div className="space-y-8">
-      <div className="bg-emerald-50 p-6 rounded-2xl flex items-start gap-4 border border-emerald-100/50">
+      <div className="bg-emerald-50 p-6 rounded-xl flex items-start gap-4 border border-emerald-100/50">
         <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-emerald-600 shrink-0 shadow-sm">
-          <BriefcaseIcon size={24} />
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+          </svg>
         </div>
         <div>
           <h4 className="font-bold text-gray-900 leading-tight mb-1">{job.title}</h4>
@@ -70,7 +98,7 @@ const ApplicationForm = ({ job, onClose }) => {
             Thư từ ứng viên (Cover Letter)
           </label>
           <textarea
-            className="w-full p-4 rounded-2xl border border-gray-200 bg-gray-50/50 focus:ring-2 focus:ring-emerald-500/20 outline-none min-h-[120px] text-sm text-gray-700"
+            className="w-full p-4 rounded-xl border border-gray-200 bg-gray-50/50 focus:ring-2 focus:ring-emerald-500/20 outline-none min-h-[120px] text-sm text-gray-700"
             placeholder="Giới thiệu ngắn gọn lý do tại sao bạn phù hợp với vị trí này..."
             value={formData.cover_letter}
             onChange={(e) => setFormData({ ...formData, cover_letter: e.target.value })}
@@ -82,7 +110,7 @@ const ApplicationForm = ({ job, onClose }) => {
           <label className="text-sm font-bold text-gray-700 ml-1 mb-2 block">
             Tải lên CV (PDF/Word)
           </label>
-          <div className="border-2 border-dashed border-gray-200 rounded-2xl p-8 text-center hover:border-emerald-400 hover:bg-primary/10 transition-all cursor-pointer group relative">
+          <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center hover:border-emerald-400 hover:bg-primary/10 transition-all cursor-pointer group relative">
             <input
               type="file"
               accept=".pdf,.doc,.docx"
@@ -99,15 +127,14 @@ const ApplicationForm = ({ job, onClose }) => {
             <p className="text-base font-bold text-gray-900 mb-1">
               {resumeFile ? resumeFile.name : 'Kéo thả file vào đây hoặc click để chọn'}
             </p>
-            <p className="text-base text-gray-400">Định dạng hỗ trợ: PDF, DOC, DOCX (Tối đa 5MB)</p>
+            <p className="text-base text-gray-400">Định dạng hỗ trợ: PDF, DOC, DOCX (Tối đa 10MB)</p>
           </div>
         </div>
 
         <div className="p-4 bg-yellow-50 rounded-xl flex items-center gap-3 border border-yellow-100/50">
           <Info size={18} className="text-yellow-600 shrink-0" />
-          <p className="text-base text-yellow-700 font-medium">
-            HireAI khuyến nghị bạn nên cập nhật đầy đủ các dự án trong hồ sơ cá nhân để tăng 50% tỉ
-            lệ matching.
+          <p className="text-sm text-yellow-700 font-medium">
+            Nhà tuyển dụng sẽ xem xét hồ sơ của bạn sau khi nộp đơn. Đảm bảo CV và thông tin cá nhân đã được cập nhật đầy đủ.
           </p>
         </div>
 
@@ -129,22 +156,6 @@ const ApplicationForm = ({ job, onClose }) => {
   );
 };
 
-const BriefcaseIcon = ({ size = 24 }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
-    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-  </svg>
-);
-
 ApplicationForm.propTypes = {
   job: PropTypes.shape({
     id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
@@ -152,10 +163,6 @@ ApplicationForm.propTypes = {
     company_name: PropTypes.string,
   }).isRequired,
   onClose: PropTypes.func.isRequired,
-};
-
-BriefcaseIcon.propTypes = {
-  size: PropTypes.number,
 };
 
 export default ApplicationForm;

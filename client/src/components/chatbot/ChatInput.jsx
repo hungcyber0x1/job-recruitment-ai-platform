@@ -53,8 +53,8 @@ const ChatInput = ({ onSendMessage, isLoading }) => {
           </button>
         </div>
       </form>
-      <p className="text-center text-base font-bold text-slate-300 mt-4 uppercase tracking-[0.2em]">
-        HireAI có thể đưa ra câu trả lời không chính xác.
+      <p className="text-center text-base font-bold text-slate-300 mt-4 uppercase tracking-normal">
+        HireBOT có thể đưa ra câu trả lời không chính xác.
       </p>
     </div>
   );

@@ -8,16 +8,16 @@ const steps = [
     icon: Upload,
     title: 'Thu thập dữ liệu',
     description:
-      'Tải CV hoặc nhập thông tin kỹ năng, kinh nghiệm. AI bắt đầu phân tích ngay lập tức.',
-    detail: 'NLP Parser → Extract Skills',
+      'Tải CV hoặc nhập thông tin kỹ năng, kinh nghiệm. Hệ thống bắt đầu phân tích ngay lập tức.',
+    detail: 'Bộ đọc NLP → Trích xuất kỹ năng',
   },
   {
     num: '02',
     icon: Brain,
-    title: 'AI phân tích thông minh',
+    title: 'Phân tích thông minh',
     description:
-      'Matching algorithm so sánh profile của bạn với hàng nghìn vị trí và xu hướng thị trường.',
-    detail: 'ML Model → Scoring Engine',
+      'Hệ thống so sánh hồ sơ của bạn với hàng nghìn vị trí và xu hướng thị trường.',
+    detail: 'Mô hình học máy → Chấm điểm phù hợp',
   },
   {
     num: '03',
@@ -25,7 +25,7 @@ const steps = [
     title: 'Đánh giá & xếp hạng',
     description:
       'Mỗi công việc được chấm điểm phù hợp kèm giải thích chi tiết tại sao phù hợp với bạn.',
-    detail: 'Explainable AI → Reasoning',
+    detail: 'AI giải thích được → Lập luận',
   },
   {
     num: '04',
@@ -33,7 +33,7 @@ const steps = [
     title: 'Gợi ý cá nhân hóa',
     description:
       'Nhận lộ trình nghề nghiệp, việc làm phù hợp và kế hoạch phát triển kỹ năng riêng.',
-    detail: 'Personalization → Action Plan',
+    detail: 'Cá nhân hóa → Kế hoạch hành động',
   },
 ];
 
@@ -42,7 +42,7 @@ const matchDemo = {
     { name: 'React / Next.js', match: 95 },
     { name: 'TypeScript', match: 88 },
     { name: 'Node.js', match: 72 },
-    { name: 'System Design', match: 45 },
+    { name: 'Thiết kế hệ thống', match: 45 },
   ],
   overallScore: 82,
 };
@@ -64,7 +64,7 @@ const HowAIWorks = () => {
         >
           <span className="landing-badge">
             <Brain size={14} aria-hidden />
-            Explainable AI
+            AI giải thích được
           </span>
           <h2 className="landing-heading">
             AI hoạt động <span className="landing-heading-muted">như thế nào?</span>
@@ -93,7 +93,7 @@ const HowAIWorks = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-2">
-                    <span className="text-primary/30 text-sm font-bold tracking-widest">
+                    <span className="text-primary/30 text-sm font-bold tracking-normal">
                       {step.num}
                     </span>
                     <h3 className="text-foreground font-bold text-lg">{step.title}</h3>
@@ -125,11 +125,11 @@ const HowAIWorks = () => {
             <div className="landing-card p-7 shadow-[0_20px_50px_-15px_rgba(16,185,129,0.06)]">
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <p className="text-muted-foreground text-base font-bold uppercase tracking-wider">
-                    Skill Matching
+                  <p className="text-muted-foreground text-base font-bold uppercase tracking-normal">
+                    Đối sánh kỹ năng
                   </p>
                   <p className="text-foreground font-bold text-lg mt-1">
-                    Senior Frontend Developer
+                    Lập trình viên giao diện cấp cao
                   </p>
                 </div>
                 <div className="relative w-16 h-16">
@@ -199,11 +199,11 @@ const HowAIWorks = () => {
               <div className="mt-8 p-4 bg-primary/5 border border-primary/10 rounded-xl">
                 <p className="text-primary text-base font-bold mb-1 flex items-center gap-1.5">
                   <Brain size={12} />
-                  AI Insight
+                  Nhận định
                 </p>
                 <p className="text-muted-foreground text-base leading-relaxed">
                   Bạn phù hợp <span className="text-primary font-bold">82%</span> với vị trí này. Bổ
-                  sung <span className="text-foreground font-bold">System Design</span> sẽ nâng lên{' '}
+                  sung <span className="text-foreground font-bold">thiết kế hệ thống</span> sẽ nâng lên{' '}
                   <span className="text-primary font-bold">93%</span>.
                 </p>
               </div>

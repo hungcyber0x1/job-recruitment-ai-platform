@@ -1,5 +1,5 @@
 /**
- * Cách bọc route: public (chỉ Suspense), candidate/employer (PrivateRoute + layout + Suspense),
+ * Cách bọc route: public (chỉ Suspense), candidate/recruiter (PrivateRoute + layout + Suspense),
  * admin (PrivateRoute + Suspense — từng page tự bọc AdminLayout).
  */
 import React, { Suspense } from 'react';
@@ -7,6 +7,7 @@ import PrivateRoute from '../layouts/PrivateRoute.jsx';
 import Loading from '../components/common/Loading.jsx';
 import CandidateLayout from '../layouts/CandidateLayout.jsx';
 import EmployerLayout from '../layouts/EmployerLayout.jsx';
+import AdminLayout from '../layouts/AdminLayout.jsx';
 
 export const routeLoadingFallback = (
   <div className="flex min-h-[40vh] items-center justify-center bg-background">
@@ -46,8 +47,8 @@ export const renderCandidatePage = (Component) => (
   </PrivateRoute>
 );
 
-export const renderEmployerPage = (Component) => (
-  <PrivateRoute roles={['employer']}>
+export const renderRecruiterPage = (Component) => (
+  <PrivateRoute roles={['recruiter', 'employer']}>
     <EmployerLayout>
       <Suspense fallback={dashboardContentLoadingFallback}>
         <Component />
@@ -56,6 +57,12 @@ export const renderEmployerPage = (Component) => (
   </PrivateRoute>
 );
 
-export const renderAdminPage = (Component) => (
-  <PrivateRoute roles={['admin']}>{renderLazyPage(Component)}</PrivateRoute>
+export const renderAdminPage = (Component, options = {}) => (
+  <PrivateRoute roles={['admin']} adminPermission={options.adminPermission}>
+    <AdminLayout>
+      <Suspense fallback={dashboardContentLoadingFallback}>
+        <Component />
+      </Suspense>
+    </AdminLayout>
+  </PrivateRoute>
 );

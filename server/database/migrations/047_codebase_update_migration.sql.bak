@@ -1,0 +1,186 @@
+-- =============================================================================
+-- CODEBASE UPDATE MIGRATION
+-- Update all table names and column references in application code
+-- =============================================================================
+
+-- =============================================================================
+-- IMPORTANT: Run this AFTER applying the new schema (045_new_schema_complete.sql)
+-- =============================================================================
+
+SET NAMES utf8mb4;
+
+-- =============================================================================
+-- 1. UPDATE USER ROLES
+-- Old: 'employer' → New: 'recruiter'
+-- =============================================================================
+
+UPDATE users SET role = 'recruiter' WHERE role = 'employer';
+
+-- =============================================================================
+-- 2. RENAME TABLES (Alternative approach - use if renaming is preferred)
+-- =============================================================================
+
+-- Note: MySQL does not support direct RENAME TABLE across schemas easily
+-- Use these as reference for code updates:
+
+/--
+-- Application code updates needed:
+-- 
+-- FROM:                    TO:
+-- ---------------------------------------------
+-- employers              → company_profiles
+-- candidates             → candidate_profiles
+-- chat_messages          → chatbot_messages
+-- conversations          → chatbot_conversations
+-- chatbot_analytics     → chatbot_analytics (keep)
+-- support_tickets       → support_tickets (keep)
+-- ticket_messages        → support_messages
+-- content_pages         → content_pages (keep)
+-- banners               → banners (keep)
+-- 
+-- Column renames:
+-- ---------------------------------------------
+-- employers.company_name    → company_profiles.name
+-- employers.company_logo    → company_profiles.logo_url
+-- employers.company_description → company_profiles.full_description
+-- candidates.resume_url     → candidate_profiles.resume_url
+-- candidates.bio           → candidate_profiles.bio
+-- candidates.education     → candidate_profiles.education (JSON)
+-- candidates.experience     → candidate_profiles.experience (JSON)
+-- 
+-- Foreign key changes:
+-- ---------------------------------------------
+-- jobs.employer_id         → jobs.company_id
+-- applications.candidate_id → applications.candidate_id (via candidate_profiles)
+-- blog_posts.employer_id    → blog_posts.company_id
+-- 
+-- Enum value changes:
+-- ---------------------------------------------
+-- users.role: 'employer'    → 'recruiter'
+-- jobs.type: 'remote'       → 'remote' (keep)
+-- 
+-- Status standardization:
+-- ---------------------------------------------
+-- Remove is_active usage - use status column only
+-- Standard statuses: active, pending, inactive, banned, locked
+-- 
+-- /
+
+-- =============================================================================
+-- 3. ADD INDEXES FOR PERFORMANCE (if not already added)
+-- =============================================================================
+
+-- These indexes are critical for query performance
+CREATE INDEX IF NOT EXISTS idx_jobs_company ON jobs(company_id);
+CREATE INDEX IF NOT EXISTS idx_jobs_category ON jobs(category_id);
+CREATE INDEX IF NOT EXISTS idx_applications_job ON applications(job_id);
+CREATE INDEX IF NOT EXISTS idx_applications_candidate ON applications(candidate_id);
+CREATE INDEX IF NOT EXISTS idx_blog_company ON blog_posts(company_id);
+CREATE INDEX IF NOT EXISTS idx_company_user ON company_profiles(user_id);
+CREATE INDEX IF NOT EXISTS idx_candidate_user ON candidate_profiles(user_id);
+
+-- =============================================================================
+-- 4. DATA MIGRATION (Copy data from old tables to new if doing incremental migration)
+-- =============================================================================
+
+/-- 
+-- For incremental migration (keeping old data):
+-- 
+-- -- Copy employers to company_profiles
+-- INSERT INTO company_profiles (user_id, name, slug, logo_url, website, size, industry, headquarters, short_description, full_description, is_verified)
+-- SELECT 
+--   user_id,
+--   company_name,
+--   slugify(company_name),
+--   company_logo,
+--   company_website,
+--   company_size,
+--   industry,
+--   location,
+--   LEFT(company_description, 500),
+--   company_description,
+--   is_verified
+-- FROM employers;
+-- 
+-- -- Copy candidates to candidate_profiles
+-- INSERT INTO candidate_profiles (user_id, bio, current_job_title, experience_years, education_level, location, resume_url)
+-- SELECT
+--   user_id,
+--   bio,
+--   current_job_title,
+--   experience_years,
+--   education_level,
+--   location,
+--   resume_url
+-- FROM candidates;
+-- 
+-- -- Update jobs.company_id from employer_id
+-- UPDATE jobs j
+-- INNER JOIN employers e ON j.employer_id = e.id
+-- SET j.company_id = e.id;
+-- 
+-- -- Update blog_posts.company_id from employer_id
+-- UPDATE blog_posts bp
+-- INNER JOIN employers e ON bp.employer_id = e.id
+-- SET bp.company_id = e.id;
+-- 
+-- /
+
+-- =============================================================================
+-- 5. VERIFICATION QUERIES
+-- =============================================================================
+
+-- Verify role migration
+SELECT role, COUNT(*) as count FROM users GROUP BY role;
+
+-- Verify table record counts
+SELECT 'company_profiles' as tbl, COUNT(*) as cnt FROM company_profiles
+UNION ALL SELECT 'candidate_profiles', COUNT(*) FROM candidate_profiles
+UNION ALL SELECT 'users', COUNT(*) FROM users;
+
+-- Verify foreign key integrity
+SELECT 'Orphan jobs (no company)' as check_name, COUNT(*) as issues 
+FROM jobs j 
+LEFT JOIN company_profiles c ON j.company_id = c.id 
+WHERE c.id IS NULL;
+
+SELECT 'Orphan applications (no candidate)' as check_name, COUNT(*) as issues 
+FROM applications a 
+LEFT JOIN candidate_profiles c ON a.candidate_id = c.id 
+WHERE c.id IS NULL;
+
+-- =============================================================================
+-- 6. ROLLBACK PLAN (if needed)
+-- =============================================================================
+
+/--
+-- If you need to rollback:
+-- 1. Keep backup of old database before migration
+-- 2. Restore from backup:
+--    SOURCE backup/recruitment_db_backup_pre_migration.sql;
+-- 3. Discard new tables if they exist:
+--    DROP TABLE IF EXISTS company_profiles;
+--    DROP TABLE IF EXISTS candidate_profiles;
+--    ... (list all new tables)
+-- 
+-- OR
+-- 
+-- If using incremental migration (keeping both schemas):
+-- 1. Keep both old and new tables
+-- 2. Create views for backward compatibility
+-- 3. Update code gradually to use new tables
+-- /
+
+-- =============================================================================
+-- POST-MIGRATION VALIDATION
+-- =============================================================================
+
+SELECT 'Migration complete!' as status, NOW() as completed_at;
+
+-- Check that all required tables exist
+SELECT 
+  TABLE_NAME,
+  TABLE_ROWS as estimated_rows
+FROM information_schema.TABLES 
+WHERE TABLE_SCHEMA = DATABASE()
+ORDER BY TABLE_NAME;

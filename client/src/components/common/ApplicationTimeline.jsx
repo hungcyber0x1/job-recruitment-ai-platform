@@ -2,33 +2,29 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { format } from 'date-fns';
 import Card from './Card';
+import { APP_STATUS_CONFIG, getAppStatusLabel } from '../../constants';
 
 /**
  * ApplicationTimeline - Visual status tracker for applications
- * Shows progression through application stages
+ * Dùng centralized constants từ ../../constants/status.js
+ *
+ * ⚠️  Chỉ hỗ trợ 10 statuses chuẩn từ APP_STATUS_VALUES.
+ * Các status không chuẩn (interview_scheduled, assessment_sent, etc.)
+ * KHÔNG có trong hệ thống này - chúng là legacy/placeholder.
  */
 const ApplicationTimeline = ({ timeline, currentStatus }) => {
-  // Status display names
-  const statusNames = {
-    pending: 'Application Submitted',
-    reviewed: 'Under Review',
-    shortlisted: 'Shortlisted',
-    interviewing: 'Interview In Progress',
-    interview_scheduled: 'Interview Scheduled',
-    interviewed: 'Interview Completed',
-    assessment_sent: 'Assessment Sent',
-    assessment_completed: 'Assessment Completed',
-    offered: 'Offer Made',
-    hired: 'Hired',
-    offer_accepted: 'Offer Accepted',
-    offer_declined: 'Offer Declined',
-    rejected: 'Application Rejected',
-    withdrawn: 'Application Withdrawn',
-  };
+  const sortedTimeline = timeline
+    ? [...timeline].sort((a, b) => new Date(a.changed_at) - new Date(b.changed_at))
+    : [];
 
-  // Get status icon
+  const isRejectedOrWithdrawn = (status) =>
+    status === 'rejected' || status === 'withdrawn';
+
+  const isFinalState = (status) =>
+    status === 'hired' || status === 'accepted' || status === 'rejected' || status === 'withdrawn';
+
   const getStatusIcon = (status, isActive, isComplete) => {
-    if (status === 'rejected' || status === 'offer_declined' || status === 'withdrawn') {
+    if (isRejectedOrWithdrawn(status)) {
       return (
         <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center">
           <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -43,76 +39,75 @@ const ApplicationTimeline = ({ timeline, currentStatus }) => {
       );
     }
 
-    if (isComplete || isActive) {
+    if (isComplete) {
       return (
-        <div
-          className={`w-8 h-8 rounded-full flex items-center justify-center shadow-md ${isActive ? 'bg-primary shadow-glow ring-4 ring-primary/20' : 'bg-success shadow-success/20'}`}
-        >
+        <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center shadow-md">
           <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2.5}
-              d="M5 13l4 4L19 7"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
           </svg>
         </div>
       );
     }
 
-    return <div className="w-8 h-8 rounded-full border-2 border-secondary-300 bg-white"></div>;
-  };
+    if (isActive) {
+      return (
+        <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-md ring-4 ring-primary/20">
+          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+      );
+    }
 
-  // Sort timeline by date
-  const sortedTimeline = timeline
-    ? [...timeline].sort((a, b) => new Date(a.changed_at) - new Date(b.changed_at))
-    : [];
+    return <div className="w-8 h-8 rounded-full border-2 border-slate-300 bg-white"></div>;
+  };
 
   return (
     <Card className="p-6 shadow-premium border-none relative overflow-hidden group">
       <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl transition-all duration-500 group-hover:bg-primary/10"></div>
-      <h3 className="text-lg font-black mb-6 text-foreground tracking-tight flex items-center gap-2">
+      <h3 className="text-lg font-bold mb-6 text-foreground tracking-normal flex items-center gap-2">
         <div className="w-1.5 h-6 bg-primary rounded-full"></div>
-        Application Progress
+        Tiến trình ứng tuyển
       </h3>
 
       <div className="relative">
-        {/* Vertical line */}
-        <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-secondary-200"></div>
+        <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-slate-200"></div>
 
-        {/* Timeline items */}
         <div className="space-y-4">
           {sortedTimeline.length > 0 ? (
             sortedTimeline.map((item, index) => {
               const isActive = item.status === currentStatus;
               const isComplete = index < sortedTimeline.length - 1;
+              const label = getAppStatusLabel(item.status);
 
               return (
                 <div key={index} className="relative flex items-start gap-4">
-                  {/* Icon */}
                   <div className="relative z-10">
                     {getStatusIcon(item.status, isActive, isComplete)}
                   </div>
 
-                  {/* Content */}
                   <div className="flex-1 pb-4">
                     <div className="flex items-center justify-between">
                       <h4
-                        className={`font-bold tracking-tight ${isActive ? 'text-primary' : 'text-foreground'}`}
+                        className={`font-bold tracking-normal ${
+                          isActive ? 'text-primary' : isRejectedOrWithdrawn(item.status) ? 'text-red-600' : 'text-foreground'
+                        }`}
                       >
-                        {statusNames[item.status] || item.status}
+                        {label}
                       </h4>
-                      <span className="text-sm text-txt-muted">
-                        {format(new Date(item.changed_at), 'MMM d, yyyy')}
+                      <span className="text-sm text-muted-foreground">
+                        {format(new Date(item.changed_at), 'dd/MM/yyyy HH:mm')}
                       </span>
                     </div>
-                    {item.notes && <p className="mt-1 text-base text-txt-muted">{item.notes}</p>}
+                    {item.notes && (
+                      <p className="mt-1 text-base text-muted-foreground">{item.notes}</p>
+                    )}
                   </div>
                 </div>
               );
             })
           ) : (
-            <div className="text-center text-txt-light py-8">No timeline data available</div>
+            <div className="text-center text-muted-foreground py-8">Không có dữ liệu tiến trình</div>
           )}
         </div>
       </div>

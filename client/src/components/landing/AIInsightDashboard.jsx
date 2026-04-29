@@ -3,20 +3,19 @@ import { motion } from 'framer-motion';
 import { Brain, TrendingUp, Target, BookOpen, ChevronRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const skillGaps = [
+const focusAreas = [
   { skill: 'React / Next.js', current: 92, target: 95, status: 'strong' },
   { skill: 'TypeScript', current: 85, target: 90, status: 'good' },
-  { skill: 'Node.js / Express', current: 55, target: 80, status: 'gap' },
-  { skill: 'System Design', current: 35, target: 75, status: 'gap' },
-  { skill: 'CI/CD & DevOps', current: 40, target: 70, status: 'gap' },
+  { skill: 'Node.js / Express', current: 55, target: 80, status: 'focus' },
+  { skill: 'Thiết kế hệ thống', current: 35, target: 75, status: 'focus' },
+  { skill: 'CI/CD & Vận hành DevOps', current: 40, target: 70, status: 'focus' },
 ];
 
-const roadmapSteps = [
-  { period: 'Q1 2026', milestone: 'Master Node.js fundamentals', status: 'completed' },
-  { period: 'Q2 2026', milestone: 'Build REST & GraphQL APIs', status: 'current' },
-  { period: 'Q3 2026', milestone: 'Learn System Design patterns', status: 'upcoming' },
-  { period: 'Q4 2026', milestone: 'DevOps & Cloud deployment', status: 'upcoming' },
-  { period: 'Cuối 2026', milestone: 'Senior Fullstack ready', status: 'upcoming' },
+const prioritySteps = [
+  { period: 'Tuần này', milestone: 'Hoàn thiện 1 API Node.js có xác thực và ghi log', status: 'current' },
+  { period: '2 tuần tới', milestone: 'Bổ sung 1 tình huống thiết kế hệ thống vào hồ sơ dự án', status: 'upcoming' },
+  { period: 'Tháng này', milestone: 'Rà soát CV để nhấn mạnh tác động và vai trò làm chủ kết quả', status: 'upcoming' },
+  { period: 'Liên tục', milestone: 'Luyện phỏng vấn hành vi theo STAR sau mỗi vòng ứng tuyển', status: 'completed' },
 ];
 
 const getBarColor = (status) => {
@@ -25,7 +24,7 @@ const getBarColor = (status) => {
       return 'bg-primary';
     case 'good':
       return 'bg-primary/80';
-    case 'gap':
+    case 'focus':
       return 'bg-amber-500';
     default:
       return 'bg-muted-foreground/30';
@@ -62,19 +61,19 @@ const AIInsightDashboard = () => {
         >
           <span className="landing-badge">
             <Brain size={14} aria-hidden />
-            AI Insight Dashboard
+            Bảng phân tích nghề nghiệp
           </span>
           <h2 className="landing-heading">
             Hiểu rõ bản thân <span className="landing-heading-muted">phát triển nhanh hơn</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed font-medium">
-            Dashboard cá nhân với phân tích skill gap, lộ trình phát triển và gợi ý học tập được AI
-            cập nhật liên tục
+            Bảng điều khiển cá nhân với ưu tiên kỹ năng, bước tiếp theo và gợi ý học tập được cập nhật
+            liên tục
           </p>
         </motion.div>
 
         <div className="grid lg:grid-cols-2 gap-6">
-          {/* Skill Gap */}
+          {/* Skills Snapshot */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -88,9 +87,9 @@ const AIInsightDashboard = () => {
                   <Target size={18} className="text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-foreground font-bold">Phân tích Skill Gap</h3>
+                  <h3 className="text-foreground font-bold">Ưu tiên kỹ năng</h3>
                   <p className="text-muted-foreground text-base font-medium">
-                    So với vị trí: Senior Fullstack
+                    Theo mục tiêu: lập trình viên full-stack cấp cao
                   </p>
                 </div>
               </div>
@@ -100,13 +99,13 @@ const AIInsightDashboard = () => {
             </div>
 
             <div className="space-y-5">
-              {skillGaps.map((item, index) => (
+              {focusAreas.map((item, index) => (
                 <div key={item.skill}>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-foreground/80 text-sm font-medium">{item.skill}</span>
                     <div className="flex items-center gap-2">
                       <span
-                        className={`text-sm font-bold tabular-nums ${item.status === 'gap' ? 'text-amber-500' : 'text-primary'}`}
+                        className={`text-sm font-bold tabular-nums ${item.status === 'focus' ? 'text-amber-500' : 'text-primary'}`}
                       >
                         {item.current}%
                       </span>
@@ -140,17 +139,17 @@ const AIInsightDashboard = () => {
             <div className="mt-6 p-4 bg-amber-50 border border-amber-200/50 rounded-xl">
               <p className="text-amber-600 text-base font-bold mb-1 flex items-center gap-1.5">
                 <Sparkles size={12} />
-                Gợi ý từ AI
+                Gợi ý
               </p>
               <p className="text-muted-foreground text-base leading-relaxed">
                 Tập trung vào <span className="text-foreground font-bold">Node.js</span> và
-                <span className="text-foreground font-bold"> System Design</span> để nâng tổng điểm
+                <span className="text-foreground font-bold"> thiết kế hệ thống</span> để nâng tổng điểm
                 lên <span className="text-primary font-bold">85%+</span>
               </p>
             </div>
           </motion.div>
 
-          {/* Roadmap */}
+          {/* Next Steps */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -164,19 +163,19 @@ const AIInsightDashboard = () => {
                   <TrendingUp size={18} className="text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-foreground font-bold">Lộ trình phát triển</h3>
+                  <h3 className="text-foreground font-bold">Bước tiếp theo</h3>
                   <p className="text-muted-foreground text-base font-medium">
-                    Frontend → Senior Fullstack
+                    Các hạng mục nên ưu tiên ngay
                   </p>
                 </div>
               </div>
               <span className="px-3 py-1 bg-muted/50 border border-border/40 text-muted-foreground rounded-lg text-sm font-bold">
-                12 tháng
+                4 việc chính
               </span>
             </div>
 
             <div className="space-y-1">
-              {roadmapSteps.map((step, index) => (
+              {prioritySteps.map((step, index) => (
                 <motion.div
                   key={step.period}
                   initial={{ opacity: 0, x: -10 }}
@@ -189,10 +188,10 @@ const AIInsightDashboard = () => {
                     <div
                       className={`w-3 h-3 rounded-full ${getStatusDot(step.status)} flex-shrink-0`}
                     />
-                    {index < roadmapSteps.length - 1 && <div className="w-px h-8 bg-border/60" />}
+                    {index < prioritySteps.length - 1 && <div className="w-px h-8 bg-border/60" />}
                   </div>
                   <div className="flex-1 min-w-0 pb-2">
-                    <p className="text-muted-foreground text-base font-bold uppercase tracking-wider">
+                    <p className="text-muted-foreground text-base font-bold uppercase tracking-normal">
                       {step.period}
                     </p>
                     <p
@@ -216,13 +215,13 @@ const AIInsightDashboard = () => {
             </div>
 
             <div className="mt-6 space-y-3">
-              <p className="text-muted-foreground text-base font-bold uppercase tracking-wider flex items-center gap-2">
+              <p className="text-muted-foreground text-base font-bold uppercase tracking-normal flex items-center gap-2">
                 <BookOpen size={12} />
-                Khóa học gợi ý
+                Tài nguyên gợi ý
               </p>
               {[
-                { title: 'Node.js - The Complete Guide', provider: 'Udemy', duration: '40 giờ' },
-                { title: 'System Design Interview', provider: 'ByteByteGo', duration: '24 giờ' },
+                { title: 'Node.js - Hướng dẫn toàn diện', provider: 'Udemy', duration: '40 giờ' },
+                { title: 'Phỏng vấn thiết kế hệ thống', provider: 'ByteByteGo', duration: '24 giờ' },
               ].map((course) => (
                 <div
                   key={course.title}
@@ -249,7 +248,7 @@ const AIInsightDashboard = () => {
         <div className="text-center mt-10">
           <Link to="/register" className="landing-btn-primary px-8 py-4">
             <Sparkles size={18} />
-            Xem dashboard của bạn
+            Xem bảng điều khiển của bạn
           </Link>
         </div>
       </div>

@@ -1,92 +1,102 @@
 const JobService = require('../services/job');
-const { pool } = require('../config/database.config');
 const catchAsync = require('../utils/catchAsync');
-
-/** Client (JobCard) dùng salary_range; DB có salary_min/max */
-function formatSalaryRange(job) {
-  if (!job) return job;
-  if (job.salary_range) return job;
-  const min = job.salary_min;
-  const max = job.salary_max;
-  const fmt = (n) => {
-    if (n == null) return '';
-    const v = Number(n);
-    if (v >= 1000000) return `${Math.round(v / 1000000)} triệu`;
-    return `${v.toLocaleString('vi-VN')} đ`;
-  };
-  let salary_range = 'Thỏa thuận';
-  if (min != null && max != null) salary_range = `${fmt(min)} – ${fmt(max)} / tháng`;
-  else if (min != null) salary_range = `Từ ${fmt(min)} / tháng`;
-  else if (max != null) salary_range = `Đến ${fmt(max)} / tháng`;
-  return { ...job, salary_range, skills: Array.isArray(job.skills) ? job.skills : [] };
-}
+const { toJobContract, toJobContracts } = require('../utils/job-contract');
+const { ApiResponse } = require('../utils/ApiResponse');
+const AppError = require('../utils/errorHandler');
+const {
+  hasCompanyPermission,
+  resolveRecruiterCompanyContext,
+} = require('../utils/company-access');
 
 class JobController {
-  /**
-   * Helper to get employer id from user id
-   * (Temporary until employer-service is ready)
-   */
-  async _getEmployerId(userId) {
-    const [rows] = await pool.query('SELECT id FROM employers WHERE user_id = ?', [userId]);
-    if (!rows[0]) {
-      const error = new Error('Employer profile not found');
-      error.statusCode = 404;
-      throw error;
+  async _getCompanyForUser(user, options = {}) {
+    const { allowMissing = false } = options;
+    const company = await resolveRecruiterCompanyContext(user);
+    if (!company) {
+      if (allowMissing) {
+        return null;
+      }
+      throw new AppError('Company profile not found', 404);
     }
-    return rows[0].id;
+    return company;
   }
 
   getJobs = catchAsync(async (req, res) => {
     const filters = {
       category_id: req.query.category_id,
-      type: req.query.type,
+      job_type: req.query.type || req.query.job_type,
       search: req.query.search,
       location: req.query.location,
       limit: req.query.limit,
       offset: req.query.offset,
       status: req.query.status,
     };
+
     const { data: jobs, total } = await JobService.getAllJobs(filters);
-    const data = Array.isArray(jobs) ? jobs.map(formatSalaryRange) : jobs;
-    res.json({ success: true, data, total });
+    const safeJobs = Array.isArray(jobs) ? jobs : [];
+    return ApiResponse.success(res, toJobContracts(safeJobs), { pagination: { total: typeof total === 'number' ? total : 0 } });
   });
 
   getJob = catchAsync(async (req, res) => {
     const job = await JobService.getJobById(req.params.id);
-    res.json({ success: true, data: formatSalaryRange(job) });
+    return ApiResponse.success(res, toJobContract(job));
   });
 
   getMyJobs = catchAsync(async (req, res) => {
-    const employerId = await this._getEmployerId(req.user.id);
-    const jobs = await JobService.getJobsByEmployer(employerId);
-    res.json({ success: true, data: jobs });
+    const company = await this._getCompanyForUser(req.user, { allowMissing: true });
+    if (!company) {
+      return ApiResponse.success(res, [], {
+        message: 'No company profile linked to this account yet',
+      });
+    }
+
+    const jobs = await JobService.getJobsByCompany(company.id);
+    return ApiResponse.success(res, toJobContracts(jobs));
   });
 
   createJob = catchAsync(async (req, res) => {
-    const employerId = await this._getEmployerId(req.user.id);
-    const jobId = await JobService.createJob(employerId, req.body);
-    res.status(201).json({ success: true, data: { id: jobId } });
+    const company = await this._getCompanyForUser(req.user);
+    if (!hasCompanyPermission(req.user, 'can_post_job')) {
+      return ApiResponse.forbidden(res, 'You do not have permission to create jobs');
+    }
+
+    const result = await JobService.createJob(company.id, req.user.id, req.body);
+    return ApiResponse.created(res, result);
   });
 
   updateJob = catchAsync(async (req, res) => {
-    const employerId = await this._getEmployerId(req.user.id);
-    // Verify ownership
+    const company = await this._getCompanyForUser(req.user);
     const job = await JobService.getJobById(req.params.id, { allowDeleted: true });
-    if (job.employer_id !== employerId && req.user.role !== 'admin') {
-      return res.status(403).json({ success: false, message: 'Forbidden' });
+
+    if (job.company_id !== company.id && req.user.role !== 'admin') {
+      return ApiResponse.forbidden(res, 'Forbidden');
     }
-    await JobService.updateJob(req.params.id, req.body);
-    res.json({ success: true, message: 'Job updated' });
+
+    if (!hasCompanyPermission(req.user, 'can_edit_job') && req.user.role !== 'admin') {
+      return ApiResponse.forbidden(res, 'You do not have permission to update jobs');
+    }
+
+    const result = await JobService.updateJob(req.params.id, req.body, {
+      companyId: company.id,
+      recruiterId: req.user.id,
+    });
+    return ApiResponse.success(res, result, { message: 'Job updated' });
   });
 
   deleteJob = catchAsync(async (req, res) => {
-    const employerId = await this._getEmployerId(req.user.id);
+    const company = await this._getCompanyForUser(req.user);
     const job = await JobService.getJobById(req.params.id, { allowDeleted: true });
-    if (job.employer_id !== employerId && req.user.role !== 'admin') {
-      return res.status(403).json({ success: false, message: 'Forbidden' });
+
+    if (job.company_id !== company.id && req.user.role !== 'admin') {
+      return ApiResponse.forbidden(res, 'Forbidden');
     }
+
+    if (!hasCompanyPermission(req.user, 'can_delete_job') && req.user.role !== 'admin') {
+      return ApiResponse.forbidden(res, 'You do not have permission to delete jobs');
+    }
+
     await JobService.deleteJob(req.params.id);
-    res.json({ success: true, message: 'Job deleted' });
+    return ApiResponse.noContent(res);
   });
 }
 

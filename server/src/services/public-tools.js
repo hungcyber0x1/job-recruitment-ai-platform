@@ -32,7 +32,7 @@ function computeSalaryEstimate({ title, experience, location, industry }) {
     growthPct,
     currency: 'VND',
     disclaimer:
-      'Ước lượng tham khảo trên HireAI cho ứng viên (đàm phán offer, định hướng ứng tuyển). Không thay thế khảo sát lương thực tế tại doanh nghiệp.',
+      'Ước lượng tham khảo trên HireBOT cho ứng viên (đàm phán offer, định hướng ứng tuyển). Không thay thế khảo sát lương thực tế tại doanh nghiệp.',
   };
 }
 

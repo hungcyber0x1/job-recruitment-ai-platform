@@ -7,9 +7,9 @@ MODIFY COLUMN status ENUM('pending', 'screening', 'reviewed', 'shortlisted', 'in
 
 -- Bước 2: Tạo bảng application_history
 CREATE TABLE IF NOT EXISTS application_history (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    application_id INT NOT NULL,
-    changed_by INT NOT NULL, -- user_id (admin hoặc employer)
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    application_id INT UNSIGNED NOT NULL,
+    changed_by INT UNSIGNED NOT NULL, -- user_id (admin hoặc employer)
     old_status VARCHAR(50),
     new_status VARCHAR(50) NOT NULL,
     notes TEXT,

@@ -1,51 +1,153 @@
+/**
+ * Job Service — business logic for job management.
+ *
+ * ⚠️   TABLE: Sử dụng `company_profiles` thay vì `employers`
+ * ⚠️   FK: `company_id` (FK đến company_profiles) và `recruiter_id` (FK đến users)
+ * ⚠️   STATUS: Sử dụng 'draft', 'pending_review', 'approved', 'rejected', 'published', 'expired', 'closed', 'suspended'
+ */
 const JobRepository = require('../models/Job');
-const EmployerRepository = require('../models/Employer');
+const CompanyRepository = require('../models/Company');
 const SystemSettingsRepository = require('../models/SystemSettings');
 const { isDeadlineDateBeforeToday } = require('../utils/deadline');
 const logger = require('../utils/logger');
 const AIService = require('./ai');
+const AppError = require('../utils/errorHandler');
 
 const MAX_EMBEDDING_INPUT_CHARS = 5000;
 
-const JOB_TYPE_MAP = {
-  full_time: 'full-time',
-  part_time: 'part-time',
+const hasOwn = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
+const JOB_TYPE_ALIASES = {
+  'full-time': 'full_time',
+  fulltime: 'full_time',
+  full_time: 'full_time',
+  'part-time': 'part_time',
+  parttime: 'part_time',
+  part_time: 'part_time',
+  contract: 'contract',
+  internship: 'internship',
+  freelance: 'freelance',
+  remote: 'remote',
 };
+
+function normalizeJobType(value) {
+  if (value === undefined || value === null || value === '') {
+    return value;
+  }
+
+  const normalized = String(value).trim().toLowerCase();
+  return JOB_TYPE_ALIASES[normalized] || normalized;
+}
+
+function normalizeOptionalNumber(value) {
+  if (value === undefined || value === null || value === '') {
+    return null;
+  }
+
+  const numericValue =
+    typeof value === 'string' ? Number(value.replace(/,/g, '').trim()) : Number(value);
+
+  return Number.isFinite(numericValue) ? numericValue : null;
+}
+
+function normalizeBooleanFlag(value) {
+  if (value === true || value === 1) return 1;
+  if (value === false || value === 0) return 0;
+
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (['1', 'true', 'yes', 'on'].includes(normalized)) return 1;
+    if (['0', 'false', 'no', 'off', ''].includes(normalized)) return 0;
+  }
+
+  return 0;
+}
+
+function normalizeVacancies(value) {
+  const numericValue = Number.parseInt(value, 10);
+  if (!Number.isFinite(numericValue) || numericValue < 1) {
+    return 1;
+  }
+
+  return Math.min(numericValue, 9999);
+}
 
 class JobService {
   assertPublishDeadline(status, deadline) {
     if (status !== 'published' || !deadline) return;
     if (isDeadlineDateBeforeToday(deadline)) {
-      const err = new Error('Hạn nộp hồ sơ không được chọn ngày đã qua.');
-      err.statusCode = 400;
-      err.isOperational = true;
-      throw err;
+      throw new AppError('Hạn nộp hồ sơ không được chọn ngày đã qua.', 400);
     }
   }
 
-  normalizeJobData(jobData = {}) {
-    const normalizedType = JOB_TYPE_MAP[jobData.type] || jobData.type;
-    const experienceRequired = jobData.experience_required || jobData.experience_level || null;
-
-    return {
+  normalizeJobData(jobData = {}, isUpdate = false) {
+    const data = {
       title: jobData.title,
       description: jobData.description,
-      requirements: jobData.requirements || null,
-      benefits: jobData.benefits || null,
-      salary_min: jobData.salary_min ?? null,
-      salary_max: jobData.salary_max ?? null,
-      category_id: jobData.category_id ?? null,
-      location: jobData.location || null,
-      type: normalizedType || null,
-      status: jobData.status || 'draft',
-      deadline: jobData.deadline || null,
-      education_required: jobData.education_required || 'any',
-      experience_required: experienceRequired,
-      job_embedding: jobData.job_embedding ?? null,
+      requirements: jobData.requirements,
+      benefits: jobData.benefits,
+      salary_min: jobData.salary_min,
+      salary_max: jobData.salary_max,
+      salary_display: jobData.salary_display,
+      salary_negotiable: jobData.salary_negotiable,
+      vacancies: jobData.vacancies,
+      category_id: jobData.category_id,
+      location: jobData.location,
+      address: jobData.address,
+      job_type: normalizeJobType(jobData.job_type || jobData.type),
+      status: jobData.status,
+      education_required: jobData.education_required,
+      deadline: jobData.deadline,
+      job_embedding: jobData.job_embedding,
+    };
+
+    if (isUpdate) {
+      const definedData = Object.fromEntries(
+        Object.entries(data).filter(([key, _value]) => {
+          if (key === 'job_type' && hasOwn(jobData, 'type')) {
+            return true;
+          }
+          return hasOwn(jobData, key);
+        })
+      );
+
+      if (hasOwn(definedData, 'salary_min')) {
+        definedData.salary_min = normalizeOptionalNumber(definedData.salary_min);
+      }
+      if (hasOwn(definedData, 'salary_max')) {
+        definedData.salary_max = normalizeOptionalNumber(definedData.salary_max);
+      }
+      if (hasOwn(definedData, 'salary_negotiable')) {
+        definedData.salary_negotiable = normalizeBooleanFlag(definedData.salary_negotiable);
+      }
+      if (hasOwn(definedData, 'vacancies')) {
+        definedData.vacancies = normalizeVacancies(definedData.vacancies);
+      }
+      if (hasOwn(definedData, 'job_type')) {
+        definedData.job_type = normalizeJobType(definedData.job_type);
+      }
+
+      return definedData;
+    }
+
+    return {
+      ...data,
+      requirements: data.requirements || null,
+      benefits: data.benefits || null,
+      salary_min: normalizeOptionalNumber(data.salary_min),
+      salary_max: normalizeOptionalNumber(data.salary_max),
+      salary_negotiable: normalizeBooleanFlag(data.salary_negotiable),
+      vacancies: normalizeVacancies(data.vacancies),
+      category_id: data.category_id ?? null,
+      location: data.location || null,
+      address: data.address || null,
+      status: data.status || 'draft',
+      deadline: data.deadline || null,
+      education_required: data.education_required || 'any',
+      job_embedding: data.job_embedding ?? null,
     };
   }
 
-  async enforcePublishRules(employerId, jobData = {}) {
+  async enforcePublishRules(companyId, recruiterId, jobData = {}) {
     if (jobData.status !== 'published') {
       return jobData;
     }
@@ -59,12 +161,9 @@ class JobService {
       return jobData;
     }
 
-    const employer = await EmployerRepository.findById(employerId);
-    if (!employer || !employer.is_verified) {
-      return {
-        ...jobData,
-        status: 'pending',
-      };
+    const company = await CompanyRepository.findById(companyId);
+    if (!company || !company.is_verified) {
+      return { ...jobData, status: 'pending_review' };
     }
 
     return jobData;
@@ -74,26 +173,20 @@ class JobService {
     return await JobRepository.findWithDetails(filters);
   }
 
-  /**
-   * @param {number} id
-   * @param {{ allowDeleted?: boolean }} [options] — employer/admin khi sửa/xóa cần allowDeleted: true
-   */
   async getJobById(id, options = {}) {
     const includeDeleted = options.allowDeleted === true;
     const job = await JobRepository.findByIdWithDetails(id, { includeDeleted });
     if (!job) {
-      const error = new Error('Job not found');
-      error.statusCode = 404;
-      throw error;
+      throw new AppError('Job not found', 404);
     }
     return job;
   }
 
-  async getJobsByEmployer(employerId) {
-    return await JobRepository.findByEmployer(employerId);
+  async getJobsByCompany(companyId) {
+    return await JobRepository.findByCompany(companyId);
   }
 
-  async createJob(employerId, jobData) {
+  async createJob(companyId, recruiterId, jobData) {
     let embedding = null;
     try {
       const aiModerationEnabled = await SystemSettingsRepository.getBoolean('ai_moderation', true);
@@ -107,33 +200,33 @@ class JobService {
       logger.warn(`Job embedding generation failed: ${err.message}`);
     }
 
-    const moderatedJobData = await this.enforcePublishRules(employerId, jobData);
+    const moderatedJobData = await this.enforcePublishRules(companyId, recruiterId, jobData);
     const normalizedJobData = this.normalizeJobData({
       ...moderatedJobData,
-      employer_id: employerId,
       job_embedding: embedding ? JSON.stringify(embedding) : null,
     });
     this.assertPublishDeadline(normalizedJobData.status, normalizedJobData.deadline);
 
     const jobId = await JobRepository.create({
       ...normalizedJobData,
-      employer_id: employerId,
+      company_id: companyId,
+      recruiter_id: recruiterId,
     });
 
     if (normalizedJobData.status === 'published') {
       this.triggerModeration(jobId);
     }
 
-    return jobId;
+    return { id: jobId, status: normalizedJobData.status };
   }
 
-  async updateJob(id, jobData) {
+  async updateJob(id, jobData, options = {}) {
     const currentJob = await this.getJobById(id, { allowDeleted: true });
+    const targetCompanyId = options.companyId ?? currentJob.company_id;
 
     if (jobData.title || jobData.description || jobData.requirements) {
       try {
         const textToEmbed = `${jobData.title || ''} ${jobData.description || ''} ${jobData.requirements || ''}`;
-
         if (textToEmbed.trim().length > 10) {
           const emb = await AIService.embedContent(
             textToEmbed.substring(0, MAX_EMBEDDING_INPUT_CHARS)
@@ -145,11 +238,11 @@ class JobService {
       }
     }
 
-    const moderatedJobData = await this.enforcePublishRules(currentJob.employer_id, jobData);
-    const normalizedJobData = this.normalizeJobData(moderatedJobData);
-    const definedJobData = Object.fromEntries(
-      Object.entries(normalizedJobData).filter(([, value]) => value !== undefined)
-    );
+    const moderatedJobData = await this.enforcePublishRules(targetCompanyId, options.recruiterId, jobData);
+    const definedJobData = this.normalizeJobData(moderatedJobData, true);
+    if (options.companyId != null && options.companyId !== currentJob.company_id) {
+      definedJobData.company_id = options.companyId;
+    }
 
     const nextStatus = Object.prototype.hasOwnProperty.call(definedJobData, 'status')
       ? definedJobData.status
@@ -165,7 +258,7 @@ class JobService {
       this.triggerModeration(id);
     }
 
-    return updated;
+    return { updated, status: nextStatus };
   }
 
   async triggerModeration(jobId) {

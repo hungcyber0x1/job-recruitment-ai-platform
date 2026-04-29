@@ -5,11 +5,35 @@
 /** Lưu trước khi redirect OAuth; OAuthCallback đọc để quay lại đúng trang. */
 export const OAUTH_POST_LOGIN_REDIRECT_KEY = 'oauth_post_login_redirect';
 
+export function normalizeAuthRole(role) {
+  const normalizedRole = String(role ?? '').trim().toLowerCase();
+  return normalizedRole === 'employer' ? 'recruiter' : normalizedRole;
+}
+
 /** URL dashboard mặc định theo role sau đăng nhập. */
 export function getDashboardPath(role) {
-  if (role === 'admin') return '/admin/dashboard';
-  if (role === 'employer') return '/employer/dashboard';
-  if (role === 'candidate') return '/candidate/dashboard';
+  const normalizedRole = normalizeAuthRole(role);
+  if (normalizedRole === 'admin') return '/admin/dashboard';
+  if (normalizedRole === 'recruiter') return '/employer/dashboard';
+  if (normalizedRole === 'candidate') return '/candidate/dashboard';
+  return '/';
+}
+
+/** URL hồ sơ mặc định theo role. */
+export function getProfilePath(role) {
+  const normalizedRole = normalizeAuthRole(role);
+  if (normalizedRole === 'admin') return '/admin/profile';
+  if (normalizedRole === 'recruiter') return '/employer/profile';
+  if (normalizedRole === 'candidate') return '/candidate/profile';
+  return '/';
+}
+
+/** URL cài đặt mặc định theo role. */
+export function getSettingsPath(role) {
+  const normalizedRole = normalizeAuthRole(role);
+  if (normalizedRole === 'admin') return '/admin/settings';
+  if (normalizedRole === 'recruiter') return '/employer/settings';
+  if (normalizedRole === 'candidate') return '/candidate/settings';
   return '/';
 }
 
@@ -18,10 +42,11 @@ export function getDashboardPath(role) {
  * Trả true nếu path là public hoặc khớp role hiện tại.
  */
 export function isPathAllowedForRole(role, pathname) {
+  const normalizedRole = normalizeAuthRole(role);
   if (!pathname || pathname === '/') return true;
-  if (pathname.startsWith('/admin')) return role === 'admin';
-  if (pathname.startsWith('/employer')) return role === 'employer';
-  if (pathname.startsWith('/candidate')) return role === 'candidate';
+  if (pathname.startsWith('/admin')) return normalizedRole === 'admin';
+  if (pathname.startsWith('/employer')) return normalizedRole === 'recruiter';
+  if (pathname.startsWith('/candidate')) return normalizedRole === 'candidate';
   return true;
 }
 

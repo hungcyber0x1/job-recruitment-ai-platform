@@ -45,8 +45,8 @@ ClockIcon.defaultProps = {
 
 const defaultSuggestions = [
   { icon: <Briefcase size={16} />, text: 'Gợi ý việc làm React tại Hà Nội', key: 's1' },
-  { icon: <FileText size={16} />, text: 'Cách viết CV cho Senior Frontend', key: 's2' },
-  { icon: <Zap size={16} />, text: 'Dự báo lương IT 2026', key: 's3' },
+  { icon: <FileText size={16} />, text: 'Cách viết CV cho lập trình viên giao diện cấp cao', key: 's2' },
+  { icon: <Zap size={16} />, text: 'Dự báo lương ngành IT năm 2026', key: 's3' },
 ];
 
 const ChatPage = () => {
@@ -87,28 +87,28 @@ const ChatPage = () => {
   const suggestionItems =
     suggestedQuestions?.length > 0
       ? suggestedQuestions.slice(0, 3).map((q, index) => {
-          const text = typeof q === 'string' ? q : (q?.content ?? q?.title ?? String(q));
-          return {
-            icon: defaultSuggestions[index]?.icon || <Sparkles size={16} />,
-            text,
-            key: typeof q === 'object' && q?.title ? q.title : text || index,
-          };
-        })
+        const text = typeof q === 'string' ? q : (q?.content ?? q?.title ?? String(q));
+        return {
+          icon: defaultSuggestions[index]?.icon || <Sparkles size={16} />,
+          text,
+          key: typeof q === 'object' && q?.title ? q.title : text || index,
+        };
+      })
       : defaultSuggestions;
 
   if (!chatbotEnabled) {
     return (
       <div className="mx-auto flex min-h-[50vh] max-w-3xl items-center justify-center px-6 py-16">
-        <div className="w-full rounded-3xl border border-primary-200 bg-primary-50 p-10 text-center shadow-sm">
+        <div className="w-full rounded-xl border border-primary-200 bg-primary-50 p-10 text-center shadow-sm">
           <Sparkles className="mx-auto mb-4 text-primary-500" size={36} />
-          <h1 className="text-3xl font-black text-slate-900">AI chatbot tạm thời đang tắt</h1>
+          <h1 className="text-3xl font-bold text-slate-900">AI chatbot tạm thời đang tắt</h1>
           <p className="mt-3 text-base font-medium text-slate-600">
             Admin đã tạm tắt chatbot. Bạn vẫn có thể dùng các tính năng khác và quay lại sau.
           </p>
           <div className="mt-6">
             <Link
               to="/jobs"
-              className="inline-flex items-center rounded-2xl bg-primary-600 px-5 py-3 text-sm font-bold text-white hover:bg-primary-700"
+              className="inline-flex items-center rounded-xl bg-primary-600 px-5 py-3 text-sm font-bold text-white hover:bg-primary-700"
             >
               Khám phá việc làm
             </Link>
@@ -123,7 +123,7 @@ const ChatPage = () => {
       <div className="flex h-[calc(100vh-80px)] items-stretch bg-white">
         <aside className="hidden w-80 flex-col border-r border-slate-200 bg-slate-50 lg:flex">
           <div className="p-6">
-            <h2 className="text-xl font-black text-slate-900">Hội thoại AI</h2>
+            <h2 className="text-xl font-bold text-slate-900">Hội thoại AI</h2>
             <p className="mb-6 mt-2 text-base font-medium leading-relaxed text-slate-500">
               Lịch sử được lưu theo tài khoản để bạn xem lại.
             </p>
@@ -140,13 +140,13 @@ const ChatPage = () => {
               />
             </div>
 
-            <div className="mb-4 flex items-center justify-between rounded-2xl bg-primary/10 p-4 text-sm font-bold text-primary">
+            <div className="mb-4 flex items-center justify-between rounded-xl bg-primary/10 p-4 text-sm font-bold text-primary">
               <div className="flex items-center gap-3">
                 <MessageCircle size={18} />
                 Hội thoại hiện tại
               </div>
               <Badge variant="primary" className="text-sm">
-                LIVE
+                ĐANG MỞ
               </Badge>
             </div>
 
@@ -156,18 +156,17 @@ const ChatPage = () => {
                   <button
                     key={conversation.id}
                     onClick={() => switchConversation(conversation.id)}
-                    className={`flex w-full items-center gap-3 rounded-2xl p-4 text-left text-sm font-medium transition-colors ${
-                      activeConversation === conversation.id
+                    className={`flex w-full items-center gap-3 rounded-xl p-4 text-left text-sm font-medium transition-colors ${activeConversation === conversation.id
                         ? 'bg-slate-100 text-slate-900'
                         : 'text-slate-500 hover:bg-muted/35'
-                    }`}
+                      }`}
                   >
                     <ClockIcon size={16} />
                     <span className="line-clamp-1">{conversation.title || 'Hội thoại mới'}</span>
                   </button>
                 ))
               ) : (
-                <div className="rounded-2xl border border-dashed border-slate-200 p-4 text-sm text-slate-400">
+                <div className="rounded-xl border border-dashed border-slate-200 p-4 text-sm text-slate-400">
                   Chưa có lịch sử hội thoại.
                 </div>
               )}
@@ -175,17 +174,17 @@ const ChatPage = () => {
           </div>
 
           <div className="mt-auto border-t border-slate-50 p-6">
-            <div className="relative overflow-hidden rounded-3xl bg-primary p-6 text-white">
+            <div className="relative overflow-hidden rounded-xl bg-primary p-6 text-white">
               <Sparkles size={60} className="absolute -bottom-4 -right-4 opacity-10" />
-              <p className="mb-4 text-base font-bold">HireAI Assistant</p>
+              <p className="mb-4 text-base font-bold">Trợ lý HireBOT</p>
               <p className="mb-6 text-base text-white/80">
-                Chat thông qua gateway để đồng bộ auth, lịch sử và feature flags.
+                Trò chuyện qua cổng kết nối để đồng bộ xác thực, lịch sử và cờ tính năng.
               </p>
               <Button
                 variant="secondary"
-                className="w-full border-none bg-white py-2 text-sm font-black text-primary"
+                className="w-full border-none bg-white py-2 text-sm font-bold text-primary"
               >
-                Đang kết nối gateway
+                Đang kết nối cổng hệ thống
               </Button>
             </div>
           </div>
@@ -197,15 +196,15 @@ const ChatPage = () => {
               <Link to="/" className="rounded-xl p-2 hover:bg-muted/35 lg:hidden">
                 <ArrowLeft size={20} />
               </Link>
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-white shadow-lg shadow-primary/20">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/20">
                 <Sparkles size={24} />
               </div>
               <div>
-                <h3 className="leading-tight text-slate-900 font-black">HireAI Smart Assistant</h3>
+                <h3 className="leading-tight text-slate-900 font-bold">Trợ lý thông minh HireBOT</h3>
                 <div className="flex items-center gap-2">
                   <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-500" />
-                  <span className="text-sm font-black uppercase tracking-widest text-slate-400">
-                    Gateway synced chat
+                  <span className="text-sm font-bold uppercase tracking-normal text-slate-400">
+                    Trò chuyện đã đồng bộ
                   </span>
                 </div>
                 <p className="mt-1.5 max-w-md text-base text-slate-500 lg:hidden">
@@ -229,7 +228,7 @@ const ChatPage = () => {
                 <div className="mx-auto mb-8 flex h-20 w-20 animate-bounce items-center justify-center rounded-[32px] bg-white text-primary shadow-2xl shadow-primary/10">
                   <Sparkles size={40} />
                 </div>
-                <h1 className="mb-4 text-3xl font-black text-slate-900">
+                <h1 className="mb-4 text-3xl font-bold text-slate-900">
                   Xin chào, mình có thể giúp gì cho bạn?
                 </h1>
                 <p className="mb-12 font-medium text-slate-500">
@@ -266,11 +265,10 @@ const ChatPage = () => {
                   </div>
                 )}
                 <div
-                  className={`max-w-[min(100%,42rem)] rounded-[28px] shadow-sm md:text-base ${
-                    message.isAi
+                  className={`max-w-[min(100%,42rem)] rounded-[28px] shadow-sm md:text-base ${message.isAi
                       ? 'rounded-tl-none border border-slate-100 bg-white p-6 text-slate-700'
                       : 'rounded-tr-none bg-primary p-6 text-sm font-medium leading-relaxed text-white'
-                  }`}
+                    }`}
                 >
                   {message.isAi ? <AiMessageMarkdown text={message.text} /> : message.text}
                 </div>
@@ -322,7 +320,7 @@ const ChatPage = () => {
                 </button>
               </div>
             </form>
-            <p className="mt-4 text-center text-base font-bold uppercase tracking-[0.2em] text-slate-400">
+            <p className="mt-4 text-center text-base font-bold uppercase tracking-normal text-slate-400">
               AI có thể đưa ra câu trả lời không chính xác. Hãy kiểm tra lại thông tin quan trọng.
             </p>
           </div>

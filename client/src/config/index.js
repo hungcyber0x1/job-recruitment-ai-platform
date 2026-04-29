@@ -74,10 +74,31 @@ export function resolveBrowserApiUrl(resourcePath) {
   const path = resolved.startsWith('/') ? resolved : `/${String(resolved).replace(/^\/+/, '')}`;
   return new URL(path, window.location.origin).href;
 }
+
+function normalizeApiOrigin(raw, fallback = 'http://127.0.0.1:5005') {
+  const value = String(raw || '').trim();
+  if (!value) return fallback;
+  if (!value.startsWith('http://') && !value.startsWith('https://')) return fallback;
+  return value.replace(/\/api\/?$/, '').replace(/\/+$/, '');
+}
+
 export const API_ORIGIN =
   import.meta.env.VITE_API_ORIGIN ||
   (typeof window === 'undefined'
-    ? 'http://localhost:5000'
+    ? normalizeApiOrigin(import.meta.env.VITE_DEV_PROXY_TARGET)
     : API_BASE_URL.startsWith('http')
       ? API_BASE_URL.replace(/\/api\/?$/, '')
-      : window.location.origin);
+      : import.meta.env.DEV
+        ? normalizeApiOrigin(import.meta.env.VITE_DEV_PROXY_TARGET)
+        : window.location.origin);
+
+export const SOCKET_ORIGIN =
+  import.meta.env.VITE_SOCKET_ORIGIN ||
+  (typeof window !== 'undefined' && import.meta.env.DEV && !API_BASE_URL.startsWith('http')
+    ? window.location.origin
+    : API_ORIGIN);
+
+// Navigation configurations
+export { ADMIN_NAV_GROUPS, flattenNavItems, findNavItem, getAdminBadgeCount } from './adminNavigation.js';
+export { CANDIDATE_NAV_GROUPS, flattenCandidateNavItems, findCandidateNavItem, getNavItemBadgeCount, CANDIDATE_COMMAND_ITEMS } from './candidateNavigation.js';
+export { EMPLOYER_NAV_GROUPS, flattenEmployerNavItems, findEmployerNavItem, getEmployerBadgeCount } from './employerNavigation.js';

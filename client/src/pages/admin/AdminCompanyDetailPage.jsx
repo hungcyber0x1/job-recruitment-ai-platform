@@ -1,282 +1,462 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+  AlertTriangle,
+  ArrowLeft,
+  BadgeCheck,
+  Ban,
   Briefcase,
   Building2,
-  ChevronLeft,
-  Globe,
+  CheckCircle,
+  Clock,
+  ExternalLink,
+  Flag,
   Mail,
   MapPin,
-  ShieldCheck,
+  Phone,
+  ShieldAlert,
   Users,
+  XCircle,
 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 
-import AdminLayout from '../../layouts/AdminLayout';
-import Card from '../../components/common/Card';
 import adminService from '../../services/adminService';
+import { useNotification } from '../../context/NotificationContext';
 import { formatDate } from '../../utils/formatters';
+import { normalizeCompanyEntity } from '../../utils/domain';
+import { cn } from '../../utils';
+import { Button } from '../../components/ui/button';
+import { Badge } from '../../components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../../components/ui/dialog';
+import { Textarea } from '../../components/ui/textarea';
+
+const STATUS_META = {
+  pending: {
+    label: 'Chờ xác minh',
+    color: 'amber',
+    bg: 'bg-amber-50',
+    border: 'border-amber-200',
+    text: 'text-amber-700',
+    icon: Clock,
+    summary: 'Doanh nghiệp mới đăng ký, cần kiểm tra tính pháp lý của hồ sơ.',
+  },
+  verified: {
+    label: 'Đã xác minh',
+    color: 'emerald',
+    bg: 'bg-emerald-50',
+    border: 'border-emerald-200',
+    text: 'text-emerald-700',
+    icon: CheckCircle,
+    summary: 'Hồ sơ doanh nghiệp hợp lệ, có quyền đăng tuyển và tìm kiếm ứng viên.',
+  },
+  rejected: {
+    label: 'Đã từ chối',
+    color: 'red',
+    bg: 'bg-red-50',
+    border: 'border-red-200',
+    text: 'text-red-700',
+    icon: XCircle,
+    summary: 'Hồ sơ bị từ chối do thông tin không minh bạch hoặc vi phạm chính sách.',
+  },
+  banned: {
+    label: 'Đã khóa',
+    color: 'rose',
+    bg: 'bg-rose-50',
+    border: 'border-rose-200',
+    text: 'text-rose-700',
+    icon: Ban,
+    summary: 'Tài khoản doanh nghiệp đã bị khóa do vi phạm hoặc quyết định moderation.',
+  },
+};
+
+const InfoCard = ({ icon: Icon, label, value }) => (
+  <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="flex items-start gap-3">
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
+        <Icon size={18} />
+      </div>
+      <div className="min-w-0">
+        <p className="text-xs font-bold uppercase tracking-normal text-slate-400">{label}</p>
+        <p className="mt-2 break-words text-base font-semibold text-slate-900">{value}</p>
+      </div>
+    </div>
+  </div>
+);
 
 const AdminCompanyDetailPage = () => {
   const { id } = useParams();
+  const { showNotification } = useNotification();
   const [company, setCompany] = useState(null);
   const [loading, setLoading] = useState(true);
-  const companyModules = [
-    {
-      title: 'Trust signal doanh nghiệp',
-      description:
-        'Tổng hợp xác minh, quy mô, website và thông tin chủ tài khoản để admin đánh giá độ tin cậy.',
-    },
-    {
-      title: 'Ảnh hưởng nền tảng',
-      description:
-        'Theo dõi job count và application count để biết mức độ ảnh hưởng của doanh nghiệp trên hệ thống.',
-    },
-    {
-      title: 'Moderation mở rộng',
-      description:
-        'Sẵn sàng mở rộng thêm lịch sử duyệt, cảnh báo và support issue cho từng company.',
-    },
-  ];
+  const [saving, setSaving] = useState(false);
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
+
+  const fetchCompany = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await adminService.getCompany(id);
+      const raw = response.data?.data;
+
+      if (!raw || typeof raw !== 'object') {
+        setCompany(null);
+        return;
+      }
+
+      const normalized = normalizeCompanyEntity(raw);
+      const status =
+        raw.status === 'banned'
+          ? 'banned'
+          : raw.flagged
+            ? 'flagged'
+            : raw.is_verified
+              ? 'verified'
+              : 'pending';
+
+      setCompany({
+        ...normalized,
+        id: String(raw.id ?? ''),
+        email: String(raw.email ?? ''),
+        first_name: String(raw.first_name ?? ''),
+        last_name: String(raw.last_name ?? ''),
+        phone: String(raw.phone ?? raw.user_phone ?? ''),
+        tax_code: String(raw.tax_code ?? ''),
+        moderation_note: String(raw.moderation_note ?? ''),
+        is_verified: Boolean(raw.is_verified),
+        flagged: Boolean(raw.flagged),
+        job_count: Number(raw.job_count ?? 0),
+        application_count: Number(raw.application_count ?? 0),
+        created_at: raw.created_at ?? null,
+        updated_at: raw.updated_at ?? null,
+        deleted_at: raw.deleted_at ?? null,
+        status,
+      });
+    } catch (error) {
+      console.error('Failed to fetch admin company detail', error);
+      setCompany(null);
+      showNotification('Không thể tải thông tin doanh nghiệp.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [id, showNotification]);
 
   useEffect(() => {
-    let isActive = true;
-
-    const fetchCompany = async () => {
-      try {
-        const response = await adminService.getCompany(id);
-        if (isActive && response.data?.success) {
-          const rawCompany = response.data.data;
-          if (rawCompany && typeof rawCompany === 'object') {
-            setCompany({
-              id: rawCompany.id ?? 0,
-              company_name: String(rawCompany.company_name ?? ''),
-              company_logo: String(rawCompany.company_logo ?? ''),
-              company_website: String(rawCompany.company_website ?? ''),
-              company_description: String(rawCompany.company_description ?? ''),
-              location: String(rawCompany.location ?? ''),
-              city: String(rawCompany.city ?? ''),
-              industry: String(rawCompany.industry ?? ''),
-              category_name: String(rawCompany.category_name ?? ''),
-              company_size: String(rawCompany.company_size ?? ''),
-              is_verified: Boolean(rawCompany.is_verified ?? false),
-              flagged: Boolean(rawCompany.flagged ?? false),
-              job_count: Number(rawCompany.job_count ?? 0),
-              created_at: rawCompany.created_at ?? new Date().toISOString(),
-            });
-          }
-        }
-      } catch (error) {
-        console.error('Failed to fetch admin company detail', error);
-      } finally {
-        if (isActive) {
-          setLoading(false);
-        }
-      }
-    };
-
     fetchCompany();
+  }, [fetchCompany]);
 
-    return () => {
-      isActive = false;
-    };
-  }, [id]);
+  const moderationStatus = useMemo(() => {
+    if (!company) return STATUS_META.pending;
+    return STATUS_META[company.status] || STATUS_META.pending;
+  }, [company]);
+
+  const ownerName = [company?.first_name, company?.last_name].filter(Boolean).join(' ') || 'Chưa cập nhật';
+
+  const runModerationAction = useCallback(
+    async (action) => {
+      if (!company) return;
+
+      try {
+        setSaving(true);
+        await action();
+        await fetchCompany();
+      } catch (error) {
+        console.error('Company moderation action failed', error);
+        showNotification(error.response?.data?.message || 'Không thể cập nhật moderation.', 'error');
+      } finally {
+        setSaving(false);
+      }
+    },
+    [company, fetchCompany, showNotification]
+  );
+
+  const handleVerify = () =>
+    runModerationAction(async () => {
+      await adminService.verifyCompany(company.id, true, rejectReason.trim() || null);
+      setRejectDialogOpen(false);
+      setRejectReason('');
+      showNotification('Đã xác minh doanh nghiệp thành công.', 'success');
+    });
+
+  const handleReject = () =>
+    runModerationAction(async () => {
+      await adminService.verifyCompany(company.id, false, rejectReason.trim() || null);
+      setRejectDialogOpen(false);
+      setRejectReason('');
+      showNotification('Đã chuyển doanh nghiệp về trạng thái chờ xem xét.', 'success');
+    });
+
+  const handleFlagToggle = () =>
+    runModerationAction(async () => {
+      await adminService.flagCompany(
+        company.id,
+        !company.flagged,
+        company.flagged ? null : 'Cần admin xem xét thêm'
+      );
+      showNotification(
+        company.flagged ? 'Đã gỡ cờ cảnh báo doanh nghiệp.' : 'Đã gắn cờ cảnh báo doanh nghiệp.',
+        'success'
+      );
+    });
+
+  const handleBan = async () => {
+    if (!company) return;
+    if (!window.confirm('Khóa doanh nghiệp này và tất cả tin tuyển dụng liên quan?')) {
+      return;
+    }
+
+    await runModerationAction(async () => {
+      await adminService.banCompany(company.id);
+      showNotification('Đã khóa doanh nghiệp.', 'success');
+    });
+  };
 
   if (loading) {
     return (
-      <AdminLayout>
-        <div className="p-10 text-center font-medium text-muted-foreground">
-          Đang tải dữ liệu...
-        </div>
-      </AdminLayout>
+      <div className="flex h-[60vh] items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-emerald-500" />
+      </div>
     );
   }
 
   if (!company) {
     return (
-      <AdminLayout>
-        <div className="p-10 text-center font-medium text-muted-foreground">
-          Không tìm thấy công ty.
+      <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-10 text-center shadow-sm">
+        <Building2 className="mx-auto text-slate-300" size={42} />
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Không tìm thấy doanh nghiệp</h1>
+          <p className="mt-2 text-base text-slate-500">
+            Bản ghi này có thể đã bị xóa hoặc không tồn tại.
+          </p>
         </div>
-      </AdminLayout>
+        <div>
+          <Link
+            to="/admin/companies"
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+          >
+            <ArrowLeft size={16} />
+            Quay lại danh sách
+          </Link>
+        </div>
+      </div>
     );
   }
 
+  const StatusIcon = moderationStatus.icon;
+
   return (
-    <AdminLayout>
-      <div className="mx-auto max-w-6xl space-y-6">
-        <div className="grid gap-4 xl:grid-cols-3">
-          {companyModules.map((module) => (
-            <div
-              key={module.title}
-              className="rounded-3xl border border-border bg-card p-6 shadow-sm"
-            >
-              <p className="text-base font-black uppercase tracking-[0.22em] text-muted-foreground">
-                Company governance
-              </p>
-              <h2 className="mt-3 text-xl font-black text-foreground">{module.title}</h2>
-              <p className="mt-2 text-base leading-6 text-muted-foreground">{module.description}</p>
-            </div>
-          ))}
+    <div className="mx-auto max-w-6xl space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <Link
+            to="/admin/companies"
+            className="inline-flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-50"
+          >
+            <ArrowLeft size={18} />
+          </Link>
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-normal text-slate-400">
+              Company moderation
+            </p>
+            <h1 className="text-3xl font-bold tracking-normal text-slate-900">
+              {company.company_name || 'Chưa cập nhật'}
+            </h1>
+          </div>
         </div>
 
-        <Link
-          to="/admin/companies"
-          className="flex items-center gap-2 font-bold text-muted-foreground transition-colors hover:text-secondary"
-        >
-          <ChevronLeft size={20} /> Quay lại danh sách
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          {!company.is_verified && (
+            <Button
+              type="button"
+              disabled={saving}
+              onClick={handleVerify}
+              className="bg-emerald-600 text-white hover:bg-emerald-700"
+            >
+              Xác minh
+            </Button>
+          )}
+          <Button
+            type="button"
+            disabled={saving}
+            variant="outline"
+            onClick={() => setRejectDialogOpen(true)}
+          >
+            Từ chối / ghi chú
+          </Button>
+          <Button type="button" disabled={saving} variant="outline" onClick={handleFlagToggle}>
+            {company.flagged ? 'Gỡ cờ cảnh báo' : 'Gắn cờ cảnh báo'}
+          </Button>
+          <Button
+            type="button"
+            disabled={saving || company.status === 'banned'}
+            variant="destructive"
+            onClick={handleBan}
+          >
+            Khóa doanh nghiệp
+          </Button>
+        </div>
+      </div>
 
-        <Card className="p-8">
-          <div className="flex flex-wrap items-start justify-between gap-6">
-            <div className="flex items-start gap-5">
-              <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-muted">
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-100 px-6 py-6 sm:px-8">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div className="flex min-w-0 items-start gap-4">
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
                 {company.company_logo ? (
                   <img
                     src={company.company_logo}
-                    alt={company.company_name}
-                    className="h-full w-full rounded-2xl object-cover"
+                    alt={company.company_name || 'Company logo'}
+                    className="h-full w-full object-cover"
                   />
                 ) : (
-                  <Building2 className="text-muted-foreground" size={32} />
+                  <Building2 size={32} className="text-slate-300" />
                 )}
               </div>
-              <div>
-                <h1 className="text-3xl font-black text-foreground">{company.company_name}</h1>
-                <div className="mt-3 flex flex-wrap gap-4 text-base font-semibold text-muted-foreground">
-                  <span className="flex items-center gap-1.5">
-                    <MapPin size={16} /> {company.location || 'Không rõ'}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <Mail size={16} /> {company.email || 'Không rõ'}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <ShieldCheck size={16} />{' '}
-                    {company.is_verified ? 'Đã xác minh' : 'Chưa xác minh'}
-                  </span>
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-3">
+                  <Badge className={cn('gap-2 rounded-full px-3 py-1', moderationStatus.badgeClass)}>
+                    <StatusIcon size={14} />
+                    {moderationStatus.label}
+                  </Badge>
+                  {company.flagged ? (
+                    <Badge className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-amber-700">
+                      Đang bị cảnh báo
+                    </Badge>
+                  ) : null}
                 </div>
+                <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
+                  {moderationStatus.summary}
+                </p>
               </div>
             </div>
 
-            <div className="grid min-w-[260px] grid-cols-2 gap-3">
-              <div className="rounded-2xl border border-border bg-muted p-4">
-                <p className="text-base font-bold uppercase tracking-wide text-muted-foreground">
-                  Việc làm
-                </p>
-                <p className="mt-2 text-2xl font-black text-foreground">{company.job_count || 0}</p>
-              </div>
-              <div className="rounded-2xl border border-border bg-muted p-4">
-                <p className="text-base font-bold uppercase tracking-wide text-muted-foreground">
-                  Ứng tuyển
-                </p>
-                <p className="mt-2 text-2xl font-black text-foreground">
-                  {company.application_count || 0}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-border bg-muted p-4">
-                <p className="text-base font-bold uppercase tracking-wide text-muted-foreground">
-                  Lĩnh vực
-                </p>
-                <p className="mt-2 text-xl font-black text-foreground">
-                  {company.industry || 'Không rõ'}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-border bg-muted p-4">
-                <p className="text-base font-bold uppercase tracking-wide text-muted-foreground">
-                  Tạo lúc
-                </p>
-                <p className="mt-2 text-xl font-black text-foreground">
-                  {formatDate(company.created_at)}
-                </p>
-              </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:w-[320px]">
+              <InfoCard icon={Briefcase} label="Tin đăng" value={String(company.job_count)} />
+              <InfoCard
+                icon={Users}
+                label="Ứng tuyển"
+                value={String(company.application_count)}
+              />
             </div>
           </div>
-        </Card>
+        </div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <Card className="space-y-4 p-6 lg:col-span-2">
-            <div>
-              <h2 className="text-lg font-black text-foreground">Mô tả công ty</h2>
-              <p className="mt-3 whitespace-pre-line text-base leading-7 text-muted-foreground">
-                {company.company_description || 'Chưa có mô tả.'}
-              </p>
-            </div>
+        <div className="grid gap-4 px-6 py-6 sm:grid-cols-2 lg:grid-cols-3 sm:px-8">
+          <InfoCard icon={Users} label="Người đại diện" value={ownerName} />
+          <InfoCard icon={Mail} label="Email" value={company.email || 'Chưa cập nhật'} />
+          <InfoCard icon={Phone} label="Số điện thoại" value={company.phone || 'Chưa cập nhật'} />
+          <InfoCard icon={MapPin} label="Địa điểm" value={company.location || 'Chưa cập nhật'} />
+          <InfoCard
+            icon={Building2}
+            label="Lĩnh vực / quy mô"
+            value={[company.industry, company.company_size].filter(Boolean).join(' / ') || 'Chưa cập nhật'}
+          />
+          <InfoCard
+            icon={AlertTriangle}
+            label="Ngày tạo"
+            value={company.created_at ? formatDate(company.created_at) : 'Chưa cập nhật'}
+          />
+        </div>
+      </section>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="rounded-2xl border border-border bg-muted p-4">
-                <p className="text-base font-bold uppercase tracking-wide text-muted-foreground">
-                  Website
-                </p>
-                <p className="mt-2 break-all text-base font-semibold text-foreground">
-                  {company.company_website || 'Không rõ'}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-border bg-muted p-4">
-                <p className="text-base font-bold uppercase tracking-wide text-muted-foreground">
-                  Quy mô công ty
-                </p>
-                <p className="mt-2 text-base font-semibold text-foreground">
-                  {company.company_size || 'Không rõ'}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-border bg-muted p-4">
-                <p className="text-base font-bold uppercase tracking-wide text-muted-foreground">
-                  Chủ tài khoản
-                </p>
-                <p className="mt-2 text-base font-semibold text-foreground">
-                  {[company.first_name, company.last_name].filter(Boolean).join(' ') || 'Không rõ'}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-border bg-muted p-4">
-                <p className="text-base font-bold uppercase tracking-wide text-muted-foreground">
-                  Số điện thoại
-                </p>
-                <p className="mt-2 text-base font-semibold text-foreground">
-                  {company.phone || company.user_phone || 'Không rõ'}
-                </p>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="space-y-4 p-6">
-            <h2 className="text-lg font-black text-foreground">Liên kết nhanh</h2>
-            <Link
-              to={`/admin/jobs?search=${encodeURIComponent(company.company_name || '')}`}
-              className="flex items-center gap-3 rounded-2xl border border-border bg-muted p-4 transition-colors hover:bg-card"
-            >
-              <Briefcase className="text-secondary" size={18} />
-              <div>
-                <p className="font-bold text-foreground">Xem việc làm</p>
-                <p className="text-base text-muted-foreground">Tất cả tin của công ty này</p>
-              </div>
-            </Link>
-            <Link
-              to={`/admin/applications?search=${encodeURIComponent(company.company_name || '')}`}
-              className="flex items-center gap-3 rounded-2xl border border-border bg-muted p-4 transition-colors hover:bg-card"
-            >
-              <Users className="text-secondary" size={18} />
-              <div>
-                <p className="font-bold text-foreground">Xem ứng tuyển</p>
-                <p className="text-base text-muted-foreground">Hồ sơ ứng tuyển liên quan</p>
-              </div>
-            </Link>
+      <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
+        <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-xl font-bold text-slate-900">Thông tin doanh nghiệp</h2>
             {company.company_website ? (
               <a
                 href={company.company_website}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-3 rounded-2xl border border-border bg-muted p-4 transition-colors hover:bg-card"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-600 hover:text-emerald-700"
               >
-                <Globe className="text-secondary" size={18} />
-                <div>
-                  <p className="font-bold text-foreground">Mở website</p>
-                  <p className="text-base text-muted-foreground">Truy cập website công ty</p>
-                </div>
+                Mở website
+                <ExternalLink size={14} />
               </a>
             ) : null}
-          </Card>
-        </div>
+          </div>
+
+          <div className="mt-6 space-y-5">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-normal text-slate-400">
+                Mô tả công ty
+              </p>
+              <p className="mt-3 whitespace-pre-wrap text-base leading-7 text-slate-600">
+                {company.company_description || 'Doanh nghiệp chưa cập nhật mô tả.'}
+              </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <InfoCard
+                icon={Building2}
+                label="Ma so thue"
+                value={company.tax_code || 'Chua cap nhat'}
+              />
+              <InfoCard
+                icon={ExternalLink}
+                label="Website"
+                value={company.company_website || 'Chua cap nhat'}
+              />
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-slate-900">Ghi chu moderation</h2>
+          <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <p className="text-sm font-semibold uppercase tracking-normal text-slate-400">
+              Noi bo
+            </p>
+            <p className="mt-3 whitespace-pre-wrap text-base leading-7 text-slate-600">
+              {company.moderation_note || 'Chua co ghi chu moderation.'}
+            </p>
+          </div>
+        </section>
       </div>
-    </AdminLayout>
+
+      <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cap nhat moderation note</DialogTitle>
+            <DialogDescription>
+              Co the ghi ly do tu choi, yeu cau bo sung ho so, hoac de trong va dua ve trang thai
+              cho xem xet.
+            </DialogDescription>
+          </DialogHeader>
+
+          <Textarea
+            rows={5}
+            value={rejectReason}
+            onChange={(event) => setRejectReason(event.target.value)}
+            placeholder="Nhap ghi chu moderation..."
+          />
+
+          <DialogFooter className="gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setRejectDialogOpen(false);
+                setRejectReason('');
+              }}
+            >
+              Huy
+            </Button>
+            <Button type="button" variant="outline" disabled={saving} onClick={handleReject}>
+              Luu note va dua ve cho xem xet
+            </Button>
+            <Button type="button" disabled={saving} onClick={handleVerify}>
+              Xac minh va luu note
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 };
 

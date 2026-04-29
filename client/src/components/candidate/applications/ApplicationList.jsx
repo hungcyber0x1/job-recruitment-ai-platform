@@ -1,44 +1,25 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Briefcase, CheckCircle, ChevronRight, Clock, XCircle } from 'lucide-react';
+import { Briefcase, ChevronRight } from 'lucide-react';
 
-import { getStatusLabel } from '../../../constants/status';
+import { getAppStatusConfig } from '../../../constants/status';
 import Card from '../../common/Card';
+import StatusBadge from '../../common/StatusBadge';
 
-const getStatusConfig = (status) => {
-  switch (status) {
-    case 'hired':
-    case 'offered':
-      return {
-        sideClass: 'bg-state-success',
-        badgeClass: 'bg-state-success/10 text-state-success',
-        icon: <CheckCircle size={16} />,
-      };
-    case 'rejected':
-      return {
-        sideClass: 'bg-state-danger',
-        badgeClass: 'bg-state-danger/10 text-state-danger',
-        icon: <XCircle size={16} />,
-      };
-    default:
-      return {
-        sideClass: 'bg-state-warning',
-        badgeClass: 'bg-state-warning/10 text-state-warning',
-        icon: <Clock size={16} />,
-      };
-  }
-};
-
+/**
+ * ApplicationList - hiển thị danh sách đơn ứng tuyển của candidate
+ * Dùng centralized constants từ ../../../constants/status.js
+ */
 const ApplicationList = ({ applications = [] }) => {
   return (
     <div className="space-y-6">
       {applications.map((application) => {
-        const config = getStatusConfig(application.status);
+        const cfg = getAppStatusConfig(application.status);
 
         return (
           <Card key={application.id} hover className="group overflow-hidden p-0">
             <div className="flex items-stretch">
-              <div className={`w-2 ${config.sideClass}`} />
+              <div className={`w-2 ${cfg.bg}`} />
 
               <div className="flex flex-grow items-center justify-between p-6">
                 <div className="flex items-center gap-6">
@@ -50,28 +31,23 @@ const ApplicationList = ({ applications = [] }) => {
                         className="h-8 w-8 object-contain"
                       />
                     ) : (
-                      <Briefcase size={20} className="text-txt-light" />
+                      <Briefcase size={20} className="text-muted-foreground" />
                     )}
                   </div>
 
                   <div>
-                    <h4 className="font-bold text-foreground transition-colors group-hover:text-secondary">
+                    <h4 className="text-lg font-semibold text-gray-900 transition-colors group-hover:text-primary">
                       {application.job_title}
                     </h4>
-                    <p className="mt-1 text-base font-medium text-txt-muted">
+                    <p className="mt-1 text-sm text-gray-500">
                       {application.company_name} • {application.location || 'Đang cập nhật'}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-6">
-                  <div
-                    className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-black uppercase ${config.badgeClass}`}
-                  >
-                    {config.icon}
-                    {getStatusLabel(application.status)}
-                  </div>
-                  <ChevronRight size={20} className="text-txt-light" />
+                  <StatusBadge entityType="application" status={application.status} />
+                  <ChevronRight size={20} className="text-muted-foreground" />
                 </div>
               </div>
             </div>

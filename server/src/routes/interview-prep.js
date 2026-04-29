@@ -8,6 +8,11 @@ const router = express.Router();
 router.use(authenticate);
 router.use(isCandidate);
 
+router.get('/notes', InterviewPrepController.getNotes.bind(InterviewPrepController));
+router.post('/notes', InterviewPrepController.createNote.bind(InterviewPrepController));
+router.put('/notes/:noteId', InterviewPrepController.updateNote.bind(InterviewPrepController));
+router.delete('/notes/:noteId', InterviewPrepController.deleteNote.bind(InterviewPrepController));
+
 /**
  * @route   POST /api/candidates/interview/start
  * @desc    Start a new AI interview session

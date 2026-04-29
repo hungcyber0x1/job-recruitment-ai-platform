@@ -67,7 +67,7 @@ const AICVScanner = () => {
   };
 
   return (
-    <div className="landing-card bg-background p-8 lg:p-10 flex flex-col min-h-[480px] rounded-2xl group/scanner card-premium-hover">
+    <div className="landing-card bg-background p-8 lg:p-10 flex flex-col min-h-[480px] rounded-xl group/scanner card-premium-hover">
       <div className="flex items-center gap-4 mb-8">
         <div className="h-12 w-12 rounded-xl bg-primary/8 text-primary border border-primary/12 flex items-center justify-center group-hover/scanner:bg-primary group-hover/scanner:text-white group-hover/scanner:border-primary transition-all duration-300">
           <ScanSearch size={22} strokeWidth={1.8} aria-hidden="true" />
@@ -184,7 +184,7 @@ const AICVScanner = () => {
             ) : (
               <div className="w-full space-y-6 relative z-10">
                 <div className="space-y-2">
-                  <p className="text-6xl font-extrabold text-foreground tracking-tight tabular-nums leading-none">
+                  <p className="text-6xl font-extrabold text-foreground tracking-normal tabular-nums leading-none">
                     85<span className="text-xl text-primary/50 font-bold">/100</span>
                   </p>
                   <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary/8 text-primary border border-primary/12 rounded-lg">
@@ -195,7 +195,7 @@ const AICVScanner = () => {
 
                 <div className="space-y-2">
                   <div className="p-3 bg-background rounded-lg border border-border/30 text-left">
-                    <p className="text-base font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+                    <p className="text-base font-semibold text-muted-foreground uppercase tracking-normal mb-1">
                       Điểm mạnh
                     </p>
                     <p className="text-base font-medium text-muted-foreground flex items-center gap-2">
@@ -204,7 +204,7 @@ const AICVScanner = () => {
                     </p>
                   </div>
                   <div className="p-3 bg-background rounded-lg border border-border/30 text-left">
-                    <p className="text-base font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+                    <p className="text-base font-semibold text-muted-foreground uppercase tracking-normal mb-1">
                       Cần bổ sung
                     </p>
                     <p className="text-base font-medium text-primary flex items-center gap-2">

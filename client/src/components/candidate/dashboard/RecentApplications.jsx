@@ -1,4 +1,4 @@
-﻿import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +11,7 @@ const RecentApplications = ({ applications = [] }) => {
     <div className="space-y-4">
       <div className="mb-2 flex items-center gap-2">
         <div className="h-8 w-2 bg-accent" />
-        <h2 className="text-xl font-black uppercase tracking-tight">Recent applications</h2>
+        <h2 className="text-xl font-bold uppercase tracking-normal">Recent applications</h2>
       </div>
 
       {applications.length === 0 ? (
@@ -50,11 +50,11 @@ const RecentApplications = ({ applications = [] }) => {
                   <div className="flex shrink-0 flex-col items-end gap-2 text-right">
                     <Badge
                       variant="outline"
-                      className="border-border uppercase tracking-wider text-txt-muted shadow-sm"
+                      className="border-border uppercase tracking-normal text-txt-muted shadow-sm"
                     >
                       {getStatusLabel(app.status)}
                     </Badge>
-                    <p className="text-base font-semibold uppercase tracking-widest text-muted-foreground">
+                    <p className="text-base font-semibold uppercase tracking-normal text-muted-foreground">
                       {formatDate(app.applied_at)}
                     </p>
                   </div>

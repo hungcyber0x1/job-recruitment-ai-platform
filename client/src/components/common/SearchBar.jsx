@@ -4,7 +4,7 @@ import { Search, MapPin, X } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import Button from './Button';
 
-const QUICK_SEARCHES = ['React Developer', 'UI/UX Designer', 'Data Analyst', 'Product Manager'];
+const QUICK_SEARCHES = ['Lập trình viên React', 'Nhà thiết kế UI/UX', 'Chuyên viên phân tích dữ liệu', 'Quản lý sản phẩm'];
 
 const SearchBar = ({ onSearch, className }) => {
   const [query, setQuery] = useState('');
@@ -26,7 +26,7 @@ const SearchBar = ({ onSearch, className }) => {
       <form
         onSubmit={handleSearch}
         className={cn(
-          'flex flex-col md:flex-row items-stretch bg-paper rounded-2xl md:rounded-full border transition-all duration-300',
+          'flex flex-col md:flex-row items-stretch bg-paper rounded-xl md:rounded-full border transition-all duration-300',
           isFocused
             ? 'border-primary shadow-glow ring-4 ring-primary/10'
             : 'border-secondary shadow-premium hover:border-primary/30'
@@ -95,7 +95,7 @@ const SearchBar = ({ onSearch, className }) => {
           <Button
             type="submit"
             variant="primary"
-            className="w-full md:w-auto h-full !rounded-2xl md:!rounded-full px-10 flex items-center justify-center gap-2 shadow-glow"
+            className="w-full md:w-auto h-full !rounded-xl md:!rounded-full px-10 flex items-center justify-center gap-2 shadow-glow"
           >
             <Search size={18} />
             <span className="text-base">Tìm kiếm</span>
@@ -105,7 +105,7 @@ const SearchBar = ({ onSearch, className }) => {
 
       {/* Quick search tags */}
       <div className="flex flex-wrap items-center gap-3 px-4">
-        <span className="text-sm text-txt-muted font-bold tracking-tight uppercase">
+        <span className="text-sm text-txt-muted font-bold tracking-normal uppercase">
           Tìm nhanh:
         </span>
         {QUICK_SEARCHES.map((term) => (

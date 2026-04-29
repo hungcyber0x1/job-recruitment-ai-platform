@@ -21,6 +21,12 @@ import { useAuth } from '../context/AuthContext';
 import applicationService from '../services/applicationService';
 import { cn } from '@/utils';
 import {
+  getDashboardPath,
+  getProfilePath,
+  getSettingsPath,
+  normalizeAuthRole,
+} from '../utils/rolePaths';
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -87,6 +93,7 @@ const ModernHeader = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const normalizedRole = normalizeAuthRole(user?.role);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -97,7 +104,7 @@ const ModernHeader = () => {
   }, []);
 
   useEffect(() => {
-    if (!isAuthenticated || user?.role !== 'candidate') return;
+    if (!isAuthenticated || normalizedRole !== 'candidate') return;
     const fetchNotifications = async () => {
       try {
         setNotificationsLoading(true);
@@ -120,21 +127,23 @@ const ModernHeader = () => {
       }
     };
     fetchNotifications();
-  }, [isAuthenticated, user?.role]);
+  }, [isAuthenticated, normalizedRole]);
 
   const handleLogout = async () => {
     await logout();
     navigate('/');
   };
 
-  const dashboardPath = user?.role ? `/${user.role}/dashboard` : '/';
+  const dashboardPath = getDashboardPath(user?.role);
+  const profilePath = getProfilePath(user?.role);
+  const settingsPath = getSettingsPath(user?.role);
 
   const rawAvatar = user?.avatar_url || user?.company_logo;
   const avatarSrc = resolveMediaUrl(rawAvatar) || undefined;
   const displayName =
     [user?.first_name, user?.last_name].filter(Boolean).join(' ').trim() ||
     String(user?.full_name || user?.name || '').trim() ||
-    (user?.role === 'employer' ? String(user?.company_name || '').trim() : '') ||
+    (normalizedRole === 'recruiter' ? String(user?.company_name || '').trim() : '') ||
     user?.email ||
     '';
 
@@ -248,7 +257,7 @@ const ModernHeader = () => {
                     </div>
                     <Link
                       to={
-                        user?.role === 'employer'
+                        normalizedRole === 'recruiter'
                           ? '/employer/messages'
                           : '/candidate/notifications'
                       }
@@ -271,9 +280,9 @@ const ModernHeader = () => {
                           <Link
                             key={n.id ?? `notif-${i}`}
                             to={
-                              user?.role === 'candidate' && n.applicationId
+                              normalizedRole === 'candidate' && n.applicationId
                                 ? `/candidate/applications?applicationId=${n.applicationId}`
-                                : user?.role === 'employer'
+                                : normalizedRole === 'recruiter'
                                   ? '/employer/messages'
                                   : '/candidate/notifications'
                             }
@@ -366,7 +375,7 @@ const ModernHeader = () => {
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link
-                      to={user?.role ? `/${user.role}/profile` : '/'}
+                      to={profilePath}
                       className="flex items-center gap-3 py-3 rounded-xl cursor-pointer"
                     >
                       <User size={18} className="text-muted-foreground" />
@@ -375,7 +384,7 @@ const ModernHeader = () => {
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link
-                      to={user?.role ? `/${user.role}/settings` : '/'}
+                      to={settingsPath}
                       className="flex items-center gap-3 py-3 rounded-xl cursor-pointer"
                     >
                       <Settings size={18} className="text-muted-foreground" />

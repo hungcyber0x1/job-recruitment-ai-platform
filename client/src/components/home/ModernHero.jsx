@@ -223,7 +223,7 @@ const ModernHero = () => {
               className="mb-8 inline-flex items-center rounded-full border border-neutral-200/90 bg-white px-5 py-3.5 shadow-sm sm:px-7 sm:py-4 lg:mx-0 mx-auto"
             >
               <span
-                className="text-base font-bold uppercase tracking-widest"
+                className="text-base font-bold uppercase tracking-normal"
                 style={{ color: HERO_BRAND }}
               >
                 • Tuyển dụng thông minh với AI
@@ -234,7 +234,7 @@ const ModernHero = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.05 }}
-              className="mb-9 text-balance text-4xl font-black leading-[1.08] tracking-tight sm:text-5xl md:text-5xl lg:text-6xl xl:text-[4.2rem]"
+              className="mb-9 text-balance text-4xl font-bold leading-[1.08] tracking-normal sm:text-5xl md:text-5xl lg:text-6xl xl:text-[4.2rem]"
             >
               <span className="block" style={{ color: HERO_TEXT }}>
                 Để AI tìm kiếm công việc mơ ước cho bạn
@@ -250,7 +250,7 @@ const ModernHero = () => {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="mx-auto mb-12 max-w-2xl text-lg font-medium leading-relaxed text-neutral-600 md:text-xl lg:mx-0 xl:max-w-[36rem]"
             >
-              AI phân tích kỹ năng trong CV của bạn và đối chiếu với yêu cầu thực tế từ nhà tuyển
+              Hệ thống phân tích kỹ năng trong CV của bạn và đối chiếu với yêu cầu thực tế từ nhà tuyển
               dụng — gợi ý đúng vị trí, đúng thời điểm.
             </motion.p>
 
@@ -304,7 +304,7 @@ const ModernHero = () => {
               {/* Chatbot Image with true transparency expected */}
               <img
                 src={chatbotImg}
-                alt="AI Recruitment Assistant"
+                alt="Recruitment Assistant"
                 className="w-[90%] md:w-[100%] h-auto object-contain drop-shadow-[0_20px_40px_rgba(16,185,129,0.4)] relative z-10 transition-transform duration-700 hover:scale-105"
                 onError={(e) => {
                   e.target.onerror = null;
@@ -313,18 +313,6 @@ const ModernHero = () => {
                     'https://cdn3d.iconscout.com/3d/premium/thumb/robot-4993689-4161115.png';
                 }}
               />
-              {/* Floating Status Badge attached to Chatbot */}
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 0.5 }}
-                className="absolute bottom-0 translate-y-1/2 z-20"
-              >
-                <div className="px-5 py-2 rounded-full bg-white/95 backdrop-blur-md shadow-[0_8px_15px_rgba(0,0,0,0.04)] text-slate-800 text-sm font-bold tracking-tight flex items-center gap-2 border border-emerald-100/80">
-                  <span className="relative inline-flex rounded-full size-[9px] bg-[#00a685]"></span>
-                  <span className="pt-0.5">AI Recruiter Online</span>
-                </div>
-              </motion.div>
             </motion.div>
 
             {/* Lưới + điểm sáng: z-25, dưới thẻ job z-30 */}

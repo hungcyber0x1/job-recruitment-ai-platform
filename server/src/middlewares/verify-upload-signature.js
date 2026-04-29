@@ -78,6 +78,7 @@ function detectFileKind(buf) {
 /** fieldname multer → các kind được chấp nhận */
 const FIELD_RULES = {
   resume: ['pdf', 'zip', 'ole'],
+  message_attachment: ['pdf', 'zip', 'ole'],
   avatar: ['jpeg', 'png', 'gif', 'webp'],
   logo: ['jpeg', 'png', 'gif', 'webp'],
   project_image: ['jpeg', 'png', 'gif', 'webp'],
@@ -105,9 +106,9 @@ async function verifyUploadSignature(req, res, next) {
 
     const kind = detectFileKind(head);
     if (!kind || !allowed.includes(kind)) {
-      await fh.close().catch(() => {});
+      await fh.close().catch(() => { });
       fh = null;
-      await fs.unlink(req.file.path).catch(() => {});
+      await fs.unlink(req.file.path).catch(() => { });
       return res.status(400).json({
         success: false,
         message: 'Nội dung file không khớp định dạng cho phép',
@@ -118,9 +119,9 @@ async function verifyUploadSignature(req, res, next) {
     return next();
   } catch (err) {
     if (fh) {
-      await fh.close().catch(() => {});
+      await fh.close().catch(() => { });
     }
-    await fs.unlink(req.file.path).catch(() => {});
+    await fs.unlink(req.file.path).catch(() => { });
     return next(err);
   }
 }

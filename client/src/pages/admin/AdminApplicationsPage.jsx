@@ -1,42 +1,136 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-  FileText,
+  Briefcase,
   Calendar,
   CheckCircle,
-  XCircle,
-  Hourglass,
-  MoreVertical,
   Download,
+  Eye,
+  FileText,
+  Hourglass,
+  Loader2,
+  MoreVertical,
+  RotateCcw,
+  Search,
+  Sparkles,
+  Star,
+  User,
+  XCircle,
 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
-import adminService from '../../services/adminService';
-import AdminLayout from '../../layouts/AdminLayout';
+
+import AdminTable from '../../components/admin/AdminTable';
+import StatusBadge from '../../components/common/StatusBadge';
+import { Badge } from '../../components/ui/badge';
+import { Button } from '../../components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../../components/ui/dropdown-menu';
 import { useNotification } from '../../context/NotificationContext';
 import useDebounce from '../../hooks/useDebounce';
+import adminService from '../../services/adminService';
+import { APPLICATION_STATUS } from '../../constants';
+import { cn } from '../../utils';
 
-const STATUS_LABELS = {
-  pending: 'Đang chờ',
-  screening: 'Đang sàng lọc',
-  reviewed: 'Đã xem xét',
-  shortlisted: 'Shortlist',
-  interviewing: 'Phỏng vấn',
-  offered: 'Đã offer',
-  hired: 'Đã tuyển',
-  rejected: 'Từ chối',
-  withdrawn: 'Đã rút',
-};
+const PAGE_SIZE = 10;
 
-const STATUS_STYLE = {
-  pending: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
-  screening: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
-  reviewed: 'bg-slate-500/10 text-slate-600 border-slate-500/30',
-  shortlisted: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
-  interviewing: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
-  offered: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
-  hired: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
-  rejected: 'bg-red-500/10 text-red-400 border-red-500/30',
-  withdrawn: 'bg-slate-500/10 text-slate-500 border-slate-500/30',
-};
+const PIPELINE_STATUSES = [
+  { id: 'all', label: 'Tất cả', icon: FileText, accentClass: 'bg-slate-100 text-slate-600' },
+  { id: APPLICATION_STATUS.SUBMITTED, label: 'Đã nộp', icon: Hourglass, accentClass: 'bg-amber-100 text-amber-700' },
+  { id: APPLICATION_STATUS.SHORTLISTED, label: 'Rút gọn', icon: Star, accentClass: 'bg-amber-100 text-amber-700' },
+  {
+    id: APPLICATION_STATUS.INTERVIEW_SCHEDULED,
+    label: 'Lịch phỏng vấn',
+    icon: Calendar,
+    accentClass: 'bg-sky-100 text-sky-700',
+  },
+  {
+    id: APPLICATION_STATUS.INTERVIEWED,
+    label: 'Đã phỏng vấn',
+    icon: CheckCircle,
+    accentClass: 'bg-blue-100 text-blue-700',
+  },
+  {
+    id: APPLICATION_STATUS.OFFERED,
+    label: 'Kiến nghị',
+    icon: CheckCircle,
+    accentClass: 'bg-emerald-100 text-emerald-700',
+  },
+  {
+    id: APPLICATION_STATUS.HIRED,
+    label: 'Đã tuyển',
+    icon: User,
+    accentClass: 'bg-emerald-100 text-emerald-700',
+  },
+  { id: APPLICATION_STATUS.REJECTED, label: 'Từ chối', icon: XCircle, accentClass: 'bg-rose-100 text-rose-700' },
+  { id: APPLICATION_STATUS.WITHDRAWN, label: 'Đã rút', icon: XCircle, accentClass: 'bg-slate-100 text-slate-600' },
+];
+
+function SectionCard({ icon: Icon, title, description, action, className = '', children, ...props }) {
+  return (
+    <section
+      className={`rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition-all hover:border-emerald-200/70 hover:shadow-md sm:p-6 ${className}`}
+      {...props}
+    >
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex min-w-0 items-start gap-3">
+          {Icon ? (
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100">
+              <Icon className="h-4 w-4" />
+            </div>
+          ) : null}
+          <div className="min-w-0">
+            <h2 className="text-base font-bold tracking-normal text-slate-950">{title}</h2>
+            {description ? (
+              <p className="mt-1 text-sm leading-6 text-slate-500">{description}</p>
+            ) : null}
+          </div>
+        </div>
+        {action}
+      </div>
+      <div className="mt-6">{children}</div>
+    </section>
+  );
+}
+
+function formatNumber(value) {
+  return Number(value || 0).toLocaleString('vi-VN');
+}
+
+
+function getInitials(name = '') {
+  const normalizedName = String(name || '').trim();
+  if (!normalizedName) return 'UV';
+
+  const parts = normalizedName.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+  }
+
+  return normalizedName.slice(0, 2).toUpperCase();
+}
+
+function formatAppliedDate(value) {
+  if (!value) return 'Chưa có thời gian';
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Chưa có thời gian';
+
+  return new Intl.DateTimeFormat('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(date);
+}
+
+function getStatusLabel(status) {
+  return PIPELINE_STATUSES.find((item) => item.id === status)?.label || 'Không xác định';
+}
+
 
 const AdminApplicationsPage = () => {
   const { showNotification } = useNotification();
@@ -47,363 +141,554 @@ const AdminApplicationsPage = () => {
   const [inputValue, setInputValue] = useState(() => searchParams.get('search') || '');
   const debouncedSearch = useDebounce(inputValue, 500);
   const [statusFilter, setStatusFilter] = useState(() => searchParams.get('status') || 'all');
-  const [page, setPage] = useState(1);
-  const limit = 10;
+  const [page, setPage] = useState(() => Number(searchParams.get('page')) || 1);
+  const [paginationMeta, setPaginationMeta] = useState({ total: 0, pages: 1 });
+  const [serverStats, setServerStats] = useState({
+    total: 0,
+    [APPLICATION_STATUS.SUBMITTED]: 0,
+    [APPLICATION_STATUS.SHORTLISTED]: 0,
+    [APPLICATION_STATUS.INTERVIEW_SCHEDULED]: 0,
+    [APPLICATION_STATUS.INTERVIEWED]: 0,
+    [APPLICATION_STATUS.OFFERED]: 0,
+    [APPLICATION_STATUS.HIRED]: 0,
+    [APPLICATION_STATUS.REJECTED]: 0,
+    [APPLICATION_STATUS.WITHDRAWN]: 0,
+  });
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [updatingBulk, setUpdatingBulk] = useState(false);
 
   const fetchApplications = useCallback(async () => {
     try {
       setLoading(true);
+
       const params = {
-        search: debouncedSearch || undefined,
+        search: debouncedSearch.trim() || undefined,
         status: statusFilter !== 'all' ? statusFilter : undefined,
-        limit: 100,
+        page,
+        limit: PAGE_SIZE,
       };
+
       const response = await adminService.getApplications(params);
-      const rawData = response.data;
-      if (rawData?.success) {
-        const appsData = Array.isArray(rawData?.data) ? rawData.data : [];
-        const sanitized = appsData.map((a) => ({
-          id: a?.id ?? 0,
-          candidate_name: String(a?.candidate_name ?? ''),
-          candidate_email: String(a?.candidate_email ?? ''),
-          job_title: String(a?.job_title ?? ''),
-          company_name: String(a?.company_name ?? ''),
-          status: String(a?.status ?? ''),
-          user_id: a?.user_id ?? null,
-          job_id: a?.job_id ?? null,
-          employer_id: a?.employer_id ?? null,
-          ai_match_score: typeof a?.ai_match_score === 'number' ? a.ai_match_score : null,
-          match_score: typeof a?.match_score === 'number' ? a.match_score : null,
-          applied_at: a?.applied_at ?? a?.created_at ?? new Date().toISOString(),
-        }));
-        setApplications(sanitized);
+      const resData = response.data;
+
+      if (resData?.success) {
+        const appsData = Array.isArray(resData?.data) ? resData.data : [];
+
+        setApplications(
+          appsData.map((application) => ({
+            id: application?.id ?? 0,
+            candidate_name: String(application?.candidate_name ?? ''),
+            candidate_email: String(application?.candidate_email ?? ''),
+            job_title: String(application?.job_title ?? ''),
+            company_name: String(application?.company_name ?? ''),
+            status: String(application?.status ?? APPLICATION_STATUS.SUBMITTED),
+            user_id: application?.user_id ?? null,
+            job_id: application?.job_id ?? null,
+            employer_id: application?.employer_id ?? null,
+            applied_at: application?.applied_at ?? application?.created_at ?? null,
+          }))
+        );
+
+        if (resData.pagination) {
+          setPaginationMeta({
+            total: Number(resData.pagination.total) || 0,
+            pages: Number(resData.pagination.pages) || 1,
+          });
+        }
+
+        if (resData.stats) {
+          setServerStats({
+            total: resData.stats.total || 0,
+            [APPLICATION_STATUS.SUBMITTED]: resData.stats[APPLICATION_STATUS.SUBMITTED] || 0,
+            [APPLICATION_STATUS.SHORTLISTED]: resData.stats[APPLICATION_STATUS.SHORTLISTED] || 0,
+            [APPLICATION_STATUS.INTERVIEW_SCHEDULED]:
+              resData.stats[APPLICATION_STATUS.INTERVIEW_SCHEDULED] || 0,
+            [APPLICATION_STATUS.INTERVIEWED]: resData.stats[APPLICATION_STATUS.INTERVIEWED] || 0,
+            [APPLICATION_STATUS.OFFERED]: resData.stats[APPLICATION_STATUS.OFFERED] || 0,
+            [APPLICATION_STATUS.HIRED]: resData.stats[APPLICATION_STATUS.HIRED] || 0,
+            [APPLICATION_STATUS.REJECTED]: resData.stats[APPLICATION_STATUS.REJECTED] || 0,
+            [APPLICATION_STATUS.WITHDRAWN]: resData.stats[APPLICATION_STATUS.WITHDRAWN] || 0,
+          });
+        }
       }
     } catch (error) {
       console.error('Error fetching applications:', error);
+      showNotification('Không thể tải danh sách ứng tuyển.', 'error');
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch, statusFilter]);
+  }, [debouncedSearch, page, showNotification, statusFilter]);
 
   useEffect(() => {
     fetchApplications();
   }, [fetchApplications]);
 
   useEffect(() => {
-    const nextParams = new URLSearchParams();
-    if (debouncedSearch.trim()) nextParams.set('search', debouncedSearch.trim());
-    if (statusFilter !== 'all') nextParams.set('status', statusFilter);
-    if (page > 1) nextParams.set('page', String(page));
-    if (nextParams.toString() !== searchParams.toString()) {
-      setSearchParams(nextParams, { replace: true });
+    const nextParams = new URLSearchParams(searchParams);
+
+    if (debouncedSearch.trim()) {
+      nextParams.set('search', debouncedSearch.trim());
+    } else {
+      nextParams.delete('search');
     }
-  }, [debouncedSearch, statusFilter, page, searchParams, setSearchParams]);
-  const handleExportApplications = async () => {
+
+    if (statusFilter !== 'all') {
+      nextParams.set('status', statusFilter);
+    } else {
+      nextParams.delete('status');
+    }
+
+    if (page > 1) {
+      nextParams.set('page', String(page));
+    } else {
+      nextParams.delete('page');
+    }
+
+    setSearchParams(nextParams, { replace: true });
+  }, [debouncedSearch, page, searchParams, setSearchParams, statusFilter]);
+
+  const handleExport = async () => {
     try {
       setExporting(true);
-      const params = {
-        search: debouncedSearch || undefined,
+
+      const response = await adminService.exportApplications({
+        search: debouncedSearch.trim() || undefined,
         status: statusFilter !== 'all' ? statusFilter : undefined,
-      };
-      const response = await adminService.exportApplications(params);
-      const blob = response.data instanceof Blob ? response.data : new Blob([response.data]);
+      });
+
+      const blob = response.data;
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `applications-${Date.now()}.csv`);
+      link.download = `applications-${Date.now()}.csv`;
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-      showNotification('Đã xuất danh sách ứng tuyển thành công!', 'success');
+
+      showNotification('Đã xuất báo cáo ứng tuyển CSV.', 'success');
     } catch (error) {
-      console.error('Error exporting applications:', error);
-      showNotification('Không thể xuất danh sách ứng tuyển.', 'error');
+      console.error('Export error:', error);
+      showNotification('Lỗi xuất dữ liệu.', 'error');
     } finally {
       setExporting(false);
     }
   };
 
-  const totalCount = applications.length;
-  const displayedApplications = applications.slice((page - 1) * limit, page * limit);
-  const totalPages = Math.ceil(totalCount / limit) || 1;
-
-  const pendingCount = applications.filter((a) => a.status === 'pending').length;
-  const interviewCount = applications.filter((a) =>
-    ['shortlisted', 'interviewing', 'offered'].includes(a.status)
-  ).length;
-  const hiredCount = applications.filter((a) => a.status === 'hired').length;
-  const rejectedCount = applications.filter((a) => a.status === 'rejected').length;
-
-  const trafficTotal = totalCount || 0;
-  const trafficChange = '0%';
-
-  const kpiCards = [
-    { label: 'ĐANG CHỜ', value: pendingCount || 0, icon: Hourglass },
-    { label: 'PHỎNG VẤN', value: interviewCount || 0, icon: Calendar },
-    { label: 'ĐÃ TUYỂN', value: hiredCount || 0, icon: CheckCircle },
-    { label: 'TỪ CHỐI', value: rejectedCount || 0, icon: XCircle },
-  ];
-
-  const filterTabs = [
-    { id: 'all', label: 'Tất cả' },
-    { id: 'screening', label: 'Sàng lọc' },
-    { id: 'interviewing', label: 'Phỏng vấn' },
-    { id: 'hired', label: 'Đã tuyển' },
-    { id: 'rejected', label: 'Từ chối' },
-  ];
-
-  const getAiScore = (app) => {
-    if (app.ai_match_score != null) return Math.round(Number(app.ai_match_score) * 100);
-    if (app.match_score != null) return Math.round(Number(app.match_score) * 100);
-    return 0;
+  const handleStatusUpdate = async (id, status) => {
+    try {
+      await adminService.updateApplicationStatus(id, status);
+      showNotification(`Đã chuyển trạng thái đơn sang ${getStatusLabel(status)}.`, 'success');
+      fetchApplications();
+    } catch (error) {
+      showNotification('Lỗi cập nhật trạng thái.', 'error');
+    }
   };
 
-  const weekDays = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'CN'];
-  const trafficData = weekDays.map(() => 0);
+  const handleBulkStatusUpdate = async (status) => {
+    if (selectedIds.length === 0) return;
+
+    try {
+      setUpdatingBulk(true);
+      await adminService.bulkUpdateApplicationsStatus(selectedIds, status);
+      showNotification(
+        `Đã cập nhật ${selectedIds.length} đơn sang trạng thái ${getStatusLabel(status)}.`,
+        'success'
+      );
+      setSelectedIds([]);
+      fetchApplications();
+    } catch (error) {
+      showNotification('Lỗi khi cập nhật hàng loạt.', 'error');
+    } finally {
+      setUpdatingBulk(false);
+    }
+  };
+
+  const resetFilters = () => {
+    setInputValue('');
+    setStatusFilter('all');
+    setPage(1);
+    setSelectedIds([]);
+  };
+
+  const pageStart = paginationMeta.total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
+  const pageEnd = paginationMeta.total === 0 ? 0 : Math.min(page * PAGE_SIZE, paginationMeta.total);
+  const activeStatusLabel = getStatusLabel(statusFilter);
+  const selectedCount = selectedIds.length;
+
+  const summaryCards = [
+    {
+      label: 'Tổng đơn',
+      value: formatNumber(serverStats.total),
+      helper: 'Hồ sơ đang được theo dõi',
+      icon: FileText,
+      className: 'bg-slate-50 text-slate-700 ring-slate-100',
+    },
+    {
+      label: 'Đã nộp',
+      value: formatNumber(serverStats[APPLICATION_STATUS.SUBMITTED]),
+      helper: 'Nguồn đầu vào mới',
+      icon: Hourglass,
+      className: 'bg-amber-50 text-amber-700 ring-amber-100',
+    },
+    {
+      label: 'Lịch phỏng vấn',
+      value: formatNumber(serverStats[APPLICATION_STATUS.INTERVIEW_SCHEDULED]),
+      helper: 'Đang chờ xử lý',
+      icon: Calendar,
+      className: 'bg-sky-50 text-sky-700 ring-sky-100',
+    },
+    {
+      label: 'Đã tuyển',
+      value: formatNumber(serverStats[APPLICATION_STATUS.HIRED]),
+      helper: 'Kết quả đã chốt',
+      icon: CheckCircle,
+      className: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
+    },
+  ];
+
+  const bulkActions = (
+    <div className="flex flex-wrap items-center gap-2">
+      <Button
+        variant="outline"
+        size="sm"
+        className="h-9 rounded-xl border-slate-200 bg-white font-bold text-slate-700 hover:bg-slate-50"
+        onClick={() => handleBulkStatusUpdate(APPLICATION_STATUS.INTERVIEW_SCHEDULED)}
+        disabled={updatingBulk}
+      >
+        <Calendar size={14} className="mr-2 text-sky-500" />
+        Lên lịch phỏng vấn
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        className="h-9 rounded-xl border-red-200 bg-white font-bold text-red-600 hover:border-red-100 hover:bg-red-50"
+        onClick={() => handleBulkStatusUpdate(APPLICATION_STATUS.REJECTED)}
+        disabled={updatingBulk}
+      >
+        <XCircle size={14} className="mr-2" />
+        Từ chối
+      </Button>
+    </div>
+  );
+
+  const columns = [
+    {
+      header: 'Ứng viên',
+      width: '280px',
+      render: (application) => (
+        <div className="flex items-start gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 font-bold text-emerald-700 ring-1 ring-inset ring-emerald-100">
+            {getInitials(application.candidate_name)}
+          </div>
+          <div className="min-w-0">
+            <Link
+              to={`/admin/applications/${application.id}`}
+              className="block truncate text-sm font-bold text-slate-900 transition-colors hover:text-emerald-700"
+            >
+              {application.candidate_name || 'Ứng viên chưa cập nhật tên'}
+            </Link>
+            <p className="mt-1 truncate text-sm text-slate-500">{application.candidate_email}</p>
+            <p className="mt-2 text-xs font-medium text-slate-400">
+              Nộp hồ sơ: {formatAppliedDate(application.applied_at)}
+            </p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: 'Vị trí',
+      width: '250px',
+      render: (application) => (
+        <div className="min-w-0">
+          <p className="truncate text-sm font-bold text-slate-900">
+            {application.job_title || 'Tin tuyển dụng đã ẩn'}
+          </p>
+          <div className="mt-2 inline-flex max-w-full items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600">
+            <Briefcase className="h-3 w-3 shrink-0" />
+            <span className="truncate">{application.company_name || 'Chưa có công ty'}</span>
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: 'Pipeline',
+      width: '170px',
+      render: (application) => (
+        <div className="space-y-2">
+          <StatusBadge entityType="application" status={application.status} />
+          <p className="text-xs font-medium text-slate-400">{getStatusLabel(application.status)}</p>
+        </div>
+      ),
+    },
+    {
+      header: 'Quản lý',
+      width: '90px',
+      align: 'right',
+      render: (application) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-10 w-10 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+            >
+              <MoreVertical size={16} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="end"
+            className="w-56 rounded-xl border border-slate-200 p-2 shadow-lg"
+          >
+            <DropdownMenuLabel className="px-2 text-xs font-bold uppercase tracking-normal text-slate-400">
+              Thao tác
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild className="cursor-pointer rounded-lg">
+              <Link to={`/admin/applications/${application.id}`}>
+                <Eye className="mr-2 h-4 w-4 text-emerald-500" />
+                Xem chi tiết
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="cursor-pointer rounded-lg"
+              onClick={() =>
+                handleStatusUpdate(application.id, APPLICATION_STATUS.INTERVIEW_SCHEDULED)
+              }
+            >
+              <Calendar className="mr-2 h-4 w-4 text-sky-500" />
+              Lên lịch phỏng vấn
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="cursor-pointer rounded-lg text-red-600 focus:text-red-600"
+              onClick={() => handleStatusUpdate(application.id, APPLICATION_STATUS.REJECTED)}
+            >
+              <XCircle className="mr-2 h-4 w-4" />
+              Từ chối ứng viên
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
+  ];
 
   return (
-    <AdminLayout>
-      <div className="space-y-6 text-slate-900">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Quản lý Ứng tuyển</h1>
-          <p className="mt-1 text-base text-slate-500">
-            Theo dõi đơn ứng tuyển và pipeline tuyển dụng
-          </p>
-        </div>
+    <div className="min-h-screen bg-slate-50/40 pb-16 animate-fade-in">
+      <section className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-40"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px)',
+            backgroundSize: '32px 32px',
+          }}
+        />
 
-        {/* Card lưu lượng 7 ngày + 4 KPI */}
-        <div className="grid gap-4 lg:grid-cols-3">
-          <div className="lg:col-span-2 rounded-2xl border border-slate-200 bg-white p-6">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <h3 className="text-base font-semibold text-slate-500 uppercase tracking-wide">
-                  Lưu lượng ứng tuyển (7 ngày qua)
-                </h3>
-                <p className="mt-2 text-2xl font-bold text-slate-900">
-                  {trafficTotal.toLocaleString('vi-VN')}
-                  <span className="ml-2 text-base font-semibold text-emerald-400">
-                    {trafficChange}
-                  </span>
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={handleExportApplications}
-                disabled={exporting}
-                className="flex items-center gap-2 rounded-lg border border-emerald-500/50 bg-emerald-500/10 px-4 py-2 text-base font-semibold text-emerald-400 hover:bg-emerald-500/20 disabled:opacity-50"
-              >
-                <Download size={16} />
-                {exporting ? 'Đang xuất...' : 'Xuất báo cáo'}
-              </button>
+        <div className="relative mx-auto max-w-7xl px-4 pb-8 pt-10 sm:px-6 lg:px-8">
+          <div className="space-y-5">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge className="rounded-full border border-emerald-200 bg-white/80 px-3 py-1 font-bold text-emerald-700 shadow-sm">
+                <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+                Admin workspace
+              </Badge>
+              <Badge className="rounded-full border border-slate-200 bg-white/80 px-3 py-1 font-bold text-slate-600 shadow-sm">
+                Pipeline ứng tuyển
+              </Badge>
             </div>
-            <div className="mt-6 h-32 flex items-end gap-2">
-              {trafficData.map((val, i) => (
-                <div key={i} className="flex-1 flex flex-col items-center gap-1">
+
+            <div className="max-w-4xl">
+              <p className="text-sm font-semibold text-emerald-600">Application operations</p>
+              <h1 className="mt-3 text-3xl font-bold tracking-normal text-slate-950 sm:text-4xl lg:text-5xl">
+                Quản lý ứng tuyển
+              </h1>
+              <p className="mt-4 max-w-3xl text-sm font-medium leading-7 text-slate-600 sm:text-base">
+                Theo dõi pipeline ứng viên, AI insights và quyết định tuyển dụng trong cùng một
+                không gian vận hành rõ ràng, dễ quét và đồng nhất hơn với khu quản trị doanh
+                nghiệp.
+              </p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+              {summaryCards.map((card) => {
+                const Icon = card.icon;
+
+                return (
                   <div
-                    className="w-full rounded-t bg-emerald-500/60 hover:bg-emerald-500/80 transition-colors min-h-[4px]"
-                    style={{ height: `${(val / 200) * 100}%` }}
-                  />
-                  <span className="text-base font-medium text-slate-500">{weekDays[i]}</span>
-                </div>
-              ))}
+                    key={card.label}
+                    className="rounded-lg border border-white/80 bg-white/85 p-4 shadow-sm backdrop-blur"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-normal text-slate-500">
+                          {card.label}
+                        </p>
+                        <p className="mt-2 text-2xl font-bold tracking-normal text-slate-950">
+                          {card.value}
+                        </p>
+                        <p className="mt-2 text-sm text-slate-500">{card.helper}</p>
+                      </div>
+                      <div
+                        className={`flex h-10 w-10 items-center justify-center rounded-lg ring-1 ring-inset ${card.className}`}
+                      >
+                        <Icon className="h-4 w-4" />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            {kpiCards.map((card) => {
-              const Icon = card.icon;
-              return (
-                <div
-                  key={card.label}
-                  className="rounded-2xl border border-slate-200 bg-white p-4 flex flex-col items-center justify-center text-center"
-                >
-                  <Icon className="text-slate-500 mb-2" size={24} />
-                  <p className="text-base font-bold text-slate-500 uppercase tracking-wider">
-                    {card.label}
-                  </p>
-                  <p className="mt-1 text-2xl font-bold text-slate-900">{card.value}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
 
-        {/* Thanh lọc + tìm kiếm (debounce → API) */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-          <div className="flex flex-wrap items-center gap-2">
-            {filterTabs.map((tab) => (
-              <button
-                key={tab.id}
+            <div className="flex flex-wrap gap-3">
+              <Button
                 type="button"
-                onClick={() => setStatusFilter(tab.id)}
-                className={`px-4 py-2 rounded-lg text-base font-medium transition-colors ${
-                  statusFilter === tab.id
-                    ? 'bg-emerald-500 text-white'
-                    : 'border border-border text-muted-foreground transition-colors duration-200 ease-out hover:bg-muted/40 hover:text-foreground'
-                }`}
+                onClick={handleExport}
+                disabled={exporting}
+                variant="outline"
+                className="h-11 rounded-lg border-white/80 bg-white/80 px-5 font-bold shadow-sm hover:bg-white"
               >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-          <input
-            type="search"
-            placeholder="Tìm ứng viên, việc làm hoặc công ty…"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            className="w-full min-w-[220px] max-w-md rounded-lg border border-border bg-background px-3 py-2 text-base text-foreground placeholder:text-muted-foreground focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 sm:w-auto"
-          />
-        </div>
-
-        {/* Bảng ứng viên */}
-        <div className="data-table-shell">
-          {loading ? (
-            <div className="flex h-64 items-center justify-center">
-              <div className="h-10 w-10 animate-spin rounded-full border-2 border-slate-300 border-t-emerald-500" />
+                {exporting ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Download className="mr-2 h-4 w-4" />
+                )}
+                {exporting ? 'Đang xuất...' : 'Xuất Excel'}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={resetFilters}
+                className="h-11 rounded-lg border-white/80 bg-white/80 px-5 font-bold shadow-sm hover:bg-white"
+              >
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Làm sạch bộ lọc
+              </Button>
             </div>
-          ) : (
-            <>
-              <div className="data-table-scroll">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th className="px-6 py-4">Ứng viên</th>
-                      <th className="px-6 py-4">Vị trí</th>
-                      <th className="px-6 py-4">AI Match Score</th>
-                      <th className="px-6 py-4">Trạng thái</th>
-                      <th className="px-6 py-4 !text-center">Thao tác</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {displayedApplications.length === 0 ? (
-                      <tr>
-                        <td colSpan="5" className="px-6 py-16 text-center text-slate-500">
-                          <FileText className="mx-auto mb-2 text-slate-500" size={40} />
-                          Không tìm thấy đơn ứng tuyển
-                        </td>
-                      </tr>
-                    ) : (
-                      displayedApplications.map((app) => {
-                        const score = getAiScore(app);
-                        const barColor =
-                          score >= 70
-                            ? 'bg-emerald-500'
-                            : score >= 40
-                              ? 'bg-amber-500'
-                              : 'bg-red-500';
-                        const statusStyle = STATUS_STYLE[app.status] || STATUS_STYLE.pending;
-                        return (
-                          <tr key={app.id}>
-                            <td className="px-6 py-4">
-                              <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold shrink-0">
-                                  {(app.candidate_name || 'U').charAt(0).toUpperCase()}
-                                </div>
-                                <div>
-                                  <Link
-                                    to={
-                                      app.user_id ? `/admin/users/${app.user_id}` : '/admin/users'
-                                    }
-                                    className="font-semibold text-slate-900 hover:text-emerald-400"
-                                  >
-                                    {app.candidate_name || 'Ứng viên'}
-                                  </Link>
-                                  <p className="text-base text-slate-500 mt-0.5">
-                                    {app.candidate_email || '—'}
-                                  </p>
-                                </div>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4">
-                              <Link
-                                to={app.job_id ? `/admin/jobs/${app.job_id}` : '/admin/jobs'}
-                                className="font-medium text-slate-900 hover:text-emerald-400"
-                              >
-                                {app.job_title || '—'}
-                              </Link>
-                            </td>
-                            <td className="px-6 py-4">
-                              <div className="flex items-center gap-2">
-                                <div className="h-2 w-24 rounded-full bg-slate-100 overflow-hidden">
-                                  <div
-                                    className={`h-full rounded-full ${barColor}`}
-                                    style={{ width: `${score}%` }}
-                                  />
-                                </div>
-                                <span className="text-base font-semibold text-slate-900">
-                                  {score}%
-                                </span>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4">
-                              <span
-                                className={`inline-flex items-center rounded-lg border px-2.5 py-1 text-base font-semibold ${statusStyle}`}
-                              >
-                                {STATUS_LABELS[app.status] || app.status}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 text-center">
-                              <Link
-                                to={`/admin/applications/${app.id}`}
-                                className="inline-flex rounded-lg p-2 text-slate-500 hover:bg-muted/55 hover:text-foreground"
-                                aria-label="Chi tiết đơn"
-                              >
-                                <MoreVertical size={18} />
-                              </Link>
-                            </td>
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
+          </div>
+        </div>
+      </section>
+
+      <main className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+        <section className="space-y-6">
+          <SectionCard
+            icon={Search}
+            title="Bộ lọc pipeline"
+            description="Tìm ứng viên theo tên, email hoặc vị trí, sau đó thu hẹp nhanh theo từng chặng xử lý để đội tuyển dụng vào việc ngay."
+          >
+            <div className="space-y-4">
+              <div className="relative">
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Tìm ứng viên, email hoặc vị trí..."
+                  value={inputValue}
+                  onChange={(event) => {
+                    setInputValue(event.target.value);
+                    setPage(1);
+                  }}
+                  className="h-12 w-full rounded-lg border border-slate-200 bg-white pl-11 pr-4 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
+                />
               </div>
 
-              {totalCount > 0 && (
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border bg-muted/25 px-6 py-4">
-                  <p className="text-base text-slate-500 uppercase tracking-wide">
-                    Hiển thị {(page - 1) * limit + 1}-{Math.min(page * limit, totalCount)} trên{' '}
-                    {totalCount.toLocaleString('vi-VN')} ứng viên
-                  </p>
-                  <div className="flex items-center gap-1">
+              <div className="flex flex-wrap gap-2">
+                {PIPELINE_STATUSES.map((status) => {
+                  const Icon = status.icon;
+                  const isActive = statusFilter === status.id;
+                  const statKey = status.id === 'all' ? 'total' : status.id;
+                  const count = serverStats[statKey] ?? 0;
+
+                  return (
                     <button
+                      key={status.id}
                       type="button"
-                      onClick={() => setPage((p) => Math.max(1, p - 1))}
-                      disabled={page <= 1}
-                      className="p-2 rounded-lg border border-slate-200 text-slate-500 hover:bg-muted/55 disabled:opacity-40 disabled:cursor-not-allowed"
+                      onClick={() => {
+                        setStatusFilter(status.id);
+                        setPage(1);
+                      }}
+                      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-all ${
+                        isActive
+                          ? 'border-emerald-200 bg-emerald-50 text-emerald-700 shadow-sm'
+                          : 'border-slate-200 bg-white text-slate-600 hover:border-emerald-200 hover:text-emerald-700'
+                      }`}
                     >
-                      ←
-                    </button>
-                    {Array.from({ length: Math.min(3, totalPages) }, (_, i) => i + 1).map((p) => (
-                      <button
-                        key={p}
-                        type="button"
-                        onClick={() => setPage(p)}
-                        className={`min-w-[36px] h-9 rounded-lg text-base font-semibold ${
-                          page === p
-                            ? 'bg-emerald-500 text-white'
-                            : 'border border-slate-200 text-slate-500 hover:bg-muted/55 hover:text-foreground'
+                      <span
+                        className={`flex h-6 w-6 items-center justify-center rounded-full ${
+                          isActive ? 'bg-emerald-100 text-emerald-700' : status.accentClass
                         }`}
                       >
-                        {p}
-                      </button>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                      disabled={page >= totalPages}
-                      className="p-2 rounded-lg border border-slate-200 text-slate-500 hover:bg-muted/55 disabled:opacity-40"
-                    >
-                      →
+                        <Icon className="h-3.5 w-3.5" />
+                      </span>
+                      {status.label}
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs font-bold tabular-nums ${
+                          isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'
+                        }`}
+                      >
+                        {count}
+                      </span>
                     </button>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      </div>
-    </AdminLayout>
+                  );
+                })}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500">
+                <span>
+                  Từ khóa:{' '}
+                  <strong className="text-slate-700">
+                    {debouncedSearch.trim() || 'Tất cả ứng viên'}
+                  </strong>
+                </span>
+                <span>
+                  Pipeline: <strong className="text-slate-700">{activeStatusLabel}</strong>
+                </span>
+                <span>
+                  Đang hiển thị:{' '}
+                  <strong className="text-slate-700">
+                    {pageStart}-{pageEnd} / {formatNumber(paginationMeta.total)}
+                  </strong>
+                </span>
+                <span>
+                  Đã chọn: <strong className="text-slate-700">{formatNumber(selectedCount)}</strong>
+                </span>
+              </div>
+            </div>
+          </SectionCard>
+
+          <AdminTable
+            title="Danh sách ứng tuyển"
+            subtitle="Giữ nguyên thao tác cập nhật pipeline, xem chi tiết và xử lý hàng loạt, nhưng trình bày lại để bảng dễ quét và có thứ bậc rõ hơn."
+            actions={
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-semibold text-slate-600">
+                  {pageStart}-{pageEnd} / {formatNumber(paginationMeta.total)}
+                </Badge>
+                {statusFilter !== 'all' ? (
+                  <Badge className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 font-semibold text-emerald-700">
+                    {activeStatusLabel}
+                  </Badge>
+                ) : null}
+              </div>
+            }
+            columns={columns}
+            data={applications}
+            loading={loading}
+            pagination={{
+              currentPage: page,
+              totalPages: paginationMeta.pages,
+              totalItems: paginationMeta.total,
+              pageSize: PAGE_SIZE,
+              onPageChange: setPage,
+            }}
+            selectable={{
+              selectedIds,
+              onSelectChange: setSelectedIds,
+            }}
+            bulkActions={bulkActions}
+            emptyTitle="Không có hồ sơ phù hợp"
+            emptyDescription="Hãy điều chỉnh lại bộ lọc hoặc mở rộng từ khóa để xem thêm các đơn ứng tuyển."
+          />
+        </section>
+      </main>
+    </div>
   );
 };
 

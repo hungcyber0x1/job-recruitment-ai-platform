@@ -30,4 +30,13 @@ const connectDB = async () => {
   }
 };
 
-module.exports = { pool, connectDB };
+const closeDB = async () => {
+  try {
+    await pool.end();
+    logger.info('Database pool closed successfully');
+  } catch (error) {
+    logger.error('Error closing database pool:', error.message);
+  }
+};
+
+module.exports = { pool, connectDB, closeDB };

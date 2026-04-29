@@ -1,5 +1,5 @@
+import React from 'react';
 import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
 import logoImg from '@/assets/logo.png';
 
 const Logo = ({ className = 'h-12 w-auto', asLink = true }) => {
@@ -19,11 +19,6 @@ const Logo = ({ className = 'h-12 w-auto', asLink = true }) => {
   }
 
   return <div className="inline-flex items-center">{content}</div>;
-};
-
-Logo.propTypes = {
-  className: PropTypes.string,
-  asLink: PropTypes.bool,
 };
 
 export default Logo;

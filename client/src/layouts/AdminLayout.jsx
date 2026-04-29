@@ -1,9 +1,10 @@
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Bell, BookOpen, Home, LayoutDashboard, Search, HelpCircle } from 'lucide-react';
+import { Bell, BookOpen, LayoutDashboard, Search, HelpCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import NotificationDropdown from './NotificationDropdown';
+import { AccountHomeLink, Logo } from '@/components/common';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/utils';
 import { ADMIN_NAV_GROUPS } from '@/config/adminNavigation';
@@ -27,16 +28,21 @@ const SidebarContent = ({ items, user, onMobileClose }) => {
       <div className="border-b border-slate-800 bg-gradient-to-br from-primary/[0.12] via-primary/[0.05] to-transparent px-5 py-5">
         <Link
           to="/admin/dashboard"
-          className="group flex items-center gap-3"
+          className="group flex w-full flex-col items-center gap-3 text-center"
           onClick={() => onMobileClose?.()}
         >
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition-transform group-hover:scale-[1.03]">
-            <LayoutDashboard className="h-6 w-6" aria-hidden />
-          </div>
-          <span className="min-w-0 truncate text-lg font-black tracking-tight text-slate-50">
+          <Logo
+            asLink={false}
+            className="mx-auto h-10 w-auto max-w-[172px] object-center transition-transform duration-200 group-hover:scale-[1.02]"
+          />
+          <span className="hidden min-w-0 truncate text-lg font-black tracking-tight text-slate-50">
             Quản trị
             <span className="text-primary"> Hub</span>
           </span>
+          <div className="space-y-1 text-center">
+            <p className="text-base font-semibold text-slate-50">Quản trị hệ thống</p>
+            <p className="text-xs font-medium text-slate-400">Điều hành và giám sát nền tảng</p>
+          </div>
         </Link>
       </div>
 
@@ -180,7 +186,7 @@ const AdminLayout = ({ children }) => {
       <div className="flex-1 lg:pl-64 flex flex-col min-h-screen bg-background">
         {/* Top Header - Ô tìm kiếm + chuông + dấu hỏi */}
         <header className="sticky top-0 z-40 h-16 flex items-center justify-between px-6 lg:px-8 bg-background/95 backdrop-blur border-b border-border">
-          <div className="flex items-center gap-4 flex-1 max-w-xl">
+          <div className="flex min-w-0 flex-1 items-center gap-4">
             <button
               type="button"
               className="lg:hidden p-2 rounded-lg text-slate-500 hover:bg-primary/10 hover:text-emerald-600 transition-colors"
@@ -189,7 +195,7 @@ const AdminLayout = ({ children }) => {
             >
               <LayoutDashboard className="h-6 w-6" />
             </button>
-            <div className="relative flex-1">
+            <div className="relative max-w-xl flex-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <input
                 type="text"
@@ -201,14 +207,7 @@ const AdminLayout = ({ children }) => {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Link
-              to="/"
-              className="p-2.5 rounded-xl text-slate-500 hover:bg-primary/10 hover:text-emerald-600 transition-all hover:scale-105 active:scale-95"
-              aria-label="Xem trang chủ"
-              title="Xem trang chủ"
-            >
-              <Home className="h-5 w-5" />
-            </Link>
+            <AccountHomeLink />
             <Link
               to="/blog"
               className="p-2.5 rounded-xl text-slate-500 hover:bg-primary/10 hover:text-emerald-600 transition-all hover:scale-105 active:scale-95"

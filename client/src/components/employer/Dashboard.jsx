@@ -149,7 +149,7 @@ const EmployerDashboard = ({ stats, activeJobs }) => {
               <span className="font-black text-amber-600 underline cursor-pointer">
                 05 hồ sơ mới
               </span>{' '}
-              từ tin tuyển dụng Senior Java Developer. Hãy review ngay nhé!
+              từ tin tuyển dụng Lập trình viên Java cấp cao. Hãy xem xét ngay nhé!
             </p>
           </Card>
         </div>

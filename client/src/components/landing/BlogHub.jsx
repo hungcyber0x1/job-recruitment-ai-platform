@@ -5,16 +5,16 @@ import { Calendar, ArrowRight, BookOpen, TrendingUp, Lightbulb } from 'lucide-re
 
 const articles = [
   {
-    title: 'Xây dựng hồ sơ gây ấn tượng với nhà tuyển dụng bằng AI',
+    title: 'Xây dựng hồ sơ gây ấn tượng với nhà tuyển dụng',
     category: 'Kỹ năng',
     categoryIcon: Lightbulb,
     excerpt:
-      'Cách tận dụng AI để tối ưu CV, profile và tăng khả năng được mời phỏng vấn lên 3 lần.',
+      'Cách tận dụng công cụ tối ưu để cải thiện CV, hồ sơ cá nhân và tăng khả năng được mời phỏng vấn.',
     date: '15/03/2026',
     readTime: '5 phút đọc',
   },
   {
-    title: 'Xu hướng tuyển dụng ngành IT năm 2026: AI thay đổi mọi thứ',
+    title: 'Xu hướng tuyển dụng ngành IT năm 2026: Công nghệ thay đổi mọi thứ',
     category: 'Thị trường',
     categoryIcon: TrendingUp,
     excerpt:
@@ -23,11 +23,11 @@ const articles = [
     readTime: '8 phút đọc',
   },
   {
-    title: 'Lộ trình từ Junior lên Senior Developer: Hướng dẫn thực tế',
+    title: 'Lộ trình từ cấp cơ bản lên lập trình viên cấp cao: Hướng dẫn thực tế',
     category: 'Phát triển',
     categoryIcon: BookOpen,
     excerpt:
-      'Bản đồ chi tiết với timeline, kỹ năng cần học và mức lương kỳ vọng tại mỗi giai đoạn.',
+      'Bản đồ chi tiết với mốc thời gian, kỹ năng cần học và mức lương kỳ vọng tại mỗi giai đoạn.',
     date: '08/03/2026',
     readTime: '10 phút đọc',
   },
@@ -47,18 +47,17 @@ const BlogHub = () => {
           <div className="space-y-4">
             <span className="landing-badge">
               <BookOpen size={14} aria-hidden />
-              Knowledge Hub
+              Trung tâm kiến thức
             </span>
             <h2 className="landing-heading">
               Kiến thức <span className="landing-heading-muted">sự nghiệp</span>
             </h2>
             <p className="text-muted-foreground text-lg max-w-xl leading-relaxed font-medium">
-              Bài viết chuyên sâu từ chuyên gia và AI về xu hướng nghề nghiệp, kỹ năng và phát triển
-              bản thân
+              Bài viết chuyên sâu từ chuyên gia về xu hướng nghề nghiệp, kỹ năng và phát triển bản thân
             </p>
           </div>
           <Link
-            to="/blog"
+            to="/public/blog"
             className="inline-flex items-center gap-2 text-primary font-bold text-sm hover:text-primary/80 transition-colors group whitespace-nowrap landing-focus rounded-lg py-1"
           >
             Xem tất cả bài viết

@@ -50,7 +50,7 @@ const AIToolsDropdown = ({
           className
         )}
       >
-        <p className="px-3 py-1.5 text-base font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+        <p className="px-3 py-1.5 text-base font-bold uppercase tracking-normal text-slate-500 dark:text-slate-400">
           Công cụ cho ứng viên
         </p>
         {AI_TOOLS.map((tool) => {
@@ -66,7 +66,7 @@ const AIToolsDropdown = ({
                 'dark:border-slate-700/80 dark:bg-slate-950'
               )}
             >
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-primary ring-1 ring-primary/10 transition-colors group-hover:bg-emerald-100 dark:bg-primary/15 dark:ring-primary/20">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-primary ring-1 ring-primary/10 transition-colors group-hover:bg-emerald-100 dark:bg-primary/15 dark:ring-primary/20">
                 <AppIcon icon={Icon} size="md" className="text-primary" />
               </div>
               <span className="min-w-0 flex flex-col gap-0.5 text-left">
@@ -93,7 +93,7 @@ const AIToolsDropdown = ({
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2',
           triggerClassName
         )}
-        aria-label="Công cụ AI cho ứng viên HireAI — chấm CV, luyện phỏng vấn, dự báo lương"
+        aria-label="Công cụ AI cho ứng viên HireBOT — chấm CV, luyện phỏng vấn, dự báo lương"
         aria-haspopup="menu"
       >
         <AppIcon icon={Sparkles} size="sm" className="text-primary" />
@@ -129,7 +129,7 @@ const AIToolsDropdown = ({
                     'dark:hover:border-primary/30'
                   )}
                 >
-                  <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-primary ring-1 ring-primary/10 dark:bg-primary/15 dark:ring-primary/20">
+                  <div className="mt-0.5 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-primary ring-1 ring-primary/10 dark:bg-primary/15 dark:ring-primary/20">
                     <AppIcon icon={Icon} size="sm" className="text-primary" />
                   </div>
                   <span className="min-w-0 flex flex-col gap-0.5 text-left">

@@ -9,10 +9,10 @@ const personas = [
     label: 'Ứng viên',
     icon: Users,
     title: 'Tăng tốc tìm việc gấp 3 lần',
-    desc: 'Công cụ AI tự gợi ý việc làm phù hợp, hỗ trợ viết cover letter và luyện phỏng vấn.',
+    desc: 'Công cụ tự gợi ý việc làm phù hợp, hỗ trợ viết cover letter và luyện phỏng vấn.',
     features: [
       'Gợi ý việc làm thông minh',
-      'Luyện phỏng vấn với AI',
+      'Luyện phỏng vấn',
       'Phân tích mức độ phù hợp',
       'Tối ưu hồ sơ tự động',
     ],
@@ -27,7 +27,7 @@ const personas = [
     label: 'Nhà tuyển dụng',
     icon: Briefcase,
     title: 'Tuyển đúng người, đúng lúc',
-    desc: 'Giảm 70% thời gian sàng lọc. AI tự xếp hạng ứng viên theo mức độ phù hợp thực tế.',
+    desc: 'Giảm 70% thời gian sàng lọc. Hệ thống tự xếp hạng ứng viên theo mức độ phù hợp thực tế.',
     features: [
       'Sàng lọc CV tự động',
       'Quản lý pipeline tuyển dụng',
@@ -45,12 +45,12 @@ const personas = [
     label: 'Quản trị viên',
     icon: ShieldCheck,
     title: 'Vận hành nền tảng hiệu quả',
-    desc: 'Theo dõi xu hướng thị trường, quản lý dữ liệu và giám sát hệ thống qua dashboard real-time.',
+    desc: 'Theo dõi xu hướng thị trường, quản lý dữ liệu và giám sát hệ thống qua bảng điều khiển thời gian thực.',
     features: [
       'Phân tích xu hướng thị trường',
       'Quản lý người dùng tập trung',
-      'Kiểm duyệt nội dung bằng AI',
-      'Dashboard giám sát real-time',
+      'Kiểm duyệt nội dung tự động',
+      'Bảng điều khiển giám sát thời gian thực',
     ],
     stat: { value: '24/7', label: 'Giám sát và hỗ trợ tự động' },
     accent: 'border-l-emerald-700',
@@ -76,11 +76,11 @@ const CapabilityShowcase = () => {
             >
               <div className="flex items-center gap-3">
                 <div className="section-accent-line" />
-                <p className="text-base font-bold text-primary uppercase tracking-widest">
+                <p className="text-base font-bold text-primary uppercase tracking-normal">
                   Cho mọi người
                 </p>
               </div>
-              <h2 className="text-4xl md:text-5xl font-black text-foreground tracking-[-0.04em] leading-[0.93]">
+              <h2 className="text-4xl md:text-5xl font-bold text-foreground tracking-normal leading-[0.93]">
                 Một nền tảng, <span className="text-primary">nhiều giá trị</span>
               </h2>
               <p className="text-muted-foreground font-medium text-base leading-relaxed max-w-sm">
@@ -121,7 +121,7 @@ const CapabilityShowcase = () => {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                      className={`bg-muted/25 p-8 md:p-12 rounded-2xl border border-border/40 border-l-4 ${persona.accent}`}
+                      className={`bg-muted/25 p-8 md:p-12 rounded-xl border border-border/40 border-l-4 ${persona.accent}`}
                     >
                       <div className="flex flex-col md:flex-row gap-10">
                         <div className="flex-1 space-y-8">
@@ -137,7 +137,7 @@ const CapabilityShowcase = () => {
                           </div>
 
                           <div>
-                            <h3 className="text-2xl md:text-3xl font-black text-foreground tracking-tight leading-snug mb-3">
+                            <h3 className="text-2xl md:text-3xl font-bold text-foreground tracking-normal leading-snug mb-3">
                               {persona.title}
                             </h3>
                             <p className="text-muted-foreground font-medium text-base leading-relaxed max-w-lg">
@@ -168,14 +168,14 @@ const CapabilityShowcase = () => {
                         </div>
 
                         {/* Stat card */}
-                        <div className="md:w-44 shrink-0 bg-background rounded-2xl p-6 border border-border/40 flex flex-col justify-center items-center text-center">
+                        <div className="md:w-44 shrink-0 bg-background rounded-xl p-6 border border-border/40 flex flex-col justify-center items-center text-center">
                           <div
                             className={`size-14 rounded-full border flex items-center justify-center mb-4 ${persona.iconBg}`}
                           >
                             <Zap size={22} className={persona.iconColor} aria-hidden="true" />
                           </div>
                           <p
-                            className={`text-4xl font-black tracking-tight tabular-nums leading-none mb-2 ${persona.statColor}`}
+                            className={`text-4xl font-bold tracking-normal tabular-nums leading-none mb-2 ${persona.statColor}`}
                           >
                             {persona.stat.value}
                           </p>

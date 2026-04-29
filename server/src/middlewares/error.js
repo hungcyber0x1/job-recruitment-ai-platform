@@ -53,6 +53,9 @@ module.exports = (err, req, res, _next) => {
 
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
+  if (!err.code) {
+    err.code = `ERR_${err.statusCode}`;
+  }
 
   // Log error with more context for debugging
   logger.error(
@@ -66,20 +69,16 @@ module.exports = (err, req, res, _next) => {
     }
   );
 
+  const payload = {
+    success: false,
+    status: err.status,
+    message: err.isOperational ? err.message : 'Hệ thống gặp lỗi. Vui lòng thử lại sau.',
+    code: err.code,
+  };
+
   if (process.env.NODE_ENV === 'development') {
-    res.status(err.statusCode).json({
-      success: false,
-      status: err.status,
-      message: err.message,
-      error: err,
-      stack: err.stack,
-    });
+    res.status(err.statusCode).json({ ...payload, error: err, stack: err.stack });
   } else {
-    // Production: không trả stack trace cho client
-    res.status(err.statusCode).json({
-      success: false,
-      status: err.status,
-      message: err.isOperational ? err.message : 'Hệ thống gặp lỗi. Vui lòng thử lại sau.',
-    });
+    res.status(err.statusCode).json(payload);
   }
 };

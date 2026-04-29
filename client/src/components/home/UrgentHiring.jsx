@@ -17,7 +17,7 @@ const companyColors = {
 const jobs = [
   {
     id: 10,
-    title: 'Senior Backend Engineer',
+    title: 'Kỹ sư backend cấp cao',
     company: 'FPT Software',
     location: 'Hồ Chí Minh',
     salary: '35 – 50 triệu',
@@ -27,7 +27,7 @@ const jobs = [
   },
   {
     id: 11,
-    title: 'Project Manager',
+    title: 'Quản lý dự án',
     company: 'VNG',
     location: 'Đà Nẵng',
     salary: '40 – 60 triệu',
@@ -37,7 +37,7 @@ const jobs = [
   },
   {
     id: 12,
-    title: 'Fullstack Lead',
+    title: 'Trưởng nhóm full-stack',
     company: 'OneMount',
     location: 'Hà Nội',
     salary: 'Thoả thuận',
@@ -47,7 +47,7 @@ const jobs = [
   },
   {
     id: 13,
-    title: 'Mobile Developer (React Native)',
+    title: 'Lập trình viên di động (React Native)',
     company: 'Tiki',
     location: 'Hồ Chí Minh',
     salary: '25 – 45 triệu',
@@ -57,7 +57,7 @@ const jobs = [
   },
   {
     id: 14,
-    title: 'AI Research Engineer',
+    title: 'Kỹ sư nghiên cứu AI',
     company: 'VinAI',
     location: 'Hà Nội',
     salary: 'Lên đến $5,000',
@@ -67,7 +67,7 @@ const jobs = [
   },
   {
     id: 15,
-    title: 'Cloud Infrastructure Engineer',
+    title: 'Kỹ sư hạ tầng đám mây',
     company: 'VNPT Technology',
     location: 'Hà Nội',
     salary: '30 – 50 triệu',
@@ -77,7 +77,7 @@ const jobs = [
   },
   {
     id: 16,
-    title: 'Business Analyst (ERP)',
+    title: 'Chuyên viên phân tích nghiệp vụ (ERP)',
     company: 'Masan Group',
     location: 'Hồ Chí Minh',
     salary: '20 – 35 triệu',
@@ -87,7 +87,7 @@ const jobs = [
   },
   {
     id: 17,
-    title: 'QA Automation Engineer',
+    title: 'Kỹ sư kiểm thử tự động',
     company: 'KMS Technology',
     location: 'Hồ Chí Minh',
     salary: '22 – 38 triệu',
@@ -118,14 +118,14 @@ const UrgentCard = ({ job, index }) => {
     >
       <Link
         to={`/jobs/${job.id}`}
-        className="card-premium-hover group relative flex h-full flex-col items-center overflow-hidden rounded-2xl border border-border/60 bg-white p-6 text-center"
+        className="card-premium-hover group relative flex h-full flex-col items-center overflow-hidden rounded-xl border border-border/60 bg-white p-6 text-center"
       >
         {/* Urgent Badge with Pulse */}
         <div className="absolute top-3 right-3 z-10">
           <span className="relative flex items-center gap-1 overflow-hidden rounded-full border border-orange-200 bg-orange-50 px-2.5 py-1 text-sm font-bold text-orange-600">
             <span className="absolute inset-0 animate-pulse bg-orange-400/10" />
             <Flame size={10} className="relative" />
-            <span className="relative uppercase tracking-wider">Tuyển gấp</span>
+            <span className="relative uppercase tracking-normal">Tuyển gấp</span>
           </span>
         </div>
 
@@ -135,13 +135,13 @@ const UrgentCard = ({ job, index }) => {
           <CompanyAvatar
             company={job.company}
             size={16}
-            className="relative h-20 w-20 rounded-2xl border-4 border-white shadow-lg ring-1 ring-black/[0.03] transition-all duration-500 group-hover:scale-110 group-hover:shadow-xl dark:border-slate-900"
+            className="relative h-20 w-20 rounded-xl border-4 border-white shadow-lg ring-1 ring-black/[0.03] transition-all duration-500 group-hover:scale-110 group-hover:shadow-xl dark:border-slate-900"
           />
         </div>
 
         {/* Content Section */}
         <div className="flex w-full flex-1 flex-col">
-          <h3 className="mb-1.5 flex h-[56px] items-center justify-center text-lg font-extrabold leading-tight tracking-tight text-foreground transition-all group-hover:text-primary line-clamp-2">
+          <h3 className="mb-1.5 flex h-[56px] items-center justify-center text-lg font-extrabold leading-tight tracking-normal text-foreground transition-all group-hover:text-primary line-clamp-2">
             {job.title}
           </h3>
 
@@ -169,7 +169,7 @@ const UrgentCard = ({ job, index }) => {
               {skills.map((skill) => (
                 <span
                   key={skill}
-                  className="rounded-lg border border-border/40 bg-muted/40 px-2.5 py-1 text-sm font-bold tracking-tight text-muted-foreground transition-all group-hover:border-primary/20 group-hover:bg-primary/5 group-hover:text-primary dark:bg-slate-900/60"
+                  className="rounded-lg border border-border/40 bg-muted/40 px-2.5 py-1 text-sm font-bold tracking-normal text-muted-foreground transition-all group-hover:border-primary/20 group-hover:bg-primary/5 group-hover:text-primary dark:bg-slate-900/60"
                 >
                   {skill}
                 </span>
@@ -180,7 +180,7 @@ const UrgentCard = ({ job, index }) => {
 
         {/* Professional Footer */}
         <div className="mt-auto flex w-full flex-col items-center gap-2 border-t border-border/40 pt-4">
-          <div className="flex items-center gap-1.5 text-sm font-bold text-muted-foreground uppercase tracking-widest">
+          <div className="flex items-center gap-1.5 text-sm font-bold text-muted-foreground uppercase tracking-normal">
             <Clock size={10} className="text-orange-500" />
             Hạn: <span className="text-orange-500">{job.deadline}</span>
           </div>
@@ -210,7 +210,7 @@ const UrgentHiring = () => {
       >
         <Link
           to="/jobs?urgent=true"
-          className="flex items-center justify-center gap-2 py-4 rounded-2xl border border-dashed border-orange-200 text-sm font-semibold text-orange-500 hover:text-orange-600 hover:border-orange-400 hover:bg-orange-50/50 active:scale-[0.98] transition-all"
+          className="flex items-center justify-center gap-2 py-4 rounded-xl border border-dashed border-orange-200 text-sm font-semibold text-orange-500 hover:text-orange-600 hover:border-orange-400 hover:bg-orange-50/50 active:scale-[0.98] transition-all"
         >
           <Flame size={15} />
           Xem thêm việc làm tuyển gấp

@@ -1,5 +1,5 @@
 /**
- * Chỉ chạy seed việc làm (05_sample_jobs.sql) — tiện khi đã có DB nhưng thiếu tin published.
+ * Chỉ chạy seed việc làm (04_jobs.sql) — tiện khi đã có DB nhưng thiếu tin published.
  *
  *   node database/run-seed-jobs.js
  *
@@ -21,13 +21,13 @@ const dbConfig = {
 };
 
 async function main() {
-  const sqlPath = path.join(__dirname, 'seeds', '05_sample_jobs.sql');
+  const sqlPath = path.join(__dirname, 'seeds', '04_jobs.sql');
   const sql = fs.readFileSync(sqlPath, 'utf8');
   console.log('Connecting:', { ...dbConfig, password: '****' });
   const conn = await mysql.createConnection(dbConfig);
   try {
     await conn.query(sql);
-    console.log('OK: Đã chạy 05_sample_jobs.sql');
+    console.log('OK: Đã chạy 04_jobs.sql');
     const [rows] = await conn.query("SELECT COUNT(*) AS c FROM jobs WHERE status = 'published'");
     console.log('Số tin published hiện tại:', rows[0]?.c ?? '?');
   } finally {
