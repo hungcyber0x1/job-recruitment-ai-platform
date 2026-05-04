@@ -1,26 +1,57 @@
 const { pool } = require('../config/database.config');
 
 class ActivityLogRepository {
+  async getColumns() {
+    if (!this.columnsPromise) {
+      this.columnsPromise = pool
+        .query(
+          `SELECT COLUMN_NAME
+             FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME = 'activity_logs'`
+        )
+        .then(([rows]) => new Set(rows.map((row) => row.COLUMN_NAME)));
+    }
+    return this.columnsPromise;
+  }
+
   async create(logData) {
     const { adminCode, userId, action, details, description, ip, userAgent } = logData;
+    const actorId = adminCode || userId || null;
+    const targetUserId = userId || null;
+    const text = description || details || null;
+    const columns = await this.getColumns();
+
+    if (columns.has('description')) {
+      const [result] = await pool.query(
+        'INSERT INTO activity_logs (user_id, action, description, ip_address, user_agent) VALUES (?, ?, ?, ?, ?)',
+        [actorId, action, text, ip, userAgent]
+      );
+      return result.insertId;
+    }
+
     const [result] = await pool.query(
-      'INSERT INTO activity_logs (user_id, action, description, ip_address, user_agent) VALUES (?, ?, ?, ?, ?)',
-      [userId || adminCode, action, description || details || null, ip, userAgent]
+      'INSERT INTO activity_logs (admin_id, user_id, action, details, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?)',
+      [actorId, targetUserId, action, text, ip, userAgent]
     );
     return result.insertId;
   }
 
   async findAll({ limit, offset, adminId, userId, startDate, endDate, search }) {
+    const columns = await this.getColumns();
+    const actorColumn = columns.has('admin_id') ? 'al.admin_id' : 'al.user_id';
+    const targetColumn = columns.has('admin_id') ? 'al.user_id' : 'al.user_id';
+    const textColumn = columns.has('description') ? 'al.description' : 'al.details';
     let whereClause = ' WHERE 1=1';
     const params = [];
 
     if (adminId) {
-      whereClause += ' AND al.user_id = ?';
+      whereClause += ` AND ${actorColumn} = ?`;
       params.push(adminId);
     }
 
     if (userId) {
-      whereClause += ' AND al.user_id = ?';
+      whereClause += ` AND ${targetColumn} = ?`;
       params.push(userId);
     }
 
@@ -35,16 +66,17 @@ class ActivityLogRepository {
     }
 
     if (search) {
-      whereClause += ' AND (al.action LIKE ? OR al.description LIKE ? OR u.email LIKE ?)';
+      whereClause += ` AND (al.action LIKE ? OR ${textColumn} LIKE ? OR u.email LIKE ?)`;
       const term = `%${search}%`;
       params.push(term, term, term);
     }
 
     const query = `
             SELECT al.*,
+                   ${textColumn} as description,
                    u.email as user_email
             FROM activity_logs al
-            LEFT JOIN users u ON al.user_id = u.id
+            LEFT JOIN users u ON ${actorColumn} = u.id
             ${whereClause}
             ORDER BY al.created_at DESC
             ${limit !== undefined ? 'LIMIT ?' : ''}
@@ -60,20 +92,21 @@ class ActivityLogRepository {
     const countQuery = `
       SELECT COUNT(*) as total
       FROM activity_logs al
-      LEFT JOIN users u ON al.user_id = u.id
+      LEFT JOIN users u ON ${actorColumn} = u.id
       ${whereClause}
     `;
     const [countResult] = await pool.query(countQuery, params);
 
     return { data: rows, total: countResult[0].total };
-
   }
 
   async count(adminId = null) {
+    const columns = await this.getColumns();
+    const actorColumn = columns.has('admin_id') ? 'admin_id' : 'user_id';
     let query = 'SELECT COUNT(*) as total FROM activity_logs';
     const params = [];
     if (adminId) {
-      query += ' WHERE user_id = ?';
+      query += ` WHERE ${actorColumn} = ?`;
       params.push(adminId);
     }
     const [rows] = await pool.query(query, params);

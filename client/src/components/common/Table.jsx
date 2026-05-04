@@ -33,7 +33,9 @@ const Table = ({
                 {columns.map((column, index) => (
                   <th
                     key={column.key || column.header || index}
-                    style={column.width ? { width: column.width, minWidth: column.width } : undefined}
+                    style={
+                      column.width ? { width: column.width, minWidth: column.width } : undefined
+                    }
                     className={cn(
                       'px-5 py-3.5 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground',
                       ALIGN[column.align] || ALIGN.left,
@@ -48,7 +50,8 @@ const Table = ({
           )}
           <tbody>
             {children}
-            {!children && loading && (
+            {!children &&
+              loading &&
               Array.from({ length: 5 }).map((_, rowIndex) => (
                 <tr key={rowIndex}>
                   {columns.map((column, colIndex) => (
@@ -57,8 +60,7 @@ const Table = ({
                     </td>
                   ))}
                 </tr>
-              ))
-            )}
+              ))}
             {!children && !loading && data.length === 0 && (
               <tr>
                 <td colSpan={colSpan} className="px-6 py-10">
@@ -71,34 +73,36 @@ const Table = ({
                 </td>
               </tr>
             )}
-            {!children && !loading && data.map((row, rowIndex) => (
-              <tr
-                key={getRowKey ? getRowKey(row, rowIndex) : row.id ?? rowIndex}
-                className="ui-hover-row"
-              >
-                {columns.map((column, colIndex) => {
-                  const value = column.key ? row[column.key] : row;
-                  const content = column.render
-                    ? column.render(value, row, rowIndex)
-                    : column.accessor
-                      ? column.accessor(row, rowIndex)
-                      : value;
+            {!children &&
+              !loading &&
+              data.map((row, rowIndex) => (
+                <tr
+                  key={getRowKey ? getRowKey(row, rowIndex) : (row.id ?? rowIndex)}
+                  className="ui-hover-row"
+                >
+                  {columns.map((column, colIndex) => {
+                    const value = column.key ? row[column.key] : row;
+                    const content = column.render
+                      ? column.render(value, row, rowIndex)
+                      : column.accessor
+                        ? column.accessor(row, rowIndex)
+                        : value;
 
-                  return (
-                    <td
-                      key={column.key || colIndex}
-                      className={cn(
-                        'px-5 py-4 text-sm leading-6 text-foreground',
-                        ALIGN[column.align] || ALIGN.left,
-                        column.cellClassName
-                      )}
-                    >
-                      {content}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
+                    return (
+                      <td
+                        key={column.key || colIndex}
+                        className={cn(
+                          'px-5 py-4 text-sm leading-6 text-foreground',
+                          ALIGN[column.align] || ALIGN.left,
+                          column.cellClassName
+                        )}
+                      >
+                        {content}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>

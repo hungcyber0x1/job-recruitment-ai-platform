@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Instagram, Linkedin, Mail, MapPin, Phone, ShieldCheck } from 'lucide-react';
 
 import { Button, Logo } from '@/components/common';
+import useNewsletterSubscription from '@/hooks/useNewsletterSubscription';
 import { cn } from '@/utils/cn';
 
 const footerLinks = [
@@ -65,6 +66,11 @@ const socialLinks = [
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const newsletter = useNewsletterSubscription({
+    source: 'footer',
+    topic: 'weekly_hiring_insights',
+    metadata: { page: 'global', placement: 'footer' },
+  });
 
   return (
     <footer className="relative overflow-hidden border-t border-white/10 bg-primary pb-12 pt-24 font-sans text-slate-300">
@@ -95,26 +101,57 @@ const Footer = () => {
 
             <div className="glass-dark relative overflow-hidden rounded-xl border border-white/5 p-6 shadow-2xl">
               <h2 className="text-base font-bold tracking-normal text-white">
-                Nhận cập nhật sản phẩm
+                Nhận bản tin HireBOT
               </h2>
               <p className="mt-2 text-base text-slate-500">
-                Theo dõi xu hướng tuyển dụng, tính năng mới và các nội dung hữu ích dành cho ứng
-                viên cũng như nhà tuyển dụng.
+                Cập nhật xu hướng tuyển dụng, tính năng mới và nội dung hữu ích cho ứng viên lẫn nhà
+                tuyển dụng. Chỉ gửi khi có giá trị thực tế.
               </p>
-              <form className="relative z-10 mt-4 flex gap-2">
+              <form
+                className="relative z-10 mt-4 flex gap-2"
+                onSubmit={newsletter.submit}
+                noValidate
+              >
                 <input
                   type="email"
-                  placeholder="Email của bạn..."
-                  className="w-full rounded-xl border border-slate-800 bg-slate-950/50 px-4 py-3 text-sm text-slate-300 shadow-inner transition-all placeholder:text-slate-600 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  name="footer-newsletter-email"
+                  autoComplete="email"
+                  spellCheck={false}
+                  placeholder="ten@congty.com"
+                  value={newsletter.email}
+                  onChange={(e) => newsletter.setEmail(e.target.value)}
+                  disabled={newsletter.isSubmitting}
+                  required
+                  className="w-full rounded-xl border border-slate-800 bg-slate-950/50 px-4 py-3 text-sm text-slate-300 shadow-inner transition-all placeholder:text-slate-600 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-70"
                   aria-label="Email nhận bản tin"
                 />
                 <Button
+                  type="submit"
                   variant="primary"
-                  className="border-0 px-5 py-3 !rounded-xl font-bold shadow-glow"
+                  disabled={newsletter.isSubmitting}
+                  className="border-0 px-5 py-3 !rounded-xl font-bold shadow-glow disabled:cursor-not-allowed disabled:opacity-80"
                 >
-                  <ArrowRight size={18} />
+                  <ArrowRight
+                    size={18}
+                    className={newsletter.isSubmitting ? 'animate-pulse' : ''}
+                  />
                 </Button>
               </form>
+              {newsletter.message ? (
+                <p
+                  className={`mt-3 text-sm font-semibold leading-relaxed ${
+                    newsletter.status === 'error' ? 'text-red-300' : 'text-emerald-300'
+                  }`}
+                  role={newsletter.status === 'error' ? 'alert' : 'status'}
+                  aria-live="polite"
+                >
+                  {newsletter.message}
+                </p>
+              ) : (
+                <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                  Bằng cách đăng ký, bạn đồng ý nhận bản tin và có thể huỷ bất cứ lúc nào.
+                </p>
+              )}
             </div>
           </div>
 

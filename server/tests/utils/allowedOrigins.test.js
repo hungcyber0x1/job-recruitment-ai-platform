@@ -38,4 +38,15 @@ describe('allowedOrigins', () => {
       expect.arrayContaining(['http://localhost:3000', 'http://127.0.0.1:3000'])
     );
   });
+
+  it('allows Vite fallback ports during local development', () => {
+    process.env.NODE_ENV = 'development';
+    process.env.ALLOWED_ORIGINS = 'http://localhost:3000';
+
+    const origins = getAllowedOrigins();
+
+    expect(origins).toEqual(
+      expect.arrayContaining(['http://localhost:3003', 'http://127.0.0.1:3003'])
+    );
+  });
 });

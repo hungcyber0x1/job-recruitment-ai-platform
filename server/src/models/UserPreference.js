@@ -21,7 +21,9 @@ function normalizeBoolean(value, fallback = false) {
 }
 
 function normalizeEmailFrequency(value, fallback = 'daily') {
-  const normalized = String(value || '').trim().toLowerCase();
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
   return EMAIL_FREQUENCIES.includes(normalized) ? normalized : fallback;
 }
 
@@ -68,8 +70,8 @@ class UserPreferenceRepository extends BaseRepository {
   async _ensureSchema() {
     await this.pool.query(`
       CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
-        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        user_id INT UNSIGNED NOT NULL UNIQUE,
+        id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        user_id BIGINT UNSIGNED NOT NULL UNIQUE,
         notification_preferences JSON NULL,
         email_frequency ENUM('realtime', 'daily', 'weekly') NOT NULL DEFAULT 'daily',
         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

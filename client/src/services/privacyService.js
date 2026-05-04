@@ -27,8 +27,7 @@ const privacyService = {
     api.get(`candidates/data-export/${exportId}/download`, { responseType: 'blob' }),
 
   // ─── Data Deletion ────────────────────────────────────────────────────
-  requestAccountDeletion: (password) =>
-    api.post('candidates/account-deletion', { password }),
+  requestAccountDeletion: (password) => api.post('candidates/account-deletion', { password }),
 
   cancelAccountDeletion: () => api.delete('candidates/account-deletion'),
 

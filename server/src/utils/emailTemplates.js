@@ -3,9 +3,9 @@
  * Mỗi function trả về HTML string đầy đủ.
  */
 
-const BRAND_COLOR  = '#10b981'; // emerald-500
-const BRAND_NAME   = 'HireBOT';
-const CLIENT_URL   = process.env.CLIENT_URL || 'http://localhost:5173';
+const BRAND_COLOR = '#10b981'; // emerald-500
+const BRAND_NAME = 'HireBOT';
+const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
 /** Shared wrapper để đảm bảo tất cả email trông nhất quán */
 function wrapEmail(content) {
@@ -60,7 +60,8 @@ function statusBadge(label, bgColor, textColor) {
 /**
  * Email chào mừng khi đăng ký
  */
-module.exports.welcomeEmail = (name) => wrapEmail(`
+module.exports.welcomeEmail = (name) =>
+  wrapEmail(`
   <h2 style="margin:0 0 8px;color:#0f172a;font-size:22px;">Chào mừng ${name}! 🎉</h2>
   <p style="color:#475569;line-height:1.7;margin:0 0 20px;">
     Cảm ơn bạn đã tham gia <strong>${BRAND_NAME}</strong> — nền tảng tuyển dụng thông minh với sức mạnh AI.
@@ -72,7 +73,8 @@ module.exports.welcomeEmail = (name) => wrapEmail(`
 /**
  * Email khi ứng viên nộp đơn thành công → gửi cho candidate
  */
-module.exports.applicationSubmitted = (candidateName, jobTitle, companyName) => wrapEmail(`
+module.exports.applicationSubmitted = (candidateName, jobTitle, companyName) =>
+  wrapEmail(`
   <h2 style="margin:0 0 8px;color:#0f172a;font-size:22px;">Đơn ứng tuyển đã được gửi ✅</h2>
   <p style="color:#475569;line-height:1.7;margin:0 0 16px;">
     Xin chào <strong>${candidateName}</strong>,
@@ -87,9 +89,22 @@ module.exports.applicationSubmitted = (candidateName, jobTitle, companyName) => 
 /**
  * Email khi lịch phỏng vấn được sắp xếp → gửi cho candidate
  */
-module.exports.interviewScheduled = ({ candidateName, jobTitle, companyName, scheduledAt, interviewType, location, candidateNote, round }) => {
-  const typeLabels = { online: '🖥️ Online', offline: '🏢 Tại văn phòng', phone: '📞 Qua điện thoại' };
-  const typeLabel  = typeLabels[interviewType] || interviewType;
+module.exports.interviewScheduled = ({
+  candidateName,
+  jobTitle,
+  companyName,
+  scheduledAt,
+  interviewType,
+  location,
+  candidateNote,
+  round,
+}) => {
+  const typeLabels = {
+    online: '🖥️ Online',
+    offline: '🏢 Tại văn phòng',
+    phone: '📞 Qua điện thoại',
+  };
+  const typeLabel = typeLabels[interviewType] || interviewType;
 
   const dateStr = scheduledAt
     ? new Date(scheduledAt).toLocaleString('vi-VN', { dateStyle: 'full', timeStyle: 'short' })
@@ -111,16 +126,24 @@ module.exports.interviewScheduled = ({ candidateName, jobTitle, companyName, sch
         <td style="padding:12px 16px;font-weight:600;color:#075985;background:#f0f9ff;">💼 Hình thức</td>
         <td style="padding:12px 16px;color:#0f172a;background:#f0f9ff;">${typeLabel}</td>
       </tr>
-      ${location ? `<tr style="background:#fafafa;">
+      ${
+        location
+          ? `<tr style="background:#fafafa;">
         <td style="padding:12px 16px;font-weight:600;color:#374151;">📍 Địa điểm/Link</td>
         <td style="padding:12px 16px;color:#0f172a;">${location}</td>
-      </tr>` : ''}
+      </tr>`
+          : ''
+      }
     </table>
 
-    ${candidateNote ? `<div style="background:#fffbeb;border-left:4px solid #f59e0b;padding:14px 18px;border-radius:0 8px 8px 0;margin-bottom:24px;">
+    ${
+      candidateNote
+        ? `<div style="background:#fffbeb;border-left:4px solid #f59e0b;padding:14px 18px;border-radius:0 8px 8px 0;margin-bottom:24px;">
       <strong style="color:#92400e;">Lưu ý từ nhà tuyển dụng:</strong>
       <p style="color:#78350f;margin:6px 0 0;">${candidateNote}</p>
-    </div>` : ''}
+    </div>`
+        : ''
+    }
 
     ${primaryButton('Xem chi tiết đơn ứng tuyển', `${CLIENT_URL}/candidate/applications`)}
   `);
@@ -129,16 +152,22 @@ module.exports.interviewScheduled = ({ candidateName, jobTitle, companyName, sch
 /**
  * Email khi nhận được offer → gửi cho candidate
  */
-module.exports.offerReceived = ({ candidateName, jobTitle, companyName, salaryOffered, responseDeadline, startDate, notes }) => {
-  const salaryStr  = salaryOffered
+module.exports.offerReceived = ({
+  candidateName,
+  jobTitle,
+  companyName,
+  salaryOffered,
+  responseDeadline,
+  startDate,
+  notes,
+}) => {
+  const salaryStr = salaryOffered
     ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(salaryOffered)
     : 'Thỏa thuận';
   const deadlineStr = responseDeadline
     ? new Date(responseDeadline).toLocaleDateString('vi-VN')
     : 'Liên hệ recruiter';
-  const startStr   = startDate
-    ? new Date(startDate).toLocaleDateString('vi-VN')
-    : 'Thỏa thuận';
+  const startStr = startDate ? new Date(startDate).toLocaleDateString('vi-VN') : 'Thỏa thuận';
 
   return wrapEmail(`
     <h2 style="margin:0 0 8px;color:#0f172a;font-size:22px;">🎉 Bạn nhận được đề nghị tuyển dụng!</h2>
@@ -162,10 +191,14 @@ module.exports.offerReceived = ({ candidateName, jobTitle, companyName, salaryOf
       </tr>
     </table>
 
-    ${notes ? `<div style="background:#f0fdf4;border-left:4px solid ${BRAND_COLOR};padding:14px 18px;border-radius:0 8px 8px 0;margin-bottom:24px;">
+    ${
+      notes
+        ? `<div style="background:#f0fdf4;border-left:4px solid ${BRAND_COLOR};padding:14px 18px;border-radius:0 8px 8px 0;margin-bottom:24px;">
       <strong style="color:#064e3b;">Ghi chú từ nhà tuyển dụng:</strong>
       <p style="color:#374151;margin:6px 0 0;">${notes}</p>
-    </div>` : ''}
+    </div>`
+        : ''
+    }
 
     <p style="color:#64748b;font-size:14px;margin-bottom:24px;">
       Vui lòng phản hồi trước hạn chót để đảm bảo vị trí được giữ cho bạn.
@@ -177,7 +210,8 @@ module.exports.offerReceived = ({ candidateName, jobTitle, companyName, salaryOf
 /**
  * Email khi đơn bị từ chối → gửi cho candidate
  */
-module.exports.applicationRejected = ({ candidateName, jobTitle, companyName, notes }) => wrapEmail(`
+module.exports.applicationRejected = ({ candidateName, jobTitle, companyName, notes }) =>
+  wrapEmail(`
   <h2 style="margin:0 0 8px;color:#0f172a;font-size:22px;">Kết quả đơn ứng tuyển</h2>
   <p style="color:#475569;line-height:1.7;margin:0 0 16px;">
     Xin chào <strong>${candidateName}</strong>,
@@ -187,10 +221,14 @@ module.exports.applicationRejected = ({ candidateName, jobTitle, companyName, no
     đơn ứng tuyển của bạn cho vị trí <strong>${jobTitle}</strong> chưa phù hợp với yêu cầu 
     ở thời điểm này.
   </p>
-  ${notes ? `<div style="background:#fef2f2;border-left:4px solid #ef4444;padding:14px 18px;border-radius:0 8px 8px 0;margin-bottom:24px;">
+  ${
+    notes
+      ? `<div style="background:#fef2f2;border-left:4px solid #ef4444;padding:14px 18px;border-radius:0 8px 8px 0;margin-bottom:24px;">
     <strong style="color:#991b1b;">Nhận xét từ nhà tuyển dụng:</strong>
     <p style="color:#7f1d1d;margin:6px 0 0;">${notes}</p>
-  </div>` : ''}
+  </div>`
+      : ''
+  }
   <p style="color:#475569;line-height:1.7;margin:0 0 24px;">
     Đừng nản chí! Hãy tiếp tục khám phá các cơ hội khác phù hợp với bạn. 💪
   </p>
@@ -200,7 +238,8 @@ module.exports.applicationRejected = ({ candidateName, jobTitle, companyName, no
 /**
  * Email khi ứng viên được tuyển (hired) → gửi cho candidate
  */
-module.exports.applicationHired = ({ candidateName, jobTitle, companyName }) => wrapEmail(`
+module.exports.applicationHired = ({ candidateName, jobTitle, companyName }) =>
+  wrapEmail(`
   <h2 style="margin:0 0 8px;color:#0f172a;font-size:22px;">🎊 Chúc mừng, bạn đã được tuyển!</h2>
   <p style="color:#475569;line-height:1.7;margin:0 0 16px;">
     Xin chào <strong>${candidateName}</strong>,<br/>
@@ -220,7 +259,8 @@ module.exports.applicationHired = ({ candidateName, jobTitle, companyName }) => 
 /**
  * Email khi ứng viên mới nộp đơn → gửi cho recruiter
  */
-module.exports.newApplicantNotify = ({ recruiterName, candidateName, jobTitle, applicationId }) => wrapEmail(`
+module.exports.newApplicantNotify = ({ recruiterName, candidateName, jobTitle, applicationId }) =>
+  wrapEmail(`
   <h2 style="margin:0 0 8px;color:#0f172a;font-size:22px;">Ứng viên mới ứng tuyển 📥</h2>
   <p style="color:#475569;line-height:1.7;margin:0 0 16px;">
     Xin chào <strong>${recruiterName || 'Nhà tuyển dụng'}</strong>,<br/>
@@ -232,7 +272,8 @@ module.exports.newApplicantNotify = ({ recruiterName, candidateName, jobTitle, a
 /**
  * Email thông báo ứng viên rút đơn → gửi cho recruiter
  */
-module.exports.applicationWithdrawn = ({ recruiterName, candidateName, jobTitle }) => wrapEmail(`
+module.exports.applicationWithdrawn = ({ recruiterName, candidateName, jobTitle }) =>
+  wrapEmail(`
   <h2 style="margin:0 0 8px;color:#0f172a;font-size:22px;">Ứng viên đã rút đơn</h2>
   <p style="color:#475569;line-height:1.7;margin:0 0 16px;">
     Xin chào <strong>${recruiterName || 'Nhà tuyển dụng'}</strong>,<br/>

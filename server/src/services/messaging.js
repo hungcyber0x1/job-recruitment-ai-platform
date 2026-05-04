@@ -16,16 +16,25 @@ const ALLOWED_MESSAGE_TYPES = new Set(['text', 'file', 'interview_invite', 'job_
 const ALLOWED_ATTACHMENT_EXTENSIONS = new Set(['.pdf', '.doc', '.docx', '.ppt', '.pptx']);
 
 function normalizeRole(role) {
-  const normalized = String(role || '').trim().toLowerCase();
-  return normalized === 'employer' ? 'recruiter' : normalized;
+  return String(role || '')
+    .trim()
+    .toLowerCase();
 }
 
 function getDisplayName(...values) {
-  return values.map((value) => String(value || '').trim()).filter(Boolean).join(' ') || null;
+  return (
+    values
+      .map((value) => String(value || '').trim())
+      .filter(Boolean)
+      .join(' ') || null
+  );
 }
 
 function previewText(value) {
-  return String(value || '').replace(/\s+/g, ' ').trim().slice(0, 180);
+  return String(value || '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 180);
 }
 
 function parsePositiveInt(value) {
@@ -34,7 +43,11 @@ function parsePositiveInt(value) {
 }
 
 function isActiveStatus(value) {
-  return VALID_USER_STATUS.has(String(value || '').trim().toLowerCase());
+  return VALID_USER_STATUS.has(
+    String(value || '')
+      .trim()
+      .toLowerCase()
+  );
 }
 
 function hasDeletedAt(value) {
@@ -42,7 +55,10 @@ function hasDeletedAt(value) {
 }
 
 function cleanText(value, maxLength = MAX_MESSAGE_LENGTH) {
-  return String(value || '').replaceAll(String.fromCharCode(0), '').trim().slice(0, maxLength);
+  return String(value || '')
+    .replaceAll(String.fromCharCode(0), '')
+    .trim()
+    .slice(0, maxLength);
 }
 
 function safeFilename(value) {
@@ -95,7 +111,10 @@ class MessagingService {
   _assertApplicationAccess(context, access) {
     this._assertValidApplicationContext(context);
 
-    if (access.role === 'candidate' && Number(context.candidate_user_id) !== Number(access.userId)) {
+    if (
+      access.role === 'candidate' &&
+      Number(context.candidate_user_id) !== Number(access.userId)
+    ) {
       throw new AppError('Not authorized to open this application conversation', 403);
     }
 
@@ -131,11 +150,17 @@ class MessagingService {
       throw new AppError('Company account is no longer available for messaging', 403);
     }
 
-    if (hasDeletedAt(conversation.candidate_user_deleted_at) || !isActiveStatus(conversation.candidate_status)) {
+    if (
+      hasDeletedAt(conversation.candidate_user_deleted_at) ||
+      !isActiveStatus(conversation.candidate_status)
+    ) {
       throw new AppError('Candidate account is not eligible for messaging', 403);
     }
 
-    if (hasDeletedAt(conversation.recruiter_user_deleted_at) || !isActiveStatus(conversation.recruiter_status)) {
+    if (
+      hasDeletedAt(conversation.recruiter_user_deleted_at) ||
+      !isActiveStatus(conversation.recruiter_status)
+    ) {
       throw new AppError('Recruiter account is not eligible for messaging', 403);
     }
   }
@@ -148,7 +173,11 @@ class MessagingService {
       throw new AppError('Conversation is closed', 403);
     }
 
-    if (conversation.status === 'blocked' || conversation.blocked_by_viewer || conversation.blocked_by_counterpart) {
+    if (
+      conversation.status === 'blocked' ||
+      conversation.blocked_by_viewer ||
+      conversation.blocked_by_counterpart
+    ) {
       throw new AppError('Conversation is blocked', 403);
     }
   }
@@ -163,11 +192,19 @@ class MessagingService {
     });
 
     if (counters.last_minute_count >= SPAM_MAX_PER_MINUTE) {
-      throw new AppError('Bạn đang gửi tin nhắn quá nhanh. Vui lòng thử lại sau ít phút.', 429, 'MESSAGE_SPAM_RATE_LIMIT');
+      throw new AppError(
+        'Bạn đang gửi tin nhắn quá nhanh. Vui lòng thử lại sau ít phút.',
+        429,
+        'MESSAGE_SPAM_RATE_LIMIT'
+      );
     }
 
     if (counters.duplicate_count >= SPAM_DUPLICATE_LIMIT) {
-      throw new AppError('Tin nhắn trùng lặp quá nhiều. Vui lòng điều chỉnh nội dung trước khi gửi.', 429, 'MESSAGE_DUPLICATE_LIMIT');
+      throw new AppError(
+        'Tin nhắn trùng lặp quá nhiều. Vui lòng điều chỉnh nội dung trước khi gửi.',
+        429,
+        'MESSAGE_DUPLICATE_LIMIT'
+      );
     }
   }
 
@@ -230,7 +267,11 @@ class MessagingService {
     }
 
     this._assertConversationAccess(conversation, access);
-    await RecruitmentMessageRepository.markConversationRead(conversation.id, access.role, access.userId);
+    await RecruitmentMessageRepository.markConversationRead(
+      conversation.id,
+      access.role,
+      access.userId
+    );
 
     const messages = await RecruitmentMessageRepository.findMessages(conversation.id);
     return { conversation, messages };
@@ -250,7 +291,10 @@ class MessagingService {
     }
 
     const jobId = parsePositiveInt(payload.job_id || payload.jobId);
-    const initialMessage = cleanText(payload.initial_message || payload.initialMessage || '', MAX_MESSAGE_LENGTH);
+    const initialMessage = cleanText(
+      payload.initial_message || payload.initialMessage || '',
+      MAX_MESSAGE_LENGTH
+    );
     let conversationId = null;
 
     if (access.role === 'recruiter') {
@@ -261,20 +305,31 @@ class MessagingService {
       if (!candidate) throw new AppError('Candidate not found or not eligible for messaging', 404);
 
       if (jobId) {
-        const applicationContext = await RecruitmentMessageRepository.findApplicationContextByCandidateAndJob(
-          candidate.candidate_user_id,
-          jobId
-        );
+        const applicationContext =
+          await RecruitmentMessageRepository.findApplicationContextByCandidateAndJob(
+            candidate.candidate_user_id,
+            jobId
+          );
         if (applicationContext) {
           this._assertApplicationAccess(applicationContext, access);
-          conversationId = await RecruitmentMessageRepository.upsertConversationForApplication(applicationContext, access.userId);
+          conversationId = await RecruitmentMessageRepository.upsertConversationForApplication(
+            applicationContext,
+            access.userId
+          );
         }
       }
 
       if (!conversationId) {
-        const companyContext = await RecruitmentMessageRepository.findCompanyMessagingContext(access.companyId, jobId);
-        if (!companyContext) throw new AppError('Company or job context is not available for messaging', 404);
-        if (hasDeletedAt(companyContext.recruiter_deleted_at) || !isActiveStatus(companyContext.recruiter_status)) {
+        const companyContext = await RecruitmentMessageRepository.findCompanyMessagingContext(
+          access.companyId,
+          jobId
+        );
+        if (!companyContext)
+          throw new AppError('Company or job context is not available for messaging', 404);
+        if (
+          hasDeletedAt(companyContext.recruiter_deleted_at) ||
+          !isActiveStatus(companyContext.recruiter_status)
+        ) {
           throw new AppError('Recruiter account is not eligible for messaging', 403);
         }
 
@@ -288,40 +343,59 @@ class MessagingService {
           viewer: { viewerId: access.userId, viewerRole: access.role },
         });
 
-        conversationId = existing?.id || await RecruitmentMessageRepository.createConversation({
-          jobId: jobId || null,
-          candidateUserId: candidate.candidate_user_id,
-          recruiterUserId: companyContext.recruiter_user_id || access.userId,
-          companyId: access.companyId,
-          conversationType: 'recruiter_initiated',
-          initiatedByUserId: access.userId,
-          preview: 'Nhà tuyển dụng đã chủ động mở hội thoại',
-        });
+        conversationId =
+          existing?.id ||
+          (await RecruitmentMessageRepository.createConversation({
+            jobId: jobId || null,
+            candidateUserId: candidate.candidate_user_id,
+            recruiterUserId: companyContext.recruiter_user_id || access.userId,
+            companyId: access.companyId,
+            conversationType: 'recruiter_initiated',
+            initiatedByUserId: access.userId,
+            preview: 'Nhà tuyển dụng đã chủ động mở hội thoại',
+          }));
       }
     } else if (access.role === 'candidate') {
       const companyId = parsePositiveInt(payload.company_id || payload.companyId);
       if (!companyId) throw new AppError('Company is required to start a free chat', 400);
-      const companyContext = await RecruitmentMessageRepository.findCompanyMessagingContext(companyId, jobId);
+      const companyContext = await RecruitmentMessageRepository.findCompanyMessagingContext(
+        companyId,
+        jobId
+      );
       if (!companyContext) throw new AppError('Company is not available for messaging', 404);
-      if (hasDeletedAt(companyContext.recruiter_deleted_at) || !isActiveStatus(companyContext.recruiter_status)) {
+      if (
+        hasDeletedAt(companyContext.recruiter_deleted_at) ||
+        !isActiveStatus(companyContext.recruiter_status)
+      ) {
         throw new AppError('Recruiter account is not eligible for messaging', 403);
       }
 
       if (jobId) {
-        const applicationContext = await RecruitmentMessageRepository.findApplicationContextByCandidateAndJob(
-          access.userId,
-          jobId
-        );
+        const applicationContext =
+          await RecruitmentMessageRepository.findApplicationContextByCandidateAndJob(
+            access.userId,
+            jobId
+          );
         if (applicationContext) {
           this._assertApplicationAccess(applicationContext, access);
-          conversationId = await RecruitmentMessageRepository.upsertConversationForApplication(applicationContext, access.userId);
+          conversationId = await RecruitmentMessageRepository.upsertConversationForApplication(
+            applicationContext,
+            access.userId
+          );
         }
       }
 
       if (!conversationId) {
-        const freeChatEnabled = await SystemSettingsRepository.getBoolean('recruitment_free_chat_enabled', false);
+        const freeChatEnabled = await SystemSettingsRepository.getBoolean(
+          'recruitment_free_chat_enabled',
+          false
+        );
         if (!freeChatEnabled) {
-          throw new AppError('Bạn chỉ có thể nhắn tin sau khi đã ứng tuyển công việc.', 403, 'FREE_CHAT_DISABLED');
+          throw new AppError(
+            'Bạn chỉ có thể nhắn tin sau khi đã ứng tuyển công việc.',
+            403,
+            'FREE_CHAT_DISABLED'
+          );
         }
 
         const existing = await RecruitmentMessageRepository.findConversationByParticipants({
@@ -334,18 +408,23 @@ class MessagingService {
           viewer: { viewerId: access.userId, viewerRole: access.role },
         });
 
-        conversationId = existing?.id || await RecruitmentMessageRepository.createConversation({
-          jobId: jobId || null,
-          candidateUserId: access.userId,
-          recruiterUserId: companyContext.recruiter_user_id || companyContext.owner_user_id,
-          companyId,
-          conversationType: 'free_chat',
-          initiatedByUserId: access.userId,
-          preview: 'Ứng viên đã mở hội thoại tự do',
-        });
+        conversationId =
+          existing?.id ||
+          (await RecruitmentMessageRepository.createConversation({
+            jobId: jobId || null,
+            candidateUserId: access.userId,
+            recruiterUserId: companyContext.recruiter_user_id || companyContext.owner_user_id,
+            companyId,
+            conversationType: 'free_chat',
+            initiatedByUserId: access.userId,
+            preview: 'Ứng viên đã mở hội thoại tự do',
+          }));
       }
     } else {
-      throw new AppError('Admin cannot start a new recruitment conversation from this endpoint', 403);
+      throw new AppError(
+        'Admin cannot start a new recruitment conversation from this endpoint',
+        403
+      );
     }
 
     if (initialMessage) {
@@ -377,7 +456,11 @@ class MessagingService {
     });
 
     this._assertConversationAccess(conversation, access);
-    await RecruitmentMessageRepository.markConversationRead(conversationId, access.role, access.userId);
+    await RecruitmentMessageRepository.markConversationRead(
+      conversationId,
+      access.role,
+      access.userId
+    );
     return true;
   }
 
@@ -392,8 +475,13 @@ class MessagingService {
 
     const isPayloadObject = payload && typeof payload === 'object' && !Array.isArray(payload);
     const body = cleanText(isPayloadObject ? payload.body : payload, MAX_MESSAGE_LENGTH);
-    const messageType = isPayloadObject ? String(payload.messageType || payload.message_type || 'text').trim() : 'text';
-    const metadata = isPayloadObject && payload.metadata && typeof payload.metadata === 'object' ? payload.metadata : {};
+    const messageType = isPayloadObject
+      ? String(payload.messageType || payload.message_type || 'text').trim()
+      : 'text';
+    const metadata =
+      isPayloadObject && payload.metadata && typeof payload.metadata === 'object'
+        ? payload.metadata
+        : {};
     const attachment = isPayloadObject ? payload.attachment : null;
 
     if (!ALLOWED_MESSAGE_TYPES.has(messageType)) {
@@ -403,7 +491,11 @@ class MessagingService {
     if (!body && !attachment) throw new AppError('Message body is required', 400);
     if (body.length > MAX_MESSAGE_LENGTH) throw new AppError('Message is too long', 400);
 
-    await this._assertNotSpam(access, conversationId, attachment?.name ? `${body} ${attachment.name}` : body);
+    await this._assertNotSpam(
+      access,
+      conversationId,
+      attachment?.name ? `${body} ${attachment.name}` : body
+    );
 
     const senderRole = access.role === 'admin' ? 'admin' : access.role;
     const message = await RecruitmentMessageRepository.createMessage({
@@ -466,8 +558,14 @@ class MessagingService {
     }
 
     const when = cleanText(payload.scheduled_at || payload.scheduledAt || payload.time || '', 120);
-    const mode = cleanText(payload.mode || payload.interview_type || payload.interviewType || '', 80);
-    const location = cleanText(payload.location || payload.meeting_link || payload.meetingLink || '', 500);
+    const mode = cleanText(
+      payload.mode || payload.interview_type || payload.interviewType || '',
+      80
+    );
+    const location = cleanText(
+      payload.location || payload.meeting_link || payload.meetingLink || '',
+      500
+    );
     const note = cleanText(payload.note || payload.message || '', 1200);
 
     if (!when) throw new AppError('Interview time is required', 400);
@@ -510,7 +608,10 @@ class MessagingService {
 
     const title = cleanText(payload.title || conversation.job_title || 'Thông tin công việc', 180);
     const summary = cleanText(payload.summary || payload.description || '', 1500);
-    const link = cleanText(payload.link || payload.url || (conversation.job_id ? `/jobs/${conversation.job_id}` : ''), 500);
+    const link = cleanText(
+      payload.link || payload.url || (conversation.job_id ? `/jobs/${conversation.job_id}` : ''),
+      500
+    );
 
     const body = [
       `Thông tin công việc: ${title}`,
@@ -594,7 +695,9 @@ class MessagingService {
       access.role === 'candidate'
         ? getDisplayName(conversation.candidate_name) || 'Ung vien'
         : access.role === 'recruiter'
-          ? conversation.company_name || getDisplayName(conversation.recruiter_name) || 'Nha tuyen dung'
+          ? conversation.company_name ||
+            getDisplayName(conversation.recruiter_name) ||
+            'Nha tuyen dung'
           : 'Quan tri vien';
 
     const recipients = [];

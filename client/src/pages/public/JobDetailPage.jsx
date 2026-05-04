@@ -16,7 +16,6 @@ import {
   MessageSquare,
   Share2,
   ShieldCheck,
-  Sparkles,
   Users,
   Zap,
 } from 'lucide-react';
@@ -32,6 +31,7 @@ import {
   calendarDaysLeftUntilDeadline,
   isJobApplicationDeadlinePassed,
 } from '../../utils/jobDeadline';
+import { getInitials, resolveMediaUrl } from '../../utils';
 import { sanitizeHtml, decodeHtml } from '../../utils/sanitizeHtml';
 
 const formatSalaryRange = (min, max) => {
@@ -279,12 +279,18 @@ const SummaryTile = ({ icon: Icon, label, value, tone = 'emerald' }) => {
   return (
     <div className="flex h-full min-h-[92px] flex-col rounded-lg border border-slate-200 bg-white px-3 py-3">
       <div className="flex items-center gap-2.5">
-        <div className={`flex size-9 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset ${iconTone}`}>
+        <div
+          className={`flex size-9 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset ${iconTone}`}
+        >
           <Icon className="size-4" aria-hidden />
         </div>
-        <p className="min-w-0 truncate text-[10px] font-bold uppercase tracking-[0.08em] text-slate-400">{label}</p>
+        <p className="min-w-0 truncate text-[10px] font-bold uppercase tracking-[0.08em] text-slate-400">
+          {label}
+        </p>
       </div>
-      <p className="mt-3 break-words text-[15px] font-bold leading-5 text-slate-900">{value || '--'}</p>
+      <p className="mt-3 break-words text-[15px] font-bold leading-5 text-slate-900">
+        {value || '--'}
+      </p>
     </div>
   );
 };
@@ -299,7 +305,9 @@ const SectionHeader = ({ icon: Icon, eyebrow, title, tone = 'emerald' }) => {
 
   return (
     <div className="mb-4 flex items-start gap-3 border-b border-slate-100 pb-3">
-      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset ${iconTone}`}>
+      <div
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset ${iconTone}`}
+      >
         <Icon size={18} aria-hidden />
       </div>
       <div>
@@ -322,13 +330,15 @@ const DetailSection = ({ icon, eyebrow, title, html, tone }) => (
 
 const WorkflowStep = ({ icon: Icon, title, text, active = false }) => (
   <div
-    className={`rounded-lg border p-3 ${active ? 'border-emerald-200 bg-emerald-50/70' : 'border-slate-200 bg-slate-50/70'
-      }`}
+    className={`rounded-lg border p-3 ${
+      active ? 'border-emerald-200 bg-emerald-50/70' : 'border-slate-200 bg-slate-50/70'
+    }`}
   >
     <div className="flex items-center gap-2">
       <span
-        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${active ? 'bg-white text-emerald-700 shadow-sm' : 'bg-white text-slate-600 shadow-sm'
-          }`}
+        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+          active ? 'bg-white text-emerald-700 shadow-sm' : 'bg-white text-slate-600 shadow-sm'
+        }`}
       >
         <Icon size={15} aria-hidden />
       </span>
@@ -347,6 +357,47 @@ const SidebarFact = ({ icon: Icon, label, value }) => (
     </div>
   </div>
 );
+
+const avatarBackgroundHex = (companyName) => {
+  const palette = ['0d9488', '0f766e', '115e59', '047857', '059669', '134e4a', '0e7490', '155e75'];
+  const source = String(companyName || 'C');
+  const hash = Array.from(source).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return palette[hash % palette.length];
+};
+
+const CompanyLogo = ({ src, companyName, compact = false }) => {
+  const [failedLogoSrc, setFailedLogoSrc] = useState('');
+  const logoSrc = useMemo(() => resolveMediaUrl(src), [src]);
+  const initials = useMemo(() => getInitials(companyName).slice(0, 2), [companyName]);
+  const backgroundColor = useMemo(() => `#${avatarBackgroundHex(companyName)}`, [companyName]);
+  const shouldShowLogo = Boolean(logoSrc && failedLogoSrc !== logoSrc);
+
+  if (shouldShowLogo) {
+    return (
+      <img
+        key={logoSrc}
+        src={logoSrc}
+        alt={companyName}
+        className="h-full w-full object-contain"
+        onError={() => setFailedLogoSrc(logoSrc)}
+      />
+    );
+  }
+
+  if (initials && initials !== '?') {
+    return (
+      <span
+        className={`flex h-full w-full select-none items-center justify-center rounded-md font-black text-white ${compact ? 'text-sm' : 'text-lg'}`}
+        style={{ backgroundColor }}
+        aria-label={`${companyName} logo fallback`}
+      >
+        {initials}
+      </span>
+    );
+  }
+
+  return <Building size={compact ? 22 : 30} className="text-slate-300" aria-hidden />;
+};
 
 const JobDetailPage = () => {
   const { id } = useParams();
@@ -403,7 +454,7 @@ const JobDetailPage = () => {
           const applications = applicationsResult.value.data?.data || [];
           setIsApplied(
             Array.isArray(applications) &&
-            applications.some((application) => Number(application.job_id) === Number(id))
+              applications.some((application) => Number(application.job_id) === Number(id))
           );
         }
 
@@ -411,7 +462,7 @@ const JobDetailPage = () => {
           const savedJobs = savedJobsResult.value.data?.data || [];
           setIsSaved(
             Array.isArray(savedJobs) &&
-            savedJobs.some((savedJob) => Number(savedJob.id || savedJob.job_id) === Number(id))
+              savedJobs.some((savedJob) => Number(savedJob.id || savedJob.job_id) === Number(id))
           );
         }
       } catch (error) {
@@ -473,7 +524,10 @@ const JobDetailPage = () => {
   const handleApplySuccess = () => {
     setIsApplied(true);
     setIsApplyModalOpen(false);
-    showNotification('Ứng tuyển thành công! Bạn có thể theo dõi hồ sơ trong khu vực ứng viên.', 'success');
+    showNotification(
+      'Ứng tuyển thành công! Bạn có thể theo dõi hồ sơ trong khu vực ứng viên.',
+      'success'
+    );
   };
 
   const handleToggleSave = async () => {
@@ -575,8 +629,10 @@ const JobDetailPage = () => {
     job.company_logo ||
     job.company?.company_logo ||
     job.company?.logo ||
+    job.company?.logo_url ||
     job.employer?.company_logo ||
     job.employer?.logo ||
+    job.employer?.logo_url ||
     null;
   const companyDescription =
     job.company_description ||
@@ -606,10 +662,10 @@ const JobDetailPage = () => {
   const postedLabel =
     createdAtValue && !Number.isNaN(new Date(createdAtValue).getTime())
       ? new Date(createdAtValue).toLocaleDateString('vi-VN', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-      })
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        })
       : 'Đang cập nhật';
   const locationLabel = job.location || job.location_name || job.address || 'Đang cập nhật';
   const addressLabel = job.address || job.company_location || job.company?.address || locationLabel;
@@ -644,11 +700,7 @@ const JobDetailPage = () => {
     : !isAuthenticated && !applyActionState.disabled
       ? 'Đăng nhập xong bạn sẽ quay lại đúng tin tuyển dụng này để nộp CV.'
       : applyActionState.helper;
-  const compactSaveButtonLabel = isWrongRole
-    ? 'Không thể lưu'
-    : isSaved
-      ? 'Đã lưu'
-      : 'Lưu việc';
+  const compactSaveButtonLabel = isWrongRole ? 'Không thể lưu' : isSaved ? 'Đã lưu' : 'Lưu việc';
 
   return (
     <>
@@ -682,12 +734,8 @@ const JobDetailPage = () => {
             <div className="space-y-4">
               <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white p-2 shadow-sm">
-                    {companyLogo ? (
-                      <img src={companyLogo} alt={companyName} className="h-full w-full object-contain" />
-                    ) : (
-                      <Building size={30} className="text-slate-300" aria-hidden />
-                    )}
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-white p-2 shadow-sm">
+                    <CompanyLogo src={companyLogo} companyName={companyName} />
                   </div>
 
                   <div className="min-w-0 flex-1">
@@ -759,12 +807,7 @@ const JobDetailPage = () => {
                     />
                   </div>
                   <div className="h-full">
-                    <SummaryTile
-                      icon={Users}
-                      label="Số lượng"
-                      value={vacanciesLabel}
-                      tone="sky"
-                    />
+                    <SummaryTile icon={Users} label="Số lượng" value={vacanciesLabel} tone="sky" />
                   </div>
                   <div className="h-full">
                     <SummaryTile
@@ -802,9 +845,13 @@ const JobDetailPage = () => {
                       title="Trạng thái và bước tiếp theo"
                       tone="emerald"
                     />
-                    <p className="-mt-2 text-sm font-medium leading-6 text-slate-600">{workflowSummary}</p>
+                    <p className="-mt-2 text-sm font-medium leading-6 text-slate-600">
+                      {workflowSummary}
+                    </p>
                   </div>
-                  <InfoPill tone={isExpired || applyActionState.tone === 'closed' ? 'red' : 'emerald'}>
+                  <InfoPill
+                    tone={isExpired || applyActionState.tone === 'closed' ? 'red' : 'emerald'}
+                  >
                     {jobStatusLabel}
                   </InfoPill>
                 </div>
@@ -858,15 +905,20 @@ const JobDetailPage = () => {
               <Card className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-slate-400">Mức lương</p>
-                    <p className="mt-1 text-[28px] font-bold leading-tight text-slate-950">{salaryDisplayLabel}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-slate-400">
+                      Mức lương
+                    </p>
+                    <p className="mt-1 text-[28px] font-bold leading-tight text-slate-950">
+                      {salaryDisplayLabel}
+                    </p>
                     <p className="mt-1 text-sm font-semibold text-slate-500">{salaryHelper}</p>
                   </div>
                   <span
-                    className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-xs font-bold ${isExpired || applyActionState.tone === 'closed'
+                    className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-xs font-bold ${
+                      isExpired || applyActionState.tone === 'closed'
                         ? 'bg-red-50 text-red-700'
                         : 'bg-emerald-50 text-emerald-700'
-                      }`}
+                    }`}
                   >
                     {jobStatusLabel}
                   </span>
@@ -900,10 +952,11 @@ const JobDetailPage = () => {
                       variant={applyButtonDisabled ? 'secondary' : 'primary'}
                       size="lg"
                       fullWidth
-                      className={`h-11 rounded-lg text-sm font-bold whitespace-normal ${applyButtonDisabled
+                      className={`h-11 rounded-lg text-sm font-bold whitespace-normal ${
+                        applyButtonDisabled
                           ? 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-500 shadow-none'
                           : 'bg-emerald-600 text-white hover:bg-emerald-700'
-                        }`}
+                      }`}
                       onClick={handleApplyClick}
                       disabled={applyButtonDisabled}
                       rightIcon={!applyButtonDisabled ? ArrowRight : null}
@@ -940,19 +993,13 @@ const JobDetailPage = () => {
                   </div>
                 </div>
 
-                <p className="mt-3 text-xs font-medium leading-5 text-slate-500">
-                  {applyHelper}
-                </p>
+                <p className="mt-3 text-xs font-medium leading-5 text-slate-500">{applyHelper}</p>
               </Card>
 
               <Card className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white p-1.5 shadow-sm">
-                    {companyLogo ? (
-                      <img src={companyLogo} alt={companyName} className="h-full w-full object-contain" />
-                    ) : (
-                      <Building size={22} className="text-slate-300" aria-hidden />
-                    )}
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-white p-1.5 shadow-sm">
+                    <CompanyLogo src={companyLogo} companyName={companyName} compact />
                   </div>
                   <div className="min-w-0">
                     <p className="truncate text-base font-bold text-slate-950">{companyName}</p>
@@ -988,28 +1035,6 @@ const JobDetailPage = () => {
                     </a>
                   ) : null}
                 </div>
-              </Card>
-
-              <Card className="rounded-lg border border-emerald-100 bg-emerald-50/70 p-4 shadow-sm">
-                <div className="mb-3 flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-emerald-700 ring-1 ring-inset ring-emerald-100">
-                    <Sparkles size={18} aria-hidden />
-                  </div>
-                  <h3 className="text-base font-bold text-slate-950">Gợi ý từ HireBOT</h3>
-                </div>
-                <p className="mb-4 text-sm font-medium leading-6 text-slate-600">
-                  So khớp nhanh hồ sơ với mô tả công việc để nhận gợi ý ứng tuyển và từ khóa phù hợp.
-                </p>
-                <Button
-                  renderAs={Link}
-                  to="/chat"
-                  variant="outline"
-                  fullWidth
-                  className="rounded-lg border-emerald-200 bg-white text-sm font-bold text-emerald-700 hover:bg-emerald-50"
-                  leftIcon={MessageSquare}
-                >
-                  Mở trợ lý tư vấn
-                </Button>
               </Card>
 
               <Card className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">

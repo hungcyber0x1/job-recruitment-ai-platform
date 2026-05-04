@@ -1,5 +1,6 @@
 const { body } = require('express-validator');
 const { pool } = require('../config/database.config');
+const { isDeadlineDateBeforeToday, isValidDeadlineDate } = require('../utils/deadline');
 
 const optionalNullable = { nullable: true, checkFalsy: true };
 const ALLOWED_JOB_TYPES = [
@@ -63,15 +64,16 @@ exports.jobValidator = [
   body('requirements').notEmpty().withMessage('Yeu cau ung vien khong duoc de trong'),
   body('benefits').notEmpty().withMessage('Quyen loi khong duoc de trong'),
   body('location').notEmpty().withMessage('Dia diem khong duoc de trong'),
-  body('type')
-    .custom((value, { req }) => {
-      const jobType = value ?? req.body.job_type;
-      if (ALLOWED_JOB_TYPES.includes(jobType)) return true;
-      throw new Error('Loai cong viec khong hop le');
-    }),
+  body('type').custom((value, { req }) => {
+    const jobType = value ?? req.body.job_type;
+    if (ALLOWED_JOB_TYPES.includes(jobType)) return true;
+    throw new Error('Loai cong viec khong hop le');
+  }),
   body('category_id')
-    .notEmpty().withMessage('Linh vuc/nghanh nghe khong duoc de trong')
-    .isInt({ min: 1 }).withMessage('Linh vuc/nghanh nghe khong hop le')
+    .notEmpty()
+    .withMessage('Linh vuc/nghanh nghe khong duoc de trong')
+    .isInt({ min: 1 })
+    .withMessage('Linh vuc/nghanh nghe khong hop le')
     .custom(assertCategoryExists),
   body('salary_min')
     .optional(optionalNullable)
@@ -104,15 +106,15 @@ exports.jobValidator = [
     .isInt({ min: 1, max: 9999 })
     .withMessage('So luong tuyen dung phai tu 1 den 9999'),
   body('deadline')
-    .optional()
+    .optional(optionalNullable)
     .isISO8601({ strict: true, strictSeparator: true })
     .withMessage('Han nop phai la dinh dang ngay hop le (YYYY-MM-DD)')
     .custom((value) => {
       if (!value) return true;
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const deadlineDate = new Date(value);
-      if (deadlineDate < today) {
+      if (!isValidDeadlineDate(value)) {
+        throw new Error('Han nop phai la ngay hop le');
+      }
+      if (isDeadlineDateBeforeToday(value)) {
         throw new Error('Han nop khong the la ngay trong qua');
       }
       return true;

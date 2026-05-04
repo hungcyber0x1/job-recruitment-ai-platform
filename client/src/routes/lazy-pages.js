@@ -37,8 +37,11 @@ export const CandidateJobsPage = React.lazy(() => import('../pages/candidate/Job
 export const CandidateJobDetailPage = React.lazy(
   () => import('../pages/candidate/JobDetailPage.jsx')
 );
-export const CandidateCompaniesPage = React.lazy(
+export const CandidateSavedCompaniesPage = React.lazy(
   () => import('../pages/candidate/SavedCompaniesPage.jsx')
+);
+export const CandidateCompaniesPage = React.lazy(
+  () => import('../pages/candidate/CompaniesPage.jsx')
 );
 export const CandidateCompanyDetailPage = React.lazy(
   () => import('../pages/candidate/CompanyDetailPage.jsx')
@@ -110,9 +113,7 @@ export const TalentPoolPreviewPage = React.lazy(
 export const AdminDashboardPage = React.lazy(() => import('../pages/admin/DashboardPage.jsx'));
 export const UsersPage = React.lazy(() => import('../pages/admin/UsersPage.jsx'));
 export const AdminJobsPage = React.lazy(() => import('../pages/admin/AdminJobsPage.jsx'));
-export const AdminJobEditorPage = React.lazy(
-  () => import('../pages/admin/AdminJobEditorPage.jsx')
-);
+export const AdminJobEditorPage = React.lazy(() => import('../pages/admin/AdminJobEditorPage.jsx'));
 export const AdminCompaniesPage = React.lazy(() => import('../pages/admin/CompaniesPage.jsx'));
 export const AdminApplicationsPage = React.lazy(
   () => import('../pages/admin/AdminApplicationsPage.jsx')
@@ -131,7 +132,6 @@ export const AdminCategoriesPage = React.lazy(
   () => import('../pages/admin/AdminCategoriesPage.jsx')
 );
 export const AdminSettingsPage = React.lazy(() => import('../pages/admin/AdminSettingsPage.jsx'));
-export const AdminChatbotPage = React.lazy(() => import('../pages/admin/AdminChatbotPage.jsx'));
 export const AdminAnalyticsPage = React.lazy(() => import('../pages/admin/AdminAnalyticsPage.jsx'));
 export const AdminModerationPage = React.lazy(
   () => import('../pages/admin/AdminModerationPage.jsx')
@@ -145,9 +145,12 @@ export const AdminFeatureFlagsPage = React.lazy(
   () => import('../pages/admin/AdminFeatureFlagsPage.jsx')
 );
 export const AdminBlogPage = React.lazy(() => import('../pages/admin/AdminBlogPage.jsx'));
-export const HomepageCMSPage = React.lazy(() => import('../pages/admin/HomepageCMSPage.jsx'));
-export const SkillManagementPage = React.lazy(() => import('../pages/admin/SkillManagementPage.jsx'));
-export const AdminPermissionsPage = React.lazy(() => import('../pages/admin/AdminPermissionsPage.jsx'));
+export const SkillManagementPage = React.lazy(
+  () => import('../pages/admin/SkillManagementPage.jsx')
+);
+export const AdminPermissionsPage = React.lazy(
+  () => import('../pages/admin/AdminPermissionsPage.jsx')
+);
 export const AIToolsAdminPage = React.lazy(() => import('../pages/admin/AIToolsAdminPage.jsx'));
 export const EmailLogsPage = React.lazy(() => import('../pages/admin/EmailLogsPage.jsx'));
 export const AdminNotificationsPage = React.lazy(

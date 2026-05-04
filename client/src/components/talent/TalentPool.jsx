@@ -2,9 +2,10 @@
  * TalentPoolLayout - Main layout for Candidate Pool Management
  * Professional recruitment interface with sidebar filters and candidate grid
  */
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
+  AlertCircle,
   Users,
   Search,
   Filter,
@@ -16,182 +17,159 @@ import {
   CheckCircle2,
   Clock,
   Star,
-  TrendingUp,
   Briefcase,
   DollarSign,
   MapPin,
   Calendar,
   Award,
   Zap,
-  Target,
-  Heart,
-  Lightbulb,
   Check,
   UserPlus,
   Download,
   MoreHorizontal,
+  Loader2,
   Mail,
   Phone,
-  ExternalLink,
 } from 'lucide-react';
+import { employerCandidateService } from '../../services';
 
 // ============================================================================
-// DESIGN TOKENS - Consistent with design system
+// API DATA NORMALIZATION
 // ============================================================================
-const colors = {
-  primary: {
-    50: '#ecfdf5',
-    100: '#d1fae5',
-    200: '#a7f3d0',
-    300: '#6ee7b7',
-    400: '#34d399',
-    500: '#10b981',
-    600: '#059669',
-    700: '#047857',
-    800: '#065f46',
-    900: '#064e3b',
-  },
-  slate: {
-    50: '#f8fafc',
-    100: '#f1f5f9',
-    200: '#e2e8f0',
-    300: '#cbd5e1',
-    400: '#94a3b8',
-    500: '#64748b',
-    600: '#475569',
-    700: '#334155',
-    800: '#1e293b',
-    900: '#0f172a',
-  }
+const PAGE_SIZE = 50;
+
+const STATUS_LABELS = {
+  actively_looking: 'Đang tìm việc',
+  open_to_work: 'Sẵn sàng trao đổi',
+  employed: 'Đang đi làm',
+  not_looking: 'Chưa tìm việc',
 };
 
-// ============================================================================
-// MOCK DATA - Sample candidates
-// ============================================================================
-const MOCK_CANDIDATES = [
-  {
-    id: 1,
-    name: 'Nguyễn Văn Minh',
-    avatar: null,
-    title: 'Lập trình viên full-stack cấp cao',
-    experience: 6,
-    salary: { min: 3500, max: 5000, currency: 'USD' },
-    location: 'TP. Hồ Chí Minh',
-    skills: ['React', 'Node.js', 'TypeScript', 'AWS', 'PostgreSQL', 'Docker'],
-    status: 'active',
-    appliedDate: '2024-01-15',
-    source: 'LinkedIn',
-    rating: 4.8,
-    availability: 'Sẵn sàng gia nhập ngay',
-    highlights: ['Team lead 3 người', 'Tốt nghiệp FPT', 'IELTS 7.5'],
-    email: 'minh.nguyen@email.com',
-    phone: '+84 912 345 678',
-  },
-  {
-    id: 2,
-    name: 'Trần Thị Lan Anh',
-    avatar: null,
-    title: 'Kỹ sư AI/ML',
-    experience: 4,
-    salary: { min: 4000, max: 6000, currency: 'USD' },
-    location: 'Hà Nội',
-    skills: ['Python', 'TensorFlow', 'PyTorch', 'LLM', 'RAG', 'MLOps'],
-    status: 'active',
-    appliedDate: '2024-01-18',
-    source: 'GitHub',
-    rating: 4.6,
-    availability: 'Có thể bắt đầu sau 1 tháng',
-    highlights: ['Đã công bố bài nghiên cứu', 'Chuyên gia Kaggle', 'Chứng chỉ Stanford'],
-    email: 'lananh.tran@email.com',
-    phone: '+84 987 654 321',
-  },
-  {
-    id: 3,
-    name: 'Lê Hoàng Nam',
-    avatar: null,
-    title: 'Lập trình viên giao diện cấp cao',
-    experience: 5,
-    salary: { min: 3000, max: 4500, currency: 'USD' },
-    location: 'Đà Nẵng',
-    skills: ['Vue.js', 'React', 'TypeScript', 'TailwindCSS', 'GraphQL'],
-    status: 'passive',
-    appliedDate: '2024-01-20',
-    source: 'Giới thiệu nội bộ',
-    rating: 4.5,
-    availability: 'Đang làm việc, cân nhắc cơ hội tốt',
-    highlights: ['Hơn 200 đóng góp mã nguồn', 'Diễn giả tại VueConf', 'Cố vấn kỹ thuật'],
-    email: 'nam.le@email.com',
-    phone: '+84 912 345 679',
-  },
-  {
-    id: 4,
-    name: 'Phạm Quốc Khánh',
-    avatar: null,
-    title: 'Lập trình viên backend (Java)',
-    experience: 7,
-    salary: { min: 4000, max: 5500, currency: 'USD' },
-    location: 'TP. Hồ Chí Minh',
-    skills: ['Java', 'Spring Boot', 'Microservices', 'Kubernetes', 'Kafka'],
-    status: 'active',
-    appliedDate: '2024-01-22',
-    source: 'VietnamWorks',
-    rating: 4.9,
-    availability: 'Sẵn sàng gia nhập ngay',
-    highlights: ['Từng làm tại FPT', 'Có chứng chỉ AWS', 'Điều phối Scrum'],
-    email: 'khanh.pham@email.com',
-    phone: '+84 912 345 680',
-  },
-  {
-    id: 5,
-    name: 'Hoàng Thu Minh',
-    avatar: null,
-    title: 'Nhà thiết kế sản phẩm',
-    experience: 4,
-    salary: { min: 2500, max: 4000, currency: 'USD' },
-    location: 'TP. Hồ Chí Minh',
-    skills: ['Figma', 'UI/UX', 'Design System', 'Prototyping', 'User Research'],
-    status: 'interviewed',
-    appliedDate: '2024-01-10',
-    source: 'Behance',
-    rating: 4.7,
-    availability: 'Sẵn sàng gia nhập ngay',
-    highlights: ['Được giới thiệu trên Dribbble', 'Kinh nghiệm sản phẩm SaaS', 'Dẫn dắt thiết kế'],
-    email: 'minh.hoang@email.com',
-    phone: '+84 912 345 681',
-  },
-  {
-    id: 6,
-    name: 'Đặng Minh Tuấn',
-    avatar: null,
-    title: 'Kỹ sư DevOps',
-    experience: 5,
-    salary: { min: 3500, max: 5000, currency: 'USD' },
-    location: 'Hà Nội',
-    skills: ['AWS', 'Terraform', 'Docker', 'Kubernetes', 'CI/CD', 'Monitoring'],
-    status: 'active',
-    appliedDate: '2024-01-25',
-    source: 'LinkedIn',
-    rating: 4.4,
-    availability: 'Có thể bắt đầu sau 2 tuần',
-    highlights: ['Kiến trúc sư giải pháp AWS', 'Có chứng chỉ CKA', 'Diễn giả cộng đồng'],
-    email: 'tuan.dang@email.com',
-    phone: '+84 912 345 682',
-  },
-];
+const toSalaryNumber = (value) => {
+  if (value === null || value === undefined || value === '') return null;
+  const numericValue = Number(value);
+  return Number.isFinite(numericValue) && numericValue > 0 ? numericValue : null;
+};
 
-// Filter categories with options
+const formatNumber = (value) => new Intl.NumberFormat('vi-VN').format(Number(value) || 0);
+
+const formatSalaryLabel = (candidate = {}) => {
+  const min = toSalaryNumber(candidate.expected_salary_min);
+  const max = toSalaryNumber(candidate.expected_salary_max);
+  const currency = candidate.salary_currency || 'VND';
+
+  if (min === null && max === null) return 'Chưa cập nhật';
+
+  if (currency === 'VND') {
+    const compact = (value) => {
+      if (value === null) return null;
+      if (value >= 1000000) return `${Math.round(value / 1000000)} triệu`;
+      return `${formatNumber(value)} VND`;
+    };
+
+    const compactMin = compact(min);
+    const compactMax = compact(max);
+    if (compactMin && compactMax) return `${compactMin} - ${compactMax}`;
+    if (compactMin) return `Từ ${compactMin}`;
+    return `Đến ${compactMax}`;
+  }
+
+  if (min !== null && max !== null)
+    return `${formatNumber(min)} - ${formatNumber(max)} ${currency}`;
+  if (min !== null) return `Từ ${formatNumber(min)} ${currency}`;
+  return `Đến ${formatNumber(max)} ${currency}`;
+};
+
+const formatDateLabel = (value) => {
+  if (!value) return 'Chưa cập nhật';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Chưa cập nhật';
+  return new Intl.DateTimeFormat('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(date);
+};
+
+const mapStatus = (status) => {
+  if (status === 'actively_looking') return 'active';
+  if (status === 'open_to_work') return 'passive';
+  if (status === 'employed') return 'employed';
+  if (status === 'not_looking') return 'not_looking';
+  return 'active';
+};
+
+const buildHighlights = (candidate = {}) => {
+  const highlights = [];
+  if (candidate.education_level) highlights.push(`Học vấn: ${candidate.education_level}`);
+  if (Number(candidate.skill_count || 0) > 0)
+    highlights.push(`${candidate.skill_count} kỹ năng đã cập nhật`);
+  if (Number(candidate.application_count || 0) > 0)
+    highlights.push(`${candidate.application_count} lượt ứng tuyển`);
+  if (candidate.bio) highlights.push(String(candidate.bio).slice(0, 90));
+  return highlights;
+};
+
+const normalizeCandidate = (candidate = {}) => ({
+  ...candidate,
+  name: candidate.name || 'Ứng viên đang cập nhật',
+  title: candidate.role || candidate.current_job_title || 'Vị trí đang cập nhật',
+  experience: Number(candidate.experience_years || 0),
+  experienceLabel:
+    Number(candidate.experience_years || 0) > 0
+      ? `${candidate.experience_years} năm`
+      : 'Mới tốt nghiệp',
+  salaryLabel: formatSalaryLabel(candidate),
+  location: candidate.location || 'Linh hoạt',
+  skills: Array.isArray(candidate.skills) ? candidate.skills : [],
+  status: mapStatus(candidate.job_search_status),
+  appliedDate: formatDateLabel(
+    candidate.last_active_at || candidate.updated_at || candidate.created_at
+  ),
+  updatedLabel: formatDateLabel(
+    candidate.updated_at || candidate.last_active_at || candidate.created_at
+  ),
+  activityLabel: 'Cập nhật',
+  source: 'Hồ sơ công khai',
+  availability: STATUS_LABELS[candidate.job_search_status] || 'Hồ sơ công khai',
+  highlights: buildHighlights(candidate),
+  emailLabel: candidate.contact_unlocked && candidate.email ? candidate.email : 'Chưa công khai',
+  phoneLabel: candidate.contact_unlocked && candidate.phone ? candidate.phone : 'Chưa công khai',
+  skillCountLabel: `${Number(candidate.skill_count || candidate.skills?.length || 0)} kỹ năng`,
+  timelineTitle: `Hồ sơ ${candidate.role || candidate.current_job_title || 'ứng viên'} được cập nhật`,
+});
+
+const getSalaryComparable = (candidate = {}) => {
+  const values = [
+    toSalaryNumber(candidate.expected_salary_min),
+    toSalaryNumber(candidate.expected_salary_max),
+  ].filter((value) => value !== null);
+  if (!values.length) return null;
+  const value = Math.max(...values);
+  return candidate.salary_currency === 'USD' ? value * 25000 : value;
+};
+
+const SKILL_FILTER_TERMS = {
+  frontend: ['frontend', 'giao diện', 'react', 'vue', 'javascript', 'typescript', 'tailwind', 'ui'],
+  backend: ['backend', 'máy chủ', 'node', 'java', 'spring', 'python', 'go', 'api', 'sql'],
+  fullstack: ['full-stack', 'fullstack', 'full stack', 'react', 'node'],
+  'ai-ml': ['ai', 'ml', 'machine learning', 'data', 'python', 'tensorflow', 'pytorch', 'llm'],
+  devops: ['devops', 'aws', 'docker', 'kubernetes', 'terraform', 'ci/cd', 'cloud'],
+  mobile: ['mobile', 'di động', 'react native', 'flutter', 'android', 'ios'],
+};
+
 const FILTER_CATEGORIES = [
   {
     id: 'skills',
     title: 'Kỹ năng chính',
     icon: Zap,
     options: [
-      { id: 'frontend', label: 'Giao diện người dùng', count: 52 },
-      { id: 'backend', label: 'Máy chủ', count: 48 },
-      { id: 'fullstack', label: 'Phát triển full-stack', count: 38 },
-      { id: 'ai-ml', label: 'AI/ML', count: 25 },
-      { id: 'devops', label: 'DevOps', count: 18 },
-      { id: 'mobile', label: 'Di động', count: 12 },
+      { id: 'frontend', label: 'Giao diện người dùng' },
+      { id: 'backend', label: 'Máy chủ' },
+      { id: 'fullstack', label: 'Phát triển full-stack' },
+      { id: 'ai-ml', label: 'AI/ML' },
+      { id: 'devops', label: 'DevOps' },
+      { id: 'mobile', label: 'Di động' },
     ],
     multiSelect: true,
   },
@@ -200,10 +178,10 @@ const FILTER_CATEGORIES = [
     title: 'Kinh nghiệm',
     icon: Clock,
     options: [
-      { id: '0-2', label: '0-2 năm', count: 22 },
-      { id: '2-5', label: '2-5 năm', count: 45 },
-      { id: '5-8', label: '5-8 năm', count: 35 },
-      { id: '8+', label: '8+ năm', count: 18 },
+      { id: '0-2', label: '0-2 năm' },
+      { id: '2-5', label: '2-5 năm' },
+      { id: '5-8', label: '5-8 năm' },
+      { id: '8+', label: '8+ năm' },
     ],
     multiSelect: false,
   },
@@ -212,10 +190,10 @@ const FILTER_CATEGORIES = [
     title: 'Mức lương mong muốn',
     icon: DollarSign,
     options: [
-      { id: '0-1500', label: 'Dưới $1,500', count: 15 },
-      { id: '1500-3000', label: '$1,500 - $3,000', count: 35 },
-      { id: '3000-5000', label: '$3,000 - $5,000', count: 42 },
-      { id: '5000+', label: 'Trên $5,000', count: 28 },
+      { id: 'lt20m', label: 'Dưới 20 triệu' },
+      { id: '20m-40m', label: '20 - 40 triệu' },
+      { id: '40m-80m', label: '40 - 80 triệu' },
+      { id: 'gt80m', label: 'Trên 80 triệu' },
     ],
     multiSelect: false,
   },
@@ -224,25 +202,120 @@ const FILTER_CATEGORIES = [
     title: 'Tính khả dụng',
     icon: CheckCircle2,
     options: [
-      { id: 'immediately', label: 'Sẵn sàng ngay', count: 38 },
-      { id: '2-weeks', label: 'Sau 2 tuần', count: 25 },
-      { id: '1-month', label: 'Sau 1 tháng', count: 20 },
-      { id: 'passive', label: 'Ứng viên thụ động', count: 37 },
+      { id: 'actively_looking', label: 'Đang tìm việc' },
+      { id: 'open_to_work', label: 'Sẵn sàng trao đổi' },
+      { id: 'employed', label: 'Đang đi làm' },
+      { id: 'not_looking', label: 'Chưa tìm việc' },
     ],
     multiSelect: false,
   },
   {
-    id: 'rating',
-    title: 'Đánh giá',
+    id: 'profile',
+    title: 'Mức độ hồ sơ',
     icon: Star,
     options: [
-      { id: '4.5+', label: '4.5+ sao', count: 42 },
-      { id: '4.0+', label: '4.0+ sao', count: 65 },
-      { id: '3.5+', label: '3.5+ sao', count: 78 },
+      { id: 'skill-rich', label: 'Đầy đủ kỹ năng' },
+      { id: 'has-resume', label: 'Có CV' },
+      { id: 'experienced', label: 'Có kinh nghiệm' },
     ],
     multiSelect: false,
   },
 ];
+
+const candidateSearchText = (candidate = {}) =>
+  [
+    candidate.name,
+    candidate.title,
+    candidate.location,
+    candidate.availability,
+    ...(candidate.skills || []),
+  ]
+    .join(' ')
+    .toLowerCase();
+
+const matchesSkillFilter = (candidate, filterId) => {
+  const terms = SKILL_FILTER_TERMS[filterId] || [];
+  const text = candidateSearchText(candidate);
+  return terms.some((term) => text.includes(term));
+};
+
+const matchesExperienceFilter = (candidate, filterId) => {
+  const years = Number(candidate.experience || 0);
+  if (filterId === '0-2') return years >= 0 && years <= 2;
+  if (filterId === '2-5') return years >= 2 && years <= 5;
+  if (filterId === '5-8') return years >= 5 && years <= 8;
+  if (filterId === '8+') return years >= 8;
+  return true;
+};
+
+const matchesSalaryFilter = (candidate, filterId) => {
+  const salary = getSalaryComparable(candidate);
+  if (salary === null) return false;
+  if (filterId === 'lt20m') return salary < 20000000;
+  if (filterId === '20m-40m') return salary >= 20000000 && salary <= 40000000;
+  if (filterId === '40m-80m') return salary >= 40000000 && salary <= 80000000;
+  if (filterId === 'gt80m') return salary > 80000000;
+  return true;
+};
+
+const matchesProfileFilter = (candidate, filterId) => {
+  if (filterId === 'skill-rich')
+    return Number(candidate.skill_count || candidate.skills?.length || 0) >= 4;
+  if (filterId === 'has-resume') return Boolean(candidate.resume_url);
+  if (filterId === 'experienced') return Number(candidate.experience || 0) > 0;
+  return true;
+};
+
+const matchesCandidateFilters = (candidate, selectedFilters = {}) => {
+  const skillFilters = selectedFilters.skills || [];
+  if (
+    skillFilters.length &&
+    !skillFilters.some((filterId) => matchesSkillFilter(candidate, filterId))
+  )
+    return false;
+
+  const experienceFilters = selectedFilters.experience || [];
+  if (
+    experienceFilters.length &&
+    !experienceFilters.some((filterId) => matchesExperienceFilter(candidate, filterId))
+  )
+    return false;
+
+  const salaryFilters = selectedFilters.salary || [];
+  if (
+    salaryFilters.length &&
+    !salaryFilters.some((filterId) => matchesSalaryFilter(candidate, filterId))
+  )
+    return false;
+
+  const availabilityFilters = selectedFilters.availability || [];
+  if (availabilityFilters.length && !availabilityFilters.includes(candidate.job_search_status))
+    return false;
+
+  const profileFilters = selectedFilters.profile || [];
+  if (
+    profileFilters.length &&
+    !profileFilters.some((filterId) => matchesProfileFilter(candidate, filterId))
+  )
+    return false;
+
+  return true;
+};
+
+const buildFilterCategories = (candidates = []) => {
+  const countFor = (categoryId, optionId) =>
+    candidates.filter((candidate) =>
+      matchesCandidateFilters(candidate, { [categoryId]: [optionId] })
+    ).length;
+
+  return FILTER_CATEGORIES.map((category) => ({
+    ...category,
+    options: category.options.map((option) => ({
+      ...option,
+      count: countFor(category.id, option.id),
+    })),
+  }));
+};
 
 // ============================================================================
 // UTILITY COMPONENTS
@@ -259,7 +332,9 @@ const SkillBadge = ({ skill, variant = 'default' }) => {
   };
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${variants[variant]}`}>
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${variants[variant]}`}
+    >
       {skill}
     </span>
   );
@@ -310,7 +385,9 @@ const Avatar = ({ name, size = 'md', className = '' }) => {
 const StatusIndicator = ({ status }) => {
   const statusConfig = {
     active: { color: 'bg-emerald-500', label: 'Đang tìm việc', textColor: 'text-emerald-600' },
-    passive: { color: 'bg-amber-500', label: 'Thụ động', textColor: 'text-amber-600' },
+    passive: { color: 'bg-amber-500', label: 'Sẵn sàng trao đổi', textColor: 'text-amber-600' },
+    employed: { color: 'bg-blue-500', label: 'Đang đi làm', textColor: 'text-blue-600' },
+    not_looking: { color: 'bg-slate-500', label: 'Chưa tìm việc', textColor: 'text-slate-600' },
     interviewed: { color: 'bg-blue-500', label: 'Đã phỏng vấn', textColor: 'text-blue-600' },
     hired: { color: 'bg-purple-500', label: 'Đã tuyển', textColor: 'text-purple-600' },
   };
@@ -332,7 +409,13 @@ const StatusIndicator = ({ status }) => {
 /**
  * FilterSidebar - Left sidebar for filtering candidates
  */
-const FilterSidebar = ({ isOpen, onClose, selectedFilters, onFilterChange }) => {
+const FilterSidebar = ({
+  isOpen,
+  onClose,
+  selectedFilters,
+  onFilterChange,
+  filterCategories = FILTER_CATEGORIES,
+}) => {
   const [expandedSections, setExpandedSections] = useState(
     FILTER_CATEGORIES.reduce((acc, cat) => ({ ...acc, [cat.id]: true }), {})
   );
@@ -409,7 +492,7 @@ const FilterSidebar = ({ isOpen, onClose, selectedFilters, onFilterChange }) => 
 
         {/* Filter sections */}
         <div className="flex-1 overflow-y-auto p-4 space-y-6">
-          {FILTER_CATEGORIES.map((category) => {
+          {filterCategories.map((category) => {
             const Icon = category.icon;
             const isExpanded = expandedSections[category.id];
 
@@ -426,8 +509,9 @@ const FilterSidebar = ({ isOpen, onClose, selectedFilters, onFilterChange }) => 
                     </span>
                   </div>
                   <ChevronDown
-                    className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''
-                      }`}
+                    className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                      isExpanded ? 'rotate-180' : ''
+                    }`}
                   />
                 </button>
 
@@ -442,35 +526,43 @@ const FilterSidebar = ({ isOpen, onClose, selectedFilters, onFilterChange }) => 
                     >
                       <div className="space-y-1">
                         {category.options.map((option) => {
-                          const isSelected = (selectedFilters[category.id] || []).includes(option.id);
+                          const isSelected = (selectedFilters[category.id] || []).includes(
+                            option.id
+                          );
 
                           return (
                             <label
                               key={option.id}
-                              className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${isSelected
+                              className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${
+                                isSelected
                                   ? 'bg-emerald-50 border border-emerald-200'
                                   : 'hover:bg-slate-50 border border-transparent'
-                                }`}
+                              }`}
                             >
                               <div
-                                className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${isSelected
+                                className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${
+                                  isSelected
                                     ? 'bg-emerald-500 border-emerald-500'
                                     : 'border-slate-300'
-                                  }`}
+                                }`}
                               >
                                 {isSelected && <Check className="w-2.5 h-2.5 text-white" />}
                               </div>
                               <div
-                                className={`flex-1 flex items-center gap-2 ${category.multiSelect ? '' : 'flex-row-reverse justify-between'
-                                  }`}
+                                className={`flex-1 flex items-center gap-2 ${
+                                  category.multiSelect ? '' : 'flex-row-reverse justify-between'
+                                }`}
                               >
                                 <span
-                                  className={`text-sm ${isSelected ? 'text-emerald-700 font-medium' : 'text-slate-600'
-                                    }`}
+                                  className={`text-sm ${
+                                    isSelected ? 'text-emerald-700 font-medium' : 'text-slate-600'
+                                  }`}
                                 >
                                   {option.label}
                                 </span>
-                                <span className={`text-xs ${isSelected ? 'text-emerald-500' : 'text-slate-400'}`}>
+                                <span
+                                  className={`text-xs ${isSelected ? 'text-emerald-500' : 'text-slate-400'}`}
+                                >
                                   {option.count}
                                 </span>
                               </div>
@@ -536,7 +628,7 @@ const CandidateCard = ({ candidate, onViewDetail, viewMode = 'grid' }) => {
             <div className="flex items-center gap-4 text-xs text-slate-500">
               <span className="flex items-center gap-1">
                 <Briefcase className="w-3.5 h-3.5" />
-                {candidate.experience} năm
+                {candidate.experienceLabel}
               </span>
               <span className="flex items-center gap-1">
                 <MapPin className="w-3.5 h-3.5" />
@@ -544,7 +636,7 @@ const CandidateCard = ({ candidate, onViewDetail, viewMode = 'grid' }) => {
               </span>
               <span className="flex items-center gap-1">
                 <DollarSign className="w-3.5 h-3.5" />
-                ${candidate.salary.min / 1000}k - ${candidate.salary.max / 1000}k
+                {candidate.salaryLabel}
               </span>
             </div>
           </div>
@@ -602,7 +694,7 @@ const CandidateCard = ({ candidate, onViewDetail, viewMode = 'grid' }) => {
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="flex items-center gap-2 text-sm text-slate-600">
             <Briefcase className="w-4 h-4 text-slate-400" />
-            <span>{candidate.experience} năm kinh nghiệm</span>
+            <span>{candidate.experienceLabel}</span>
           </div>
           <div className="flex items-center gap-2 text-sm text-slate-600">
             <MapPin className="w-4 h-4 text-slate-400" />
@@ -610,11 +702,13 @@ const CandidateCard = ({ candidate, onViewDetail, viewMode = 'grid' }) => {
           </div>
           <div className="flex items-center gap-2 text-sm text-slate-600">
             <DollarSign className="w-4 h-4 text-slate-400" />
-            <span>${candidate.salary.min / 1000}k - ${candidate.salary.max / 1000}k</span>
+            <span>{candidate.salaryLabel}</span>
           </div>
           <div className="flex items-center gap-2 text-sm text-slate-600">
             <Calendar className="w-4 h-4 text-slate-400" />
-            <span>Ứng tuyển {candidate.appliedDate}</span>
+            <span>
+              {candidate.activityLabel} {candidate.appliedDate}
+            </span>
           </div>
         </div>
 
@@ -632,9 +726,9 @@ const CandidateCard = ({ candidate, onViewDetail, viewMode = 'grid' }) => {
 
         {/* Highlights */}
         <div className="flex flex-wrap gap-2 mb-4">
-          {candidate.highlights.slice(0, 2).map((highlight, idx) => (
+          {candidate.highlights.slice(0, 2).map((highlight) => (
             <span
-              key={idx}
+              key={highlight}
               className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-slate-50 text-xs text-slate-600"
             >
               <Award className="w-3 h-3 text-emerald-500" />
@@ -647,19 +741,25 @@ const CandidateCard = ({ candidate, onViewDetail, viewMode = 'grid' }) => {
         <div className="flex items-center justify-between pt-4 border-t border-slate-100">
           <div className="flex items-center gap-2">
             <button
-              onClick={(e) => { e.stopPropagation(); }}
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
               className="p-2 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
             >
               <UserPlus className="w-4 h-4" />
             </button>
             <button
-              onClick={(e) => { e.stopPropagation(); }}
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
               className="p-2 rounded-lg bg-slate-50 text-slate-600 hover:bg-slate-100 transition-colors"
             >
               <Mail className="w-4 h-4" />
             </button>
             <button
-              onClick={(e) => { e.stopPropagation(); }}
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
               className="p-2 rounded-lg bg-slate-50 text-slate-600 hover:bg-slate-100 transition-colors"
             >
               <Star className="w-4 h-4" />
@@ -761,7 +861,7 @@ const CandidateDetailModal = ({ candidate, isOpen, onClose }) => {
                     <div className="space-y-4 border-l-2 border-slate-200 ml-2 pl-6">
                       <div className="relative">
                         <div className="absolute -left-8 w-4 h-4 rounded-full bg-emerald-500 border-4 border-white" />
-                        <p className="font-medium text-slate-900">Ứng tuyển vị trí lập trình viên cấp cao</p>
+                        <p className="font-medium text-slate-900">{candidate.timelineTitle}</p>
                         <p className="text-sm text-slate-500">{candidate.appliedDate}</p>
                       </div>
                       <div className="relative">
@@ -786,13 +886,13 @@ const CandidateDetailModal = ({ candidate, isOpen, onClose }) => {
                   <div className="bg-slate-50 rounded-xl p-4 space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-slate-600">Kinh nghiệm</span>
-                      <span className="font-medium text-slate-900">{candidate.experience} năm</span>
+                      <span className="font-medium text-slate-900">
+                        {candidate.experienceLabel}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-slate-600">Mức lương</span>
-                      <span className="font-medium text-slate-900">
-                        ${candidate.salary.min / 1000}k - ${candidate.salary.max / 1000}k
-                      </span>
+                      <span className="font-medium text-slate-900">{candidate.salaryLabel}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-slate-600">Địa điểm</span>
@@ -802,7 +902,7 @@ const CandidateDetailModal = ({ candidate, isOpen, onClose }) => {
                       <span className="text-sm text-slate-600">Đánh giá</span>
                       <span className="font-medium text-slate-900 flex items-center gap-1">
                         <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                        {candidate.rating}
+                        {candidate.skillCountLabel}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
@@ -820,11 +920,11 @@ const CandidateDetailModal = ({ candidate, isOpen, onClose }) => {
                     <h4 className="font-medium text-slate-900">Liên hệ</h4>
                     <div className="flex items-center gap-3 text-sm">
                       <Mail className="w-4 h-4 text-slate-400" />
-                      <span className="text-slate-600">{candidate.email}</span>
+                      <span className="text-slate-600">{candidate.emailLabel}</span>
                     </div>
                     <div className="flex items-center gap-3 text-sm">
                       <Phone className="w-4 h-4 text-slate-400" />
-                      <span className="text-slate-600">{candidate.phone}</span>
+                      <span className="text-slate-600">{candidate.phoneLabel}</span>
                     </div>
                   </div>
 
@@ -896,10 +996,11 @@ const TalentPoolHeader = ({
           <div className="flex items-center gap-3">
             <button
               onClick={onOpenFilter}
-              className={`lg:hidden relative p-2.5 rounded-xl border transition-colors ${hasActiveFilters
+              className={`lg:hidden relative p-2.5 rounded-xl border transition-colors ${
+                hasActiveFilters
                   ? 'bg-emerald-50 border-emerald-200 text-emerald-600'
                   : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                }`}
+              }`}
             >
               <SlidersHorizontal className="w-5 h-5" />
             </button>
@@ -907,19 +1008,21 @@ const TalentPoolHeader = ({
             <div className="flex items-center bg-slate-100 rounded-xl p-1">
               <button
                 onClick={() => onViewModeChange('grid')}
-                className={`p-2 rounded-lg transition-colors ${viewMode === 'grid'
+                className={`p-2 rounded-lg transition-colors ${
+                  viewMode === 'grid'
                     ? 'bg-white text-emerald-600 shadow-sm'
                     : 'text-slate-500 hover:text-slate-700'
-                  }`}
+                }`}
               >
                 <Grid3X3 className="w-5 h-5" />
               </button>
               <button
                 onClick={() => onViewModeChange('list')}
-                className={`p-2 rounded-lg transition-colors ${viewMode === 'list'
+                className={`p-2 rounded-lg transition-colors ${
+                  viewMode === 'list'
                     ? 'bg-white text-emerald-600 shadow-sm'
                     : 'text-slate-500 hover:text-slate-700'
-                  }`}
+                }`}
               >
                 <List className="w-5 h-5" />
               </button>
@@ -992,23 +1095,58 @@ const TalentPool = () => {
   const [selectedFilters, setSelectedFilters] = useState({});
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [candidates, setCandidates] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // Filter candidates based on search and filters
-  const filteredCandidates = useMemo(() => {
-    return MOCK_CANDIDATES.filter((candidate) => {
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        const matchesSearch =
-          candidate.name.toLowerCase().includes(query) ||
-          candidate.title.toLowerCase().includes(query) ||
-          candidate.skills.some((skill) => skill.toLowerCase().includes(query)) ||
-          candidate.location.toLowerCase().includes(query);
-        if (!matchesSearch) return false;
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchCandidates = async () => {
+      setLoading(true);
+      setError('');
+
+      try {
+        const response = await employerCandidateService.searchCandidates({
+          page: 1,
+          limit: PAGE_SIZE,
+          sort: 'recent',
+        });
+        if (cancelled) return;
+
+        const rows = Array.isArray(response?.data?.data) ? response.data.data : [];
+        setCandidates(rows);
+      } catch (fetchError) {
+        if (cancelled) return;
+        console.error('Failed to load talent pool candidates:', fetchError);
+        setCandidates([]);
+        setError('Không tải được danh sách ứng viên từ API.');
+      } finally {
+        if (!cancelled) setLoading(false);
       }
+    };
 
-      return true;
+    fetchCandidates();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const normalizedCandidates = useMemo(() => candidates.map(normalizeCandidate), [candidates]);
+  const filterCategories = useMemo(
+    () => buildFilterCategories(normalizedCandidates),
+    [normalizedCandidates]
+  );
+
+  const filteredCandidates = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+
+    return normalizedCandidates.filter((candidate) => {
+      if (query && !candidateSearchText(candidate).includes(query)) return false;
+      return matchesCandidateFilters(candidate, selectedFilters);
     });
-  }, [searchQuery, selectedFilters]);
+  }, [normalizedCandidates, searchQuery, selectedFilters]);
 
   const handleViewDetail = (candidate) => {
     setSelectedCandidate(candidate);
@@ -1016,6 +1154,65 @@ const TalentPool = () => {
   };
 
   const hasActiveFilters = Object.values(selectedFilters).some((arr) => arr.length > 0);
+
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="flex min-h-[320px] items-center justify-center rounded-2xl border border-slate-200 bg-white">
+          <Loader2 className="h-7 w-7 animate-spin text-emerald-500" />
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="flex min-h-[320px] items-center justify-center rounded-2xl border border-dashed border-red-200 bg-red-50 px-4 text-center text-sm font-semibold text-red-600">
+          <AlertCircle className="mr-2 h-5 w-5" />
+          {error}
+        </div>
+      );
+    }
+
+    if (filteredCandidates.length === 0) {
+      return (
+        <EmptyState
+          hasFilters={hasActiveFilters || searchQuery}
+          onClearFilters={() => {
+            setSelectedFilters({});
+            setSearchQuery('');
+          }}
+        />
+      );
+    }
+
+    if (viewMode === 'grid') {
+      return (
+        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
+          {filteredCandidates.map((candidate) => (
+            <CandidateCard
+              key={candidate.id}
+              candidate={candidate}
+              viewMode={viewMode}
+              onViewDetail={handleViewDetail}
+            />
+          ))}
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-3">
+        {filteredCandidates.map((candidate) => (
+          <CandidateCard
+            key={candidate.id}
+            candidate={candidate}
+            viewMode={viewMode}
+            onViewDetail={handleViewDetail}
+          />
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
@@ -1025,6 +1222,7 @@ const TalentPool = () => {
         onClose={() => setIsFilterOpen(false)}
         selectedFilters={selectedFilters}
         onFilterChange={setSelectedFilters}
+        filterCategories={filterCategories}
       />
 
       {/* Main Content */}
@@ -1042,39 +1240,7 @@ const TalentPool = () => {
         />
 
         {/* Content */}
-        <div className="flex-1 p-6">
-          {filteredCandidates.length === 0 ? (
-            <EmptyState
-              hasFilters={hasActiveFilters || searchQuery}
-              onClearFilters={() => {
-                setSelectedFilters({});
-                setSearchQuery('');
-              }}
-            />
-          ) : viewMode === 'grid' ? (
-            <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
-              {filteredCandidates.map((candidate) => (
-                <CandidateCard
-                  key={candidate.id}
-                  candidate={candidate}
-                  viewMode={viewMode}
-                  onViewDetail={handleViewDetail}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {filteredCandidates.map((candidate) => (
-                <CandidateCard
-                  key={candidate.id}
-                  candidate={candidate}
-                  viewMode={viewMode}
-                  onViewDetail={handleViewDetail}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+        <div className="flex-1 p-6">{renderContent()}</div>
       </div>
 
       {/* Detail Modal */}

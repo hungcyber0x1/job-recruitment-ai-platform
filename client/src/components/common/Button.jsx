@@ -19,10 +19,8 @@ const buttonVariants = cva(
           'border border-border bg-card text-foreground shadow-sm hover:border-primary/20 hover:bg-muted/60',
         ghost:
           'border border-transparent bg-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground',
-        danger:
-          'border border-danger bg-danger text-white shadow-sm hover:bg-danger/92',
-        destructive:
-          'border border-danger bg-danger text-white shadow-sm hover:bg-danger/92',
+        danger: 'border border-danger bg-danger text-white shadow-sm hover:bg-danger/92',
+        destructive: 'border border-danger bg-danger text-white shadow-sm hover:bg-danger/92',
         white:
           'border border-border bg-card text-foreground shadow-sm hover:border-primary/20 hover:bg-muted/60',
         glass:

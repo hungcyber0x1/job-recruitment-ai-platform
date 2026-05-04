@@ -15,7 +15,6 @@ const CategoryRepository = require('./Category');
 const SkillRepository = require('./Skill');
 const NotificationRepository = require('./Notification');
 const SupportTicketRepository = require('./SupportTicket');
-const ChatRepository = require('./Chat');
 const ResumeAnalysisRepository = require('./ResumeAnalysis');
 
 module.exports = {
@@ -32,6 +31,5 @@ module.exports = {
   SkillRepository,
   NotificationRepository,
   SupportTicketRepository,
-  ChatRepository,
   ResumeAnalysisRepository,
 };

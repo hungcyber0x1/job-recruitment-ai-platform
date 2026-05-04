@@ -2,14 +2,12 @@ const AuthService = require('../services/auth');
 const catchAsync = require('../utils/catchAsync');
 const { toUserContract } = require('../utils/user-contract');
 const ApiResponse = require('../utils/ApiResponse');
-const {
-  getAdminPreset,
-  getEffectiveAdminPermissions,
-} = require('../utils/admin-permissions');
+const { getAdminPreset, getEffectiveAdminPermissions } = require('../utils/admin-permissions');
 
 function normalizeRole(role) {
-  const normalizedRole = String(role ?? '').trim().toLowerCase();
-  return normalizedRole === 'employer' ? 'recruiter' : normalizedRole;
+  return String(role ?? '')
+    .trim()
+    .toLowerCase();
 }
 
 class AuthController {
@@ -64,7 +62,11 @@ class AuthController {
     const requiresApproval =
       !shouldIssueToken &&
       normalizedRole === 'recruiter' &&
-      ['pending', 'pending_verification'].includes(String(user?.status ?? '').trim().toLowerCase());
+      ['pending', 'pending_verification'].includes(
+        String(user?.status ?? '')
+          .trim()
+          .toLowerCase()
+      );
 
     const payload = {
       ...this.buildAuthUserData(user),
@@ -87,6 +89,10 @@ class AuthController {
       ...this.buildAuthUserData(user),
       token,
     });
+  });
+
+  logout = catchAsync(async (_req, res) => {
+    return ApiResponse.success(res, null, 'Logged out successfully');
   });
 
   getMe = catchAsync(async (req, res) => {

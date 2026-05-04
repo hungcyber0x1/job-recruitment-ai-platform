@@ -12,7 +12,15 @@
  */
 import React, { useCallback, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import { ChevronLeft, ChevronRight, CheckSquare, Square, X, Search, ArrowUpDown } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  CheckSquare,
+  Square,
+  X,
+  Search,
+  ArrowUpDown,
+} from 'lucide-react';
 import { cn } from '@/utils';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -77,14 +85,17 @@ const AdminTable = ({
   const [internalSearch, setInternalSearch] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
   const searchValue = searchable?.value ?? internalSearch;
-  
-  const handleSearchChange = useCallback((val) => {
-    if (searchable?.onChange) {
-      searchable.onChange(val);
-    } else {
-      setInternalSearch(val);
-    }
-  }, [searchable]);
+
+  const handleSearchChange = useCallback(
+    (val) => {
+      if (searchable?.onChange) {
+        searchable.onChange(val);
+      } else {
+        setInternalSearch(val);
+      }
+    },
+    [searchable]
+  );
 
   const allSelected =
     selectable &&
@@ -97,25 +108,30 @@ const AdminTable = ({
     if (allSelected) {
       selectable.onSelectChange([]);
     } else {
-      const keys = (data || []).map(row => String(selectable.rowKey ? selectable.rowKey(row) : row.id));
+      const keys = (data || []).map((row) =>
+        String(selectable.rowKey ? selectable.rowKey(row) : row.id)
+      );
       selectable.onSelectChange(keys);
     }
   }, [selectable, allSelected, data]);
 
-  const handleSelectRow = useCallback((key) => {
-    if (!selectable) return;
-    const current = selectable.selectedIds || [];
-    if (current.includes(key)) {
-      selectable.onSelectChange(current.filter(k => k !== key));
-    } else {
-      selectable.onSelectChange([...current, key]);
-    }
-  }, [selectable]);
+  const handleSelectRow = useCallback(
+    (key) => {
+      if (!selectable) return;
+      const current = selectable.selectedIds || [];
+      if (current.includes(key)) {
+        selectable.onSelectChange(current.filter((k) => k !== key));
+      } else {
+        selectable.onSelectChange([...current, key]);
+      }
+    },
+    [selectable]
+  );
 
   const handleSort = useCallback((key) => {
-    setSortConfig(prev => ({
+    setSortConfig((prev) => ({
       key,
-      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
     }));
   }, []);
 
@@ -166,10 +182,22 @@ const AdminTable = ({
             )}
             onClick={col.sortable ? () => handleSort(col.key) : undefined}
           >
-            <div className={cn('flex items-center gap-2', col.align === 'right' && 'justify-end', col.align === 'center' && 'justify-center')}>
+            <div
+              className={cn(
+                'flex items-center gap-2',
+                col.align === 'right' && 'justify-end',
+                col.align === 'center' && 'justify-center'
+              )}
+            >
               {col.header}
               {col.sortable && (
-                <ArrowUpDown size={12} className={cn('opacity-40', sortConfig.key === col.key && 'opacity-100 text-primary')} />
+                <ArrowUpDown
+                  size={12}
+                  className={cn(
+                    'opacity-40',
+                    sortConfig.key === col.key && 'opacity-100 text-primary'
+                  )}
+                />
               )}
             </div>
           </th>
@@ -181,7 +209,11 @@ const AdminTable = ({
   const renderSkeletonRows = () =>
     Array.from({ length: 5 }).map((_, rowIdx) => (
       <tr key={rowIdx} className="animate-pulse border-b border-border/50">
-        {selectable && <td className="w-12 px-5 py-5"><Skeleton className="h-5 w-5 rounded-lg" /></td>}
+        {selectable && (
+          <td className="w-12 px-5 py-5">
+            <Skeleton className="h-5 w-5 rounded-lg" />
+          </td>
+        )}
         {(columns || []).map((col, colIdx) => (
           <td key={colIdx} className="px-5 py-5">
             <Skeleton className="h-4 w-3/4 rounded-lg" />
@@ -197,7 +229,14 @@ const AdminTable = ({
           <td colSpan={colCount} className="px-4 py-20 text-center">
             <div className="flex flex-col items-center gap-4">
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted/50 text-muted-foreground">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <svg
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
                   <circle cx="11" cy="11" r="8" />
                   <path d="m21 21-4.3-4.3" />
                 </svg>
@@ -231,9 +270,7 @@ const AdminTable = ({
           key={rowKey}
           className={cn(
             'group border-b border-border/50 transition-all duration-200',
-            isSelected
-              ? 'bg-primary/[0.04]'
-              : 'hover:bg-muted/40'
+            isSelected ? 'bg-primary/[0.04]' : 'hover:bg-muted/40'
           )}
         >
           {selectable && (
@@ -251,7 +288,7 @@ const AdminTable = ({
               </button>
             </td>
           )}
-          {columns.map(col => {
+          {columns.map((col) => {
             const cellValue = col.key ? row[col.key] : row;
             let content;
 
@@ -291,8 +328,14 @@ const AdminTable = ({
             {/* Title & Subtitle */}
             {(title || subtitle) && (
               <div>
-                {title && <h3 className="text-base font-semibold tracking-tight text-foreground">{title}</h3>}
-                {subtitle && <p className="mt-1 text-sm leading-6 text-muted-foreground">{subtitle}</p>}
+                {title && (
+                  <h3 className="text-base font-semibold tracking-tight text-foreground">
+                    {title}
+                  </h3>
+                )}
+                {subtitle && (
+                  <p className="mt-1 text-sm leading-6 text-muted-foreground">{subtitle}</p>
+                )}
               </div>
             )}
 
@@ -329,7 +372,8 @@ const AdminTable = ({
               <CheckSquare size={16} />
             </div>
             <span className="text-sm font-medium text-foreground">
-              Đã chọn <span className="font-bold text-primary">{selectable.selectedIds.length}</span> mục
+              Đã chọn{' '}
+              <span className="font-bold text-primary">{selectable.selectedIds.length}</span> mục
             </span>
             <button
               onClick={() => selectable.onSelectChange([])}
@@ -348,7 +392,7 @@ const AdminTable = ({
           <table className="data-table min-w-[600px]">
             {renderHeader()}
             <tbody className="divide-y divide-border/50">
-              {loading ? renderSkeletonRows() : (children || renderRows())}
+              {loading ? renderSkeletonRows() : children || renderRows()}
             </tbody>
           </table>
         </div>
@@ -361,13 +405,13 @@ const AdminTable = ({
                 <>
                   Hiển thị{' '}
                   <span className="font-semibold text-foreground">
-                    {((pagination.currentPage - 1) * pageSize) + 1}
+                    {(pagination.currentPage - 1) * pageSize + 1}
                   </span>
                   {' – '}
                   <span className="font-semibold text-foreground">
                     {Math.min(pagination.currentPage * pageSize, pagination.totalItems)}
-                  </span>
-                  {' '}trên{' '}
+                  </span>{' '}
+                  trên{' '}
                   <span className="font-semibold text-foreground">{pagination.totalItems}</span>
                 </>
               ) : (

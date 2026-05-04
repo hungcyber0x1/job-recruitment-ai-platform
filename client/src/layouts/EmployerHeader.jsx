@@ -69,11 +69,11 @@ const EmployerHeader = ({ onMenuClick }) => {
           </DropdownMenu>
 
           {/* Logout Button */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={handleLogout} 
-            title="Đăng xuất" 
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleLogout}
+            title="Đăng xuất"
             className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 hidden sm:flex"
           >
             <LogOut className="h-5 w-5" />
@@ -81,7 +81,10 @@ const EmployerHeader = ({ onMenuClick }) => {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0 flex items-center justify-center group focus-visible:ring-offset-0">
+              <Button
+                variant="ghost"
+                className="relative h-8 w-8 rounded-full p-0 flex items-center justify-center group focus-visible:ring-offset-0"
+              >
                 <Avatar className="h-8 w-8 border-2 border-transparent group-hover:border-primary/20 transition-all duration-300">
                   <AvatarImage src={user?.avatar_url} alt={user?.fullName} />
                   <AvatarFallback className="bg-emerald-600/10 text-emerald-600 font-semibold text-xs">
@@ -91,7 +94,11 @@ const EmployerHeader = ({ onMenuClick }) => {
                 <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 border-2 border-white group-hover:scale-110 transition-transform duration-300"></span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-72 p-2 rounded-xl border-slate-100 shadow-xl" align="end" forceMount>
+            <DropdownMenuContent
+              className="w-72 p-2 rounded-xl border-slate-100 shadow-xl"
+              align="end"
+              forceMount
+            >
               <DropdownMenuLabel className="font-normal p-4">
                 <div className="flex items-center gap-4">
                   <div className="relative shrink-0">
@@ -114,19 +121,28 @@ const EmployerHeader = ({ onMenuClick }) => {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-slate-100 my-1 mx-2" />
-              <DropdownMenuItem asChild className="p-3 my-1 cursor-pointer hover:bg-slate-50 focus:bg-slate-50 transition-colors rounded-xl text-slate-700">
+              <DropdownMenuItem
+                asChild
+                className="p-3 my-1 cursor-pointer hover:bg-slate-50 focus:bg-slate-50 transition-colors rounded-xl text-slate-700"
+              >
                 <Link to="/employer/dashboard" className="flex items-center">
                   <Briefcase className="mr-3 h-5 w-5 text-slate-500" />
-                  <span className="text-sm font-semibold">Bảng điều khiển</span>
+                  <span className="text-sm font-semibold">Tổng quan</span>
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild className="p-3 my-1 cursor-pointer hover:bg-slate-50 focus:bg-slate-50 transition-colors rounded-xl text-slate-700">
+              <DropdownMenuItem
+                asChild
+                className="p-3 my-1 cursor-pointer hover:bg-slate-50 focus:bg-slate-50 transition-colors rounded-xl text-slate-700"
+              >
                 <Link to="/employer/company-profile" className="flex items-center">
                   <Building2 className="mr-3 h-5 w-5 text-slate-500" />
                   <span className="text-sm font-semibold">Hồ sơ công ty</span>
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild className="p-3 my-1 cursor-pointer hover:bg-slate-50 focus:bg-slate-50 transition-colors rounded-xl text-slate-700">
+              <DropdownMenuItem
+                asChild
+                className="p-3 my-1 cursor-pointer hover:bg-slate-50 focus:bg-slate-50 transition-colors rounded-xl text-slate-700"
+              >
                 <Link to="/employer/settings" className="flex items-center">
                   <Settings className="mr-3 h-5 w-5 text-slate-500" />
                   <span className="text-sm font-semibold">Cài đặt</span>

@@ -1,7 +1,7 @@
 /**
  * Chatbot Routes — AI chatbot endpoints.
  *
- * ⚠️   TABLE: Sử dụng `chatbot_conversations` và `chatbot_messages`
+ * TABLE: Sử dụng schema chatbot hiện hành `conversations` và `chat_messages`.
  */
 const express = require('express');
 const router = express.Router();

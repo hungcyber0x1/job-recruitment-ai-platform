@@ -1,6 +1,6 @@
 /**
  * Talent Pool Components - Professional Candidate Management Interface
- * 
+ *
  * A comprehensive, enterprise-grade talent management system with:
  * - Advanced filtering capabilities
  * - Grid and list view modes

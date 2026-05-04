@@ -44,7 +44,8 @@ const sendEmail = catchAsync(async (req, res) => {
 
 const sendInterviewInvite = catchAsync(async (req, res) => {
   const user = req.user;
-  const { application_id, interview_date, interview_time, interview_location, interview_notes } = req.body;
+  const { application_id, interview_date, interview_time, interview_location, interview_notes } =
+    req.body;
   const companyId = user.company_id || user.companyId;
 
   const subject = `Lời mời phỏng vấn - ${interview_date || ''}`;
@@ -111,7 +112,8 @@ const sendRejection = catchAsync(async (req, res) => {
 
 const sendOffer = catchAsync(async (req, res) => {
   const user = req.user;
-  const { application_id, offer_salary, offer_start_date, offer_deadline, custom_message } = req.body;
+  const { application_id, offer_salary, offer_start_date, offer_deadline, custom_message } =
+    req.body;
   const companyId = user.company_id || user.companyId;
 
   try {
@@ -179,7 +181,11 @@ const sendBulk = catchAsync(async (req, res) => {
     }
   }
 
-  return ApiResponse.success(res, results, `Đã gửi ${results.filter(r => r.status === 'sent').length} email`);
+  return ApiResponse.success(
+    res,
+    results,
+    `Đã gửi ${results.filter((r) => r.status === 'sent').length} email`
+  );
 });
 
 const getHistory = catchAsync(async (req, res) => {
@@ -205,9 +211,27 @@ const getTemplates = catchAsync(async (req, res) => {
 
   // Return built-in templates (stored in memory or DB)
   const builtIn = [
-    { id: 'builtin-interview', name: 'Mời phỏng vấn', type: 'interview_invite', subject: 'Lời mời phỏng vấn tại {{company_name}}', body: 'Kính gửi {{candidate_name}}...' },
-    { id: 'builtin-rejection', name: 'Thư từ chối', type: 'rejection', subject: 'Cập nhật đơn ứng tuyển', body: 'Kính gửi {{candidate_name}}...' },
-    { id: 'builtin-offer', name: 'Gửi Offer', type: 'offer', subject: 'Đề nghị việc làm', body: 'Kính gửi {{candidate_name}}...' },
+    {
+      id: 'builtin-interview',
+      name: 'Mời phỏng vấn',
+      type: 'interview_invite',
+      subject: 'Lời mời phỏng vấn tại {{company_name}}',
+      body: 'Kính gửi {{candidate_name}}...',
+    },
+    {
+      id: 'builtin-rejection',
+      name: 'Thư từ chối',
+      type: 'rejection',
+      subject: 'Cập nhật đơn ứng tuyển',
+      body: 'Kính gửi {{candidate_name}}...',
+    },
+    {
+      id: 'builtin-offer',
+      name: 'Gửi Offer',
+      type: 'offer',
+      subject: 'Đề nghị việc làm',
+      body: 'Kính gửi {{candidate_name}}...',
+    },
   ];
   return ApiResponse.success(res, builtIn);
 });

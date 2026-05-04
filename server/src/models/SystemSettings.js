@@ -65,10 +65,18 @@ class SystemSettingsRepository {
     return defaultValue;
   }
 
+  _serializeValue(value) {
+    if (typeof value === 'boolean') return value ? 'true' : 'false';
+    if (typeof value === 'number') return String(value);
+    if (value && typeof value === 'object') return JSON.stringify(value);
+    return value == null ? '' : String(value);
+  }
+
   async update(key, value) {
+    const serializedValue = this._serializeValue(value);
     const [result] = await pool.query(
       'INSERT INTO system_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?',
-      [key, value, value]
+      [key, serializedValue, serializedValue]
     );
     return result;
   }

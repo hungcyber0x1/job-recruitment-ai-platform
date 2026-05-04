@@ -15,27 +15,22 @@ import {
   Lightbulb,
   MapPin,
   Save,
-  SlidersHorizontal,
   Sparkles,
-  Wand2,
   X,
   Zap,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { aiService } from '@/services';
 import { useNotification } from '../../context/NotificationContext';
 import { Input as FormInput, RichTextEditor } from '../../components/common';
 import EmployerStatCard from '../../components/employer/EmployerStatCard';
-import {
-  FORM_VALUE_TO_JOB_TYPE,
-  JOB_TYPE_TO_FORM_VALUE,
-} from '../../constants/status';
+import { FORM_VALUE_TO_JOB_TYPE, JOB_TYPE_TO_FORM_VALUE } from '../../constants/status';
 import adminService from '../../services/adminService';
 import categoryService from '../../services/categoryService';
 import jobService from '../../services/jobService';
 import { cn } from '../../utils/cn';
+import { sanitizeHtml } from '../../utils/sanitizeHtml';
 
 const DEFAULT_FORM = {
   title: '',
@@ -82,21 +77,6 @@ const EDUCATION_OPTIONS = [
   { value: 'other', label: 'Khác' },
 ];
 
-const RATING_META = {
-  Premium: {
-    label: 'Rất tốt',
-    badgeClass: 'border-emerald-200 bg-emerald-50 text-emerald-700',
-  },
-  Good: {
-    label: 'Ổn định',
-    badgeClass: 'border-sky-200 bg-sky-50 text-sky-700',
-  },
-  'Needs Improvement': {
-    label: 'Cần bổ sung',
-    badgeClass: 'border-amber-200 bg-amber-50 text-amber-700',
-  },
-};
-
 const WORKFLOW_STAGE_STYLES = {
   emerald: {
     icon: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
@@ -131,7 +111,10 @@ const todayYmdLocal = () => {
 const isTruthyFlag = (value) =>
   value === true || value === 1 || value === '1' || String(value).toLowerCase() === 'true';
 
-const stripHtml = (value = '') => String(value).replace(/<[^>]*>?/gm, '').trim();
+const stripHtml = (value = '') =>
+  String(value)
+    .replace(/<[^>]*>?/gm, '')
+    .trim();
 
 function QuickActionButton({ icon: Icon, tone = 'default', className, children, ...props }) {
   const toneClass =
@@ -194,7 +177,9 @@ function SectionHeader({ icon: Icon, eyebrow, title, description, meta }) {
             <Icon className="h-4 w-4" />
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600/80">{eyebrow}</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600/80">
+              {eyebrow}
+            </p>
             <h2 className="mt-1 text-lg font-bold tracking-tight text-slate-900">{title}</h2>
             {description ? (
               <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500">{description}</p>
@@ -218,20 +203,7 @@ const PostJobPage = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [isOptimizing, setIsOptimizing] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [aiAdvisor, setAiAdvisor] = useState({ scores: [], overallPercent: 0, rating: 'Needs Improvement' });
-
-  useEffect(() => {
-    const analysis = aiService.analyzeJobPost({
-      title: formData.title,
-      description: formData.description,
-      salaryMin: formData.salaryMin,
-      salaryMax: formData.salaryMax,
-    });
-    setAiAdvisor(analysis);
-  }, [formData]);
 
   useEffect(() => {
     const bootstrap = async () => {
@@ -287,53 +259,6 @@ const PostJobPage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   }, []);
 
-  const handleGenerateAI = async () => {
-    if (!formData.title) {
-      showNotification('Vui lòng nhập tiêu đề để tạo nội dung phù hợp.', 'warning');
-      return;
-    }
-
-    setIsGenerating(true);
-    try {
-      const selectedCategory = categories.find(
-        (category) => String(category.id) === String(formData.categoryId)
-      )?.name;
-      const result = await aiService.generateJobDescription(formData.title, selectedCategory);
-
-      if (result?.data) {
-        setFormData((prev) => ({
-          ...prev,
-          description: result.data,
-        }));
-        showNotification('Đã tạo mô tả công việc.', 'success');
-      }
-    } catch {
-      showNotification('Không thể tạo mô tả lúc này.', 'error');
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const handleOptimizeTitle = async () => {
-    if (!formData.title.trim()) {
-      showNotification('Vui lòng nhập tiêu đề trước khi tối ưu.', 'error');
-      return;
-    }
-
-    setIsOptimizing(true);
-    window.setTimeout(() => {
-      const suggestions = [
-        `Vị trí ${formData.title} cấp cao cho đội ngũ sản phẩm tăng trưởng`,
-        `${formData.title} - Cơ hội phát triển cùng đội ngũ công nghệ`,
-        `${formData.title} | Ưu tiên ứng viên có kinh nghiệm thực chiến`,
-      ];
-      const best = suggestions[Math.floor(Math.random() * suggestions.length)];
-      setFormData((prev) => ({ ...prev, title: best }));
-      showNotification('Đã tối ưu hóa tiêu đề dựa trên gợi ý.', 'success');
-      setIsOptimizing(false);
-    }, 1500);
-  };
-
   const validateForm = () => {
     const salaryMin = formData.salaryMin
       ? Number(String(formData.salaryMin).replace(/[^0-9]/g, ''))
@@ -388,7 +313,8 @@ const PostJobPage = () => {
     try {
       const payload = preparePayload('published');
       const apiCall = id
-        ? () => (isAdminPath ? adminService.updateJob(id, payload) : jobService.updateJob(id, payload))
+        ? () =>
+            isAdminPath ? adminService.updateJob(id, payload) : jobService.updateJob(id, payload)
         : () => (isAdminPath ? adminService.createJob(payload) : jobService.createJob(payload));
 
       const response = await apiCall();
@@ -429,7 +355,9 @@ const PostJobPage = () => {
     try {
       const payload = preparePayload('draft');
       const response = id
-        ? await (isAdminPath ? adminService.updateJob(id, payload) : jobService.updateJob(id, payload))
+        ? await (isAdminPath
+            ? adminService.updateJob(id, payload)
+            : jobService.updateJob(id, payload))
         : await (isAdminPath ? adminService.createJob(payload) : jobService.createJob(payload));
 
       showNotification('Đã lưu bản nháp thành công.', 'success');
@@ -462,82 +390,59 @@ const PostJobPage = () => {
   }
 
   const selectedCategoryLabel =
-    categories.find((category) => String(category.id) === String(formData.categoryId))?.name || 'Chưa chọn';
+    categories.find((category) => String(category.id) === String(formData.categoryId))?.name ||
+    'Chưa chọn';
   const jobTypeLabel =
     JOB_TYPE_OPTIONS.find((option) => option.value === formData.jobType)?.label || 'Chưa chọn';
   const educationLabel = EDUCATION_LABELS[formData.education] || formData.education || 'Chưa chọn';
   const publishButtonLabel = id ? 'Cập nhật tin tuyển dụng' : 'Công khai ngay';
-  const salaryPreviewLabel =
-    formData.salaryNegotiable
-      ? 'Thỏa thuận'
-      : formData.salaryMin || formData.salaryMax
-        ? `${formData.salaryMin || 'Thỏa thuận'}${formData.salaryMax ? ` - ${formData.salaryMax}` : ''}`
-        : 'Thỏa thuận';
+  const salaryPreviewLabel = formData.salaryNegotiable
+    ? 'Thỏa thuận'
+    : formData.salaryMin || formData.salaryMax
+      ? `${formData.salaryMin || 'Thỏa thuận'}${formData.salaryMax ? ` - ${formData.salaryMax}` : ''}`
+      : 'Thỏa thuận';
   const vacanciesPreviewLabel = `${Number.parseInt(formData.vacancies, 10) || 1} người`;
-  const filledFieldCount = [
-    formData.title,
-    formData.location,
-    formData.categoryId,
-    formData.description,
-    formData.requirements,
-    formData.benefits,
-    formData.deadline,
-  ].filter((value) => String(value || '').trim()).length;
-
-  const scores = aiAdvisor?.scores || [];
-  const pendingCount = scores.filter((score) => !score.done).length;
-  const readyCount = scores.filter((score) => score.done).length;
-  const rating = aiAdvisor?.rating || 'Needs Improvement';
-  const ratingMeta = RATING_META[rating] || RATING_META['Needs Improvement'];
-  const completionPercent = Math.min(100, Math.round((filledFieldCount / 7) * 100));
-  const overallPercent = Math.min(100, Math.round(aiAdvisor?.overallPercent || 0));
-  const setupReadyCount = [
-    formData.title,
-    formData.categoryId,
-    formData.jobType,
-  ].filter((value) => String(value || '').trim()).length;
-  const basicsReadyCount = [
-    formData.location,
-    formData.salaryNegotiable ? 'negotiable' : `${formData.salaryMin}${formData.salaryMax}`,
-    formData.vacancies,
-    formData.deadline,
-  ].filter((value) => String(value || '').trim()).length;
-  const contentReadyCount = [
+  const hasSetupInfo = Boolean(formData.title.trim() && formData.categoryId && formData.jobType);
+  const hasBasicInfo = Boolean(
+    formData.location.trim() && Number.parseInt(formData.vacancies, 10) > 0
+  );
+  const contentSectionCount = [
     formData.description,
     formData.requirements,
     formData.benefits,
   ].filter((value) => stripHtml(value).length > 0).length;
-
-  const getToneFromProgress = (current, total) => {
-    if (current >= total) return 'emerald';
-    if (current > 0) return 'blue';
-    return 'amber';
-  };
+  const hasContentInfo = contentSectionCount > 0;
+  const getToneFromState = (ready) => (ready ? 'emerald' : 'amber');
 
   const heroOverviewCards = [
     {
       icon: FileText,
-      label: 'Tiến độ biểu mẫu',
-      value: `${completionPercent}%`,
-      helper: `${filledFieldCount}/7 trường chính đã sẵn sàng để đăng.`,
-      tone: completionPercent >= 85 ? 'emerald' : completionPercent >= 50 ? 'blue' : 'amber',
+      label: 'Biểu mẫu',
+      value: formData.title ? 'Đã có tiêu đề' : 'Chưa có tiêu đề',
+      helper: formData.title
+        ? 'Tên vị trí đã sẵn sàng để tiếp tục soạn.'
+        : 'Nhập tiêu đề để bắt đầu soạn tin.',
+      tone: formData.title ? 'emerald' : 'amber',
     },
     {
       icon: Sparkles,
-      label: 'Chất lượng JD',
-      value: `${overallPercent}%`,
-      helper: `Đánh giá hiện tại: ${ratingMeta.label}.`,
-      tone: rating === 'Premium' ? 'emerald' : rating === 'Good' ? 'blue' : 'amber',
+      label: 'Nội dung JD',
+      value:
+        contentSectionCount > 0 ? `${contentSectionCount} phần có nội dung` : 'Chưa nhập nội dung',
+      helper:
+        contentSectionCount > 0
+          ? 'Các khối nội dung chính đang có dữ liệu.'
+          : 'Bổ sung mô tả, yêu cầu hoặc quyền lợi để hoàn chỉnh tin.',
+      tone: contentSectionCount > 0 ? 'blue' : 'amber',
     },
     {
       icon: Lightbulb,
-      label: 'Mục cần rà soát',
-      value: String(pendingCount),
-      helper:
-        pendingCount > 0
-          ? 'Nên rà lại trước khi công khai để tăng chất lượng đầu vào.'
-          : 'Không còn điểm nghẽn đáng kể trước khi đăng tin.',
-      tone: pendingCount > 0 ? 'amber' : 'emerald',
+      label: 'Thông tin đăng tuyển',
+      value: formData.deadline ? 'Đã đặt hạn' : 'Chưa đặt hạn',
+      helper: formData.deadline
+        ? 'Ứng viên sẽ thấy hạn nộp rõ ràng.'
+        : 'Có thể thêm hạn nộp để chiến dịch dễ theo dõi.',
+      tone: formData.deadline ? 'emerald' : 'blue',
     },
   ];
 
@@ -547,24 +452,24 @@ const PostJobPage = () => {
       icon: Briefcase,
       label: 'Định vị vai trò',
       helper: 'Tiêu đề, ngành nghề, loại hình',
-      value: `${setupReadyCount}/3`,
-      tone: getToneFromProgress(setupReadyCount, 3),
+      value: hasSetupInfo ? 'Sẵn sàng' : 'Cần nhập',
+      tone: getToneFromState(hasSetupInfo),
     },
     {
       href: '#job-basics',
       icon: MapPin,
       label: 'Thông tin cơ bản',
       helper: 'Địa điểm, lương, hạn nộp',
-      value: `${basicsReadyCount}/4`,
-      tone: getToneFromProgress(basicsReadyCount, 4),
+      value: hasBasicInfo ? 'Sẵn sàng' : 'Cần nhập',
+      tone: getToneFromState(hasBasicInfo),
     },
     {
       href: '#job-content',
       icon: FileText,
       label: 'Nội dung JD',
       helper: 'Mô tả, yêu cầu, quyền lợi',
-      value: `${contentReadyCount}/3`,
-      tone: getToneFromProgress(contentReadyCount, 3),
+      value: hasContentInfo ? 'Đã có nội dung' : 'Cần nhập',
+      tone: getToneFromState(hasContentInfo),
     },
   ];
 
@@ -572,8 +477,8 @@ const PostJobPage = () => {
     'h-11 w-full rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 shadow-sm outline-none transition-colors hover:border-slate-300 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10';
 
   return (
-    <div className="min-h-screen bg-slate-50/40 pb-16 animate-fade-in">
-      <section className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
+    <div className="min-h-screen bg-transparent pb-16 animate-fade-in">
+      <section className="relative overflow-hidden border-b border-emerald-100/70 bg-transparent">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
           style={{
@@ -597,7 +502,9 @@ const PostJobPage = () => {
                   {id ? 'Điều chỉnh chiến dịch tuyển dụng' : 'Trung tâm soạn tin tuyển dụng'}
                 </h1>
                 <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 sm:text-[15px]">
-                  Bố cục được đồng bộ với trang quản lý việc: phần tổng quan, thanh điều hướng nhanh và các khối nhập liệu dạng card giúp recruiter kiểm soát chiến dịch trước khi công khai.
+                  Bố cục được đồng bộ với trang quản lý việc: phần tổng quan, thanh điều hướng nhanh
+                  và các khối nhập liệu dạng card giúp recruiter kiểm soát chiến dịch trước khi công
+                  khai.
                 </p>
               </div>
             </div>
@@ -651,23 +558,15 @@ const PostJobPage = () => {
             </div>
           </div>
 
-          <section id="job-setup" className="scroll-mt-24 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+          <section
+            id="job-setup"
+            className="scroll-mt-24 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
+          >
             <SectionHeader
               icon={Briefcase}
               eyebrow="Định vị vai trò"
               title="Thiết lập nhanh cho tin đăng"
               description="Dùng cùng cách bố trí như màn quản lý việc làm: tiêu đề chính, ngành nghề và loại hình luôn nằm ở lớp đầu để recruiter nhìn là hiểu chiến dịch."
-              meta={
-                <Button
-                  type="button"
-                  onClick={handleOptimizeTitle}
-                  disabled={isOptimizing || !formData.title.trim()}
-                  className="h-10 rounded-lg bg-slate-950 px-4 text-xs font-bold text-white shadow-sm hover:bg-emerald-600 disabled:opacity-40"
-                >
-                  <SlidersHorizontal className={cn('mr-1.5 h-3.5 w-3.5', isOptimizing && 'animate-spin')} />
-                  {isOptimizing ? 'Đang phân tích...' : 'Tối ưu tiêu đề'}
-                </Button>
-              }
             />
 
             <div className="px-5 py-5 sm:px-6">
@@ -715,10 +614,13 @@ const PostJobPage = () => {
 
                 <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
                   <span>
-                    Đang soạn <strong className="text-slate-700">{formData.title || 'tin tuyển dụng mới'}</strong>
+                    Đang soạn{' '}
+                    <strong className="text-slate-700">
+                      {formData.title || 'tin tuyển dụng mới'}
+                    </strong>
                   </span>
                   <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 font-semibold text-emerald-700">
-                    {completionPercent}% hoàn thiện
+                    {hasSetupInfo ? 'Thông tin vai trò đã đủ' : 'Cần bổ sung vai trò'}
                   </span>
                   <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 font-semibold text-slate-600">
                     {selectedCategoryLabel}
@@ -731,12 +633,15 @@ const PostJobPage = () => {
             </div>
           </section>
 
-          <section id="job-basics" className="scroll-mt-24 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+          <section
+            id="job-basics"
+            className="scroll-mt-24 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
+          >
             <SectionHeader
               icon={MapPin}
               eyebrow="Thông tin nền"
               title="Thông tin cơ bản"
-              description="Cấu trúc khối này bám theo ngôn ngữ card của trang quản lý việc làm: rõ tín hiệu, gọn trường nhập và ưu tiên các dữ liệu recruiter cần kiểm soát hằng ngày."
+              description="Cấu trúc khối này bám theo ngôn ngữ card của trang quản lý việc làm: rõ tín hiệu, gọn trường nhập và tập trung vào dữ liệu recruiter cần kiểm soát hằng ngày."
             />
 
             <div className="space-y-5 px-5 py-5 sm:px-6">
@@ -768,7 +673,8 @@ const PostJobPage = () => {
                   <div>
                     <p className="text-sm font-bold text-slate-950">Dải lương và nhu cầu tuyển</p>
                     <p className="mt-1 text-sm leading-6 text-slate-500">
-                      Khoảng lương minh bạch giúp tăng độ tin cậy và làm danh sách hồ sơ đầu vào chính xác hơn.
+                      Khoảng lương minh bạch giúp tăng độ tin cậy và làm danh sách hồ sơ đầu vào
+                      chính xác hơn.
                     </p>
                   </div>
                 </div>
@@ -791,7 +697,9 @@ const PostJobPage = () => {
                     icon={BarChart3}
                   />
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold leading-6 text-foreground">Số lượng</label>
+                    <label className="text-sm font-semibold leading-6 text-foreground">
+                      Số lượng
+                    </label>
                     <div className="flex h-11 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 shadow-sm transition-all focus-within:border-emerald-400 focus-within:ring-4 focus-within:ring-emerald-500/10">
                       <span className="text-sm text-slate-400">Tuyển</span>
                       <input
@@ -857,8 +765,15 @@ const PostJobPage = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold leading-6 text-foreground">Yêu cầu học vấn</label>
-                  <select name="education" value={formData.education} onChange={handleChange} className={selectClassName}>
+                  <label className="text-sm font-semibold leading-6 text-foreground">
+                    Yêu cầu học vấn
+                  </label>
+                  <select
+                    name="education"
+                    value={formData.education}
+                    onChange={handleChange}
+                    className={selectClassName}
+                  >
                     {EDUCATION_OPTIONS.map((opt) => (
                       <option key={opt.value} value={opt.value}>
                         {opt.label}
@@ -868,8 +783,15 @@ const PostJobPage = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold leading-6 text-foreground">Loại hình</label>
-                  <select name="jobType" value={formData.jobType} onChange={handleChange} className={selectClassName}>
+                  <label className="text-sm font-semibold leading-6 text-foreground">
+                    Loại hình
+                  </label>
+                  <select
+                    name="jobType"
+                    value={formData.jobType}
+                    onChange={handleChange}
+                    className={selectClassName}
+                  >
                     {JOB_TYPE_OPTIONS.map((opt) => (
                       <option key={opt.value} value={opt.value}>
                         {opt.label}
@@ -881,23 +803,15 @@ const PostJobPage = () => {
             </div>
           </section>
 
-          <section id="job-content" className="scroll-mt-24 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+          <section
+            id="job-content"
+            className="scroll-mt-24 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
+          >
             <SectionHeader
               icon={Briefcase}
               eyebrow="Nội dung JD"
               title="Nội dung tin tuyển dụng"
-              description="Nhóm mô tả, yêu cầu và quyền lợi theo cùng logic block của trang điều phối để recruiter nhìn nhanh được mức độ hoàn thiện của từng phần."
-              meta={
-                <Button
-                  type="button"
-                  onClick={handleGenerateAI}
-                  disabled={isGenerating || !formData.title}
-                  className="h-10 rounded-lg bg-slate-950 px-4 text-xs font-bold text-white shadow-sm hover:bg-emerald-600 disabled:opacity-40"
-                >
-                  <Wand2 className={cn('mr-1.5 h-3.5 w-3.5', isGenerating && 'animate-spin')} />
-                  {isGenerating ? 'Đang tạo...' : 'Tạo với AI'}
-                </Button>
-              }
+              description="Nhóm mô tả, yêu cầu và quyền lợi theo cùng logic block của trang điều phối để recruiter nhìn nhanh trạng thái nội dung của từng phần."
             />
 
             <div className="space-y-5 px-5 py-5 sm:px-6">
@@ -909,7 +823,8 @@ const PostJobPage = () => {
                   <div>
                     <h3 className="text-sm font-bold text-slate-950">Mô tả công việc</h3>
                     <p className="mt-1 text-sm leading-6 text-slate-500">
-                      Nêu phạm vi công việc, nhiệm vụ chính, mục tiêu và bối cảnh vận hành hằng ngày.
+                      Nêu phạm vi công việc, nhiệm vụ chính, mục tiêu và bối cảnh vận hành hằng
+                      ngày.
                     </p>
                   </div>
                 </div>
@@ -921,7 +836,7 @@ const PostJobPage = () => {
                 />
               </div>
 
-              <div className="grid gap-5 xl:grid-cols-2">
+              <div className="grid gap-5">
                 <div className="rounded-lg border border-slate-200 bg-slate-50/80 p-4 shadow-sm shadow-slate-950/[0.03]">
                   <div className="mb-4 flex items-start gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-sky-600 ring-1 ring-inset ring-slate-200 shadow-sm">
@@ -930,7 +845,8 @@ const PostJobPage = () => {
                     <div>
                       <h3 className="text-sm font-bold text-slate-950">Yêu cầu ứng viên</h3>
                       <p className="mt-1 text-sm leading-6 text-slate-500">
-                        Làm rõ kỹ năng, kinh nghiệm, công cụ và các tiêu chí bắt buộc để giảm hồ sơ lệch.
+                        Làm rõ kỹ năng, kinh nghiệm, công cụ và các tiêu chí bắt buộc để giảm hồ sơ
+                        lệch.
                       </p>
                     </div>
                   </div>
@@ -950,7 +866,8 @@ const PostJobPage = () => {
                     <div>
                       <h3 className="text-sm font-bold text-slate-950">Quyền lợi và chế độ</h3>
                       <p className="mt-1 text-sm leading-6 text-slate-500">
-                        Trình bày phúc lợi thực tế, chính sách làm việc và các điểm hấp dẫn của môi trường.
+                        Trình bày phúc lợi thực tế, chính sách làm việc và các điểm hấp dẫn của môi
+                        trường.
                       </p>
                     </div>
                   </div>
@@ -972,17 +889,20 @@ const PostJobPage = () => {
                 <div className="max-w-2xl">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700">
-                      {overallPercent}% chất lượng JD
+                      Trạng thái nội dung: {hasContentInfo ? 'Đã có nội dung' : 'Cần bổ sung'}
                     </span>
                     <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-semibold text-slate-600">
-                      {readyCount} mục đã ổn · {pendingCount} mục cần rà soát
+                      {contentSectionCount > 0
+                        ? `${contentSectionCount} phần đang có nội dung`
+                        : 'Chưa có phần nội dung nào'}
                     </span>
                   </div>
                   <p className="mt-3 text-lg font-bold tracking-tight text-slate-950">
                     Sẵn sàng đưa tin vào quy trình quản lý việc
                   </p>
                   <p className="mt-1 text-sm leading-6 text-slate-500">
-                    Lưu nháp để hoàn thiện tiếp, xem trước trải nghiệm ứng viên hoặc công khai để chuyển tin về trung tâm quản lý.
+                    Lưu nháp để chỉnh sửa tiếp, xem trước trải nghiệm ứng viên hoặc công khai để
+                    chuyển tin về trung tâm quản lý.
                   </p>
                 </div>
 
@@ -1044,7 +964,9 @@ const PostJobPage = () => {
                   <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-600">
                     Bản xem trước ứng viên
                   </p>
-                  <h3 className="mt-1 text-base font-bold text-slate-950">Xem trước trải nghiệm ứng viên</h3>
+                  <h3 className="mt-1 text-base font-bold text-slate-950">
+                    Xem trước trải nghiệm ứng viên
+                  </h3>
                 </div>
                 <button
                   type="button"
@@ -1095,7 +1017,9 @@ const PostJobPage = () => {
                         <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">
                           Thông tin nhanh
                         </p>
-                        <p className="mt-2 text-xl font-bold text-emerald-600">{salaryPreviewLabel}</p>
+                        <p className="mt-2 text-xl font-bold text-emerald-600">
+                          {salaryPreviewLabel}
+                        </p>
 
                         <div className="mt-3 space-y-2 border-t border-slate-200 pt-3 text-sm text-slate-600">
                           <p className="flex items-center gap-2">
@@ -1108,7 +1032,9 @@ const PostJobPage = () => {
                           </p>
                           <p className="flex items-center gap-2">
                             <Calendar className="h-4 w-4 text-emerald-600" />
-                            {formData.deadline ? `Hạn nộp ${formData.deadline}` : 'Không đặt hạn nộp'}
+                            {formData.deadline
+                              ? `Hạn nộp ${formData.deadline}`
+                              : 'Không đặt hạn nộp'}
                           </p>
                         </div>
 
@@ -1129,7 +1055,9 @@ const PostJobPage = () => {
                         <div
                           className="prose prose-slate mt-3 max-w-none text-sm text-slate-600"
                           dangerouslySetInnerHTML={{
-                            __html: formData.description || 'Nội dung đang được cập nhật...',
+                            __html: sanitizeHtml(
+                              formData.description || 'Nội dung đang được cập nhật...'
+                            ),
                           }}
                         />
                       </section>
@@ -1139,7 +1067,9 @@ const PostJobPage = () => {
                         <div
                           className="prose prose-slate mt-3 max-w-none text-sm text-slate-600"
                           dangerouslySetInnerHTML={{
-                            __html: formData.requirements || 'Nội dung đang được cập nhật...',
+                            __html: sanitizeHtml(
+                              formData.requirements || 'Nội dung đang được cập nhật...'
+                            ),
                           }}
                         />
                       </section>
@@ -1149,7 +1079,7 @@ const PostJobPage = () => {
                           <h4 className="text-sm font-bold text-slate-950">Quyền lợi và chế độ</h4>
                           <div
                             className="prose prose-slate mt-3 max-w-none text-sm text-slate-600"
-                            dangerouslySetInnerHTML={{ __html: formData.benefits }}
+                            dangerouslySetInnerHTML={{ __html: sanitizeHtml(formData.benefits) }}
                           />
                         </section>
                       ) : null}
@@ -1161,7 +1091,8 @@ const PostJobPage = () => {
                           Gợi ý hiển thị
                         </p>
                         <p className="mt-2 text-xs leading-5 text-emerald-800">
-                          Phiên bản xem trước này mô phỏng cách ứng viên nhìn thấy tin đăng sau khi công khai.
+                          Phiên bản xem trước này mô phỏng cách ứng viên nhìn thấy tin đăng sau khi
+                          công khai.
                         </p>
                       </section>
                     </aside>

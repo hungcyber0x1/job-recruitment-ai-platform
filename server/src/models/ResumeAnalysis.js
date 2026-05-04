@@ -16,29 +16,68 @@ class ResumeAnalysisRepository {
       candidate_id,
       user_id,
       file_url,
+      resume_url,
+      resume_text,
+      resume_embedding,
       analysis_result,
       score,
+      overall_score,
+      skill_score,
+      experience_score,
+      education_score,
       strengths,
       weaknesses,
       suggestions,
+      skill_matches,
+      keywords,
+      role_level,
+      expires_at,
       analyzed_at,
     } = data;
 
+    const normalizedScore = score ?? overall_score ?? null;
+    const normalizedAnalysisResult = analysis_result || {
+      overall_score: normalizedScore,
+      skill_score: skill_score ?? null,
+      experience_score: experience_score ?? null,
+      education_score: education_score ?? null,
+      skill_matches: skill_matches ?? [],
+      keywords: keywords ?? [],
+      role_level: role_level ?? null,
+    };
+
+    const stringifyJson = (value) => {
+      if (value == null) return null;
+      return typeof value === 'string' ? value : JSON.stringify(value);
+    };
+
     const [result] = await pool.query(
       `INSERT INTO ai_resume_analysis (
-        candidate_id, user_id, file_url, analysis_result, 
-        score, strengths, weaknesses, suggestions, analyzed_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        candidate_id, user_id, file_url, resume_url, resume_text, resume_embedding,
+        analysis_result, score, overall_score, skill_score, experience_score, education_score,
+        strengths, weaknesses, suggestions, skill_matches, keywords, role_level, expires_at, analyzed_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         candidate_id,
-        user_id,
-        file_url || null,
-        analysis_result ? JSON.stringify(analysis_result) : null,
-        score || null,
-        strengths || null,
-        weaknesses || null,
-        suggestions || null,
-        analyzed_at || null,
+        user_id || null,
+        file_url || resume_url || null,
+        resume_url || file_url || null,
+        resume_text || null,
+        stringifyJson(resume_embedding),
+        stringifyJson(normalizedAnalysisResult),
+        normalizedScore,
+        overall_score ?? normalizedScore,
+        skill_score ?? null,
+        experience_score ?? null,
+        education_score ?? null,
+        stringifyJson(strengths),
+        stringifyJson(weaknesses),
+        stringifyJson(suggestions),
+        stringifyJson(skill_matches),
+        stringifyJson(keywords),
+        role_level || null,
+        expires_at || null,
+        analyzed_at || new Date(),
       ]
     );
 

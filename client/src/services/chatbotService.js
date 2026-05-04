@@ -46,8 +46,7 @@ const chatbotService = {
     api.post('chat/cover-letter', { cvData, jobDescription, candidateName }),
 
   // Feedback
-  sendFeedback: (messageId, isPositive) =>
-    api.post('chat/feedback', { messageId, isPositive }),
+  sendFeedback: (messageId, isPositive) => api.post('chat/feedback', { messageId, isPositive }),
 };
 
 export default chatbotService;

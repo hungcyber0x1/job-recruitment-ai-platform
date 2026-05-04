@@ -193,11 +193,15 @@ const ApplicantDetail = ({ applicant, onUpdateStatus }) => {
             <div className="space-y-4">
               <div className="flex justify-between">
                 <span className="text-sm text-slate-500">Kinh nghiệm</span>
-                <span className="text-sm font-bold text-slate-900">{applicant.experience || 'N/A'}</span>
+                <span className="text-sm font-bold text-slate-900">
+                  {applicant.experience || 'N/A'}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-slate-500">Địa điểm</span>
-                <span className="text-sm font-bold text-slate-900">{applicant.location || 'N/A'}</span>
+                <span className="text-sm font-bold text-slate-900">
+                  {applicant.location || 'N/A'}
+                </span>
               </div>
             </div>
           </Card>

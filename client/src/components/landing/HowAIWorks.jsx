@@ -15,8 +15,7 @@ const steps = [
     num: '02',
     icon: Brain,
     title: 'Phân tích thông minh',
-    description:
-      'Hệ thống so sánh hồ sơ của bạn với hàng nghìn vị trí và xu hướng thị trường.',
+    description: 'Hệ thống so sánh hồ sơ của bạn với hàng nghìn vị trí và xu hướng thị trường.',
     detail: 'Mô hình học máy → Chấm điểm phù hợp',
   },
   {
@@ -203,8 +202,8 @@ const HowAIWorks = () => {
                 </p>
                 <p className="text-muted-foreground text-base leading-relaxed">
                   Bạn phù hợp <span className="text-primary font-bold">82%</span> với vị trí này. Bổ
-                  sung <span className="text-foreground font-bold">thiết kế hệ thống</span> sẽ nâng lên{' '}
-                  <span className="text-primary font-bold">93%</span>.
+                  sung <span className="text-foreground font-bold">thiết kế hệ thống</span> sẽ nâng
+                  lên <span className="text-primary font-bold">93%</span>.
                 </p>
               </div>
             </div>

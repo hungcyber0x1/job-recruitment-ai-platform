@@ -40,7 +40,7 @@ const GithubIcon = () => (
 );
 
 /**
- * @param {{ intent?: 'login'|'register', role?: 'candidate'|'employer', className?: string, returnTo?: string|null }} props
+ * @param {{ intent?: 'login'|'register', role?: 'candidate'|'recruiter', className?: string, returnTo?: string|null }} props
  */
 const defaultProviders = { google: true, facebook: true, github: true };
 

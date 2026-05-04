@@ -2,7 +2,15 @@
 
 import React, { useState, useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { FileText, Sparkles, Star, TrendingUp, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import {
+  FileText,
+  Sparkles,
+  Star,
+  TrendingUp,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import chatbotService from '../../services/chatbotService';
 
@@ -22,7 +30,11 @@ const CVAnalysisModal = ({ isOpen, onClose, initialJobDescription = '' }) => {
   const handleFileSelect = useCallback((e) => {
     const file = e.target.files?.[0];
     if (file) {
-      const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      const allowedTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      ];
       if (!allowedTypes.includes(file.type)) {
         setError('Chỉ chấp nhận file PDF hoặc Word (.doc, .docx)');
         return;
@@ -75,7 +87,6 @@ const CVAnalysisModal = ({ isOpen, onClose, initialJobDescription = '' }) => {
     onClose();
   };
 
-
   return (
     <AnimatePresence>
       {isOpen && (
@@ -103,7 +114,9 @@ const CVAnalysisModal = ({ isOpen, onClose, initialJobDescription = '' }) => {
                   </div>
                   <div>
                     <h2 className="text-lg font-semibold text-slate-900">Phân tích CV</h2>
-                    <p className="text-sm text-slate-500">Trích xuất thông tin & đánh giá phù hợp</p>
+                    <p className="text-sm text-slate-500">
+                      Trích xuất thông tin & đánh giá phù hợp
+                    </p>
                   </div>
                 </div>
                 <button
@@ -125,10 +138,11 @@ const CVAnalysisModal = ({ isOpen, onClose, initialJobDescription = '' }) => {
                     </label>
                     <div
                       onClick={() => fileInputRef.current?.click()}
-                      className={`relative border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-200 ${cvFile
+                      className={`relative border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-200 ${
+                        cvFile
                           ? 'border-emerald-400 bg-emerald-50'
                           : 'border-slate-300 hover:border-emerald-400 hover:bg-slate-50'
-                        }`}
+                      }`}
                     >
                       <input
                         ref={fileInputRef}
@@ -211,8 +225,6 @@ const CVAnalysisModal = ({ isOpen, onClose, initialJobDescription = '' }) => {
 
               {mode === 'results' && analysisResult && (
                 <div className="space-y-5">
-
-
                   {/* Profile Summary */}
                   {analysisResult.summary && (
                     <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
@@ -220,7 +232,9 @@ const CVAnalysisModal = ({ isOpen, onClose, initialJobDescription = '' }) => {
                         <FileText size={16} className="text-slate-500" />
                         Tóm tắt hồ sơ
                       </h3>
-                      <p className="text-sm text-slate-600 leading-relaxed">{analysisResult.summary}</p>
+                      <p className="text-sm text-slate-600 leading-relaxed">
+                        {analysisResult.summary}
+                      </p>
                     </div>
                   )}
 

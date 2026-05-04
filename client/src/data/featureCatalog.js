@@ -2,65 +2,65 @@ export const fallbackFeatureCatalog = {
   roleGroups: [
     {
       id: 'admin',
-      eyebrow: 'Admin',
-      title: 'Platform governance and operational control',
+      eyebrow: 'Quản trị',
+      title: 'Quản trị nền tảng và kiểm soát vận hành',
       summary:
-        'Dashboard for users, jobs, applications, moderation, analytics, system health, and settings.',
+        'Tổng quan cho người dùng, tin tuyển dụng, hồ sơ ứng tuyển, kiểm duyệt, phân tích, sức khỏe hệ thống và cấu hình.',
       items: [
-        'User, company, and application management',
-        'Job moderation, categories, skills, and chatbot governance',
-        'Analytics, support tickets, logs, service health, and system settings',
+        'Quản lý người dùng, doanh nghiệp và hồ sơ ứng tuyển',
+        'Kiểm duyệt tin tuyển dụng, danh mục, kỹ năng và chatbot',
+        'Phân tích dữ liệu, ticket hỗ trợ, nhật ký, sức khỏe dịch vụ và thiết lập hệ thống',
       ],
     },
     {
       id: 'employer',
-      eyebrow: 'Employer',
-      title: 'Recruitment execution and candidate coordination',
+      eyebrow: 'Nhà tuyển dụng',
+      title: 'Triển khai tuyển dụng và phối hợp ứng viên',
       summary:
-        'A recruiter workspace for job posting, pipeline review, communication, and employer branding.',
+        'Không gian làm việc cho nhà tuyển dụng: đăng tin, theo dõi pipeline, trao đổi và xây dựng thương hiệu tuyển dụng.',
       items: [
-        'Job posting, role editing, and hiring pipeline control',
-        'Candidate search, saved profiles, and direct messaging',
-        'Interview scheduling and company profile management',
+        'Đăng tin, chỉnh sửa vị trí và kiểm soát pipeline tuyển dụng',
+        'Tìm kiếm ứng viên, lưu hồ sơ tiềm năng và nhắn tin trực tiếp',
+        'Đặt lịch phỏng vấn và quản lý hồ sơ công ty',
       ],
     },
     {
       id: 'candidate',
-      eyebrow: 'Candidate',
-      title: 'Career discovery, readiness, and AI guidance',
+      eyebrow: 'Ứng viên',
+      title: 'Khám phá nghề nghiệp, chuẩn bị hồ sơ và tư vấn AI',
       summary:
-        'A candidate workspace focused on profile depth, applications, AI guidance, and growth planning.',
+        'Không gian ứng viên tập trung vào hoàn thiện hồ sơ, theo dõi ứng tuyển, nhận tư vấn AI và định hướng phát triển.',
       items: [
-        'Profile, resume, and settings management',
-        'Job discovery, saved jobs, and application tracking',
-        'Notifications, company discovery, and career guidance tools',
+        'Quản lý hồ sơ, CV và thiết lập tài khoản',
+        'Khám phá việc làm, lưu tin và theo dõi trạng thái ứng tuyển',
+        'Nhận thông báo, khám phá doanh nghiệp và sử dụng công cụ định hướng nghề nghiệp',
       ],
     },
   ],
   publicTools: [
     {
       id: 'ai-cv-scanner',
-      title: 'AI CV Scanner',
+      title: 'Quét CV bằng AI',
       description:
-        'Candidate-facing resume check (keywords, ATS-style signals) before applying on HireBOT.',
+        'Kiểm tra CV dành cho ứng viên trước khi ứng tuyển trên HireBOT: từ khóa, tín hiệu ATS và gợi ý cải thiện.',
       path: '/ai-cv-scanner',
       enabled: true,
     },
     {
       id: 'salary-predictor',
-      title: 'Salary Predictor',
+      title: 'Ước tính lương',
       description:
-        'Reference salary band by role, experience, industry, and location for offer discussions.',
+        'Tham khảo dải lương theo vị trí, kinh nghiệm, ngành nghề và địa điểm để chuẩn bị đàm phán offer.',
       path: '/salary-predictor',
       enabled: true,
     },
   ],
   governanceSignals: [
-    'Role-based dashboards',
-    'Company verification',
-    'Moderation workflow',
-    'Service health monitoring',
-    'Feature flags and settings',
-    'AI guidance layer',
+    'Tổng quan theo vai trò',
+    'Xác minh doanh nghiệp',
+    'Quy trình kiểm duyệt',
+    'Theo dõi sức khỏe dịch vụ',
+    'Feature flag và thiết lập hệ thống',
+    'Lớp tư vấn AI',
   ],
 };

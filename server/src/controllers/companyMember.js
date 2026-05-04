@@ -1,7 +1,11 @@
 /**
  * Company Member Controller - Quản lý recruiter trong công ty
  */
-const { CompanyMemberRepository, COMPANY_ROLES, COMPANY_ROLE_LABELS } = require('../models/CompanyMember');
+const {
+  CompanyMemberRepository,
+  COMPANY_ROLES,
+  COMPANY_ROLE_LABELS,
+} = require('../models/CompanyMember');
 const { AuditLogRepository, AUDIT_ACTIONS } = require('../models/AuditLog');
 const { ApiResponse } = require('../utils/ApiResponse');
 const catchAsync = require('../utils/catchAsync');
@@ -27,7 +31,11 @@ const inviteMember = catchAsync(async (req, res) => {
   }
 
   // Check permission
-  const canManage = await CompanyMemberRepository.hasPermission(companyId, user.id, 'can_manage_applications');
+  const canManage = await CompanyMemberRepository.hasPermission(
+    companyId,
+    user.id,
+    'can_manage_applications'
+  );
   const isAdmin = await CompanyMemberRepository.isAdmin(companyId, user.id);
   if (!canManage && !isAdmin) {
     return ApiResponse.forbidden(res, 'Bạn không có quyền mời thành viên');
@@ -49,7 +57,13 @@ const inviteMember = catchAsync(async (req, res) => {
   }
   const invitedUserId = userRows[0].id;
 
-  const member = await CompanyMemberRepository.inviteMember(companyId, invitedUserId, role, permissions, user.id);
+  const member = await CompanyMemberRepository.inviteMember(
+    companyId,
+    invitedUserId,
+    role,
+    permissions,
+    user.id
+  );
 
   await AuditLogRepository.log({
     userId: user.id,
@@ -80,7 +94,12 @@ const updateRole = catchAsync(async (req, res) => {
   }
 
   try {
-    const member = await CompanyMemberRepository.updateRole(companyId, parseInt(userId, 10), role, user.id);
+    const member = await CompanyMemberRepository.updateRole(
+      companyId,
+      parseInt(userId, 10),
+      role,
+      user.id
+    );
 
     await AuditLogRepository.log({
       userId: user.id,
@@ -113,7 +132,12 @@ const updatePermissions = catchAsync(async (req, res) => {
     return ApiResponse.forbidden(res, 'Chỉ admin mới có quyền cập nhật quyền');
   }
 
-  await CompanyMemberRepository.updatePermissions(companyId, parseInt(userId, 10), permissions, user.id);
+  await CompanyMemberRepository.updatePermissions(
+    companyId,
+    parseInt(userId, 10),
+    permissions,
+    user.id
+  );
 
   await AuditLogRepository.log({
     userId: user.id,

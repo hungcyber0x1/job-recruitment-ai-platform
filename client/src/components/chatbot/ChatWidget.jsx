@@ -27,13 +27,13 @@ const ROLE_DEFAULT_PROMPTS = {
     'Kỹ năng nào đang được săn đón?',
     'Chuẩn bị phỏng vấn hiệu quả',
   ],
-  employer: [
+  recruiter: [
     'Viết tin tuyển dụng hấp dẫn cho vị trí IT',
     'Cách sàng lọc ứng viên hiệu quả',
     'Benchmark lương cho lập trình viên 2025',
   ],
   admin: [
-    'Dashboard platform stats',
+    'Tổng quan chỉ số nền tảng',
     'Review flagged jobs',
     'Chatbot analytics',
     'Active users today',
@@ -44,9 +44,12 @@ const ROLE_DEFAULT_PROMPTS = {
 
 /** Role-aware descriptions */
 const ROLE_DESCRIPTIONS = {
-  candidate: 'Tư vấn nghề nghiệp, gợi ý CV & phỏng vấn — hỗ trợ tham khảo, không thay thế recruiter.',
-  employer: 'Trợ lý tuyển dụng thông minh: viết JD, sàng lọc ứng viên, benchmark lương — tham khảo, không thay quyết định.',
-  admin: 'Trợ lý vận hành nền tảng: xem dashboard, quản lý users/jobs/applications, analytics, cấu hình chatbot — dữ liệu thực từ hệ thống.',
+  candidate:
+    'Tư vấn nghề nghiệp, gợi ý CV & phỏng vấn — hỗ trợ tham khảo, không thay thế nhà tuyển dụng.',
+  recruiter:
+    'Trợ lý tuyển dụng thông minh: viết JD, sàng lọc ứng viên, benchmark lương — tham khảo, không thay quyết định.',
+  admin:
+    'Trợ lý vận hành nền tảng: xem tổng quan, quản lý users/jobs/applications, analytics, cấu hình chatbot — dữ liệu thực từ hệ thống.',
 };
 
 /** Role-aware what-I-can-do lists */
@@ -57,14 +60,14 @@ const ROLE_CAN_DO = {
     '✓ Giải thích kỹ năng & xu hướng nghề',
     '✓ Gợi ý cách điều chỉnh hồ sơ theo mục tiêu nghề nghiệp',
   ],
-  employer: [
+  recruiter: [
     '✓ Viết & tối ưu tin tuyển dụng (JD)',
     '✓ Gợi ý câu hỏi sàng lọc ứng viên',
     '✓ Benchmark lương theo thị trường',
     '✓ Tư vấn quy trình tuyển dụng hiệu quả',
   ],
   admin: [
-    '✓ Dashboard & platform analytics',
+    '✓ Tổng quan & phân tích nền tảng',
     '✓ Manage users (lock/unlock/status)',
     '✓ Review flagged jobs & companies',
     '✓ Monitor chatbot conversations',
@@ -253,7 +256,13 @@ const ChatWidget = () => {
                         Xin chào, {user?.firstName || user?.first_name || 'bạn'}!
                       </h4>
                       <p className="text-base text-slate-600 mt-1.5 max-w-[17rem] leading-relaxed">
-                        Tôi là HireBOT — trợ lý {userRole === 'admin' ? 'vận hành' : userRole === 'employer' ? 'tuyển dụng' : 'tư vấn nghề nghiệp'}. Tôi có thể giúp bạn:
+                        Tôi là HireBOT — trợ lý{' '}
+                        {userRole === 'admin'
+                          ? 'vận hành'
+                          : userRole === 'recruiter'
+                            ? 'tuyển dụng'
+                            : 'tư vấn nghề nghiệp'}
+                        . Tôi có thể giúp bạn:
                       </p>
                       <ul className="text-left text-sm text-slate-600 mt-2 space-y-1 max-w-[17rem]">
                         {roleCanDo.map((item, idx) => (
@@ -314,10 +323,11 @@ const ChatWidget = () => {
                         className={`flex w-full ${msg.isAi ? 'justify-start' : 'justify-end'}`}
                       >
                         <div
-                          className={`w-fit min-w-0 break-words ${msg.isAi
+                          className={`w-fit min-w-0 break-words ${
+                            msg.isAi
                               ? 'max-w-[min(100%,36rem)] rounded-xl rounded-tl-md bg-white border border-slate-200/90 px-5 py-4 shadow-[0_4px_24px_-8px_rgba(15,23,42,0.12)]'
                               : 'max-w-[88%] rounded-xl rounded-tr-md bg-gradient-to-br from-emerald-600 to-emerald-700 px-4 py-2.5 text-base leading-relaxed text-white shadow-md shadow-emerald-900/18 ring-1 ring-white/15 text-left'
-                            }`}
+                          }`}
                         >
                           {msg.isAi ? (
                             <>
@@ -347,14 +357,15 @@ const ChatWidget = () => {
                                 <button
                                   onClick={() => {
                                     // Send feedback to analytics - thumbs up
-                                    chatbotService.sendFeedback(msg.id, true).catch(() => { });
+                                    chatbotService.sendFeedback(msg.id, true).catch(() => {});
                                     // Visual feedback
                                     setFeedback(msg.id, 'up');
                                   }}
-                                  className={`flex items-center gap-1 text-xs transition-colors ${feedback[msg.id] === 'up'
+                                  className={`flex items-center gap-1 text-xs transition-colors ${
+                                    feedback[msg.id] === 'up'
                                       ? 'text-emerald-600'
                                       : 'text-slate-400 hover:text-emerald-500'
-                                    }`}
+                                  }`}
                                   aria-label="Tin nhắn hữu ích"
                                   title="Hữu ích"
                                 >
@@ -363,13 +374,14 @@ const ChatWidget = () => {
                                 <button
                                   onClick={() => {
                                     // Send feedback to analytics - thumbs down
-                                    chatbotService.sendFeedback(msg.id, false).catch(() => { });
+                                    chatbotService.sendFeedback(msg.id, false).catch(() => {});
                                     setFeedback(msg.id, 'down');
                                   }}
-                                  className={`flex items-center gap-1 text-xs transition-colors ${feedback[msg.id] === 'down'
+                                  className={`flex items-center gap-1 text-xs transition-colors ${
+                                    feedback[msg.id] === 'down'
                                       ? 'text-red-500'
                                       : 'text-slate-400 hover:text-red-500'
-                                    }`}
+                                  }`}
                                   aria-label="Tin nhắn không hữu ích"
                                   title="Không hữu ích"
                                 >
@@ -462,10 +474,7 @@ const ChatWidget = () => {
       </AnimatePresence>
 
       {/* CV Analysis Modal */}
-      <CVAnalysisModal
-        isOpen={cvModalOpen}
-        onClose={() => setCvModalOpen(false)}
-      />
+      <CVAnalysisModal isOpen={cvModalOpen} onClose={() => setCvModalOpen(false)} />
     </div>
   );
 };

@@ -25,6 +25,7 @@ import {
   Search,
   Square,
   Star,
+  Trash2,
   UserCheck,
   X,
   XCircle,
@@ -32,6 +33,7 @@ import {
 import { Bar, BarChart, XAxis, YAxis } from 'recharts';
 
 import ChartSurface, { CHART_TICK_STYLE } from '@/components/charts/ChartSurface';
+import StatCard from '@/components/common/StatCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -108,30 +110,6 @@ function normalizeCandidateApplication(application) {
   };
 }
 
-const StatCard = ({ icon: Icon, label, value, helper, tone, active, onClick }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    className={cn(
-      'rounded-lg border bg-white p-4 text-left shadow-sm transition-all duration-200',
-      active
-        ? 'border-emerald-300 bg-emerald-50/60 shadow-emerald-100/50'
-        : 'border-slate-200 hover:border-emerald-200 hover:shadow-md'
-    )}
-  >
-    <div className="flex items-start justify-between gap-3">
-      <div>
-        <div className="text-3xl font-bold leading-none text-slate-950">{value}</div>
-        <div className="mt-1 text-sm font-bold text-slate-700">{label}</div>
-        <div className="mt-0.5 text-xs font-medium text-slate-500">{helper}</div>
-      </div>
-      <div className={cn('flex h-10 w-10 items-center justify-center rounded-lg ring-1 ring-inset', tone)}>
-        <Icon size={18} />
-      </div>
-    </div>
-  </button>
-);
-
 const StageTabs = ({ activeTab, counts, onChange }) => (
   <div className="overflow-x-auto">
     <div className="flex min-w-max gap-2 pb-1">
@@ -191,8 +169,8 @@ const ApplicationCard = ({
   selected,
   onToggleSelect,
   onOpenDetails,
-  onWithdraw,
-  withdrawing,
+  onDelete,
+  deleting,
   interviewStatuses,
 }) => {
   const cfg = getAppStatusConfig(application.status);
@@ -220,7 +198,12 @@ const ApplicationCard = ({
               )}
             </button>
 
-            <div className={cn('flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg ring-1 ring-inset', tone.icon)}>
+            <div
+              className={cn(
+                'flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg ring-1 ring-inset',
+                tone.icon
+              )}
+            >
               {application.company_logo ? (
                 <img
                   src={application.company_logo}
@@ -259,10 +242,10 @@ const ApplicationCard = ({
                 )}
               </div>
 
-              {application.notes && (
+              {(application.candidate_note || application.notes) && (
                 <div className="mt-3 flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-100">
                   <MessageSquare className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                  <span>{application.notes}</span>
+                  <span>{application.candidate_note || application.notes}</span>
                 </div>
               )}
 
@@ -277,7 +260,12 @@ const ApplicationCard = ({
           </div>
 
           <div className="flex shrink-0 flex-col gap-2 lg:items-end">
-            <span className={cn('inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold ring-1 ring-inset', tone.badge)}>
+            <span
+              className={cn(
+                'inline-flex items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-bold ring-1 ring-inset',
+                tone.badge
+              )}
+            >
               <StatusIcon className="h-3.5 w-3.5" />
               {cfg.label}
             </span>
@@ -291,32 +279,36 @@ const ApplicationCard = ({
                 Chi tiết
               </Button>
               {application.job_id && (
-                <Button size="sm" variant="outline" className="h-9 rounded-lg px-3 text-xs font-bold" asChild>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-9 rounded-lg px-3 text-xs font-bold"
+                  asChild
+                >
                   <Link to={`/candidate/jobs/${application.job_id}`}>Xem việc</Link>
                 </Button>
               )}
-              <Button size="sm" variant="outline" className="h-9 rounded-lg border-emerald-200 px-3 text-xs font-bold text-emerald-700 hover:bg-emerald-50" asChild>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-9 rounded-lg border-emerald-200 px-3 text-xs font-bold text-emerald-700 hover:bg-emerald-50"
+                asChild
+              >
                 <Link to={`/candidate/messages?applicationId=${application.id}`}>
                   <MessageSquare className="mr-1.5 h-3.5 w-3.5" />
                   Nhắn tin
                 </Link>
               </Button>
-              {cfg.canWithdraw && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-9 rounded-lg border-red-200 px-3 text-xs font-bold text-red-600 hover:bg-red-50"
-                  disabled={withdrawing}
-                  onClick={onWithdraw}
-                  aria-label="Rút đơn ứng tuyển"
-                >
-                  {withdrawing ? (
-                    <Loader2 size={13} className="animate-spin" />
-                  ) : (
-                    <RotateCcw size={13} />
-                  )}
-                </Button>
-              )}
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-9 rounded-lg border-red-200 px-3 text-xs font-bold text-red-600 hover:bg-red-50"
+                disabled={deleting}
+                onClick={onDelete}
+                aria-label="Xóa đơn ứng tuyển"
+              >
+                {deleting ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
+              </Button>
             </div>
           </div>
         </div>
@@ -349,7 +341,7 @@ const ApplicationsPage = () => {
   const [sortBy, setSortBy] = useState('recent');
   const [selectedNote, setSelectedNote] = useState('');
   const [bulkSelected, setBulkSelected] = useState([]);
-  const [withdrawLoading, setWithdrawLoading] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(null);
 
   const activeStatuses = useMemo(() => getActiveStatuses(), []);
   const interviewStatuses = useMemo(() => getInterviewStatuses(), []);
@@ -411,26 +403,30 @@ const ApplicationsPage = () => {
   const handleNoteSaved = (note) => {
     setSelectedNote(note);
     if (selectedApplication) {
-      setApplications((prev) => prev.map((application) =>
-        application.id === selectedApplication.id
-          ? { ...application, candidate_note: note }
-          : application
-      ));
+      setApplications((prev) =>
+        prev.map((application) =>
+          application.id === selectedApplication.id
+            ? { ...application, candidate_note: note }
+            : application
+        )
+      );
     }
   };
 
   const pipelineCounts = useMemo(() => {
     const counts = {};
     PIPELINE_STAGES.forEach((stage) => {
-      counts[stage.key] = stage.key === 'all'
-        ? applications.length
-        : applications.filter((application) => application.status === stage.key).length;
+      counts[stage.key] =
+        stage.key === 'all'
+          ? applications.length
+          : applications.filter((application) => application.status === stage.key).length;
     });
     return counts;
   }, [applications]);
 
   const interviewCount = useMemo(
-    () => applications.filter((application) => interviewStatuses.includes(application.status)).length,
+    () =>
+      applications.filter((application) => interviewStatuses.includes(application.status)).length,
     [applications, interviewStatuses]
   );
 
@@ -457,9 +453,10 @@ const ApplicationsPage = () => {
 
     if (searchTerm.trim()) {
       const term = searchTerm.trim().toLowerCase();
-      filtered = filtered.filter((application) =>
-        getApplicationTitle(application).toLowerCase().includes(term) ||
-        getCompanyName(application).toLowerCase().includes(term)
+      filtered = filtered.filter(
+        (application) =>
+          getApplicationTitle(application).toLowerCase().includes(term) ||
+          getCompanyName(application).toLowerCase().includes(term)
       );
     }
 
@@ -474,23 +471,35 @@ const ApplicationsPage = () => {
     });
   }, [applications, activeTab, interviewStatuses, searchTerm, sortBy, successStatuses]);
 
-  const funnelData = useMemo(() => [
-    { name: 'Ứng tuyển', value: pipelineCounts.all || 0 },
-    { name: 'Đang xử lý', value: activeCount },
-    { name: 'Phỏng vấn', value: interviewCount },
-    { name: 'Thành công', value: successCount },
-  ], [activeCount, interviewCount, pipelineCounts.all, successCount]);
+  const funnelData = useMemo(
+    () => [
+      { name: 'Ứng tuyển', value: pipelineCounts.all || 0 },
+      { name: 'Đang xử lý', value: activeCount },
+      { name: 'Phỏng vấn', value: interviewCount },
+      { name: 'Thành công', value: successCount },
+    ],
+    [activeCount, interviewCount, pipelineCounts.all, successCount]
+  );
 
-  const upcomingInterviews = useMemo(() =>
-    applications
-      .filter((application) => interviewStatuses.includes(application.status) && application.interview_date)
-      .slice(0, 3),
-    [applications, interviewStatuses]);
+  const upcomingInterviews = useMemo(
+    () =>
+      applications
+        .filter(
+          (application) =>
+            interviewStatuses.includes(application.status) && application.interview_date
+        )
+        .slice(0, 3),
+    [applications, interviewStatuses]
+  );
 
-  const activeStageTab = PIPELINE_STAGES.find((stage) => stage.key === activeTab) || SUMMARY_FILTER_META[activeTab];
+  const activeStageTab =
+    PIPELINE_STAGES.find((stage) => stage.key === activeTab) || SUMMARY_FILTER_META[activeTab];
   const isDetailOpen = detailLoading || Boolean(selectedApplication);
-  const selectedVisibleCount = filteredApplications.filter((application) => bulkSelected.includes(application.id)).length;
-  const allVisibleSelected = filteredApplications.length > 0 && selectedVisibleCount === filteredApplications.length;
+  const selectedVisibleCount = filteredApplications.filter((application) =>
+    bulkSelected.includes(application.id)
+  ).length;
+  const allVisibleSelected =
+    filteredApplications.length > 0 && selectedVisibleCount === filteredApplications.length;
 
   const resetFilters = () => {
     setSearchTerm('');
@@ -506,43 +515,53 @@ const ApplicationsPage = () => {
     }
   };
 
-  const withdrawApplications = useCallback(async (ids) => {
-    if (!ids.length) return;
-    const confirmed = window.confirm(`Rút ${ids.length} đơn ứng tuyển đã chọn?\n\nHành động này không thể hoàn tác.`);
-    if (!confirmed) return;
+  const deleteApplications = useCallback(
+    async (ids) => {
+      if (!ids.length) return;
+      const confirmed = window.confirm(
+        `Xóa ${ids.length} đơn ứng tuyển đã chọn?\n\nHành động này không thể hoàn tác.`
+      );
+      if (!confirmed) return;
 
-    const previousSelection = [...bulkSelected];
-    setBulkSelected((prev) => prev.filter((id) => !ids.includes(id)));
+      const previousSelection = [...bulkSelected];
+      setBulkSelected((prev) => prev.filter((id) => !ids.includes(id)));
 
-    try {
-      await Promise.all(ids.map((id) => applicationService.withdraw(id)));
-      setApplications((prev) => prev.filter((application) => !ids.includes(application.id)));
-      showNotification('Đã rút các đơn đã chọn.', 'success');
-    } catch (error) {
-      if (isHandledAuthError(error)) return;
-      setBulkSelected(previousSelection);
-      showNotification('Không rút được đơn. Vui lòng thử lại.', 'error');
-    }
-  }, [bulkSelected, showNotification]);
+      try {
+        await Promise.all(ids.map((id) => applicationService.deleteMyApplication(id)));
+        setApplications((prev) => prev.filter((application) => !ids.includes(application.id)));
+        showNotification('Đã xóa các đơn đã chọn.', 'success');
+      } catch (error) {
+        if (isHandledAuthError(error)) return;
+        setBulkSelected(previousSelection);
+        showNotification('Không xóa được đơn. Vui lòng thử lại.', 'error');
+      }
+    },
+    [bulkSelected, showNotification]
+  );
 
-  const withdrawApplication = useCallback(async (application) => {
-    const title = getApplicationTitle(application);
-    const confirmed = window.confirm(`Bạn có chắc muốn rút đơn ứng tuyển cho vị trí "${title}"?\n\nHành động này không thể hoàn tác.`);
-    if (!confirmed) return;
+  const deleteApplication = useCallback(
+    async (application) => {
+      const title = getApplicationTitle(application);
+      const confirmed = window.confirm(
+        `Bạn có chắc muốn xóa đơn ứng tuyển cho vị trí "${title}"?\n\nHành động này không thể hoàn tác.`
+      );
+      if (!confirmed) return;
 
-    setWithdrawLoading(application.id);
-    try {
-      await applicationService.withdraw(application.id);
-      setApplications((prev) => prev.filter((item) => item.id !== application.id));
-      setBulkSelected((prev) => prev.filter((id) => id !== application.id));
-      showNotification('Đã rút đơn ứng tuyển thành công.', 'success');
-    } catch (error) {
-      if (isHandledAuthError(error)) return;
-      showNotification('Không rút được đơn. Vui lòng thử lại.', 'error');
-    } finally {
-      setWithdrawLoading(null);
-    }
-  }, [showNotification]);
+      setDeleteLoading(application.id);
+      try {
+        await applicationService.deleteMyApplication(application.id);
+        setApplications((prev) => prev.filter((item) => item.id !== application.id));
+        setBulkSelected((prev) => prev.filter((id) => id !== application.id));
+        showNotification('Đã xóa đơn ứng tuyển thành công.', 'success');
+      } catch (error) {
+        if (isHandledAuthError(error)) return;
+        showNotification('Không xóa được đơn. Vui lòng thử lại.', 'error');
+      } finally {
+        setDeleteLoading(null);
+      }
+    },
+    [showNotification]
+  );
 
   const summaryCards = [
     {
@@ -580,12 +599,13 @@ const ApplicationsPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50/40 pb-16">
-      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
+    <div className="min-h-screen bg-transparent pb-16">
+      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-transparent">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
           style={{
-            backgroundImage: 'linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px)',
+            backgroundImage:
+              'linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px)',
             backgroundSize: '32px 32px',
           }}
         />
@@ -608,7 +628,6 @@ const ApplicationsPage = () => {
                 </p>
               </div>
             </div>
-
           </div>
 
           {!loading && (
@@ -667,7 +686,9 @@ const ApplicationsPage = () => {
 
               {bulkSelected.length > 0 && (
                 <div className="mt-3 flex flex-col gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between">
-                  <span className="text-sm font-bold text-slate-700">{bulkSelected.length} đơn đã chọn</span>
+                  <span className="text-sm font-bold text-slate-700">
+                    {bulkSelected.length} đơn đã chọn
+                  </span>
                   <div className="flex gap-2">
                     <Button
                       size="sm"
@@ -681,11 +702,11 @@ const ApplicationsPage = () => {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => withdrawApplications([...bulkSelected])}
+                      onClick={() => deleteApplications([...bulkSelected])}
                       className="h-9 rounded-lg border-red-200 text-xs font-bold text-red-600 hover:bg-red-50"
                     >
-                      <RotateCcw className="mr-1 h-3.5 w-3.5" />
-                      Rút đơn
+                      <Trash2 className="mr-1 h-3.5 w-3.5" />
+                      Xóa đơn
                     </Button>
                   </div>
                 </div>
@@ -709,12 +730,11 @@ const ApplicationsPage = () => {
                       Chọn tất cả ({filteredApplications.length})
                     </button>
                   )}
-                  {activeStageTab && (
-                    <span className="hidden h-4 w-px bg-slate-200 sm:block" />
-                  )}
+                  {activeStageTab && <span className="hidden h-4 w-px bg-slate-200 sm:block" />}
                   {activeStageTab && (
                     <span className="text-sm font-medium text-slate-500">
-                      {activeStageTab.label}: <b className="text-slate-800">{filteredApplications.length}</b> đơn
+                      {activeStageTab.label}:{' '}
+                      <b className="text-slate-800">{filteredApplications.length}</b> đơn
                     </span>
                   )}
                 </div>
@@ -743,13 +763,18 @@ const ApplicationsPage = () => {
                   <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-lg bg-slate-100">
                     <Briefcase className="h-7 w-7 text-slate-400" />
                   </div>
-                  <h3 className="text-lg font-bold text-slate-800">Không tìm thấy đơn ứng tuyển nào</h3>
+                  <h3 className="text-lg font-bold text-slate-800">
+                    Không tìm thấy đơn ứng tuyển nào
+                  </h3>
                   <p className="mt-2 max-w-md text-sm text-slate-500">
                     {searchTerm || activeTab !== 'all'
                       ? 'Thử thay đổi từ khóa hoặc xóa bộ lọc để xem toàn bộ pipeline.'
                       : 'Hãy bắt đầu ứng tuyển để theo dõi tiến trình tại đây.'}
                   </p>
-                  <Button asChild className="mt-6 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700">
+                  <Button
+                    asChild
+                    className="mt-6 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
+                  >
                     <Link to="/candidate/jobs">Khám phá việc làm</Link>
                   </Button>
                 </CardContent>
@@ -769,11 +794,11 @@ const ApplicationsPage = () => {
                       );
                     }}
                     onOpenDetails={() => openApplicationDetails(application.id)}
-                    onWithdraw={(event) => {
+                    onDelete={(event) => {
                       event.stopPropagation();
-                      withdrawApplication(application);
+                      deleteApplication(application);
                     }}
-                    withdrawing={withdrawLoading === application.id}
+                    deleting={deleteLoading === application.id}
                     interviewStatuses={interviewStatuses}
                   />
                 ))}
@@ -801,15 +826,24 @@ const ApplicationsPage = () => {
               {upcomingInterviews.length > 0 ? (
                 <div className="mt-4 space-y-3">
                   {upcomingInterviews.map((application) => (
-                    <div key={application.id} className="flex items-start gap-3 rounded-lg border border-emerald-100 bg-emerald-50/70 p-3">
+                    <div
+                      key={application.id}
+                      className="flex items-start gap-3 rounded-lg border border-emerald-100 bg-emerald-50/70 p-3"
+                    >
                       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-sm font-bold text-white">
                         {formatDate(application.interview_date || '').split('/')[0] || '??'}
                       </div>
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-bold text-slate-800">{getApplicationTitle(application)}</p>
-                        <p className="truncate text-xs font-medium text-slate-500">{getCompanyName(application)}</p>
+                        <p className="truncate text-sm font-bold text-slate-800">
+                          {getApplicationTitle(application)}
+                        </p>
+                        <p className="truncate text-xs font-medium text-slate-500">
+                          {getCompanyName(application)}
+                        </p>
                         {application.interview_time && (
-                          <p className="mt-1 text-xs font-bold text-emerald-700">{application.interview_time}</p>
+                          <p className="mt-1 text-xs font-bold text-emerald-700">
+                            {application.interview_time}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -822,7 +856,11 @@ const ApplicationsPage = () => {
                 </div>
               )}
               {interviewCount > 0 && (
-                <Button variant="outline" className="mt-4 h-10 w-full rounded-lg text-xs font-bold" asChild>
+                <Button
+                  variant="outline"
+                  className="mt-4 h-10 w-full rounded-lg text-xs font-bold"
+                  asChild
+                >
                   <Link to="/candidate/interviews">Xem tất cả lịch PV</Link>
                 </Button>
               )}
@@ -851,14 +889,16 @@ const ApplicationsPage = () => {
                   Theo dõi đơn thường xuyên để không bỏ lỡ phản hồi.
                 </li>
               </ul>
-              <Button asChild className="mt-4 h-10 w-full rounded-lg bg-emerald-600 text-sm font-bold text-white hover:bg-emerald-700">
+              <Button
+                asChild
+                className="mt-4 h-10 w-full rounded-lg bg-emerald-600 text-sm font-bold text-white hover:bg-emerald-700"
+              >
                 <Link to="/candidate/chat">
                   <MessageSquare className="mr-2 h-4 w-4" />
                   Hỏi trợ lý
                 </Link>
               </Button>
             </SidebarCard>
-
           </aside>
         </div>
       </main>

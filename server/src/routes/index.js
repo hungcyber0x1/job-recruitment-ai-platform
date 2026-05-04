@@ -6,6 +6,9 @@ const express = require('express');
 const router = express.Router();
 const logger = require('../utils/logger');
 const { pool } = require('../config/database.config');
+const jwt = require('jsonwebtoken');
+const jwtConfig = require('../config/jwt.config');
+const UserRepository = require('../models/User');
 
 const userRoutes = require('./user');
 const applicationRoutes = require('./application');
@@ -69,6 +72,7 @@ router.use('/admin/homepage', require('./admin-homepage'));
 router.use('/homepage', require('./homepage'));
 router.use('/skills', skillRoutes);
 router.use('/blog', require('./blog'));
+router.use('/newsletter', require('./newsletter'));
 router.use('/notifications', notificationRoutes);
 router.use('/messages', messagingRoutes);
 
@@ -89,6 +93,43 @@ router.get('/settings/feature-flags', async (_req, res, _next) => {
   } catch (error) {
     logger.error('Error loading feature flags:', error.message);
     res.json({ success: true, data: { ...DEFAULT_FEATURE_FLAGS } });
+  }
+});
+
+// Debug endpoint - remove after debugging
+router.get('/debug/db-users', async (_req, res) => {
+  try {
+    const [rows] = await pool.query(
+      'SELECT id, email, role, status, deleted_at FROM users WHERE id IN (2,3,11) LIMIT 5'
+    );
+    res.json({ success: true, data: rows });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Debug: decode the JWT from the Authorization header
+router.get('/debug/decode-token', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token =
+      authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
+    if (!token) {
+      return res.json({ success: false, message: 'No token provided' });
+    }
+    const decoded = jwt.verify(token, jwtConfig.secret);
+    const user = await UserRepository.findById(decoded.id);
+    res.json({
+      success: true,
+      tokenPayload: decoded,
+      userFromDB: user,
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      error: error.message,
+      name: error.name,
+    });
   }
 });
 

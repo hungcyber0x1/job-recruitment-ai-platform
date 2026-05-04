@@ -30,14 +30,12 @@ import {
   YAxis,
 } from 'recharts';
 
+import StatCard from '@/components/common/StatCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import EmployerStatCard from '../../components/employer/EmployerStatCard';
 import { cn } from '@/utils/cn';
-import {
-  APPLICATION_STATUS,
-  normalizeApplicationStatus,
-} from '../../constants/status';
+import { APPLICATION_STATUS, normalizeApplicationStatus } from '../../constants/status';
 import { useAuth } from '../../context/AuthContext';
 import ChartSurface, {
   CHART_TICK_STYLE,
@@ -165,19 +163,13 @@ const PIPELINE_STAGE_CONFIG = [
 
 const toneStyle = (tone) => TONE_STYLES[tone] || TONE_STYLES.emerald;
 
-const formatNumber = (value) =>
-  new Intl.NumberFormat('vi-VN').format(Number(value) || 0);
+const formatNumber = (value) => new Intl.NumberFormat('vi-VN').format(Number(value) || 0);
 
 const formatAverage = (value) =>
   new Intl.NumberFormat('vi-VN', {
     minimumFractionDigits: 1,
     maximumFractionDigits: 1,
   }).format(Number.isFinite(value) ? value : 0);
-
-const clamp = (value) => Math.max(0, Math.min(Number(value) || 0, 100));
-
-const ratioToPercent = (numerator, denominator) =>
-  denominator > 0 ? Math.round((numerator / denominator) * 100) : 0;
 
 function getApplicationTimestamp(application) {
   const rawDate =
@@ -277,7 +269,12 @@ function SectionCard({
         className
       )}
     >
-      <div className={cn('pointer-events-none absolute right-0 top-0 h-28 w-28 rounded-full blur-3xl', styles.glow)} />
+      <div
+        className={cn(
+          'pointer-events-none absolute right-0 top-0 h-28 w-28 rounded-full blur-3xl',
+          styles.glow
+        )}
+      />
 
       <div className="relative">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -303,9 +300,7 @@ function SectionCard({
                 {title}
               </h2>
               {description ? (
-                <p className="mt-1.5 max-w-3xl text-sm leading-6 text-slate-500">
-                  {description}
-                </p>
+                <p className="mt-1.5 max-w-3xl text-sm leading-6 text-slate-500">{description}</p>
               ) : null}
             </div>
           </div>
@@ -319,93 +314,28 @@ function SectionCard({
   );
 }
 
-function HeroMetricCard({ icon: Icon, label, value, helper, tone = 'emerald', to }) {
-  const styles = toneStyle(tone);
-
-  const content = (
-    <div className="group relative h-full overflow-hidden rounded-[24px] border border-white/85 bg-white/90 p-4 shadow-sm backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-[0_24px_48px_-32px_rgba(16,185,129,0.35)]">
-      <div className={cn('absolute inset-x-0 top-0 h-1 bg-gradient-to-r', styles.line)} />
-
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-            {label}
-          </p>
-          <p className="mt-3 text-3xl font-bold tracking-tight text-slate-950 tabular-nums">
-            {value}
-          </p>
-        </div>
-
-        <div
-          className={cn(
-            'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset',
-            styles.icon
-          )}
-        >
-          <Icon className="h-4 w-4" />
-        </div>
-      </div>
-
-      <p className="mt-3 text-sm leading-6 text-slate-500">{helper}</p>
-
-      {to ? (
-        <div className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-slate-700">
-          Xem chi tiết
-          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-        </div>
-      ) : null}
-    </div>
-  );
-
-  if (!to) return content;
-
+function QuickStatCard({
+  label,
+  value,
+  helper,
+  tone = 'slate',
+  emphasize = false,
+  icon: Icon = BarChart3,
+}) {
   return (
-    <Link to={to} className="block h-full">
-      {content}
-    </Link>
+    <StatCard
+      title={label}
+      value={value}
+      subtitle={helper}
+      icon={Icon}
+      type={tone}
+      valueClassName={emphasize ? 'text-green-600' : undefined}
+    />
   );
 }
 
-function QuickStatCard({ label, value, helper, tone = 'slate', emphasize = false }) {
-  const styles = toneStyle(tone);
-
-  return (
-    <div className="rounded-2xl border border-slate-200/80 bg-white/92 p-3.5 shadow-sm">
-      <div className="flex items-center gap-2">
-        <span className={cn('h-2 w-2 rounded-full', styles.dot)} />
-        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-          {label}
-        </p>
-      </div>
-
-      <p
-        className={cn(
-          'mt-2 text-lg font-bold tracking-tight text-slate-950 tabular-nums',
-          emphasize && 'text-emerald-600'
-        )}
-      >
-        {value}
-      </p>
-
-      {helper ? <p className="mt-1.5 text-[11px] leading-5 text-slate-500">{helper}</p> : null}
-    </div>
-  );
-}
-
-function SummaryMiniStat({ label, value, tone = 'slate' }) {
-  const styles = toneStyle(tone);
-
-  return (
-    <div className="rounded-2xl border border-slate-200/80 bg-white px-3 py-3 shadow-sm">
-      <div className="flex items-center gap-2">
-        <span className={cn('h-2 w-2 rounded-full', styles.dot)} />
-        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-          {label}
-        </p>
-      </div>
-      <p className="mt-2 text-xl font-bold tracking-tight text-slate-950 tabular-nums">{value}</p>
-    </div>
-  );
+function SummaryMiniStat({ label, value, tone = 'slate', icon: Icon = BarChart3 }) {
+  return <StatCard title={label} value={value} icon={Icon} type={tone} />;
 }
 
 function QuickLinkCard({ icon: Icon, title, description, tone = 'emerald', to }) {
@@ -436,7 +366,7 @@ function QuickLinkCard({ icon: Icon, title, description, tone = 'emerald', to })
   );
 }
 
-function PriorityActionCard({
+function ActionItemCard({
   icon: Icon,
   title,
   value,
@@ -446,107 +376,34 @@ function PriorityActionCard({
   to,
   tone = 'amber',
 }) {
-  const styles = toneStyle(tone);
-
   return (
-    <div className="rounded-[24px] border border-slate-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-4 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 items-start gap-3">
-          <div
-            className={cn(
-              'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset',
-              styles.icon
-            )}
-          >
-            <Icon className="h-4 w-4" />
-          </div>
-
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-              {title}
-            </p>
-            <p className="mt-2 text-2xl font-bold tracking-tight text-slate-950">{value}</p>
-          </div>
-        </div>
-
-        <span className={cn('rounded-full border px-2.5 py-1 text-xs font-semibold', styles.subtle)}>
-          {badge}
-        </span>
-      </div>
-
-      <p className="mt-3 text-sm leading-6 text-slate-500">{description}</p>
-
+    <StatCard
+      title={title}
+      value={value}
+      subtitle={description}
+      badge={badge}
+      icon={Icon}
+      type={tone}
+    >
       <Button
         asChild
         variant="outline"
-        className="mt-4 h-10 w-full justify-between rounded-2xl border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
+        className="h-10 w-full justify-between rounded-2xl border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:border-gray-300 hover:bg-gray-50"
       >
         <Link to={to}>
           {ctaLabel}
           <ArrowRight className="h-4 w-4" />
         </Link>
       </Button>
-    </div>
+    </StatCard>
   );
 }
 
-function ProgressRow({ label, helper, value, tone = 'emerald' }) {
-  const styles = toneStyle(tone);
-  const width = clamp(value);
-
-  return (
-    <div>
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <p className="text-sm font-semibold text-slate-700">{label}</p>
-          <p className="text-xs text-slate-500">{helper}</p>
-        </div>
-        <span className="text-sm font-bold text-slate-950">{width}%</span>
-      </div>
-
-      <div className="mt-2 h-2 rounded-full bg-slate-100">
-        <div className={cn('h-full rounded-full transition-all duration-500', styles.bar)} style={{ width: `${width}%` }} />
-      </div>
-    </div>
-  );
+function PipelineStageCard({ icon: Icon, label, value, helper, tone = 'slate' }) {
+  return <StatCard title={label} value={value} subtitle={helper} icon={Icon} type={tone} />;
 }
 
-function PipelineStageCard({ icon: Icon, label, value, helper, share, tone = 'slate' }) {
-  const styles = toneStyle(tone);
-
-  return (
-    <div className="rounded-[24px] border border-slate-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-4 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <div
-          className={cn(
-            'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset',
-            styles.icon
-          )}
-        >
-          <Icon className="h-4 w-4" />
-        </div>
-
-        <span className={cn('rounded-full border px-2.5 py-1 text-xs font-semibold', styles.subtle)}>
-          {share}%
-        </span>
-      </div>
-
-      <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-        {label}
-      </p>
-      <p className="mt-2 text-2xl font-bold tracking-tight text-slate-950">{value}</p>
-      <p className="mt-1.5 text-sm leading-6 text-slate-500">{helper}</p>
-
-      <div className="mt-4 h-2 rounded-full bg-slate-100">
-        <div className={cn('h-full rounded-full transition-all duration-500', styles.bar)} style={{ width: `${clamp(share)}%` }} />
-      </div>
-    </div>
-  );
-}
-
-function DistributionRow({ label, value, total, color, helper }) {
-  const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
-
+function DistributionRow({ label, value, color, helper }) {
   return (
     <div className="rounded-2xl border border-slate-200/80 bg-white px-4 py-3 shadow-sm">
       <div className="flex items-start justify-between gap-3">
@@ -560,18 +417,8 @@ function DistributionRow({ label, value, total, color, helper }) {
 
         <div className="text-right">
           <p className="text-sm font-bold text-slate-950">{formatNumber(value)}</p>
-          <p className="text-xs text-slate-400">{percentage}%</p>
+          <p className="text-xs text-slate-400">hồ sơ</p>
         </div>
-      </div>
-
-      <div className="mt-3 h-2 rounded-full bg-slate-100">
-        <div
-          className="h-full rounded-full transition-all duration-500"
-          style={{
-            width: `${clamp(percentage)}%`,
-            backgroundColor: color,
-          }}
-        />
       </div>
     </div>
   );
@@ -605,9 +452,7 @@ const RecruitmentReportPage = () => {
 
         const appResponses = await Promise.all(
           myJobs.map((job) =>
-            applicationService
-              .getJobApplications(job.id)
-              .catch(() => ({ data: { data: [] } }))
+            applicationService.getJobApplications(job.id).catch(() => ({ data: { data: [] } }))
           )
         );
 
@@ -692,17 +537,8 @@ const RecruitmentReportPage = () => {
   const selectedRange =
     TIME_RANGE_OPTIONS.find((option) => option.value === timeRange) || TIME_RANGE_OPTIONS[1];
 
-  const conversionRate = ratioToPercent(stats.hired, stats.totalApplications);
-  const offerRate = ratioToPercent(stats.offered, stats.totalApplications);
-  const activeJobsRatio = ratioToPercent(stats.activeJobs, stats.totalJobs);
-  const activePipelineCount =
-    stats.pendingApplications + stats.interviewing + stats.offered;
-  const pipelineShare = ratioToPercent(activePipelineCount, stats.totalApplications);
-  const interviewRate = ratioToPercent(
-    stats.interviewing + stats.offered + stats.hired,
-    stats.totalApplications
-  );
-  const rejectionRate = ratioToPercent(stats.rejected, stats.totalApplications);
+  const activePipelineCount = stats.pendingApplications + stats.interviewing + stats.offered;
+  const interviewPipelineCount = stats.interviewing + stats.offered + stats.hired;
   const averageApplicationsPerJob =
     stats.totalJobs > 0 ? formatAverage(stats.totalApplications / stats.totalJobs) : '0.0';
 
@@ -776,17 +612,15 @@ const RecruitmentReportPage = () => {
 
   const focusHelper =
     stats.pendingApplications > 0
-      ? `Hiện có ${formatNumber(
-        stats.pendingApplications
-      )} hồ sơ ở lớp đầu vào và ${formatNumber(
-        stats.offered
-      )} đề nghị tuyển dụng cần theo dõi phản hồi từ ứng viên.`
+      ? `Hiện có ${formatNumber(stats.pendingApplications)} hồ sơ ở lớp đầu vào và ${formatNumber(
+          stats.offered
+        )} đề nghị tuyển dụng cần theo dõi phản hồi từ ứng viên.`
       : stats.activeJobs > 0
         ? `Bạn đang có ${formatNumber(
-          stats.activeJobs
-        )} tin mở, ${formatNumber(activePipelineCount)} hồ sơ đang luân chuyển và ${formatNumber(
-          stats.hired
-        )} hồ sơ đã chốt thành công.`
+            stats.activeJobs
+          )} tin mở, ${formatNumber(activePipelineCount)} hồ sơ đang luân chuyển và ${formatNumber(
+            stats.hired
+          )} hồ sơ đã chốt thành công.`
         : 'Bắt đầu từ một tin tuyển dụng mới hoặc mở tìm kiếm chủ động để kích hoạt đầu vào ứng viên.';
 
   const heroMetrics = [
@@ -802,7 +636,7 @@ const RecruitmentReportPage = () => {
       icon: TrendingUp,
       label: 'Tin đang mở',
       value: formatNumber(stats.activeJobs),
-      helper: `${activeJobsRatio}% số tin đang ở trạng thái nhận hồ sơ.`,
+      helper: `${formatNumber(stats.activeJobs)} tin đang nhận hồ sơ trong tổng ${formatNumber(stats.totalJobs)} tin.`,
       tone: 'blue',
       to: '/employer/jobs',
     },
@@ -816,9 +650,9 @@ const RecruitmentReportPage = () => {
     },
     {
       icon: Target,
-      label: 'Tỷ lệ tuyển dụng',
-      value: `${conversionRate}%`,
-      helper: `${formatNumber(stats.hired)} ứng viên đã đi tới trạng thái tuyển dụng.`,
+      label: 'Kết quả tuyển dụng',
+      value: formatNumber(stats.hired),
+      helper: 'Ứng viên đã đi tới trạng thái tuyển dụng.',
       tone: 'amber',
       to: '/employer/applications',
     },
@@ -849,22 +683,23 @@ const RecruitmentReportPage = () => {
     {
       icon: Briefcase,
       title: 'Quản lý tin',
-      description: 'Rà soát hiệu suất từng tin và tối ưu lại mô tả công việc trong không gian tuyển dụng.',
+      description:
+        'Rà soát hiệu suất từng tin và tối ưu lại mô tả công việc trong không gian tuyển dụng.',
       tone: 'slate',
       to: '/employer/jobs',
     },
   ];
 
-  const priorityActions = [
+  const actionCards = [
     {
       icon: AlertCircle,
       title: 'Hồ sơ chờ phản hồi',
       value: formatNumber(stats.pendingApplications),
       description:
         stats.pendingApplications > 0
-          ? 'Ưu tiên xử lý lớp đầu vào để không mất tốc độ chuyển đổi ngay từ đầu quy trình.'
+          ? 'Xử lý lớp đầu vào để không làm chậm nhịp phản hồi ở đầu quy trình.'
           : 'Không có tồn đọng ở lớp đầu vào vào thời điểm hiện tại.',
-      badge: stats.pendingApplications > 0 ? 'Ưu tiên cao' : 'Ổn định',
+      badge: stats.pendingApplications > 0 ? 'Cần xử lý' : 'Ổn định',
       ctaLabel: 'Mở quy trình',
       to: '/employer/applications',
       tone: 'amber',
@@ -900,20 +735,19 @@ const RecruitmentReportPage = () => {
   const pipelineCards = PIPELINE_STAGE_CONFIG.map((item) => ({
     ...item,
     value: stats[item.key],
-    share: ratioToPercent(stats[item.key], stats.totalApplications),
   }));
 
   if (loading) {
     return (
-      <div className="flex min-h-[420px] items-center justify-center bg-slate-50/40">
+      <div className="flex min-h-[420px] items-center justify-center bg-transparent">
         <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-emerald-500" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50/40 pb-16 animate-fade-in">
-      <section className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
+    <div className="min-h-screen bg-transparent pb-16 animate-fade-in">
+      <section className="relative overflow-hidden border-b border-emerald-100/70 bg-transparent">
         <div className="pointer-events-none absolute inset-0 opacity-40" style={GRID_BACKGROUND} />
 
         <div className="relative mx-auto max-w-7xl px-4 pb-6 pt-8 sm:px-6 lg:px-8">
@@ -942,7 +776,7 @@ const RecruitmentReportPage = () => {
                     <span className="text-emerald-600">{companyName}</span>
                   </h1>
                   <p className="mt-4 max-w-3xl text-sm font-medium leading-7 text-slate-600 sm:text-base">
-                    Gộp hiệu suất tin tuyển dụng, nhịp hồ sơ và hành động ưu tiên vào cùng một
+                    Gộp hiệu suất tin tuyển dụng, nhịp hồ sơ và các việc cần xử lý vào cùng một
                     không gian điều phối đồng nhất với trang quản lý tin của nhà tuyển dụng.
                   </p>
                 </div>
@@ -1045,30 +879,14 @@ const RecruitmentReportPage = () => {
 
                 <div className="mt-5 rounded-[24px] border border-slate-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-4">
                   <div className="flex items-center gap-4">
-                    <div className="relative flex h-[104px] w-[104px] shrink-0 items-center justify-center">
-                      <div className="absolute inset-0 rounded-full bg-emerald-50/70" />
-                      <svg width="112" height="112" className="-rotate-90">
-                        <circle cx="56" cy="56" r="42" fill="none" stroke="#e2e8f0" strokeWidth="9" />
-                        <circle
-                          cx="56"
-                          cy="56"
-                          r="42"
-                          fill="none"
-                          stroke="#10b981"
-                          strokeWidth="9"
-                          strokeLinecap="round"
-                          strokeDasharray={`${(clamp(conversionRate) / 100) * 264} 264`}
-                        />
-                      </svg>
-
-                      <div className="absolute text-center">
-                        <p className="text-3xl font-bold tracking-tight text-slate-950">
-                          {conversionRate}%
-                        </p>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-                          Đã tuyển
-                        </p>
-                      </div>
+                    <div className="flex h-[104px] w-[104px] shrink-0 flex-col items-center justify-center rounded-[24px] border border-emerald-100 bg-emerald-50/80 text-center shadow-inner">
+                      <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                      <p className="mt-2 text-3xl font-bold tracking-tight text-slate-950">
+                        {formatNumber(stats.hired)}
+                      </p>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+                        Đã tuyển
+                      </p>
                     </div>
 
                     <div className="min-w-0 flex-1">
@@ -1076,7 +894,8 @@ const RecruitmentReportPage = () => {
                         Tóm tắt nhanh
                       </p>
                       <p className="mt-2 text-sm font-semibold leading-6 text-slate-900">
-                        {formatNumber(activePipelineCount)} hồ sơ đang còn chuyển động trong quy trình.
+                        {formatNumber(activePipelineCount)} hồ sơ đang còn chuyển động trong quy
+                        trình.
                       </p>
                       <p className="mt-1 text-sm leading-6 text-slate-500">
                         Theo dõi nhanh các tín hiệu cốt lõi để quyết định bước xử lý tiếp theo.
@@ -1107,7 +926,6 @@ const RecruitmentReportPage = () => {
                     />
                   </div>
                 </div>
-
               </aside>
             </div>
 
@@ -1129,22 +947,22 @@ const RecruitmentReportPage = () => {
                 </div>
 
                 <div className="mt-4 grid gap-4 lg:grid-cols-3">
-                  <ProgressRow
-                    label="Độ phủ tin đang mở"
-                    helper={`${formatNumber(stats.activeJobs)} trong ${formatNumber(stats.totalJobs)} tin đang nhận hồ sơ`}
-                    value={activeJobsRatio}
+                  <QuickStatCard
+                    label="Tin đang mở"
+                    value={formatNumber(stats.activeJobs)}
+                    helper={`${formatNumber(stats.totalJobs)} tin đang được quản lý`}
                     tone="emerald"
                   />
-                  <ProgressRow
-                    label="Nhịp xử lý quy trình"
-                    helper={`${formatNumber(activePipelineCount)} hồ sơ đang còn chuyển động trong hệ thống`}
-                    value={pipelineShare}
+                  <QuickStatCard
+                    label="Hồ sơ đang xử lý"
+                    value={formatNumber(activePipelineCount)}
+                    helper="hồ sơ đang còn chuyển động trong hệ thống"
                     tone="blue"
                   />
-                  <ProgressRow
-                    label="Tỷ lệ đề nghị"
-                    helper={`${formatNumber(stats.offered)} hồ sơ đã nhận đề nghị tuyển dụng`}
-                    value={offerRate}
+                  <QuickStatCard
+                    label="Đề nghị tuyển dụng"
+                    value={formatNumber(stats.offered)}
+                    helper="hồ sơ đã nhận đề nghị tuyển dụng"
                     tone="violet"
                   />
                 </div>
@@ -1211,7 +1029,7 @@ const RecruitmentReportPage = () => {
                     {formatNumber(stats.totalApplications)} hồ sơ
                   </Badge>
                   <Badge className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600">
-                    {conversionRate}% tuyển dụng
+                    Đã tuyển {formatNumber(stats.hired)}
                   </Badge>
                 </>
               }
@@ -1241,7 +1059,12 @@ const RecruitmentReportPage = () => {
                     </defs>
 
                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-                    <XAxis dataKey="label" tick={CHART_TICK_STYLE} axisLine={false} tickLine={false} />
+                    <XAxis
+                      dataKey="label"
+                      tick={CHART_TICK_STYLE}
+                      axisLine={false}
+                      tickLine={false}
+                    />
                     <YAxis tick={CHART_TICK_STYLE} axisLine={false} tickLine={false} />
                     <Tooltip contentStyle={CHART_TOOLTIP_STYLE} cursor={{ fill: '#f8fafc' }} />
 
@@ -1313,11 +1136,11 @@ const RecruitmentReportPage = () => {
               icon={Workflow}
               eyebrow="Quy trình"
               title="Sức khỏe quy trình tuyển dụng"
-              description="Phân rã từng bước từ đơn vào đến tuyển dụng để nhìn nhanh điểm nghẽn và tỷ trọng chuyển đổi."
+              description="Phân rã từng bước từ đơn vào đến tuyển dụng để nhìn nhanh số lượng từng nhóm xử lý."
               tone="slate"
               meta={
                 <Badge className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600">
-                  {pipelineShare}% quy trình đang vận hành
+                  {formatNumber(activePipelineCount)} hồ sơ đang vận hành
                 </Badge>
               }
             >
@@ -1329,7 +1152,6 @@ const RecruitmentReportPage = () => {
                     label={item.label}
                     value={formatNumber(item.value)}
                     helper={item.helper}
-                    share={item.share}
                     tone={item.tone}
                   />
                 ))}
@@ -1338,21 +1160,21 @@ const RecruitmentReportPage = () => {
               <div className="mt-5 rounded-[24px] border border-slate-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-4">
                 <div className="grid gap-3 sm:grid-cols-3">
                   <QuickStatCard
-                    label="Tỷ lệ vào phỏng vấn"
-                    value={`${interviewRate}%`}
-                    helper="hồ sơ đi tới trao đổi trực tiếp"
+                    label="Vào phỏng vấn"
+                    value={formatNumber(interviewPipelineCount)}
+                    helper="hồ sơ đã đi tới trao đổi trực tiếp"
                     tone="blue"
                   />
                   <QuickStatCard
-                    label="Tỷ lệ đề nghị"
-                    value={`${offerRate}%`}
+                    label="Đề nghị"
+                    value={formatNumber(stats.offered)}
                     helper="hồ sơ nhận đề nghị tuyển dụng"
                     tone="violet"
                   />
                   <QuickStatCard
-                    label="Tỷ lệ rơi rụng"
-                    value={`${rejectionRate}%`}
-                    helper={`${formatNumber(stats.rejected)} hồ sơ kết thúc không thành công`}
+                    label="Kết thúc không thành công"
+                    value={formatNumber(stats.rejected)}
+                    helper="hồ sơ đã khép lại ở trạng thái không thành công"
                     tone="rose"
                   />
                 </div>
@@ -1365,7 +1187,7 @@ const RecruitmentReportPage = () => {
               icon={Sparkles}
               eyebrow="Điều hướng"
               title="Thao tác nhanh"
-              description="Các đường tắt ưu tiên để tiếp tục xử lý công việc mà không rời khỏi khu báo cáo."
+              description="Các đường tắt chính để tiếp tục xử lý công việc mà không rời khỏi khu báo cáo."
               tone="emerald"
             >
               <div className="grid gap-3">
@@ -1377,14 +1199,14 @@ const RecruitmentReportPage = () => {
 
             <SectionCard
               icon={AlertCircle}
-              eyebrow="Ưu tiên"
+              eyebrow="Cần xử lý"
               title="Điểm cần xử lý"
-              description="Những luồng công việc nên hành động ngay để giữ nhịp tuyển dụng ổn định."
+              description="Những luồng công việc cần theo dõi để giữ nhịp tuyển dụng ổn định."
               tone="amber"
             >
               <div className="space-y-3">
-                {priorityActions.map((item) => (
-                  <PriorityActionCard key={item.title} {...item} />
+                {actionCards.map((item) => (
+                  <ActionItemCard key={item.title} {...item} />
                 ))}
               </div>
             </SectionCard>
@@ -1393,7 +1215,7 @@ const RecruitmentReportPage = () => {
               icon={Target}
               eyebrow="Phân bổ"
               title="Trạng thái hồ sơ hiện tại"
-              description="Tỷ trọng hồ sơ theo nhóm xử lý chính trong quy trình tuyển dụng."
+              description="Số lượng hồ sơ theo nhóm xử lý chính trong quy trình tuyển dụng."
               tone="slate"
             >
               <div className="rounded-[24px] border border-slate-200/80 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-4">
@@ -1435,7 +1257,6 @@ const RecruitmentReportPage = () => {
                     key={item.name}
                     label={item.name}
                     value={item.value}
-                    total={stats.totalApplications}
                     color={item.color}
                     helper={item.helper}
                   />

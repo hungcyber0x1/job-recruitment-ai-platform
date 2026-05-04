@@ -174,6 +174,10 @@ export const ChatProvider = ({ children }) => {
     }
 
     const token = localStorage.getItem('token');
+    if (!token) {
+      return undefined;
+    }
+
     let cancelled = false;
 
     (async () => {
@@ -184,8 +188,13 @@ export const ChatProvider = ({ children }) => {
         const socket = io(SOCKET_ORIGIN, {
           auth: { token },
           path: '/socket.io',
-          reconnectionAttempts: 3,
-          transports: ['websocket'],
+          /**
+           * Ưu tiên websocket nhưng cho phép polling fallback để tránh lỗi trắng khi proxy/gateway
+           * không hỗ trợ nâng cấp WebSocket trong môi trường dev hoặc reverse proxy.
+           */
+          transports: ['websocket', 'polling'],
+          reconnectionAttempts: 2,
+          timeout: 10000,
         });
 
         if (cancelled) {
@@ -210,6 +219,12 @@ export const ChatProvider = ({ children }) => {
           if (err.message && err.message.includes('Authentication error')) {
             socket.disconnect();
             socket.emit('auth:invalidated', { message: err.message });
+            return;
+          }
+
+          if (socketAttemptRef.current >= 2) {
+            socket.disconnect();
+            socketRef.current = null;
           }
         });
 
@@ -341,7 +356,7 @@ export const ChatProvider = ({ children }) => {
           setIsLoading(false);
           const text =
             (typeof error?.message === 'string' && error.message.trim()) ||
-            'AI chatbot is unavailable right now.';
+            'AI chatbot hiện chưa sẵn sàng. Vui lòng thử lại sau.';
           setMessages((prev) => [...prev, { id: createClientId(), text, isAi: true }]);
         });
       } catch (e) {
@@ -420,7 +435,9 @@ export const ChatProvider = ({ children }) => {
           ...prev,
           {
             id: createClientId(),
-            text: error.response?.data?.message || 'AI chatbot is unavailable right now.',
+            text:
+              error.response?.data?.message ||
+              'AI chatbot hiện chưa sẵn sàng. Vui lòng thử lại sau.',
             isAi: true,
           },
         ]);

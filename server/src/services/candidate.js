@@ -166,17 +166,39 @@ const parseStructuredValue = (value, fallbackValue) => {
   return value;
 };
 
-const toCandidateProfileContract = (candidate = {}) => ({
-  ...candidate,
-  title: preferFilledString(candidate.current_job_title),
-  phone: preferFilledString(candidate.phone, candidate.user_phone),
-  location: preferFilledString(candidate.location, candidate.user_address),
-});
+const toCandidateProfileContract = (candidate = {}) => {
+  const education = parseStructuredValue(candidate.education, []);
+  const experience = parseStructuredValue(candidate.experience, []);
+  const projects = parseStructuredValue(candidate.projects, []);
+  const preferredJobTypes = parseStructuredValue(candidate.preferred_job_types, []);
+  const preferredLocations = parseStructuredValue(candidate.preferred_locations, []);
+  const languages = parseStructuredValue(candidate.languages, []);
+  const certifications = parseStructuredValue(candidate.certifications, []);
+  const socialLinks = parseStructuredValue(candidate.social_links, {});
+  const targetIndustries = parseStructuredValue(candidate.target_industries, []);
+
+  return {
+    ...candidate,
+    education,
+    experience,
+    projects,
+    preferred_job_types: preferredJobTypes,
+    preferred_locations: preferredLocations,
+    languages,
+    certifications,
+    social_links: socialLinks,
+    target_industries: targetIndustries,
+    title: preferFilledString(candidate.current_job_title),
+    phone: preferFilledString(candidate.phone, candidate.user_phone),
+    location: preferFilledString(candidate.location, candidate.user_address),
+  };
+};
 
 const toFullCandidateProfileContract = (candidate = {}) => {
   const base = toCandidateProfileContract(candidate);
   const education = parseStructuredValue(base.education, []);
   const experience = parseStructuredValue(base.experience, []);
+  const projects = parseStructuredValue(base.projects, []);
   const preferredJobTypes = parseStructuredValue(base.preferred_job_types, []);
   const preferredLocations = parseStructuredValue(base.preferred_locations, []);
   const languages = parseStructuredValue(base.languages, []);
@@ -190,6 +212,7 @@ const toFullCandidateProfileContract = (candidate = {}) => {
     education,
     experience,
     experiences: Array.isArray(base.experiences) ? base.experiences : experience,
+    projects,
     preferred_job_types: preferredJobTypes,
     preferred_locations: preferredLocations,
     languages,
@@ -255,6 +278,14 @@ class CandidateService {
     };
 
     const sanitizedCandidateData = sanitizeCandidateData(cleanedCandidateData);
+    if (Object.prototype.hasOwnProperty.call(cleanedCandidateData, 'resume_url')) {
+      const normalizedResumeUrl =
+        cleanedCandidateData.resume_url == null
+          ? null
+          : String(cleanedCandidateData.resume_url).trim();
+      sanitizedCandidateData.resume_url = normalizedResumeUrl || null;
+    }
+
     const supportedCandidateData =
       typeof CandidateRepository.filterSupportedFields === 'function'
         ? await CandidateRepository.filterSupportedFields(sanitizedCandidateData)

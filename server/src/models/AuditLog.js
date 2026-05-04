@@ -12,57 +12,68 @@ const { pool } = require('../config/database.config');
 
 const AUDIT_ACTIONS = {
   // Application actions
-  APPLICATION_STATUS_CHANGE:  'application_status_change',
-  APPLICATION_NOTE_ADDED:     'application_note_added',
-  APPLICATION_EMAIL_SENT:     'application_email_sent',
-  APPLICATION_SHORTLISTED:    'application_shortlisted',
-  APPLICATION_REJECTED:       'application_rejected',
-  APPLICATION_SCHEDULED_PV:   'application_interview_scheduled',
+  APPLICATION_STATUS_CHANGE: 'application_status_change',
+  APPLICATION_NOTE_ADDED: 'application_note_added',
+  APPLICATION_EMAIL_SENT: 'application_email_sent',
+  APPLICATION_SHORTLISTED: 'application_shortlisted',
+  APPLICATION_REJECTED: 'application_rejected',
+  APPLICATION_SCHEDULED_PV: 'application_interview_scheduled',
 
   // Job actions
-  JOB_CREATED:               'job_created',
-  JOB_UPDATED:               'job_updated',
-  JOB_CLONED:                'job_cloned',
-  JOB_STATUS_CHANGE:         'job_status_change',
+  JOB_CREATED: 'job_created',
+  JOB_UPDATED: 'job_updated',
+  JOB_CLONED: 'job_cloned',
+  JOB_STATUS_CHANGE: 'job_status_change',
   JOB_SUBMITTED_FOR_APPROVAL: 'job_submitted_for_approval',
-  JOB_APPROVED:              'job_approved',
-  JOB_REJECTED:              'job_rejected',
+  JOB_APPROVED: 'job_approved',
+  JOB_REJECTED: 'job_rejected',
 
   // Company actions
-  COMPANY_MEMBER_INVITED:   'company_member_invited',
-  COMPANY_MEMBER_REMOVED:    'company_member_removed',
+  COMPANY_MEMBER_INVITED: 'company_member_invited',
+  COMPANY_MEMBER_REMOVED: 'company_member_removed',
   COMPANY_MEMBER_ROLE_CHANGED: 'company_member_role_changed',
-  COMPANY_PROFILE_UPDATED:   'company_profile_updated',
+  COMPANY_PROFILE_UPDATED: 'company_profile_updated',
 
   // Auth actions
-  LOGIN:                     'login',
-  LOGOUT:                    'logout',
+  LOGIN: 'login',
+  LOGOUT: 'logout',
 };
 
 const AUDIT_ACTION_LABELS = {
-  [AUDIT_ACTIONS.APPLICATION_STATUS_CHANGE]:   'Đổi trạng thái ứng viên',
-  [AUDIT_ACTIONS.APPLICATION_NOTE_ADDED]:       'Thêm ghi chú',
-  [AUDIT_ACTIONS.APPLICATION_EMAIL_SENT]:       'Gửi email',
-  [AUDIT_ACTIONS.APPLICATION_SHORTLISTED]:     'Shortlist ứng viên',
-  [AUDIT_ACTIONS.APPLICATION_REJECTED]:        'Từ chối hồ sơ',
-  [AUDIT_ACTIONS.APPLICATION_SCHEDULED_PV]:    'Lên lịch phỏng vấn',
-  [AUDIT_ACTIONS.JOB_CREATED]:                'Tạo tin tuyển dụng',
-  [AUDIT_ACTIONS.JOB_UPDATED]:                'Sửa tin tuyển dụng',
-  [AUDIT_ACTIONS.JOB_CLONED]:                 'Nhân bản tin',
-  [AUDIT_ACTIONS.JOB_STATUS_CHANGE]:           'Đổi trạng thái tin',
+  [AUDIT_ACTIONS.APPLICATION_STATUS_CHANGE]: 'Đổi trạng thái ứng viên',
+  [AUDIT_ACTIONS.APPLICATION_NOTE_ADDED]: 'Thêm ghi chú',
+  [AUDIT_ACTIONS.APPLICATION_EMAIL_SENT]: 'Gửi email',
+  [AUDIT_ACTIONS.APPLICATION_SHORTLISTED]: 'Shortlist ứng viên',
+  [AUDIT_ACTIONS.APPLICATION_REJECTED]: 'Từ chối hồ sơ',
+  [AUDIT_ACTIONS.APPLICATION_SCHEDULED_PV]: 'Lên lịch phỏng vấn',
+  [AUDIT_ACTIONS.JOB_CREATED]: 'Tạo tin tuyển dụng',
+  [AUDIT_ACTIONS.JOB_UPDATED]: 'Sửa tin tuyển dụng',
+  [AUDIT_ACTIONS.JOB_CLONED]: 'Nhân bản tin',
+  [AUDIT_ACTIONS.JOB_STATUS_CHANGE]: 'Đổi trạng thái tin',
   [AUDIT_ACTIONS.JOB_SUBMITTED_FOR_APPROVAL]: 'Gửi duyệt tin',
-  [AUDIT_ACTIONS.JOB_APPROVED]:               'Duyệt tin',
-  [AUDIT_ACTIONS.JOB_REJECTED]:               'Từ chối tin',
-  [AUDIT_ACTIONS.COMPANY_MEMBER_INVITED]:     'Mời thành viên',
-  [AUDIT_ACTIONS.COMPANY_MEMBER_REMOVED]:     'Xóa thành viên',
+  [AUDIT_ACTIONS.JOB_APPROVED]: 'Duyệt tin',
+  [AUDIT_ACTIONS.JOB_REJECTED]: 'Từ chối tin',
+  [AUDIT_ACTIONS.COMPANY_MEMBER_INVITED]: 'Mời thành viên',
+  [AUDIT_ACTIONS.COMPANY_MEMBER_REMOVED]: 'Xóa thành viên',
   [AUDIT_ACTIONS.COMPANY_MEMBER_ROLE_CHANGED]: 'Đổi vai trò thành viên',
-  [AUDIT_ACTIONS.COMPANY_PROFILE_UPDATED]:    'Cập nhật hồ sơ công ty',
-  [AUDIT_ACTIONS.LOGIN]:                      'Đăng nhập',
-  [AUDIT_ACTIONS.LOGOUT]:                     'Đăng xuất',
+  [AUDIT_ACTIONS.COMPANY_PROFILE_UPDATED]: 'Cập nhật hồ sơ công ty',
+  [AUDIT_ACTIONS.LOGIN]: 'Đăng nhập',
+  [AUDIT_ACTIONS.LOGOUT]: 'Đăng xuất',
 };
 
 class AuditLogRepository {
-  async log({ userId, companyId, action, targetType, targetId, oldValues, newValues, notes, ip, userAgent }) {
+  async log({
+    userId,
+    companyId,
+    action,
+    targetType,
+    targetId,
+    oldValues,
+    newValues,
+    notes,
+    ip,
+    userAgent,
+  }) {
     const metadata = {
       company_id: companyId,
       target_type: targetType,
@@ -120,7 +131,7 @@ class AuditLogRepository {
     params.push(parseInt(limit, 10), parseInt(offset, 10));
 
     const [rows] = await pool.query(query, params);
-    return rows.map(row => ({
+    return rows.map((row) => ({
       ...row,
       details: this._parseDetails(row.metadata),
       metadata: this._parseDetails(row.metadata),
@@ -236,7 +247,12 @@ class AuditLogRepository {
       ORDER BY ca.sent_at DESC
       LIMIT ? OFFSET ?
     `;
-    const [rows] = await pool.query(query, [companyId, companyId, parseInt(limit, 10), parseInt(offset, 10)]);
+    const [rows] = await pool.query(query, [
+      companyId,
+      companyId,
+      parseInt(limit, 10),
+      parseInt(offset, 10),
+    ]);
     return rows;
   }
 

@@ -14,7 +14,11 @@ const conversation = [
     text: 'Dựa trên hồ sơ của bạn, tôi phân tích được:',
     delay: 1500,
     details: [
-      { icon: Brain, label: 'Kỹ năng hiện tại', value: 'React, TypeScript, CSS — Mạnh về giao diện người dùng' },
+      {
+        icon: Brain,
+        label: 'Kỹ năng hiện tại',
+        value: 'React, TypeScript, CSS — Mạnh về giao diện người dùng',
+      },
       {
         icon: Target,
         label: 'Lộ trình đề xuất',
@@ -117,8 +121,8 @@ const InteractiveAIDemo = () => {
             Trải nghiệm tư vấn <span className="landing-heading-muted">thực tế</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed font-medium max-w-[65ch]">
-            Hệ thống hiểu ngữ cảnh, phân tích chuyên sâu và đưa ra lời khuyên nghề nghiệp được cá nhân hóa
-            cho riêng bạn
+            Hệ thống hiểu ngữ cảnh, phân tích chuyên sâu và đưa ra lời khuyên nghề nghiệp được cá
+            nhân hóa cho riêng bạn
           </p>
         </motion.div>
 

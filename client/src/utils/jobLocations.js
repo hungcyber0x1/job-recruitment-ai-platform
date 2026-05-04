@@ -8,7 +8,9 @@ export const JOB_LOCATION_OPTIONS = [
 ];
 
 export const getJobLocationOption = (value = '') =>
-  JOB_LOCATION_OPTIONS.find((option) => option.value.toLowerCase() === String(value).trim().toLowerCase());
+  JOB_LOCATION_OPTIONS.find(
+    (option) => option.value.toLowerCase() === String(value).trim().toLowerCase()
+  );
 
 export const getJobLocationDisplayLabel = (value = '') => {
   const normalizedValue = String(value || '').trim();
@@ -23,14 +25,21 @@ export const resolveJobLocationValue = (value = '') => {
   const normalizedQuery = normalizedValue.toLowerCase();
   const matchedOption = JOB_LOCATION_OPTIONS.find(
     (option) =>
-      option.label.toLowerCase() === normalizedQuery || option.value.toLowerCase() === normalizedQuery
+      option.label.toLowerCase() === normalizedQuery ||
+      option.value.toLowerCase() === normalizedQuery
   );
 
-  return matchedOption ? (matchedOption.value === 'all' ? '' : matchedOption.value) : normalizedValue;
+  return matchedOption
+    ? matchedOption.value === 'all'
+      ? ''
+      : matchedOption.value
+    : normalizedValue;
 };
 
 export const filterJobLocationOptions = (query = '') => {
-  const normalizedQuery = String(query || '').trim().toLowerCase();
+  const normalizedQuery = String(query || '')
+    .trim()
+    .toLowerCase();
   if (!normalizedQuery) return JOB_LOCATION_OPTIONS;
 
   return JOB_LOCATION_OPTIONS.filter(

@@ -14,7 +14,9 @@ function EditorBlock({ icon: Icon, title, hint, required, children }) {
             <Icon className="h-4 w-4" />
           </div>
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-[0.12em] text-slate-800">{title}</h3>
+            <h3 className="text-sm font-bold uppercase tracking-[0.12em] text-slate-800">
+              {title}
+            </h3>
             <p className="mt-1 text-sm leading-6 text-slate-500">{hint}</p>
           </div>
         </div>
@@ -29,7 +31,7 @@ function EditorBlock({ icon: Icon, title, hint, required, children }) {
   );
 }
 
-const JobContentSection = ({ formData, onRichTextChange, onGenerateAI, generating }) => {
+const JobContentSection = ({ formData, onRichTextChange, onGenerateContent, generating }) => {
   return (
     <motion.section
       initial={{ opacity: 0, y: 20 }}
@@ -43,10 +45,13 @@ const JobContentSection = ({ formData, onRichTextChange, onGenerateAI, generatin
             <Briefcase className="h-4 w-4" />
           </div>
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-600">Nội dung JD</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-600">
+              Nội dung JD
+            </p>
             <h2 className="mt-1 text-base font-bold text-slate-950">Nội dung tin tuyển dụng</h2>
             <p className="mt-1 text-sm leading-6 text-slate-500">
-              Xây dựng mô tả rõ ràng, có cấu trúc và đủ sức thuyết phục để thu hút đúng nhóm ứng viên mục tiêu.
+              Xây dựng mô tả rõ ràng, có cấu trúc và đủ sức thuyết phục để thu hút đúng nhóm ứng
+              viên mục tiêu.
             </p>
           </div>
         </div>
@@ -54,14 +59,16 @@ const JobContentSection = ({ formData, onRichTextChange, onGenerateAI, generatin
         <div className="flex flex-col items-start gap-2">
           <Button
             type="button"
-            onClick={onGenerateAI}
+            onClick={onGenerateContent}
             disabled={generating || !formData.title}
             className="h-11 rounded-xl bg-slate-950 px-5 font-bold text-white hover:bg-slate-800 disabled:opacity-40"
           >
             <Wand2 className={`mr-2 h-4 w-4 ${generating ? 'animate-spin' : ''}`} />
             {generating ? 'Đang tạo...' : 'Tạo nội dung'}
           </Button>
-          <p className="text-xs font-medium text-slate-400">Tạo mô tả công việc dựa trên tiêu đề hiện tại.</p>
+          <p className="text-xs font-medium text-slate-400">
+            Tạo mô tả công việc dựa trên tiêu đề hiện tại.
+          </p>
         </div>
       </div>
 

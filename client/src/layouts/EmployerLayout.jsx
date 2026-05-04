@@ -52,7 +52,7 @@ const isApplicationsPipelineView = (location) => {
   );
 };
 
-const isEmployerNavItemActive = (item, location) => {
+const isRecruiterNavItemActive = (item, location) => {
   if (typeof item.match === 'function') {
     return item.match(location);
   }
@@ -72,11 +72,11 @@ const isEmployerNavItemActive = (item, location) => {
 };
 
 const navigationByRole = {
-  employer: [
+  recruiter: [
     {
       title: 'VẬN HÀNH',
       items: [
-        { path: '/employer/dashboard', label: 'Dashboard', icon: Grid3X3 },
+        { path: '/employer/dashboard', label: 'Tổng quan', icon: Grid3X3 },
         { path: '/employer/jobs/post', label: 'Đăng việc mới', icon: Plus },
         { path: '/employer/jobs', label: 'Quản lý việc', icon: Briefcase, badgeKey: 'jobs' },
         {
@@ -97,7 +97,7 @@ const navigationByRole = {
           badgeKey: 'candidates',
           match: isApplicationsListView,
         },
-        { path: '/employer/search-candidates', label: 'Tìm ứng viên AI', icon: Search },
+        { path: '/employer/search-candidates', label: 'Tìm ứng viên', icon: Search },
         { path: '/employer/saved-candidates', label: 'Đã lưu', icon: Bookmark },
         {
           path: '/employer/messages',
@@ -119,8 +119,8 @@ const navigationByRole = {
   ],
 };
 
-const EmployerSidebarContent = ({ role = 'employer', badgeCounts = {}, user }) => {
-  const groups = navigationByRole[role] ?? navigationByRole.employer;
+const EmployerSidebarContent = ({ role = 'recruiter', badgeCounts = {}, user }) => {
+  const groups = navigationByRole[role] ?? navigationByRole.recruiter;
   const location = useLocation();
 
   const getBadgeVariant = (key) => {
@@ -166,7 +166,7 @@ const EmployerSidebarContent = ({ role = 'employer', badgeCounts = {}, user }) =
                 {group.items.map((item) => {
                   const Icon = item.icon;
                   const count = item.badgeKey ? badgeCounts[item.badgeKey] : null;
-                  const active = isEmployerNavItemActive(item, location);
+                  const active = isRecruiterNavItemActive(item, location);
 
                   return (
                     <NavLink
@@ -200,11 +200,11 @@ const EmployerSidebarContent = ({ role = 'employer', badgeCounts = {}, user }) =
                           className={cn(
                             'h-6 min-w-6 rounded-full px-2 text-sm font-semibold',
                             item.badgeKey === 'jobs' &&
-                            'border border-primary/25 bg-primary/15 text-primary dark:bg-primary/20',
+                              'border border-primary/25 bg-primary/15 text-primary dark:bg-primary/20',
                             item.badgeKey === 'candidates' &&
-                            'border border-primary/25 bg-primary/15 text-primary dark:bg-primary/20',
+                              'border border-primary/25 bg-primary/15 text-primary dark:bg-primary/20',
                             item.badgeKey === 'messages' &&
-                            'border border-destructive/30 bg-destructive/15 text-destructive dark:bg-destructive/20 dark:text-red-400'
+                              'border border-destructive/30 bg-destructive/15 text-destructive dark:bg-destructive/20 dark:text-red-400'
                           )}
                         >
                           {count > 99 ? '99+' : count}
@@ -312,10 +312,10 @@ const EmployerLayout = ({ children }) => {
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="role-recruiter-workspace-bg flex min-h-screen">
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 z-50 w-64">
-        <EmployerSidebarContent role="employer" badgeCounts={badgeCounts} user={user} />
+        <EmployerSidebarContent role="recruiter" badgeCounts={badgeCounts} user={user} />
       </aside>
 
       {/* Mobile Sidebar Overlay */}
@@ -333,11 +333,11 @@ const EmployerLayout = ({ children }) => {
           isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
-        <EmployerSidebarContent role="employer" badgeCounts={badgeCounts} user={user} />
+        <EmployerSidebarContent role="recruiter" badgeCounts={badgeCounts} user={user} />
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 lg:pl-64 flex flex-col min-h-screen bg-background text-foreground">
+      <div className="role-recruiter-workspace-bg flex min-h-screen flex-1 flex-col text-foreground lg:pl-64">
         {/* Top Header - Admin Style */}
         <header className="sticky top-0 z-40 flex h-[4.25rem] items-center justify-between border-b border-border bg-background/95 px-6 backdrop-blur lg:px-8">
           <div className="flex min-w-0 flex-1 items-center gap-4">
@@ -453,7 +453,7 @@ const EmployerLayout = ({ children }) => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-6 lg:p-8">
+        <main className="role-rounded-workspace flex-1 bg-transparent p-4 sm:p-6 lg:p-8">
           <div className="mx-auto max-w-[1600px]">{children}</div>
         </main>
       </div>

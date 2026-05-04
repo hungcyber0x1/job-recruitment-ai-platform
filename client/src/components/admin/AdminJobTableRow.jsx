@@ -38,7 +38,8 @@ const formatSalary = (job) => {
       currency: 'VND',
       maximumFractionDigits: 0,
     }).format(value);
-  if (job.salary_min && job.salary_max) return `${formatMoney(job.salary_min)} - ${formatMoney(job.salary_max)}`;
+  if (job.salary_min && job.salary_max)
+    return `${formatMoney(job.salary_min)} - ${formatMoney(job.salary_max)}`;
   if (job.salary_min) return `Từ ${formatMoney(job.salary_min)}`;
   return `Đến ${formatMoney(job.salary_max)}`;
 };
@@ -93,9 +94,7 @@ const AdminJobTableRow = ({ job, onStatusUpdate, onFlagToggle, onDelete }) => (
 
     <td className="px-8 py-6">
       <div className="flex flex-col">
-        <span className="text-base font-bold text-slate-900 tabular-nums">
-          {formatSalary(job)}
-        </span>
+        <span className="text-base font-bold text-slate-900 tabular-nums">{formatSalary(job)}</span>
         <div className="flex items-center gap-3 mt-1.5 text-xs font-bold text-slate-400 uppercase tracking-normal">
           <span className="flex items-center gap-1.5">
             <Briefcase size={12} strokeWidth={2.5} className="text-emerald-500" />

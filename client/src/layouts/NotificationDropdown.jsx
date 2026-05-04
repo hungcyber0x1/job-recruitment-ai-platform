@@ -1,6 +1,14 @@
 import PropTypes from 'prop-types';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Bell, Clock, Briefcase, AlertTriangle, Building, FileText, MessageSquare } from 'lucide-react';
+import {
+  Bell,
+  Clock,
+  Briefcase,
+  AlertTriangle,
+  Building,
+  FileText,
+  MessageSquare,
+} from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import notificationService from '../services/notificationService';
@@ -18,7 +26,7 @@ const ICON_MAP = {
   company: Building,
   report: AlertTriangle,
   job_expiring: Clock,
-  default: Bell
+  default: Bell,
 };
 
 // Màu sắc cho từng loại notification
@@ -32,7 +40,7 @@ const TYPE_STYLES = {
   company: { bg: 'bg-primary/10', text: 'text-primary' },
   report: { bg: 'bg-danger/10', text: 'text-danger-700' },
   job_expiring: { bg: 'bg-warning/10', text: 'text-warning-700' },
-  default: { bg: 'bg-muted', text: 'text-muted-foreground' }
+  default: { bg: 'bg-muted', text: 'text-muted-foreground' },
 };
 
 const getNotificationData = (notification) => {
@@ -58,9 +66,8 @@ const NotificationDropdown = ({ isOpen, onClose, userRole = 'candidate' }) => {
   const getNotificationPath = useCallback(() => {
     switch (userRole) {
       case 'admin':
-        return '/admin/notifications';
+        return '/admin/dashboard';
       case 'recruiter':
-      case 'employer':
         return '/employer/notifications';
       case 'candidate':
       default:
@@ -76,7 +83,7 @@ const NotificationDropdown = ({ isOpen, onClose, userRole = 'candidate' }) => {
     setLoading(true);
     try {
       let response;
-      if (userRole === 'recruiter' || userRole === 'employer') {
+      if (userRole === 'recruiter') {
         response = await notificationService.getRecruiterNotifications({ limit: 10 });
       } else if (userRole === 'admin') {
         response = await notificationService.getAdminNotifications({ limit: 10 });
@@ -108,7 +115,7 @@ const NotificationDropdown = ({ isOpen, onClose, userRole = 'candidate' }) => {
   const handleMarkAllAsRead = async () => {
     try {
       await notificationService.markAllAsRead();
-      setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
       setUnreadCount(0);
       showNotification('Đã đánh dấu tất cả là đã đọc', 'success');
     } catch (error) {
@@ -128,41 +135,54 @@ const NotificationDropdown = ({ isOpen, onClose, userRole = 'candidate' }) => {
   };
 
   // Navigate to notification
-  const handleNotificationClick = useCallback((notification) => {
-    if (!notification.is_read) {
-      notificationService.markAsRead(notification.id).catch(() => {});
-      setNotifications(prev =>
-        prev.map(n => n.id === notification.id ? { ...n, is_read: true } : n)
-      );
-      setUnreadCount(prev => Math.max(0, prev - 1));
-    }
-
-    const data = getNotificationData(notification);
-    let path = getNotificationPath();
-
-    if (notification.type === 'message' && data.conversation_id) {
-      if (userRole === 'candidate') {
-        path = `/candidate/messages?conversationId=${data.conversation_id}`;
-      } else if (userRole === 'recruiter' || userRole === 'employer') {
-        path = `/employer/messages?conversationId=${data.conversation_id}`;
+  const handleNotificationClick = useCallback(
+    (notification) => {
+      if (!notification.is_read) {
+        notificationService.markAsRead(notification.id).catch(() => {});
+        setNotifications((prev) =>
+          prev.map((n) => (n.id === notification.id ? { ...n, is_read: true } : n))
+        );
+        setUnreadCount((prev) => Math.max(0, prev - 1));
       }
-    } else if (data.application_id) {
-      if (userRole === 'candidate') {
-        path = `/candidate/applications?applicationId=${data.application_id}`;
-      } else if (userRole === 'recruiter' || userRole === 'employer') {
-        path = `/employer/applications?applicationId=${data.application_id}`;
-      }
-    } else if (data.job_id) {
-      if (userRole === 'candidate') {
-        path = `/candidate/jobs/${data.job_id}`;
-      } else if (userRole === 'recruiter' || userRole === 'employer') {
-        path = `/employer/jobs/${data.job_id}`;
-      }
-    }
 
-    onClose();
-    navigate(path);
-  }, [getNotificationPath, navigate, onClose, userRole]);
+      const data = getNotificationData(notification);
+      let path = getNotificationPath();
+
+      if (notification.type === 'message' && data.conversation_id) {
+        if (userRole === 'candidate') {
+          path = `/candidate/messages?conversationId=${data.conversation_id}`;
+        } else if (userRole === 'recruiter') {
+          path = `/employer/messages?conversationId=${data.conversation_id}`;
+        } else if (userRole === 'admin') {
+          path = '/admin/dashboard';
+        }
+      } else if (data.application_id) {
+        if (userRole === 'candidate') {
+          path = `/candidate/applications?applicationId=${data.application_id}`;
+        } else if (userRole === 'recruiter') {
+          path = `/employer/applications?applicationId=${data.application_id}`;
+        } else if (userRole === 'admin') {
+          path = `/admin/applications/${data.application_id}`;
+        }
+      } else if (data.job_id) {
+        if (userRole === 'candidate') {
+          path = `/candidate/jobs/${data.job_id}`;
+        } else if (userRole === 'recruiter') {
+          path = `/employer/jobs/${data.job_id}`;
+        } else if (userRole === 'admin') {
+          path = `/admin/jobs/${data.job_id}`;
+        }
+      } else if (userRole === 'admin' && data.company_id) {
+        path = `/admin/companies/${data.company_id}`;
+      } else if (userRole === 'admin' && ['moderation', 'report'].includes(notification.type)) {
+        path = '/admin/jobs';
+      }
+
+      onClose();
+      navigate(path);
+    },
+    [getNotificationPath, navigate, onClose, userRole]
+  );
 
   // Format notification time
   const formatTime = (dateStr) => {
@@ -205,7 +225,7 @@ const NotificationDropdown = ({ isOpen, onClose, userRole = 'candidate' }) => {
         <div className="flex-1 overflow-y-auto custom-scrollbar">
           {loading ? (
             <div className="p-4 space-y-3">
-              {[1, 2, 3].map(i => (
+              {[1, 2, 3].map((i) => (
                 <div key={i} className="animate-pulse flex gap-3">
                   <div className="w-10 h-10 rounded-full bg-slate-200"></div>
                   <div className="flex-1 space-y-2">
@@ -225,7 +245,7 @@ const NotificationDropdown = ({ isOpen, onClose, userRole = 'candidate' }) => {
               {notifications.map((notification) => {
                 const Icon = getIcon(notification.type);
                 const style = getStyle(notification.type);
-                
+
                 return (
                   <div
                     key={notification.id}
@@ -237,14 +257,18 @@ const NotificationDropdown = ({ isOpen, onClose, userRole = 'candidate' }) => {
                     {!notification.is_read && (
                       <div className="absolute top-4 right-4 w-2 h-2 bg-primary-500 rounded-full"></div>
                     )}
-                    
+
                     <div className="flex gap-3">
-                      <div className={`mt-1 w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${style.bg} ${style.text}`}>
+                      <div
+                        className={`mt-1 w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${style.bg} ${style.text}`}
+                      >
                         <Icon size={16} />
                       </div>
-                      
+
                       <div className="flex-1 min-w-0">
-                        <h4 className={`text-sm ${!notification.is_read ? 'font-bold text-slate-900' : 'font-medium text-slate-700'}`}>
+                        <h4
+                          className={`text-sm ${!notification.is_read ? 'font-bold text-slate-900' : 'font-medium text-slate-700'}`}
+                        >
                           {notification.title}
                         </h4>
                         <p className="text-sm text-slate-500 mt-1 leading-relaxed line-clamp-2">
@@ -264,7 +288,7 @@ const NotificationDropdown = ({ isOpen, onClose, userRole = 'candidate' }) => {
 
         {/* Footer */}
         <div className="p-3 border-t border-slate-100 bg-slate-50/50 text-center shrink-0">
-          <Link 
+          <Link
             to={getNotificationPath()}
             onClick={onClose}
             className="text-sm font-semibold text-slate-600 hover:text-primary-600 transition-colors"
@@ -280,11 +304,11 @@ const NotificationDropdown = ({ isOpen, onClose, userRole = 'candidate' }) => {
 NotificationDropdown.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  userRole: PropTypes.oneOf(['candidate', 'recruiter', 'employer', 'admin']),
+  userRole: PropTypes.oneOf(['candidate', 'recruiter', 'admin']),
 };
 
 NotificationDropdown.defaultProps = {
-  userRole: 'candidate'
+  userRole: 'candidate',
 };
 
 export default NotificationDropdown;

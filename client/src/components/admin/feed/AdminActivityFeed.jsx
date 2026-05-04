@@ -91,14 +91,21 @@ const AdminActivityFeed = ({ logs = [], loading, nowTs = 0, maxItems = 8, classN
   };
 
   return (
-    <div className={cn('overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm', className)}>
+    <div
+      className={cn(
+        'overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm',
+        className
+      )}
+    >
       <div className="border-b border-border/50 px-6 py-4">
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
             <Activity className="h-4 w-4 text-primary" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">Hoạt động gần đây</h3>
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
+              Hoạt động gần đây
+            </h3>
             <p className="text-xs text-muted-foreground">Theo dõi các thay đổi trong hệ thống</p>
           </div>
         </div>
@@ -153,11 +160,15 @@ const AdminActivityFeed = ({ logs = [], loading, nowTs = 0, maxItems = 8, classN
                     <span className={scheme.text}>{log.details || config.text}</span>
                   </p>
                   <div className="mt-1 flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">{formatLogTime(log.created_at)}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {formatLogTime(log.created_at)}
+                    </span>
                     {log.target && (
                       <>
                         <span className="text-xs text-muted-foreground">•</span>
-                        <span className="max-w-[150px] truncate text-xs text-muted-foreground">{log.target}</span>
+                        <span className="max-w-[150px] truncate text-xs text-muted-foreground">
+                          {log.target}
+                        </span>
                       </>
                     )}
                   </div>

@@ -72,8 +72,7 @@ export const hasConcreteJobSalary = (job = {}) => {
   const salaryMin = Number(job.salary_min);
   const salaryMax = Number(job.salary_max);
   return (
-    (Number.isFinite(salaryMin) && salaryMin > 0) ||
-    (Number.isFinite(salaryMax) && salaryMax > 0)
+    (Number.isFinite(salaryMin) && salaryMin > 0) || (Number.isFinite(salaryMax) && salaryMax > 0)
   );
 };
 

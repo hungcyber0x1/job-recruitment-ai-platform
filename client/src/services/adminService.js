@@ -32,7 +32,10 @@ const invalidateAdminCache = (matcher) => {
 
 const invalidateStatsCache = () => {
   invalidateAdminCache(
-    (key) => key.startsWith('admin/stats:') || key.startsWith('admin/chart-stats:')
+    (key) =>
+      key.startsWith('admin/stats:') ||
+      key.startsWith('admin/chart-stats:') ||
+      key.startsWith('admin/analytics-dashboard:')
   );
 };
 
@@ -76,6 +79,7 @@ const cachedGet = (url, params, ttlMs = 15000) => {
 const adminService = {
   getStats: () => cachedGet('admin/stats', undefined, 30000),
   getChartStats: () => cachedGet('admin/chart-stats', undefined, 30000),
+  getAnalyticsDashboard: (params) => cachedGet('admin/analytics-dashboard', params, 30000),
   getServiceHealth: () => cachedGet('health', undefined, 10000),
 
   // Users
@@ -145,7 +149,10 @@ const adminService = {
   getCompanies: (params) => api.get('admin/companies', { params }),
   getCompany: (id) => api.get(`admin/companies/${id}`),
   verifyCompany: async (id, isVerified, note) => {
-    const response = await api.patch(`admin/companies/${id}/verify`, { is_verified: isVerified, note });
+    const response = await api.patch(`admin/companies/${id}/verify`, {
+      is_verified: isVerified,
+      note,
+    });
     invalidateStatsCache();
     return response;
   },
@@ -169,8 +176,8 @@ const adminService = {
     invalidateStatsCache();
     return response;
   },
-  bulkUpdateCompaniesStatus: async (ids, status) => {
-    const response = await api.post('admin/companies/bulk-status', { ids, status });
+  bulkUpdateCompaniesStatus: async (ids, status, note = null) => {
+    const response = await api.post('admin/companies/bulk-status', { ids, status, note });
     invalidateStatsCache();
     return response;
   },
@@ -179,9 +186,9 @@ const adminService = {
   getJobs: (params) => api.get('admin/jobs', { params }),
   getJob: (id) => api.get(`admin/jobs/${id}`),
   updateJobStatus: async (id, status, rejectionReason = null) => {
-    const response = await api.patch(`admin/jobs/${id}/status`, { 
-      status, 
-      rejection_reason: rejectionReason 
+    const response = await api.patch(`admin/jobs/${id}/status`, {
+      status,
+      rejection_reason: rejectionReason,
     });
     invalidateStatsCache();
     return response;
@@ -220,12 +227,17 @@ const adminService = {
   // Applications
   getApplications: (params) => api.get('admin/applications', { params }),
   getApplication: (id) => api.get(`admin/applications/${id}`),
-  getApplicationHistory: (id) => api.get(`applications/${id}/history`),
-  updateApplicationStatus: async (id, status, notes = '', offerDetails = null) => {
-    const response = await api.patch(`admin/applications/${id}/status`, { 
-      status, 
-      notes, 
-      offer_details: offerDetails 
+  getApplicationHistory: (id) => api.get(`admin/applications/${id}/history`),
+  updateApplicationStatus: async (id, status, notes = '', metadata = {}) => {
+    const statusMetadata = { ...(metadata || {}) };
+    delete statusMetadata.status;
+    delete statusMetadata.notes;
+
+    const response = await api.patch(`admin/applications/${id}/status`, {
+      ...statusMetadata,
+      status,
+      notes,
+      offer_details: statusMetadata.offer_details || statusMetadata.offerDetails || null,
     });
     invalidateStatsCache();
     return response;
@@ -243,26 +255,26 @@ const adminService = {
   // Blogs & Moderation
   getBlogPosts: (params) => api.get('admin/blog/posts', { params }),
   updateBlogPostStatus: async (id, status, rejectionReason = null) => {
-    const response = await api.patch(`admin/blog/posts/${id}/status`, { 
-      status, 
-      rejection_reason: rejectionReason 
+    const response = await api.patch(`admin/blog/posts/${id}/status`, {
+      status,
+      rejection_reason: rejectionReason,
     });
     invalidateStatsCache();
     return response;
   },
   bulkUpdateBlogPostsStatus: async (ids, action, status) => {
-    const response = await api.post('admin/blog/posts/bulk-action', { 
-      ids, 
-      action, 
-      status 
+    const response = await api.post('admin/blog/posts/bulk-action', {
+      ids,
+      action,
+      status,
     });
     invalidateStatsCache();
     return response;
   },
   updateBlogPostFlag: async (id, isFlagged) => {
     // Reusing the update method pattern or status update
-    const response = await api.patch(`admin/blog/posts/${id}/status`, { 
-      is_flagged: isFlagged 
+    const response = await api.patch(`admin/blog/posts/${id}/status`, {
+      is_flagged: isFlagged,
     });
     invalidateStatsCache();
     return response;
@@ -287,8 +299,11 @@ const adminService = {
   },
 
   // Site logo upload
-  uploadSiteLogo: (formData) =>
-    api.post('admin/settings/upload-logo', formData),
+  uploadSiteLogo: async (formData) => {
+    const response = await api.post('admin/settings/upload-logo', formData);
+    invalidateSettingsCache();
+    return response;
+  },
 
   // SMTP test
   testSmtp: (config) => api.post('/admin/settings/smtp/test', config),
@@ -332,15 +347,6 @@ const adminService = {
     invalidateTaxonomyCache();
     return response;
   },
-
-  // Chatbot
-  getChatStats: (params) => api.get('admin/chatbot/stats', { params }),
-  getChatSessions: (params) => api.get('admin/chatbot/sessions', { params }),
-
-  // Content
-  getBanners: () => api.get('admin/banners'),
-  createBanner: (data) => api.post('admin/banners', data),
-  deleteBanner: (id) => api.delete(`admin/banners/${id}`),
 
   // Generic content CRUD — no backend routes exist yet
   // getContent: (type, params) => api.get(`admin/content/${type}`, { params }),

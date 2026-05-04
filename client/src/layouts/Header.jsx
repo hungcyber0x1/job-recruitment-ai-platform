@@ -132,7 +132,7 @@ const Header = () => {
                           onClick={() => setIsProfileOpen(false)}
                         >
                           <LayoutDashboard size={18} />
-                          Bảng điều khiển
+                          Tổng quan
                         </Link>
                         <Link
                           to={profilePath}
@@ -244,7 +244,7 @@ const Header = () => {
                   className="w-full py-4 rounded-2xl bg-primary text-white text-center font-bold shadow-lg shadow-primary/25"
                   onClick={() => setIsOpen(false)}
                 >
-                  Bảng điều khiển
+                  Tổng quan
                 </Link>
                 <Button
                   variant="ghost"

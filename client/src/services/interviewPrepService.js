@@ -17,8 +17,7 @@ const interviewPrepService = {
   deleteNote: (id) => api.delete(`interview-prep/notes/${id}`),
 
   // Get practice questions for a specific company
-  getCompanyQuestions: (companyId) =>
-    api.get(`interview-prep/company-questions/${companyId}`),
+  getCompanyQuestions: (companyId) => api.get(`interview-prep/company-questions/${companyId}`),
 
   // Save a practice session result
   savePracticeSession: (data) => api.post('interview-prep/practice-sessions', data),

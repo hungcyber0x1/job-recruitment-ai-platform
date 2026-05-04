@@ -1,26 +1,33 @@
 import api from './api';
 
-/** API blog trả { success, data: T[] } — chuẩn hóa để tránh list rỗng khi shape lệch */
+/** API blog trả { success, data: T[] }. Shape lệch là lỗi dữ liệu, không dùng fallback giả. */
 export function unwrapBlogListResponse(res) {
   const body = res?.data;
-  if (!body || typeof body !== 'object') return [];
-  if (Array.isArray(body.data)) return body.data;
-  if (Array.isArray(body)) return body;
-  return [];
+  if (body?.success === true && Array.isArray(body.data)) return body.data;
+  throw new Error('BLOG_LIST_RESPONSE_INVALID');
 }
 
-/** Chi tiết bài: { success, data } — tránh lấy nhầm khi success: false */
+/** Chi tiết bài: { success, data }. Shape lệch là lỗi dữ liệu, không dùng fallback giả. */
 export function unwrapBlogDetailResponse(res) {
   const body = res?.data;
-  if (!body || typeof body !== 'object') return null;
-  if (body.success === false) return null;
-  const d = body.data;
-  if (d && typeof d === 'object') return d;
-  return null;
+  if (body?.success === true && body.data && typeof body.data === 'object') return body.data;
+  throw new Error('BLOG_DETAIL_RESPONSE_INVALID');
+}
+
+export function unwrapBlogTaxonomyResponse(res) {
+  const body = res?.data;
+  if (body?.success === true && body.data && typeof body.data === 'object') {
+    return {
+      categories: Array.isArray(body.data.categories) ? body.data.categories : [],
+      tags: Array.isArray(body.data.tags) ? body.data.tags : [],
+    };
+  }
+  throw new Error('BLOG_TAXONOMY_RESPONSE_INVALID');
 }
 
 export const blogService = {
   listPublic: (params) => api.get('blog/posts', { params }),
+  getPublicTaxonomy: () => api.get('blog/taxonomy'),
   getBySlug: (slug) => api.get(`blog/posts/${encodeURIComponent(slug)}`),
   listAdmin: (params) => api.get('admin/blog/posts', { params }),
   createAdmin: (data) => api.post('admin/blog/posts', data),

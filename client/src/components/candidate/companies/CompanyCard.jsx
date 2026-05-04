@@ -25,9 +25,7 @@ const CompanyCard = ({ company }) => {
           <h3 className="text-lg font-bold text-slate-800 mb-1 line-clamp-1 group-hover:text-primary transition-colors leading-snug tracking-normal">
             {company.name}
           </h3>
-          <p className="text-sm font-medium text-slate-500 mb-5 truncate">
-            {company.industry}
-          </p>
+          <p className="text-sm font-medium text-slate-500 mb-5 truncate">{company.industry}</p>
 
           <div className="space-y-2.5 mb-6 text-sm">
             <div className="flex items-center gap-2.5 font-medium text-slate-600">

@@ -60,9 +60,7 @@ describe('ApplicationService.updateApplicationStatus transitions', () => {
       title: 'Frontend Engineer',
     });
 
-    jest
-      .spyOn(ApplicationService, '_sendStatusNotifications')
-      .mockResolvedValue(undefined);
+    jest.spyOn(ApplicationService, '_sendStatusNotifications').mockResolvedValue(undefined);
   });
 
   afterEach(() => {

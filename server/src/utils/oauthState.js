@@ -16,7 +16,7 @@ function encodeState(payload) {
     payload.intent === 'register' ? 'register' : payload.intent === 'link' ? 'link' : 'login';
   const data = {
     intent,
-    role: ['candidate', 'employer'].includes(payload.role) ? payload.role : 'candidate',
+    role: ['candidate', 'recruiter'].includes(payload.role) ? payload.role : 'candidate',
     t: Date.now(),
   };
   if (intent === 'link' && payload.userId != null) {

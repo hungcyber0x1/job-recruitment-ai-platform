@@ -17,7 +17,8 @@ function multerDiskStorage() {
       let folder = uploadsRoot + path.sep;
       if (file.fieldname === 'avatar') folder += 'avatars' + path.sep;
       else if (file.fieldname === 'resume') folder += 'cvs' + path.sep;
-      else if (file.fieldname === 'message_attachment') folder = path.join(privateUploadsRoot, 'messages') + path.sep;
+      else if (file.fieldname === 'message_attachment')
+        folder = path.join(privateUploadsRoot, 'messages') + path.sep;
       else if (file.fieldname === 'logo') folder += 'company-logos' + path.sep;
       else if (file.fieldname === 'site_logo') folder += 'site-logos' + path.sep;
       else if (file.fieldname === 'project_image') folder += 'projects' + path.sep;

@@ -28,7 +28,13 @@ class EmailService {
         logger.warn('Email credentials not configured. Skipping email sending.');
         status = 'failed';
         errorMessage = 'Email credentials not configured';
-        await EmailLogRepository.create({ recipient: to, subject, body_html: html, status, error_message: errorMessage });
+        await EmailLogRepository.create({
+          recipient: to,
+          subject,
+          body_html: html,
+          status,
+          error_message: errorMessage,
+        });
         return false;
       }
 
@@ -45,15 +51,27 @@ class EmailService {
     } catch (error) {
       logger.error('Error sending email:', error);
       try {
-        await EmailLogRepository.create({ recipient: to, subject, body_html: html, status: 'failed', error_message: error.message });
-      } catch (_) { /* ignore secondary failure */ }
+        await EmailLogRepository.create({
+          recipient: to,
+          subject,
+          body_html: html,
+          status: 'failed',
+          error_message: error.message,
+        });
+      } catch (_) {
+        /* ignore secondary failure */
+      }
       return false;
     }
   }
 
   // ─── Legacy methods (kept for backward compatibility) ────────────────────────
   async sendWelcomeEmail(email, name) {
-    return this.sendEmail(email, `Chào mừng ${name} đến với HireBOT!`, templates.welcomeEmail(name));
+    return this.sendEmail(
+      email,
+      `Chào mừng ${name} đến với HireBOT!`,
+      templates.welcomeEmail(name)
+    );
   }
 
   async sendApplicationStatusEmail(email, jobTitle, status) {

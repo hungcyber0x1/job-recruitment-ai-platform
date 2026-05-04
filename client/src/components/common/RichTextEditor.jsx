@@ -15,7 +15,7 @@ const modules = {
 
 const RichTextEditor = ({ value, onChange, placeholder, className, minHeight = '300px' }) => {
   return (
-    <div className={cn("rich-text-editor-container", className)}>
+    <div className={cn('rich-text-editor-container', className)}>
       <style>{`
         .rich-text-editor-container .ql-toolbar.ql-snow {
           border-top-left-radius: 1rem;

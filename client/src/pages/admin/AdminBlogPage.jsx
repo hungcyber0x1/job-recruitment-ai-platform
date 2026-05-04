@@ -13,15 +13,15 @@ import {
   RefreshCw,
   RotateCcw,
   Search,
-  Sparkles,
   Star,
   Trash2,
   UserRound,
   XCircle,
 } from 'lucide-react';
 
-import AdminTable from '@/components/admin/AdminTable';
+import { AdminTable, ContentCard, PageHeader } from '@/components/admin';
 import BlogPostEditorDialog from '@/components/blog/BlogPostEditorDialog';
+import StatCard from '@/components/common/StatCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -52,32 +52,7 @@ const AUTHOR_OPTIONS = [
   { value: 'recruiter', label: 'Đối tác' },
 ];
 
-function SectionCard({ icon: Icon, title, description, action, className = '', children, ...props }) {
-  return (
-    <section
-      className={`rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition-all hover:border-emerald-200/70 hover:shadow-md sm:p-6 ${className}`}
-      {...props}
-    >
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex min-w-0 items-start gap-3">
-          {Icon ? (
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100">
-              <Icon className="h-4 w-4" />
-            </div>
-          ) : null}
-          <div className="min-w-0">
-            <h2 className="text-base font-bold tracking-normal text-slate-950">{title}</h2>
-            {description ? (
-              <p className="mt-1 text-sm leading-6 text-slate-500">{description}</p>
-            ) : null}
-          </div>
-        </div>
-        {action}
-      </div>
-      <div className="mt-6">{children}</div>
-    </section>
-  );
-}
+const SectionCard = ContentCard;
 
 function formatNumber(value) {
   return Number(value || 0).toLocaleString('vi-VN');
@@ -247,7 +222,7 @@ const AdminBlogPage = () => {
       showNotification('Đã thực hiện thao tác hàng loạt.', 'success');
       setSelectedIds([]);
       fetchList(paginationMeta.current);
-    } catch (error) {
+    } catch {
       showNotification('Lỗi khi thực hiện thao tác hàng loạt.', 'error');
     } finally {
       setBulkLoading(false);
@@ -274,7 +249,7 @@ const AdminBlogPage = () => {
         'success'
       );
       fetchList(paginationMeta.current);
-    } catch (error) {
+    } catch {
       showNotification('Lỗi khi cập nhật trạng thái.', 'error');
     }
   };
@@ -284,7 +259,7 @@ const AdminBlogPage = () => {
       await blogService.updateStatus(row.id, { is_flagged: nextFlagged });
       showNotification(nextFlagged ? 'Đã gắn cờ bài viết.' : 'Đã bỏ cờ bài viết.', 'success');
       fetchList(paginationMeta.current);
-    } catch (error) {
+    } catch {
       showNotification('Lỗi khi cập nhật cờ kiểm duyệt.', 'error');
     }
   };
@@ -296,7 +271,7 @@ const AdminBlogPage = () => {
       await blogService.deleteAdmin(row.id);
       showNotification('Đã xóa bài viết.', 'success');
       fetchList(paginationMeta.current);
-    } catch (error) {
+    } catch {
       showNotification('Lỗi khi xóa bài viết.', 'error');
     }
   };
@@ -317,9 +292,10 @@ const AdminBlogPage = () => {
   const partnerCount = items.filter((row) => row.author_type === 'recruiter').length;
   const pageStart = paginationMeta.total === 0 ? 0 : (paginationMeta.current - 1) * PAGE_SIZE + 1;
   const pageEnd =
-    paginationMeta.total === 0 ? 0 : Math.min(paginationMeta.current * PAGE_SIZE, paginationMeta.total);
-  const activeStatusLabel =
-    STATUS_TABS.find((tab) => tab.id === statusFilter)?.label || 'Tất cả';
+    paginationMeta.total === 0
+      ? 0
+      : Math.min(paginationMeta.current * PAGE_SIZE, paginationMeta.total);
+  const activeStatusLabel = STATUS_TABS.find((tab) => tab.id === statusFilter)?.label || 'Tất cả';
   const activeAuthorLabel =
     AUTHOR_OPTIONS.find((option) => option.value === authorFilter)?.label || 'Tất cả nguồn bài';
 
@@ -467,7 +443,9 @@ const AdminBlogPage = () => {
 
         return (
           <div className="space-y-2">
-            <Badge className={`rounded-full border px-3 py-1 text-xs font-semibold ${authorMeta.badgeClass}`}>
+            <Badge
+              className={`rounded-full border px-3 py-1 text-xs font-semibold ${authorMeta.badgeClass}`}
+            >
               {authorMeta.label}
             </Badge>
             <div className="flex items-start gap-2">
@@ -493,12 +471,16 @@ const AdminBlogPage = () => {
 
         return (
           <div className="space-y-2">
-            <Badge className={`rounded-full border px-3 py-1 text-xs font-semibold ${statusMeta.badgeClass}`}>
+            <Badge
+              className={`rounded-full border px-3 py-1 text-xs font-semibold ${statusMeta.badgeClass}`}
+            >
               <span className={`mr-1.5 h-2 w-2 rounded-full ${statusMeta.dotClass}`} />
               {statusMeta.label}
             </Badge>
             {row.status === 'rejected' && row.rejection_reason ? (
-              <p className="max-w-[220px] text-xs leading-5 text-rose-500">{row.rejection_reason}</p>
+              <p className="max-w-[220px] text-xs leading-5 text-rose-500">
+                {row.rejection_reason}
+              </p>
             ) : (
               <p className="text-xs font-medium text-slate-400">
                 {row.is_flagged ? 'Nội dung cần kiểm tra thêm' : 'Quy trình kiểm duyệt ổn định'}
@@ -564,10 +546,7 @@ const AdminBlogPage = () => {
                   Xem bài công khai
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer rounded-lg"
-                onClick={() => openEdit(row)}
-              >
+              <DropdownMenuItem className="cursor-pointer rounded-lg" onClick={() => openEdit(row)}>
                 <Pencil className="mr-2 h-4 w-4 text-sky-500" />
                 Chỉnh sửa
               </DropdownMenuItem>
@@ -600,250 +579,208 @@ const AdminBlogPage = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-slate-50/40 pb-16 animate-fade-in">
-        <section className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
-          <div
-            className="pointer-events-none absolute inset-0 opacity-40"
-            style={{
-              backgroundImage:
-                'linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px)',
-              backgroundSize: '32px 32px',
-            }}
-          />
-
-          <div className="relative mx-auto max-w-7xl px-4 pb-8 pt-10 sm:px-6 lg:px-8">
-            <div className="space-y-5">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge className="rounded-full border border-emerald-200 bg-white/80 px-3 py-1 font-bold text-emerald-700 shadow-sm">
-                  <Sparkles className="mr-1.5 h-3.5 w-3.5" />
-                  Admin workspace
-                </Badge>
-                <Badge className="rounded-full border border-slate-200 bg-white/80 px-3 py-1 font-bold text-slate-600 shadow-sm">
-                  Kiểm duyệt nội dung blog
-                </Badge>
-              </div>
-
-              <div className="max-w-4xl">
-                <p className="text-sm font-semibold text-emerald-600">Editorial operations</p>
-                <h1 className="mt-3 text-3xl font-bold tracking-normal text-slate-950 sm:text-4xl lg:text-5xl">
-                  Quản lý & kiểm duyệt blog
-                </h1>
-                <p className="mt-4 max-w-3xl text-sm font-medium leading-7 text-slate-600 sm:text-base">
-                  Theo dõi bài viết nội bộ và bài từ đối tác trong cùng một không gian vận hành
-                  sáng sủa, rõ trạng thái kiểm duyệt và thuận tiện cho biên tập viên xử lý nhanh.
-                </p>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-                {summaryCards.map((card) => {
-                  const Icon = card.icon;
-
-                  return (
-                    <div
-                      key={card.label}
-                      className="rounded-lg border border-white/80 bg-white/85 p-4 shadow-sm backdrop-blur"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-normal text-slate-500">
-                            {card.label}
-                          </p>
-                          <p className="mt-2 text-2xl font-bold tracking-normal text-slate-950">
-                            {card.value}
-                          </p>
-                          <p className="mt-2 text-sm text-slate-500">{card.helper}</p>
-                        </div>
-                        <div
-                          className={`flex h-10 w-10 items-center justify-center rounded-lg ring-1 ring-inset ${card.className}`}
-                        >
-                          <Icon className="h-4 w-4" />
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="flex flex-wrap gap-3">
-                <Button
-                  type="button"
-                  onClick={() => {
-                    setStatusFilter('pending');
-                    setFlagFilter(false);
-                  }}
-                  className="h-11 rounded-lg bg-slate-950 px-5 font-bold text-white shadow-sm hover:bg-emerald-700"
-                >
-                  <CheckCircle2 className="mr-2 h-4 w-4" />
-                  Mở chờ duyệt
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => fetchList(1)}
-                  className="h-11 rounded-lg border-white/80 bg-white/80 px-5 font-bold shadow-sm hover:bg-white"
-                >
-                  <RefreshCw className={cn('mr-2 h-4 w-4', loading && 'animate-spin')} />
-                  Làm mới danh sách
-                </Button>
-                <Button
-                  type="button"
-                  onClick={openCreate}
-                  className="h-11 rounded-lg bg-emerald-600 px-5 font-bold text-white shadow-sm hover:bg-emerald-500"
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Viết bài mới
-                </Button>
-              </div>
-            </div>
+      <div className="space-y-7 pb-10 animate-fade-in">
+        <PageHeader
+          icon={BookOpen}
+          eyebrow="Vận hành biên tập"
+          badge="Kiểm duyệt nội dung blog"
+          title="Quản lý & kiểm duyệt blog"
+          description="Theo dõi bài viết nội bộ và bài từ đối tác trong cùng một không gian vận hành rõ trạng thái kiểm duyệt, thống nhất với layout quản lý công ty của Admin."
+          actions={
+            <>
+              <Button
+                type="button"
+                onClick={() => {
+                  setStatusFilter('pending');
+                  setFlagFilter(false);
+                }}
+                className="h-11 rounded-xl bg-slate-950 px-5 font-bold text-white shadow-sm hover:bg-emerald-700"
+              >
+                <CheckCircle2 className="mr-2 h-4 w-4" />
+                Mở chờ duyệt
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={resetFilters}
+                className="h-11 rounded-xl bg-white px-5 font-bold shadow-sm"
+              >
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Làm sạch bộ lọc
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => fetchList(1)}
+                className="h-11 rounded-xl bg-white px-5 font-bold shadow-sm"
+              >
+                <RefreshCw className={cn('mr-2 h-4 w-4', loading && 'animate-spin')} />
+                Làm mới
+              </Button>
+              <Button
+                type="button"
+                onClick={openCreate}
+                className="h-11 rounded-xl bg-emerald-600 px-5 font-bold text-white shadow-sm hover:bg-emerald-500"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Viết bài mới
+              </Button>
+            </>
+          }
+          bodyClassName="mt-6"
+        >
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+            {summaryCards.map((card) => (
+              <StatCard
+                key={card.label}
+                title={card.label}
+                value={card.value}
+                subtitle={card.helper}
+                icon={card.icon}
+                type={card.className}
+              />
+            ))}
           </div>
-        </section>
+        </PageHeader>
 
-        <main className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
-          <section className="space-y-6">
-            <SectionCard
-              icon={Search}
-              title="Bộ lọc kiểm duyệt"
-              description="Tìm theo tiêu đề, slug, trích dẫn hoặc nguồn bài; kết hợp trạng thái và cờ vi phạm để đội biên tập xử lý đúng nhóm nội dung."
-            >
-              <div className="space-y-4">
-                <div className="relative">
-                  <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="text"
-                    placeholder="Tìm bài viết, slug hoặc nội dung..."
-                    value={searchInput}
-                    onChange={(event) => setSearchInput(event.target.value)}
-                    className="h-12 w-full rounded-lg border border-slate-200 bg-white pl-11 pr-4 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
-                  />
-                </div>
+        <section className="space-y-6">
+          <SectionCard
+            icon={Search}
+            title="Bộ lọc danh sách"
+            description="Tìm theo tiêu đề, slug, trích dẫn hoặc nguồn bài; lọc theo trạng thái, nguồn và cờ vi phạm để xử lý đúng quy trình kiểm duyệt."
+          >
+            <div className="space-y-4">
+              <div className="relative">
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Tìm bài viết, slug hoặc nội dung..."
+                  value={searchInput}
+                  onChange={(event) => setSearchInput(event.target.value)}
+                  className="h-12 w-full rounded-lg border border-slate-200 bg-white pl-11 pr-4 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
+                />
+              </div>
 
-                <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
-                  <div className="flex flex-wrap gap-2">
-                    {STATUS_TABS.map((tab) => {
-                      const isActive = statusFilter === tab.id && !flagFilter;
-                      const count =
-                        tab.countKey === 'total'
-                          ? paginationMeta.total
-                          : tab.countKey === 'pending'
-                            ? pendingCount
-                            : tab.countKey === 'published'
-                              ? publishedCount
-                              : rejectedCount;
+              <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
+                <div className="flex flex-wrap gap-2">
+                  {STATUS_TABS.map((tab) => {
+                    const isActive = statusFilter === tab.id && !flagFilter;
+                    const count =
+                      tab.countKey === 'total'
+                        ? paginationMeta.total
+                        : tab.countKey === 'pending'
+                          ? pendingCount
+                          : tab.countKey === 'published'
+                            ? publishedCount
+                            : rejectedCount;
 
-                      return (
-                        <button
-                          key={tab.id}
-                          type="button"
-                          onClick={() => {
-                            setStatusFilter(tab.id);
-                            setFlagFilter(false);
-                          }}
-                          className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-all ${
-                            isActive
-                              ? 'border-emerald-200 bg-emerald-50 text-emerald-700 shadow-sm'
-                              : 'border-slate-200 bg-white text-slate-600 hover:border-emerald-200 hover:text-emerald-700'
-                          }`}
-                        >
-                          {tab.label}
-                          <span
-                            className={`rounded-full px-2 py-0.5 text-xs font-bold tabular-nums ${
-                              isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'
-                            }`}
-                          >
-                            {formatNumber(count)}
-                          </span>
-                        </button>
-                      );
-                    })}
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFlagFilter((current) => !current);
-                        setStatusFilter('all');
-                      }}
-                      className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-all ${
-                        flagFilter
-                          ? 'border-rose-200 bg-rose-50 text-rose-700 shadow-sm'
-                          : 'border-slate-200 bg-white text-slate-600 hover:border-rose-200 hover:text-rose-700'
-                      }`}
-                    >
-                      <AlertTriangle className="h-4 w-4" />
-                      Vi phạm
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-xs font-bold tabular-nums ${
-                          flagFilter ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-500'
+                    return (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => {
+                          setStatusFilter(tab.id);
+                          setFlagFilter(false);
+                        }}
+                        className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-all ${
+                          isActive
+                            ? 'border-emerald-200 bg-emerald-50 text-emerald-700 shadow-sm'
+                            : 'border-slate-200 bg-white text-slate-600 hover:border-emerald-200 hover:text-emerald-700'
                         }`}
                       >
-                        {formatNumber(flaggedCount)}
-                      </span>
-                    </button>
-                  </div>
+                        {tab.label}
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-xs font-bold tabular-nums ${
+                            isActive
+                              ? 'bg-emerald-100 text-emerald-700'
+                              : 'bg-slate-100 text-slate-500'
+                          }`}
+                        >
+                          {formatNumber(count)}
+                        </span>
+                      </button>
+                    );
+                  })}
 
-                  <select
-                    value={authorFilter}
-                    onChange={(event) => setAuthorFilter(event.target.value)}
-                    className="h-11 rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 outline-none transition-all focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
-                  >
-                    {AUTHOR_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500">
-                  <span>
-                    Từ khóa:{' '}
-                    <strong className="text-slate-700">
-                      {debouncedSearch.trim() || 'Tất cả bài viết'}
-                    </strong>
-                  </span>
-                  <span>
-                    Trạng thái: <strong className="text-slate-700">{activeStatusLabel}</strong>
-                  </span>
-                  <span>
-                    Nguồn bài: <strong className="text-slate-700">{activeAuthorLabel}</strong>
-                  </span>
-                  <span>
-                    Cờ vi phạm:{' '}
-                    <strong className="text-slate-700">{flagFilter ? 'Đang bật' : 'Tắt'}</strong>
-                  </span>
-                  <span>
-                    Nổi bật: <strong className="text-slate-700">{formatNumber(featuredCount)}</strong>
-                  </span>
-                </div>
-
-                <div className="flex flex-wrap gap-3">
-                  <Button
+                  <button
                     type="button"
-                    variant="outline"
-                    onClick={resetFilters}
-                    className="h-10 rounded-lg border-slate-200 bg-white px-4 font-semibold text-slate-700 hover:bg-slate-50"
+                    onClick={() => {
+                      setFlagFilter((current) => !current);
+                      setStatusFilter('all');
+                    }}
+                    className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-all ${
+                      flagFilter
+                        ? 'border-rose-200 bg-rose-50 text-rose-700 shadow-sm'
+                        : 'border-slate-200 bg-white text-slate-600 hover:border-rose-200 hover:text-rose-700'
+                    }`}
                   >
-                    <RotateCcw className="mr-2 h-4 w-4" />
-                    Làm sạch bộ lọc
-                  </Button>
+                    <AlertTriangle className="h-4 w-4" />
+                    Vi phạm
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-xs font-bold tabular-nums ${
+                        flagFilter ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-500'
+                      }`}
+                    >
+                      {formatNumber(flaggedCount)}
+                    </span>
+                  </button>
                 </div>
-              </div>
-            </SectionCard>
 
-            <AdminTable
-              title="Danh sách bài viết"
-              subtitle="Giữ nguyên quy trình tạo, chỉnh sửa, duyệt, từ chối và xóa, nhưng trình bày lại để đội biên tập quét nội dung và ra quyết định nhanh hơn."
-              actions={
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-semibold text-slate-600">
-                    {pageStart}-{pageEnd} / {formatNumber(paginationMeta.total)}
+                <select
+                  value={authorFilter}
+                  onChange={(event) => setAuthorFilter(event.target.value)}
+                  className="h-11 rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 outline-none transition-all focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
+                >
+                  {AUTHOR_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500">
+                <span>
+                  Từ khóa:{' '}
+                  <strong className="text-slate-700">
+                    {debouncedSearch.trim() || 'Tất cả bài viết'}
+                  </strong>
+                </span>
+                <span>
+                  Trạng thái: <strong className="text-slate-700">{activeStatusLabel}</strong>
+                </span>
+                <span>
+                  Nguồn bài: <strong className="text-slate-700">{activeAuthorLabel}</strong>
+                </span>
+                <span>
+                  Cờ vi phạm:{' '}
+                  <strong className="text-slate-700">{flagFilter ? 'Đang bật' : 'Tắt'}</strong>
+                </span>
+                <span>
+                  Nổi bật: <strong className="text-slate-700">{formatNumber(featuredCount)}</strong>
+                </span>
+              </div>
+            </div>
+          </SectionCard>
+
+          <SectionCard
+            icon={BookOpen}
+            title="Danh sách bài viết"
+            description="Giữ nguyên quy trình tạo, chỉnh sửa, duyệt, từ chối và xóa, nhưng trình bày theo cùng layout danh sách của khu vực quản lý công ty."
+            action={
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-semibold text-slate-600">
+                  {pageStart}-{pageEnd} / {formatNumber(paginationMeta.total)}
+                </Badge>
+                {flagFilter ? (
+                  <Badge className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 font-semibold text-rose-700">
+                    Nội dung vi phạm
                   </Badge>
-                  {flagFilter ? (
-                    <Badge className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 font-semibold text-rose-700">
-                      Nội dung vi phạm
-                    </Badge>
-                  ) : null}
-                </div>
-              }
+                ) : null}
+              </div>
+            }
+          >
+            <AdminTable
               columns={columns}
               data={items}
               loading={loading}
@@ -866,8 +803,8 @@ const AdminBlogPage = () => {
               emptyTitle="Không có bài viết phù hợp"
               emptyDescription="Hãy điều chỉnh lại bộ lọc hoặc mở rộng từ khóa để xem thêm nội dung blog."
             />
-          </section>
-        </main>
+          </SectionCard>
+        </section>
       </div>
 
       <BlogPostEditorDialog
@@ -886,7 +823,7 @@ const AdminBlogPage = () => {
             }
 
             fetchList(paginationMeta.current);
-          } catch (error) {
+          } catch {
             showNotification('Lỗi khi lưu bài viết.', 'error');
           }
         }}

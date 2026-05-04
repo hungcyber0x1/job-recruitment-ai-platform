@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Plus, 
-  X, 
-  Trash2, 
-  Edit2, 
-  ChevronDown, 
-  ChevronUp, 
-  BookOpen, 
+import {
+  Plus,
+  X,
+  Trash2,
+  Edit2,
+  ChevronDown,
+  ChevronUp,
+  BookOpen,
   GraduationCap,
   Award,
   Calendar,
   Sparkles,
   CheckCircle2,
   Loader2,
-  GraduationCap as GraduationIcon
+  GraduationCap as GraduationIcon,
 } from 'lucide-react';
 import { cn } from '@/utils/index';
 import { Button } from '@/components/ui/button';
@@ -22,10 +22,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
 import { EDUCATION_LEVELS, EDUCATION_LEVEL_CONFIG } from '@/constants/candidateProfile';
@@ -50,10 +50,12 @@ const emptyEducationItem = () => ({
 const EducationBadge = ({ level }) => {
   const config = EDUCATION_LEVEL_CONFIG[level] || {};
   return (
-    <span className={cn(
-      'inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold',
-      config.color || 'bg-blue-50 text-blue-700'
-    )}>
+    <span
+      className={cn(
+        'inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold',
+        config.color || 'bg-blue-50 text-blue-700'
+      )}
+    >
       <GraduationCap className="w-3 h-3" />
       {config.label || level}
     </span>
@@ -91,26 +93,32 @@ const EducationCard = ({ item, onEdit, onDelete, index }) => {
     >
       {/* Timeline connector */}
       <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-gradient-to-b from-violet-200 via-violet-300 to-slate-200 -translate-x-1/2 hidden sm:block" />
-      
+
       {/* Card */}
-      <div className={cn(
-        'relative flex gap-4 sm:gap-6 p-4 sm:p-5 rounded-2xl border transition-all duration-300',
-        isHovered 
-          ? 'bg-white border-violet-200 shadow-xl shadow-violet-100/50 -translate-y-1' 
-          : 'bg-white/80 border-slate-200/80 shadow-sm'
-      )}>
+      <div
+        className={cn(
+          'relative flex gap-4 sm:gap-6 p-4 sm:p-5 rounded-2xl border transition-all duration-300',
+          isHovered
+            ? 'bg-white border-violet-200 shadow-xl shadow-violet-100/50 -translate-y-1'
+            : 'bg-white/80 border-slate-200/80 shadow-sm'
+        )}
+      >
         {/* Icon */}
         <div className="flex-shrink-0">
-          <div className={cn(
-            'w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300',
-            isHovered 
-              ? 'bg-gradient-to-br from-violet-500 to-violet-600 shadow-lg shadow-violet-200/50' 
-              : 'bg-gradient-to-br from-violet-100 to-violet-200'
-          )}>
-            <BookOpen className={cn(
-              'w-6 h-6 transition-colors duration-300',
-              isHovered ? 'text-white' : 'text-violet-600'
-            )} />
+          <div
+            className={cn(
+              'w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300',
+              isHovered
+                ? 'bg-gradient-to-br from-violet-500 to-violet-600 shadow-lg shadow-violet-200/50'
+                : 'bg-gradient-to-br from-violet-100 to-violet-200'
+            )}
+          >
+            <BookOpen
+              className={cn(
+                'w-6 h-6 transition-colors duration-300',
+                isHovered ? 'text-white' : 'text-violet-600'
+              )}
+            />
           </div>
         </div>
 
@@ -130,10 +138,12 @@ const EducationCard = ({ item, onEdit, onDelete, index }) => {
             </div>
 
             {/* Actions */}
-            <div className={cn(
-              'flex items-center gap-1 transition-all duration-300',
-              isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'
-            )}>
+            <div
+              className={cn(
+                'flex items-center gap-1 transition-all duration-300',
+                isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'
+              )}
+            >
               <button
                 type="button"
                 onClick={onEdit}
@@ -182,10 +192,12 @@ const EducationCard = ({ item, onEdit, onDelete, index }) => {
           )}
 
           {/* Hover highlight effect */}
-          <div className={cn(
-            'absolute inset-x-0 bottom-0 h-1 rounded-b-2xl transition-all duration-300',
-            isHovered ? 'bg-gradient-to-r from-violet-500 to-violet-400 opacity-20' : 'opacity-0'
-          )} />
+          <div
+            className={cn(
+              'absolute inset-x-0 bottom-0 h-1 rounded-b-2xl transition-all duration-300',
+              isHovered ? 'bg-gradient-to-r from-violet-500 to-violet-400 opacity-20' : 'opacity-0'
+            )}
+          />
         </div>
       </div>
     </motion.div>
@@ -212,7 +224,7 @@ const EmptyEducationState = ({ onAdd }) => (
 
     <div className="relative flex flex-col items-center text-center max-w-sm mx-auto">
       {/* Icon */}
-      <motion.div 
+      <motion.div
         className="relative mb-4"
         animate={{ y: [0, -5, 0] }}
         transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
@@ -229,21 +241,24 @@ const EmptyEducationState = ({ onAdd }) => (
         </motion.div>
       </motion.div>
 
-      <h4 className="text-lg font-bold text-slate-900 mb-2">
-        Thêm thông tin học vấn
-      </h4>
+      <h4 className="text-lg font-bold text-slate-900 mb-2">Thêm thông tin học vấn</h4>
       <p className="text-sm text-slate-500 mb-6 leading-relaxed">
         Học vấn là phần quan trọng giúp nhà tuyển dụng hiểu rõ hơn về nền tảng kiến thức của bạn.
       </p>
 
       {/* Feature list */}
       <div className="flex flex-wrap justify-center gap-2 mb-6">
-        {['Tăng khả năng được liên hệ', 'Thể hiện kỹ năng chuyên môn', 'Được ưu tiên hơn'].map((text, idx) => (
-          <span key={idx} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-50 text-violet-700 text-xs font-medium">
-            <CheckCircle2 className="w-3 h-3" />
-            {text}
-          </span>
-        ))}
+        {['Tăng khả năng được liên hệ', 'Thể hiện kỹ năng chuyên môn', 'Được ưu tiên hơn'].map(
+          (text, idx) => (
+            <span
+              key={idx}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-50 text-violet-700 text-xs font-medium"
+            >
+              <CheckCircle2 className="w-3 h-3" />
+              {text}
+            </span>
+          )
+        )}
       </div>
 
       <Button
@@ -297,7 +312,7 @@ const EducationForm = ({ form, setForm, onSubmit, onCancel, editingId, saving, e
               </Label>
               <Input
                 value={form.school}
-                onChange={(e) => setForm(f => ({ ...f, school: e.target.value }))}
+                onChange={(e) => setForm((f) => ({ ...f, school: e.target.value }))}
                 placeholder="VD: Đại học Bách Khoa TP.HCM"
                 className="h-12 rounded-xl border-slate-200 focus:ring-2 focus:ring-violet-500 focus:border-violet-300"
                 autoFocus
@@ -309,7 +324,7 @@ const EducationForm = ({ form, setForm, onSubmit, onCancel, editingId, saving, e
               </Label>
               <Input
                 value={form.degree}
-                onChange={(e) => setForm(f => ({ ...f, degree: e.target.value }))}
+                onChange={(e) => setForm((f) => ({ ...f, degree: e.target.value }))}
                 placeholder="VD: Cử nhân, Thạc sĩ..."
                 className="h-12 rounded-xl border-slate-200 focus:ring-2 focus:ring-violet-500 focus:border-violet-300"
               />
@@ -322,7 +337,7 @@ const EducationForm = ({ form, setForm, onSubmit, onCancel, editingId, saving, e
               <Label className="text-sm font-medium text-slate-700">Chuyên ngành</Label>
               <Input
                 value={form.major}
-                onChange={(e) => setForm(f => ({ ...f, major: e.target.value }))}
+                onChange={(e) => setForm((f) => ({ ...f, major: e.target.value }))}
                 placeholder="VD: Công nghệ thông tin"
                 className="h-12 rounded-xl border-slate-200 focus:ring-2 focus:ring-violet-500 focus:border-violet-300"
               />
@@ -331,7 +346,7 @@ const EducationForm = ({ form, setForm, onSubmit, onCancel, editingId, saving, e
               <Label className="text-sm font-medium text-slate-700">Năm tốt nghiệp</Label>
               <Input
                 value={form.year}
-                onChange={(e) => setForm(f => ({ ...f, year: e.target.value }))}
+                onChange={(e) => setForm((f) => ({ ...f, year: e.target.value }))}
                 placeholder="VD: 2022"
                 className="h-12 rounded-xl border-slate-200 focus:ring-2 focus:ring-violet-500 focus:border-violet-300"
               />
@@ -345,7 +360,7 @@ const EducationForm = ({ form, setForm, onSubmit, onCancel, editingId, saving, e
               <Input
                 type="month"
                 value={form.start_date}
-                onChange={(e) => setForm(f => ({ ...f, start_date: e.target.value }))}
+                onChange={(e) => setForm((f) => ({ ...f, start_date: e.target.value }))}
                 className="h-12 rounded-xl border-slate-200 focus:ring-2 focus:ring-violet-500 focus:border-violet-300"
               />
             </div>
@@ -354,7 +369,7 @@ const EducationForm = ({ form, setForm, onSubmit, onCancel, editingId, saving, e
               <Input
                 type="month"
                 value={form.end_date}
-                onChange={(e) => setForm(f => ({ ...f, end_date: e.target.value }))}
+                onChange={(e) => setForm((f) => ({ ...f, end_date: e.target.value }))}
                 className="h-12 rounded-xl border-slate-200 focus:ring-2 focus:ring-violet-500 focus:border-violet-300"
               />
             </div>
@@ -365,7 +380,7 @@ const EducationForm = ({ form, setForm, onSubmit, onCancel, editingId, saving, e
             <Label className="text-sm font-medium text-slate-700">Mô tả thêm</Label>
             <Textarea
               value={form.description}
-              onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))}
+              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
               placeholder="Thành tích học tập, hoạt động nổi bật, giải thưởng..."
               rows={3}
               className="resize-y rounded-xl border-slate-200 focus:ring-2 focus:ring-violet-500 focus:border-violet-300"
@@ -495,10 +510,9 @@ const EducationSection = ({ education = [], onAdd, onUpdate, onDelete, loading }
           <div>
             <h3 className="text-lg font-bold text-slate-900">Học vấn</h3>
             <p className="text-sm text-slate-500">
-              {education.length > 0 
+              {education.length > 0
                 ? `${education.length} mục ${education.length >= 2 ? '✓' : ''}`
-                : 'Chưa có thông tin'
-              }
+                : 'Chưa có thông tin'}
             </p>
           </div>
         </div>
@@ -518,7 +532,7 @@ const EducationSection = ({ education = [], onAdd, onUpdate, onDelete, loading }
             )}
             {expanded ? 'Thu gọn' : 'Mở rộng'}
           </Button>
-          
+
           {education.length > 0 && (
             <Button
               type="button"
@@ -569,8 +583,8 @@ const EducationSection = ({ education = [], onAdd, onUpdate, onDelete, loading }
                   />
                 ))}
               </div>
-            ) : !showForm && (
-              <EmptyEducationState onAdd={handleAddNew} />
+            ) : (
+              !showForm && <EmptyEducationState onAdd={handleAddNew} />
             )}
           </motion.div>
         )}

@@ -6,6 +6,7 @@ import {
   Bookmark,
   BookOpen,
   Briefcase,
+  Building2,
   Check,
   Clock,
   FileText,
@@ -50,7 +51,8 @@ const SIDEBAR_NAV = [
     items: [
       { path: '/candidate/dashboard', label: 'Tổng quan', icon: Briefcase },
       { path: '/candidate/jobs', label: 'Việc làm', icon: Briefcase },
-      { path: '/candidate/saved-jobs', label: 'Đã lưu', icon: Bookmark },
+      { path: '/candidate/saved-jobs', label: 'Việc đã lưu', icon: Bookmark },
+      { path: '/candidate/saved-companies', label: 'Công ty đã lưu', icon: Building2 },
       { path: '/candidate/applications', label: 'Ứng tuyển', icon: Send },
       { path: '/candidate/messages', label: 'Tin nhắn', icon: MessageSquare },
       { path: '/candidate/notifications', label: 'Thông báo', icon: Bell },
@@ -251,12 +253,12 @@ const CandidateLayout = ({ children }) => {
           data:
             typeof item.data === 'string'
               ? (() => {
-                try {
-                  return JSON.parse(item.data);
-                } catch {
-                  return {};
-                }
-              })()
+                  try {
+                    return JSON.parse(item.data);
+                  } catch {
+                    return {};
+                  }
+                })()
               : item.data || {},
           isRead: item.read ?? item.is_read ?? idx > 2,
         }));
@@ -304,7 +306,7 @@ const CandidateLayout = ({ children }) => {
     user?.fullName || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'Ứng viên';
 
   return (
-    <div className="candidate-applications-typography min-h-screen bg-background flex">
+    <div className="candidate-applications-typography role-admin-workspace-bg flex min-h-screen">
       {/* Desktop Sidebar */}
       <aside className="z-20 hidden w-64 lg:fixed lg:inset-y-0 lg:flex lg:flex-col">
         <SidebarContent />
@@ -330,9 +332,9 @@ const CandidateLayout = ({ children }) => {
       </aside>
 
       {/* Main content */}
-      <div className="flex-1 lg:pl-64 min-w-0">
+      <div className="role-admin-workspace-bg flex min-h-screen min-w-0 flex-1 flex-col text-foreground lg:pl-64">
         {/* Compact top bar - pale blue-grey, Search + Notification */}
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-slate-200/60 bg-[#F8FAFC]/95 dark:bg-slate-950/95 backdrop-blur px-4 lg:px-8">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-border bg-background/95 px-4 backdrop-blur dark:bg-slate-950/95 lg:px-8">
           <Button
             variant="ghost"
             size="icon"
@@ -463,18 +465,20 @@ const CandidateLayout = ({ children }) => {
                               className={cn(
                                 'mt-1 w-8 h-8 rounded-full flex items-center justify-center shrink-0',
                                 n.type === 'application' &&
-                                'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400',
+                                  'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400',
                                 n.type === 'system' &&
-                                'bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400',
+                                  'bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400',
                                 (n.type === 'message' ||
                                   !['application', 'system'].includes(n.type)) &&
-                                'bg-primary/10 text-primary'
+                                  'bg-primary/10 text-primary'
                               )}
                             >
                               {n.type === 'application' && <Check size={14} />}
                               {n.type === 'system' && <Clock size={14} />}
                               {n.type === 'message' && <MessageSquare size={14} />}
-                              {!['application', 'system', 'message'].includes(n.type) && <Bell size={14} />}
+                              {!['application', 'system', 'message'].includes(n.type) && (
+                                <Bell size={14} />
+                              )}
                             </div>
                             <div className="min-w-0 flex-1">
                               <h4
@@ -529,7 +533,9 @@ const CandidateLayout = ({ children }) => {
                 <DropdownMenuLabel className="font-normal p-4">
                   <div className="flex flex-col space-y-1">
                     <p className="text-base font-semibold leading-none">{displayName}</p>
-                    <p className="truncate text-base leading-none text-muted-foreground">{user?.email}</p>
+                    <p className="truncate text-base leading-none text-muted-foreground">
+                      {user?.email}
+                    </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -564,8 +570,8 @@ const CandidateLayout = ({ children }) => {
           </div>
         </header>
 
-        <main className="p-4 lg:p-8">
-          <div className="mx-auto max-w-7xl">{children}</div>
+        <main className="role-rounded-workspace flex-1 bg-transparent p-4 sm:p-6 lg:p-8">
+          <div className="mx-auto max-w-[1600px]">{children}</div>
         </main>
       </div>
     </div>

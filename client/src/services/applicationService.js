@@ -9,6 +9,9 @@ export const applicationService = {
   getMyApplication: (id) => api.get(`applications/my-applications/${id}`),
   getMyApplicationHistory: (id) => api.get(`applications/my-applications/${id}/history`),
 
+  /** Candidate tự xóa đơn của mình */
+  deleteMyApplication: (id) => api.delete(`applications/my-applications/${id}`),
+
   /** Candidate tự rút đơn */
   withdraw: (id) => api.post(`applications/${id}/withdraw`),
 
@@ -17,7 +20,8 @@ export const applicationService = {
   getApplication: (id) => api.get(`applications/${id}`),
   getApplicationHistory: (id) => api.get(`applications/${id}/history`),
   getCompanyInterviews: (params = {}) => api.get('applications/interviews', { params }),
-  updateInterviewStatus: (id, status) => api.patch(`applications/interviews/${id}/status`, { status }),
+  updateInterviewStatus: (id, status) =>
+    api.patch(`applications/interviews/${id}/status`, { status }),
 
   /**
    * Cập nhật status với metadata theo stage.

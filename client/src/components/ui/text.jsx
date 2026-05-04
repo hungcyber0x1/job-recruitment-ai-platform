@@ -1,25 +1,19 @@
 import React from 'react';
-import { cn } from "@/utils/cn";
+import { cn } from '@/utils/cn';
 
 export const typographyVariants = {
-  "page-title": "text-3xl font-bold tracking-tight text-foreground",
-  "section-title": "text-2xl font-semibold tracking-tight text-foreground",
-  "card-title": "text-lg font-semibold tracking-tight text-foreground",
-  "table-header": "text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground",
-  "text-normal": "text-sm leading-6 text-muted-foreground",
-  "text-secondary": "text-sm leading-6 text-foreground-soft",
-  "text-small": "text-xs leading-5 text-muted-foreground",
-  "helper": "text-xs leading-5 text-muted-foreground",
-  "button-text": "text-sm font-semibold",
+  'page-title': 'text-3xl font-bold tracking-tight text-foreground',
+  'section-title': 'text-2xl font-semibold tracking-tight text-foreground',
+  'card-title': 'text-lg font-semibold tracking-tight text-foreground',
+  'table-header': 'text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground',
+  'text-normal': 'text-sm leading-6 text-muted-foreground',
+  'text-secondary': 'text-sm leading-6 text-foreground-soft',
+  'text-small': 'text-xs leading-5 text-muted-foreground',
+  helper: 'text-xs leading-5 text-muted-foreground',
+  'button-text': 'text-sm font-semibold',
 };
 
-export function Text({ 
-  variant = "text-normal", 
-  as,
-  className, 
-  children, 
-  ...props 
-}) {
+export function Text({ variant = 'text-normal', as, className, children, ...props }) {
   let Component = as;
   if (!Component) {
     if (variant === 'page-title') Component = 'h1';

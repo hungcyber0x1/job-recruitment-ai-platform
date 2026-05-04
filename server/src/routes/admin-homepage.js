@@ -45,13 +45,13 @@ router.put('/sections/:sectionKey', async (req, res) => {
   try {
     const { sectionKey } = req.params;
     const { title, subtitle, is_active, display_order, metadata } = req.body;
-    
+
     const success = await HomepageContent.updateSection(sectionKey, {
       title,
       subtitle,
       is_active,
       display_order,
-      metadata
+      metadata,
     });
 
     if (success) {
@@ -71,8 +71,9 @@ router.put('/sections/:sectionKey', async (req, res) => {
  */
 router.post('/sections', async (req, res) => {
   try {
-    const { section_key, section_type, title, subtitle, is_active, display_order, metadata } = req.body;
-    
+    const { section_key, section_type, title, subtitle, is_active, display_order, metadata } =
+      req.body;
+
     if (!section_key || !section_type) {
       return res.status(400).json({ success: false, message: 'Thiếu thông tin bắt buộc' });
     }
@@ -84,7 +85,7 @@ router.post('/sections', async (req, res) => {
       subtitle,
       is_active,
       display_order,
-      metadata
+      metadata,
     });
 
     res.json({ success: true, message: 'Đã tạo section', data: { id } });
@@ -114,7 +115,7 @@ router.post('/stats/:sectionId', async (req, res) => {
       display_value,
       label,
       value_type,
-      display_order
+      display_order,
     });
 
     res.json({ success: true, message: 'Đã thêm thống kê', data: { id } });
@@ -185,7 +186,7 @@ router.post('/testimonials/:sectionId', async (req, res) => {
       author_avatar,
       content,
       rating,
-      display_order
+      display_order,
     });
 
     res.json({ success: true, message: 'Đã thêm đánh giá', data: { id } });
@@ -255,7 +256,7 @@ router.post('/partners/:sectionId', async (req, res) => {
       logo_url,
       logo_svg,
       website_url,
-      display_order
+      display_order,
     });
 
     res.json({ success: true, message: 'Đã thêm đối tác', data: { id } });

@@ -89,7 +89,7 @@ const AdminQuickLinks = ({ links, className }) => {
               'hover:shadow-lg hover:-translate-y-1',
               scheme.hoverBorder,
               scheme.hoverBg,
-              'animate-in fade-in slide-in-from-bottom-4',
+              'animate-in fade-in slide-in-from-bottom-4'
             )}
             style={{ animationDelay: `${index * 50}ms`, animationDuration: '400ms' }}
           >
@@ -158,7 +158,16 @@ AdminQuickLinks.propTypes = {
       description: PropTypes.string,
       to: PropTypes.string,
       onClick: PropTypes.func,
-      color: PropTypes.oneOf(['emerald', 'blue', 'amber', 'violet', 'red', 'rose', 'cyan', 'slate']),
+      color: PropTypes.oneOf([
+        'emerald',
+        'blue',
+        'amber',
+        'violet',
+        'red',
+        'rose',
+        'cyan',
+        'slate',
+      ]),
       badge: PropTypes.string,
     })
   ).isRequired,

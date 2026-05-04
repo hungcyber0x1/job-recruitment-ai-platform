@@ -15,7 +15,6 @@ import {
   MapPin,
   Plus,
   Search,
-  Target,
   Trash2,
   Users,
 } from 'lucide-react';
@@ -135,34 +134,6 @@ const getStoredFolders = () => {
   }
 };
 
-const getPriorityMeta = (score) => {
-  if (score >= 85) {
-    return {
-      badgeClass: 'border-emerald-200 bg-emerald-50 text-emerald-700',
-      statTone: 'emerald',
-      noteTitle: 'Ưu tiên danh sách rút gọn',
-      note:
-        'Hồ sơ này đang có độ phù hợp cao, thích hợp để giữ ở nhóm ưu tiên và tiếp cận sớm.',
-    };
-  }
-
-  if (score >= 70) {
-    return {
-      badgeClass: 'border-amber-200 bg-amber-50 text-amber-700',
-      statTone: 'amber',
-      noteTitle: 'Có tiềm năng',
-      note: 'Có nhiều tín hiệu phù hợp, nên tiếp tục theo dõi hoặc so sánh với danh sách rút gọn hiện tại.',
-    };
-  }
-
-  return {
-    badgeClass: 'border-slate-200 bg-slate-50 text-slate-700',
-    statTone: 'slate',
-    noteTitle: 'Cần rà soát thêm',
-    note: 'Hồ sơ nên được xem kỹ hơn trước khi tiếp tục giữ lâu trong kho ứng viên.',
-  };
-};
-
 function SearchBox({ value, onChange }) {
   return (
     <label className="relative block min-w-0 flex-1">
@@ -231,149 +202,143 @@ function CandidateCard({ candidate, folders, updating, onMoveFolder, onRemove })
     ? `/employer/applications/${candidate.application_id}`
     : `/employer/search-candidates?q=${encodeURIComponent(candidate.name || '')}`;
   const folderLabel =
-    folders.find((folder) => folder.id === (candidate.saved_folder || 'general'))?.label || 'Đã lưu';
-  const priorityScore = Number(candidate.score ?? candidate.ai_score ?? 0);
-  const priorityMeta = getPriorityMeta(priorityScore);
-  const priorityTone = priorityMeta.statTone || 'slate';
-  const priorityStyles = getCardTone(priorityTone);
-
+    folders.find((folder) => folder.id === (candidate.saved_folder || 'general'))?.label ||
+    'Đã lưu';
   return (
-    <article className="group relative overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-100/40">
-      <div className={cn('absolute inset-y-0 left-0 w-1', priorityStyles.accent)} />
+    <article className="group relative overflow-hidden rounded-[1.35rem] border border-slate-200/80 bg-white shadow-[0_12px_34px_rgba(15,23,42,0.06)] ring-1 ring-slate-900/[0.025] transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-[0_20px_46px_rgba(15,23,42,0.10)]">
+      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-400/90 via-emerald-300/30 to-transparent" />
+      <div className="absolute right-8 top-8 h-20 w-20 rounded-full bg-emerald-50/80 blur-2xl transition-opacity group-hover:opacity-100" />
 
-      <div className="p-5 pl-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div className="flex min-w-0 flex-1 gap-3">
-            <Avatar className="h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-slate-100 bg-slate-50 shadow-sm ring-1 ring-inset ring-slate-100">
-              <AvatarFallback className="rounded-lg bg-slate-950 text-sm font-bold text-white">
+      <div className="relative p-5 sm:p-6">
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-stretch xl:justify-between">
+          <div className="flex min-w-0 flex-1 gap-4">
+            <Avatar className="h-16 w-16 shrink-0 overflow-hidden rounded-2xl border border-white bg-slate-950 shadow-md shadow-slate-950/10 ring-1 ring-slate-200">
+              <AvatarFallback className="rounded-2xl bg-slate-950 text-base font-black text-white">
                 {getInitials(candidate.name)}
               </AvatarFallback>
             </Avatar>
 
             <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="line-clamp-2 text-base font-bold leading-tight tracking-normal text-slate-950 transition-colors group-hover:text-emerald-700">
-                  {candidate.name || 'Ứng viên đang cập nhật'}
-                </h3>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <h3 className="line-clamp-1 text-lg font-black leading-tight tracking-tight text-slate-950 transition-colors group-hover:text-emerald-700">
+                    {candidate.name || 'Ứng viên đang cập nhật'}
+                  </h3>
+                  <p className="mt-1 line-clamp-1 text-sm font-bold text-slate-700">
+                    {candidate.role || 'Vị trí đang cập nhật'}
+                  </p>
+                </div>
 
-                <span
-                  className={cn(
-                    'inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold shadow-sm',
-                    priorityMeta.badgeClass
-                  )}
-                >
-                  {priorityMeta.noteTitle}
-                </span>
-
-                <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-semibold text-slate-600">
-                  {folderLabel}
-                </span>
+                <div className="flex shrink-0 flex-wrap gap-2">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-bold text-slate-600 shadow-sm">
+                    <FolderOpen className="h-3.5 w-3.5 text-emerald-600" />
+                    {folderLabel}
+                  </span>
+                </div>
               </div>
 
-              <p className="mt-2 text-sm font-semibold text-slate-600">
-                {candidate.role || 'Vị trí đang cập nhật'}
-              </p>
-
-              <div className="mt-2 flex flex-wrap gap-2 text-xs font-medium text-slate-500">
-                <span className="inline-flex items-center gap-1 rounded-md bg-slate-50 px-2.5 py-1 ring-1 ring-inset ring-slate-100">
-                  <Briefcase className="h-3 w-3 text-emerald-500" />
-                  {formatExperience(candidate.experience_years)}
+              <div className="mt-4 grid gap-2 text-xs font-semibold text-slate-600 sm:grid-cols-3">
+                <span className="inline-flex min-w-0 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2">
+                  <Briefcase className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                  <span className="truncate">{formatExperience(candidate.experience_years)}</span>
                 </span>
-                <span className="inline-flex min-w-0 items-center gap-1 rounded-md bg-slate-50 px-2.5 py-1 ring-1 ring-inset ring-slate-100">
-                  <MapPin className="h-3 w-3 shrink-0 text-emerald-500" />
+                <span className="inline-flex min-w-0 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2">
+                  <MapPin className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
                   <span className="truncate">{candidate.location || 'Linh hoạt'}</span>
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-md bg-slate-50 px-2.5 py-1 ring-1 ring-inset ring-slate-100">
-                  <Clock3 className="h-3 w-3" />
-                  Lưu {formatSavedAt(candidate.saved_at)}
+                <span className="inline-flex min-w-0 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2">
+                  <Clock3 className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                  <span className="truncate">Lưu {formatSavedAt(candidate.saved_at)}</span>
                 </span>
               </div>
 
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-4 flex flex-wrap gap-2">
                 {skills.length > 0 ? (
                   <>
-                    {skills.slice(0, 5).map((skill) => (
+                    {skills.slice(0, 6).map((skill) => (
                       <span
                         key={skill}
-                        className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-600"
+                        className="rounded-full border border-slate-200/80 bg-white px-3 py-1.5 text-[11px] font-bold text-slate-600 shadow-sm"
                       >
                         {skill}
                       </span>
                     ))}
-                    {skills.length > 5 ? (
-                      <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-500">
-                        +{skills.length - 5}
+                    {skills.length > 6 ? (
+                      <span className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1.5 text-[11px] font-bold text-slate-500">
+                        +{skills.length - 6} kỹ năng
                       </span>
                     ) : null}
                   </>
                 ) : (
-                  <span className="rounded-full border border-dashed border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-medium text-slate-500">
+                  <span className="rounded-full border border-dashed border-slate-200 bg-slate-50 px-3 py-1.5 text-[11px] font-bold text-slate-500">
                     Hồ sơ chưa cập nhật kỹ năng
                   </span>
                 )}
               </div>
-
-              <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500">
-                {priorityMeta.note}
-              </p>
             </div>
           </div>
 
-          <div className="flex shrink-0 flex-col gap-2 lg:w-[280px] lg:items-end">
-            <div className="flex w-full flex-wrap gap-2 lg:justify-end lg:flex-nowrap">
+          <div className="flex shrink-0 flex-col gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3 xl:w-[264px] xl:justify-between">
+            <div className="grid grid-cols-2 gap-2">
               <Button
                 asChild
                 size="sm"
-                className="h-9 rounded-lg bg-emerald-600 px-3 text-xs font-bold text-white shadow-sm shadow-emerald-900/10 hover:bg-emerald-700"
+                className="col-span-2 h-10 rounded-xl bg-emerald-600 px-4 text-xs font-black text-white shadow-md shadow-emerald-900/10 hover:bg-emerald-700"
               >
                 <Link to={detailPath}>
-                  Chi tiết
-                  <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                  Xem hồ sơ
+                  <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
                 </Link>
               </Button>
               <Button
                 asChild
                 size="sm"
                 variant="outline"
-                className="h-9 rounded-lg border-slate-200 px-3 text-xs font-bold text-slate-700 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
+                className="h-10 rounded-xl border-slate-200 bg-white px-3 text-xs font-black text-slate-700 shadow-sm hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
               >
                 <Link
                   to={`/employer/messages?candidateId=${candidate.id}&candidateName=${encodeURIComponent(candidate.name || '')}`}
                 >
-                  <Mail className="mr-1 h-3.5 w-3.5" />
-                  Nhắn
+                  <Mail className="mr-1.5 h-3.5 w-3.5" />
+                  Nhắn tin
                 </Link>
               </Button>
               <Button
                 type="button"
-                variant="ghost"
-                size="icon"
+                variant="outline"
+                size="sm"
                 disabled={updating}
                 onClick={() => onRemove(candidate)}
-                className="h-9 w-9 rounded-lg border border-slate-200 bg-white text-slate-400 hover:bg-rose-50 hover:text-rose-600"
+                className="h-10 rounded-xl border-slate-200 bg-white px-3 text-xs font-black text-slate-500 shadow-sm hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"
               >
-                <Trash2 className="h-3.5 w-3.5" />
+                <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                Xóa
               </Button>
             </div>
 
-            <Select
-              value={candidate.saved_folder || 'general'}
-              onValueChange={(folder) => onMoveFolder(candidate, folder)}
-              disabled={updating}
-            >
-              <SelectTrigger className="h-10 w-full rounded-lg border-slate-200 bg-white text-xs font-semibold text-slate-700 lg:w-[220px]">
-                <SelectValue placeholder="Chọn thư mục" />
-              </SelectTrigger>
-              <SelectContent>
-                {folders
-                  .filter((folder) => folder.id !== 'all')
-                  .map((folder) => (
-                    <SelectItem key={folder.id} value={folder.id}>
-                      {folder.label}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
+            <div className="space-y-2">
+              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">
+                Phân loại hồ sơ
+              </p>
+              <Select
+                value={candidate.saved_folder || 'general'}
+                onValueChange={(folder) => onMoveFolder(candidate, folder)}
+                disabled={updating}
+              >
+                <SelectTrigger className="h-11 w-full rounded-xl border-slate-200 bg-white text-xs font-bold text-slate-700 shadow-sm">
+                  <SelectValue placeholder="Chọn thư mục" />
+                </SelectTrigger>
+                <SelectContent>
+                  {folders
+                    .filter((folder) => folder.id !== 'all')
+                    .map((folder) => (
+                      <SelectItem key={folder.id} value={folder.id}>
+                        {folder.label}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
       </div>
@@ -401,7 +366,12 @@ export default function SavedCandidatesPage() {
   const [sortBy, setSortBy] = useState('recent');
   const [currentPage, setCurrentPage] = useState(1);
   const [candidates, setCandidates] = useState([]);
-  const [pagination, setPagination] = useState({ page: 1, limit: PAGE_SIZE, total: 0, totalPages: 1 });
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: PAGE_SIZE,
+    total: 0,
+    totalPages: 1,
+  });
   const [stats, setStats] = useState({ savedCandidates: 0, folderCounts: [] });
   const [customFolders, setCustomFolders] = useState(getStoredFolders);
   const [loading, setLoading] = useState(true);
@@ -453,7 +423,12 @@ export default function SavedCandidatesPage() {
 
         setCandidates(Array.isArray(response.data?.data) ? response.data.data : []);
         setPagination(
-          response.data?.meta?.pagination || { page: currentPage, limit: PAGE_SIZE, total: 0, totalPages: 1 }
+          response.data?.meta?.pagination || {
+            page: currentPage,
+            limit: PAGE_SIZE,
+            total: 0,
+            totalPages: 1,
+          }
         );
         setStats(response.data?.meta?.stats || { savedCandidates: 0, folderCounts: [] });
       } catch (fetchError) {
@@ -589,11 +564,12 @@ export default function SavedCandidatesPage() {
     setCurrentPage(1);
   };
 
-  const activeFolderMeta = folders.find((folder) => folder.id === activeFolder) || folders[0] || BASE_FOLDERS[0];
-  const activeSortLabel = SORT_OPTIONS.find((option) => option.value === sortBy)?.label || SORT_OPTIONS[0].label;
+  const activeFolderMeta =
+    folders.find((folder) => folder.id === activeFolder) || folders[0] || BASE_FOLDERS[0];
+  const activeSortLabel =
+    SORT_OPTIONS.find((option) => option.value === sortBy)?.label || SORT_OPTIONS[0].label;
   const customFolderCount = customFolders.length;
   const managedFolderCount = Math.max(folders.length - 1, 0);
-  const priorityCount = candidates.filter((candidate) => Number(candidate.score ?? candidate.ai_score ?? 0) >= 80).length;
   const activeFilters = [
     activeFolder !== 'all' ? `Nhóm: ${activeFolderMeta.label}` : null,
     searchQuery.trim() ? `Từ khóa: ${searchQuery.trim()}` : null,
@@ -605,47 +581,45 @@ export default function SavedCandidatesPage() {
     if (loading) {
       return {
         title: 'Đang đồng bộ kho ứng viên',
-        description: 'Hệ thống đang rà lại các hồ sơ đã lưu để cập nhật nhanh trạng thái theo nhóm.',
+        description:
+          'Hệ thống đang rà lại các hồ sơ đã lưu để cập nhật nhanh trạng thái theo nhóm.',
       };
     }
 
     if (error) {
       return {
         title: 'Cần kiểm tra kết nối dữ liệu',
-        description: 'Các nhận định trong kho ứng viên tạm thời chưa sẵn sàng vì dữ liệu chưa tải được.',
+        description:
+          'Các nhận định trong kho ứng viên tạm thời chưa sẵn sàng vì dữ liệu chưa tải được.',
       };
     }
 
     if (!stats.savedCandidates) {
       return {
         title: 'Kho ứng viên đang trống',
-        description: 'Bắt đầu từ tìm kiếm ứng viên để lưu các hồ sơ tiềm năng và tổ chức thành từng nhóm.',
+        description:
+          'Bắt đầu từ tìm kiếm ứng viên để lưu các hồ sơ tiềm năng và tổ chức thành từng nhóm.',
       };
     }
 
     if (activeFolder !== 'all') {
       return {
         title: `Đang rà soát nhóm ${activeFolderMeta.label}`,
-        description: 'Bạn có thể tiếp tục phân loại, nhắn tin hoặc dọn lại nhóm hiện tại để dễ theo dõi.',
-      };
-    }
-
-    if (priorityCount >= Math.max(2, Math.ceil(candidates.length / 3))) {
-      return {
-        title: 'Danh sách rút gọn đang có chất lượng tốt',
-        description: `Có ${formatNumber(priorityCount)} hồ sơ nên xem trước trong trang hiện tại.`,
+        description:
+          'Bạn có thể tiếp tục phân loại, nhắn tin hoặc dọn lại nhóm hiện tại để dễ theo dõi.',
       };
     }
 
     return {
       title: 'Kho ứng viên đã sẵn sàng để điều phối',
-      description: 'Tiếp tục gom hồ sơ theo nhóm chuyên biệt để dễ quản lý quy trình tuyển dụng và ưu tiên liên hệ.',
+      description:
+        'Tiếp tục gom hồ sơ theo nhóm chuyên biệt để dễ quản lý quy trình tuyển dụng và liên hệ đúng thời điểm.',
     };
-  }, [activeFolder, activeFolderMeta.label, candidates.length, error, priorityCount, loading, stats.savedCandidates]);
+  }, [activeFolder, activeFolderMeta.label, error, loading, stats.savedCandidates]);
 
   return (
-    <div className="min-h-screen bg-slate-50/40 pb-16 animate-fade-in">
-      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
+    <div className="min-h-screen bg-transparent pb-16 animate-fade-in">
+      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-transparent">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
           style={{
@@ -675,7 +649,7 @@ export default function SavedCandidatesPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <EmployerStatCard
               icon={Bookmark}
               label="Đã lưu"
@@ -690,14 +664,6 @@ export default function SavedCandidatesPage() {
               value={formatNumber(managedFolderCount)}
               helper={`${formatNumber(customFolderCount)} thư mục tùy chỉnh`}
               tone="violet"
-              loading={loading}
-            />
-            <EmployerStatCard
-              icon={Target}
-              label="Ưu tiên cao"
-              value={formatNumber(priorityCount)}
-              helper="Nên xem trước trong trang"
-              tone="amber"
               loading={loading}
             />
             <EmployerStatCard
@@ -751,7 +717,9 @@ export default function SavedCandidatesPage() {
           <div className="overflow-x-auto">
             <div className="flex min-w-max gap-2">
               {folders.map((folder) => {
-                const isCustom = customFolders.some((customFolder) => customFolder.id === folder.id);
+                const isCustom = customFolders.some(
+                  (customFolder) => customFolder.id === folder.id
+                );
 
                 return (
                   <FolderTab
@@ -797,7 +765,11 @@ export default function SavedCandidatesPage() {
                 </SelectTrigger>
                 <SelectContent className="rounded-lg border-slate-200 shadow-xl">
                   {SORT_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value} className="text-sm font-medium">
+                    <SelectItem
+                      key={option.value}
+                      value={option.value}
+                      className="text-sm font-medium"
+                    >
                       {option.label}
                     </SelectItem>
                   ))}
@@ -818,12 +790,13 @@ export default function SavedCandidatesPage() {
 
             <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
               <span>
-                Hiển thị <strong className="text-slate-700">{formatNumber(pagination.total || 0)}</strong> ứng viên ·{' '}
-                {activeFolderMeta.label}
+                Hiển thị{' '}
+                <strong className="text-slate-700">{formatNumber(pagination.total || 0)}</strong>{' '}
+                ứng viên · {activeFolderMeta.label}
               </span>
               <span>
-                <strong className="text-slate-700">{formatNumber(priorityCount)}</strong> ưu tiên cao ·{' '}
-                <strong className="text-slate-700">{formatNumber(customFolderCount)}</strong> thư mục tùy chỉnh
+                <strong className="text-slate-700">{formatNumber(customFolderCount)}</strong> thư
+                mục tùy chỉnh
               </span>
               {activeFilterCount > 0 ? (
                 <span className="rounded-full border border-slate-200 bg-white px-2.5 py-0.5 text-xs font-semibold text-slate-600">
@@ -857,7 +830,9 @@ export default function SavedCandidatesPage() {
               <div className="flex items-center gap-2">
                 <FolderOpen className="h-4 w-4 text-emerald-600" />
                 <span className="text-sm font-bold text-slate-700">
-                  {loading ? 'Đang đồng bộ ứng viên' : `${formatNumber(pagination.total || 0)} ứng viên`}
+                  {loading
+                    ? 'Đang đồng bộ ứng viên'
+                    : `${formatNumber(pagination.total || 0)} ứng viên`}
                 </span>
               </div>
               {totalPages > 1 ? (
@@ -874,13 +849,18 @@ export default function SavedCandidatesPage() {
                 <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-lg bg-slate-50 text-slate-400 shadow-sm ring-1 ring-inset ring-slate-200">
                   <Users className="h-8 w-8" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-950">Chưa có ứng viên trong nhóm này</h3>
+                <h3 className="text-xl font-bold text-slate-950">
+                  Chưa có ứng viên trong nhóm này
+                </h3>
                 <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-500">
-                  Lưu ứng viên từ trang tìm kiếm hoặc đổi sang nhóm khác để tiếp tục xem danh sách rút gọn đang có
-                  trong kho ứng viên.
+                  Lưu ứng viên từ trang tìm kiếm hoặc đổi sang nhóm khác để tiếp tục xem danh sách
+                  rút gọn đang có trong kho ứng viên.
                 </p>
                 <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
-                  <Button asChild className="h-11 rounded-lg bg-emerald-600 px-6 font-bold hover:bg-emerald-700">
+                  <Button
+                    asChild
+                    className="h-11 rounded-lg bg-emerald-600 px-6 font-bold hover:bg-emerald-700"
+                  >
                     <Link to="/employer/search-candidates">
                       <Plus className="mr-2 h-4 w-4" />
                       Tìm ứng viên mới

@@ -1,11 +1,11 @@
 /**
  * Navigation — Enterprise Command Center Style
- * 
+ *
  * Thiết kế theo mô hình 3-tier:
- * ★ Tier 1 — Truy cập nhanh: Dashboard, Jobs, Applications, Saved
+ * ★ Tier 1 — Truy cập nhanh: Tổng quan, Jobs, Applications, Saved
  * ★ Tier 2 — Hồ sơ & Quản lý: Profile, Resume, Settings
  * ★ Tier 3 — AI & Chiến lược: Chatbot, Suggestions, Blog
- * 
+ *
  * Nguyên tắc thiết kế:
  * - Active state với indicator bar bên trái
  * - Hover effect với scale + glow
@@ -32,12 +32,8 @@ const NavItem = ({ item, collapsed }) => {
         cn(
           'group relative flex items-center rounded-lg transition-colors duration-200',
           'hover:bg-white/5',
-          collapsed 
-            ? 'justify-center mx-1 w-[calc(100%-8px)] py-3 px-0' 
-            : 'gap-3.5 mx-2 py-3 px-4',
-          isActive
-            ? 'bg-primary/10 text-primary ring-1 ring-primary/20'
-            : 'text-slate-500'
+          collapsed ? 'justify-center mx-1 w-[calc(100%-8px)] py-3 px-0' : 'gap-3.5 mx-2 py-3 px-4',
+          isActive ? 'bg-primary/10 text-primary ring-1 ring-primary/20' : 'text-slate-500'
         )
       }
     >
@@ -55,9 +51,7 @@ const NavItem = ({ item, collapsed }) => {
           <span
             className={cn(
               'shrink-0 transition-colors duration-200',
-              isActive
-                ? 'text-primary'
-                : 'text-slate-600 group-hover:text-slate-300'
+              isActive ? 'text-primary' : 'text-slate-600 group-hover:text-slate-300'
             )}
           >
             <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
@@ -65,12 +59,10 @@ const NavItem = ({ item, collapsed }) => {
 
           {/* Label */}
           {!collapsed && (
-            <span 
+            <span
               className={cn(
                 'min-w-0 flex-1 truncate text-sm font-semibold tracking-normal transition-colors duration-200',
-                isActive 
-                  ? 'text-slate-100' 
-                  : 'text-slate-500 group-hover:text-slate-200'
+                isActive ? 'text-slate-100' : 'text-slate-500 group-hover:text-slate-200'
               )}
             >
               {label}
@@ -79,12 +71,10 @@ const NavItem = ({ item, collapsed }) => {
 
           {/* Badge */}
           {!collapsed && badgeCount > 0 && (
-            <span 
+            <span
               className={cn(
                 'shrink-0 flex h-5 min-w-[20px] items-center justify-center rounded-full text-xs font-bold transition-colors',
-                isActive 
-                  ? 'bg-primary/20 text-primary' 
-                  : 'bg-slate-700 text-slate-300'
+                isActive ? 'bg-primary/20 text-primary' : 'bg-slate-700 text-slate-300'
               )}
             >
               {badgeCount > 99 ? '99+' : badgeCount}
@@ -150,7 +140,7 @@ NavGroup.propTypes = {
 
 /**
  * Main Navigation component
- * 
+ *
  * @param {Object} props
  * @param {Array} props.items - Array of nav items or groups
  * @param {string} props.className - Additional CSS classes
@@ -165,19 +155,10 @@ const Navigation = ({ items, className = '', collapsed = false }) => {
   );
 
   return (
-    <nav 
-      className={cn(
-        'flex flex-col gap-1',
-        className
-      )}
-    >
-      {isGrouped ? (
-        items.map((group) => (
-          <NavGroup key={group.title} group={group} collapsed={collapsed} />
-        ))
-      ) : (
-        items.map(renderNavItem)
-      )}
+    <nav className={cn('flex flex-col gap-1', className)}>
+      {isGrouped
+        ? items.map((group) => <NavGroup key={group.title} group={group} collapsed={collapsed} />)
+        : items.map(renderNavItem)}
     </nav>
   );
 };

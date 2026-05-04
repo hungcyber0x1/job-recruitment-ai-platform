@@ -1,6 +1,21 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera, Save, Loader2 } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  ArrowLeft,
+  Award,
+  BriefcaseBusiness,
+  Camera,
+  CheckCircle2,
+  FileText,
+  Globe2,
+  GraduationCap,
+  Info,
+  Loader2,
+  Plus,
+  Save,
+  Sparkles,
+  Trash2,
+} from 'lucide-react';
 import candidateService from '../../services/candidateService';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -22,6 +37,351 @@ import {
 
 const AVATAR_MAX_SIZE_BYTES = 5 * 1024 * 1024;
 
+const EDUCATION_LEVEL_OPTIONS = [
+  { value: '', label: 'Chưa cập nhật' },
+  { value: 'high_school', label: 'Trung học phổ thông' },
+  { value: 'college', label: 'Cao đẳng' },
+  { value: 'bachelor', label: 'Đại học' },
+  { value: 'master', label: 'Thạc sĩ' },
+  { value: 'phd', label: 'Tiến sĩ' },
+  { value: 'other', label: 'Khác' },
+];
+
+const EMPTY_LANGUAGE_FORM = { name: '', level: '' };
+const EMPTY_CERTIFICATION_FORM = { name: '', organization: '', year: '', url: '' };
+
+const normalizeList = (value) => (Array.isArray(value) ? value.filter(Boolean) : []);
+
+const normalizeLanguage = (language) => {
+  if (typeof language === 'string') {
+    return { name: language, level: '' };
+  }
+
+  return {
+    id: language?.id,
+    name: language?.name || language?.language || '',
+    level: language?.level || language?.proficiency || language?.proficiency_level || '',
+  };
+};
+
+const normalizeCertification = (certification) => ({
+  id: certification?.id,
+  name: certification?.name || certification?.title || '',
+  organization:
+    certification?.organization || certification?.issuer || certification?.provider || '',
+  year: certification?.year || certification?.issue_year || '',
+  url: certification?.url || certification?.credential_url || '',
+});
+
+const getProfileDisplayName = (user, profile) =>
+  user?.fullName ||
+  `${user?.first_name || ''} ${user?.last_name || ''}`.trim() ||
+  `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() ||
+  'Ứng viên';
+
+const ProfileSignalCard = ({ icon: Icon, label, value, helper, done }) => (
+  <div className="rounded-xl border border-slate-200 bg-white/85 p-4 shadow-sm">
+    <div className="flex items-start gap-3">
+      <div
+        className={cn(
+          'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border',
+          done
+            ? 'border-emerald-100 bg-emerald-50 text-emerald-700'
+            : 'border-amber-100 bg-amber-50 text-amber-700'
+        )}
+      >
+        <Icon className="h-5 w-5" />
+      </div>
+      <div className="min-w-0">
+        <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">{label}</p>
+        <p className="mt-1 text-lg font-bold text-slate-950">{value}</p>
+        <p className="mt-1 text-sm font-medium leading-5 text-slate-500">{helper}</p>
+      </div>
+    </div>
+  </div>
+);
+
+const ProfileExtrasSection = ({ languages = [], certifications = [], onSave, loading }) => {
+  const sourceLanguages = useMemo(
+    () =>
+      normalizeList(languages)
+        .map(normalizeLanguage)
+        .filter((item) => item.name),
+    [languages]
+  );
+  const sourceCertifications = useMemo(
+    () =>
+      normalizeList(certifications)
+        .map(normalizeCertification)
+        .filter((item) => item.name),
+    [certifications]
+  );
+
+  const [localLanguages, setLocalLanguages] = useState(sourceLanguages);
+  const [localCertifications, setLocalCertifications] = useState(sourceCertifications);
+  const [languageForm, setLanguageForm] = useState(EMPTY_LANGUAGE_FORM);
+  const [certificationForm, setCertificationForm] = useState(EMPTY_CERTIFICATION_FORM);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    setLocalLanguages(sourceLanguages);
+  }, [sourceLanguages]);
+
+  useEffect(() => {
+    setLocalCertifications(sourceCertifications);
+  }, [sourceCertifications]);
+
+  const hasChanges =
+    JSON.stringify(localLanguages) !== JSON.stringify(sourceLanguages) ||
+    JSON.stringify(localCertifications) !== JSON.stringify(sourceCertifications);
+
+  const handleAddLanguage = () => {
+    const name = languageForm.name.trim();
+    if (!name) return;
+
+    setLocalLanguages((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        name,
+        level: languageForm.level.trim(),
+      },
+    ]);
+    setLanguageForm(EMPTY_LANGUAGE_FORM);
+    setSaved(false);
+  };
+
+  const handleAddCertification = () => {
+    const name = certificationForm.name.trim();
+    if (!name) return;
+
+    setLocalCertifications((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        name,
+        organization: certificationForm.organization.trim(),
+        year: certificationForm.year.trim(),
+        url: certificationForm.url.trim(),
+      },
+    ]);
+    setCertificationForm(EMPTY_CERTIFICATION_FORM);
+    setSaved(false);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await onSave({
+        languages: localLanguages,
+        certifications: localCertifications,
+      });
+      setSaved(true);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex items-start gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-emerald-100 bg-emerald-50 text-emerald-700">
+            <Award className="h-5 w-5" />
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-slate-950">Ngôn ngữ & chứng chỉ</h3>
+            <p className="mt-1 text-sm font-medium leading-6 text-slate-500">
+              Các minh chứng này được hiển thị trên hồ sơ ứng viên và hỗ trợ nhà tuyển dụng đánh giá
+              độ phù hợp.
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {saved ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              Đã lưu
+            </span>
+          ) : null}
+          <Button
+            type="button"
+            onClick={handleSave}
+            disabled={loading || saving || !hasChanges}
+            className="h-10 rounded-xl bg-emerald-600 px-5 text-sm font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
+          >
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            Lưu mục này
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+          <div className="mb-3 flex items-center gap-2">
+            <Globe2 className="h-4 w-4 text-emerald-600" />
+            <p className="text-sm font-bold text-slate-900">Ngôn ngữ</p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_160px_auto]">
+            <Input
+              value={languageForm.name}
+              onChange={(event) =>
+                setLanguageForm((prev) => ({ ...prev, name: event.target.value }))
+              }
+              placeholder="Ví dụ: Tiếng Anh"
+              className="h-11 rounded-xl bg-white text-sm"
+            />
+            <Input
+              value={languageForm.level}
+              onChange={(event) =>
+                setLanguageForm((prev) => ({ ...prev, level: event.target.value }))
+              }
+              placeholder="Ví dụ: B2"
+              className="h-11 rounded-xl bg-white text-sm"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleAddLanguage}
+              className="h-11 rounded-xl bg-white text-sm font-bold text-emerald-700"
+            >
+              <Plus className="h-4 w-4" />
+              Thêm
+            </Button>
+          </div>
+
+          <div className="mt-4 space-y-2">
+            {localLanguages.length > 0 ? (
+              localLanguages.map((language, index) => (
+                <div
+                  key={language.id || `${language.name}-${index}`}
+                  className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-bold text-slate-900">{language.name}</p>
+                    <p className="text-xs font-medium text-slate-500">
+                      {language.level || 'Trình độ chưa cập nhật'}
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setLocalLanguages((prev) =>
+                        prev.filter((_, itemIndex) => itemIndex !== index)
+                      );
+                      setSaved(false);
+                    }}
+                    className="h-8 w-8 rounded-lg p-0 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))
+            ) : (
+              <p className="rounded-xl border border-dashed border-slate-200 bg-white px-4 py-6 text-center text-sm font-medium text-slate-500">
+                Chưa có ngôn ngữ nào.
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+          <div className="mb-3 flex items-center gap-2">
+            <Award className="h-4 w-4 text-amber-600" />
+            <p className="text-sm font-bold text-slate-900">Chứng chỉ</p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Input
+              value={certificationForm.name}
+              onChange={(event) =>
+                setCertificationForm((prev) => ({ ...prev, name: event.target.value }))
+              }
+              placeholder="Tên chứng chỉ"
+              className="h-11 rounded-xl bg-white text-sm"
+            />
+            <Input
+              value={certificationForm.organization}
+              onChange={(event) =>
+                setCertificationForm((prev) => ({ ...prev, organization: event.target.value }))
+              }
+              placeholder="Đơn vị cấp"
+              className="h-11 rounded-xl bg-white text-sm"
+            />
+            <Input
+              value={certificationForm.year}
+              onChange={(event) =>
+                setCertificationForm((prev) => ({ ...prev, year: event.target.value }))
+              }
+              placeholder="Năm cấp"
+              className="h-11 rounded-xl bg-white text-sm"
+            />
+            <Input
+              value={certificationForm.url}
+              onChange={(event) =>
+                setCertificationForm((prev) => ({ ...prev, url: event.target.value }))
+              }
+              placeholder="URL xác thực nếu có"
+              className="h-11 rounded-xl bg-white text-sm"
+            />
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleAddCertification}
+            className="mt-3 h-11 rounded-xl bg-white text-sm font-bold text-emerald-700"
+          >
+            <Plus className="h-4 w-4" />
+            Thêm chứng chỉ
+          </Button>
+
+          <div className="mt-4 space-y-2">
+            {localCertifications.length > 0 ? (
+              localCertifications.map((certification, index) => (
+                <div
+                  key={certification.id || `${certification.name}-${index}`}
+                  className="flex items-start justify-between gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3"
+                >
+                  <div className="min-w-0">
+                    <p className="line-clamp-1 text-sm font-bold text-slate-900">
+                      {certification.name}
+                    </p>
+                    <p className="mt-1 line-clamp-1 text-xs font-medium text-slate-500">
+                      {[certification.organization, certification.year]
+                        .filter(Boolean)
+                        .join(' • ') || 'Thông tin cấp chưa cập nhật'}
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setLocalCertifications((prev) =>
+                        prev.filter((_, itemIndex) => itemIndex !== index)
+                      );
+                      setSaved(false);
+                    }}
+                    className="h-8 w-8 rounded-lg p-0 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))
+            ) : (
+              <p className="rounded-xl border border-dashed border-slate-200 bg-white px-4 py-6 text-center text-sm font-medium text-slate-500">
+                Chưa có chứng chỉ nào.
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const EditProfilePage = () => {
   const navigate = useNavigate();
   const { user, updateUser } = useAuth();
@@ -36,6 +396,8 @@ const EditProfilePage = () => {
   const [basicForm, setBasicForm] = useState({
     bio: '',
     title: '',
+    experience_years: '',
+    education_level: '',
     phone: '',
     location: '',
     gender: '',
@@ -54,12 +416,14 @@ const EditProfilePage = () => {
       setProfile(data);
 
       setBasicForm({
-        bio:     data?.bio     || '',
-        title:   data?.title   || data?.current_job_title || '',
-        phone:   data?.phone   || '',
+        bio: data?.bio || '',
+        title: data?.title || data?.current_job_title || '',
+        experience_years: data?.experience_years ?? data?.years_of_experience ?? '',
+        education_level: data?.education_level || '',
+        phone: data?.phone || '',
         location: data?.location || '',
-        gender:  data?.gender  || '',
-        region:  data?.region  || '',
+        gender: data?.gender || '',
+        region: data?.region || '',
       });
     } catch (error) {
       console.error('Failed to fetch profile', error);
@@ -75,18 +439,24 @@ const EditProfilePage = () => {
 
   const handleBasicChange = (e) => {
     const { name, value } = e.target;
-    setBasicForm(prev => ({ ...prev, [name]: value }));
+    setBasicForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSelectChange = (name, value) => {
-    setBasicForm(prev => ({ ...prev, [name]: value }));
+    setBasicForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleBasicSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     try {
-      await candidateService.updateProfile(basicForm);
+      await candidateService.updateProfile({
+        ...basicForm,
+        experience_years:
+          basicForm.experience_years === '' || basicForm.experience_years === null
+            ? null
+            : Number(basicForm.experience_years),
+      });
       showNotification('Cập nhật thông tin cơ bản thành công!', 'success');
       await fetchProfile();
     } catch (error) {
@@ -241,6 +611,21 @@ const EditProfilePage = () => {
     }
   };
 
+  const handleSaveExtras = async ({ languages, certifications }) => {
+    try {
+      await candidateService.updateProfile({ languages, certifications });
+      showNotification('Cập nhật ngôn ngữ và chứng chỉ thành công!', 'success');
+      await fetchProfile();
+    } catch (error) {
+      console.error('Failed to save profile extras', error);
+      showNotification(
+        error.response?.data?.message || 'Có lỗi khi lưu ngôn ngữ và chứng chỉ',
+        'error'
+      );
+      throw error;
+    }
+  };
+
   // Social links handler
   const handleSaveSocialLinks = async (links) => {
     try {
@@ -250,6 +635,7 @@ const EditProfilePage = () => {
     } catch (error) {
       console.error('Failed to save social links', error);
       showNotification('Có lỗi khi lưu liên kết', 'error');
+      throw error;
     }
   };
 
@@ -304,10 +690,52 @@ const EditProfilePage = () => {
 
   const fieldClass =
     'h-12 rounded-lg border-slate-200 bg-white text-base shadow-sm transition-shadow focus-visible:border-emerald-500 focus-visible:ring-emerald-500/20';
-  const displayName =
-    user?.fullName ||
-    `${user?.first_name || ''} ${user?.last_name || ''}`.trim() ||
-    'Ứng viên';
+  const displayName = getProfileDisplayName(user, profile);
+  const avatarUrl = user?.avatar_url || profile?.avatar_url || user?.avatar;
+  const skills = normalizeList(profile?.skills);
+  const education = normalizeList(profile?.education);
+  const experience = normalizeList(profile?.experience || profile?.experiences);
+  const languages = normalizeList(profile?.languages);
+  const certifications = normalizeList(profile?.certifications);
+  const socialLinks =
+    profile?.social_links && typeof profile.social_links === 'object' ? profile.social_links : {};
+  const hasResume = Boolean(profile?.resume_url);
+  const hasBasicInfo = Boolean(
+    basicForm.title && basicForm.phone && basicForm.location && basicForm.bio
+  );
+  const hasCareerDepth = skills.length > 0 && (education.length > 0 || experience.length > 0);
+  const hasTrustSignals =
+    certifications.length > 0 || languages.length > 0 || Object.values(socialLinks).some(Boolean);
+  const profileSignals = [
+    {
+      icon: BriefcaseBusiness,
+      label: 'Thông tin chính',
+      value: hasBasicInfo ? 'Đủ liên hệ' : 'Cần bổ sung',
+      helper: 'Chức danh, giới thiệu, số điện thoại và khu vực sinh sống.',
+      done: hasBasicInfo,
+    },
+    {
+      icon: GraduationCap,
+      label: 'Năng lực',
+      value: `${skills.length} kỹ năng`,
+      helper: 'Kỹ năng, học vấn và kinh nghiệm được dùng cho matching.',
+      done: hasCareerDepth,
+    },
+    {
+      icon: FileText,
+      label: 'CV ứng tuyển',
+      value: hasResume ? 'Đã có CV' : 'Chưa có CV',
+      helper: hasResume ? 'Sẵn sàng dùng khi ứng tuyển nhanh.' : 'Tải CV tại trang CV & Portfolio.',
+      done: hasResume,
+    },
+    {
+      icon: Sparkles,
+      label: 'Minh chứng',
+      value: hasTrustSignals ? 'Đã bổ sung' : 'Nên thêm',
+      helper: 'Ngôn ngữ, chứng chỉ và liên kết xã hội tăng độ tin cậy.',
+      done: hasTrustSignals,
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/80 px-4 pb-16 pt-8 md:pb-24 md:pt-10">
@@ -319,7 +747,7 @@ const EditProfilePage = () => {
         onChange={handleAvatarChange}
       />
 
-      <div className="mx-auto max-w-3xl space-y-6">
+      <div className="mx-auto max-w-5xl space-y-6">
         <Button
           type="button"
           variant="ghost"
@@ -330,31 +758,86 @@ const EditProfilePage = () => {
           <span className="text-base font-medium">Quay lại hồ sơ</span>
         </Button>
 
-        <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-          <p className="text-sm font-semibold text-slate-900">Cap nhat cac muc con thieu de ho so day du va ro rang hon voi nha tuyen dung.</p>
+        <div className="overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-sm">
+          <div className="relative bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 px-6 py-6 text-white sm:px-8">
+            <div
+              className="pointer-events-none absolute inset-0 opacity-[0.08]"
+              style={{
+                backgroundImage:
+                  'linear-gradient(rgba(255,255,255,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.8) 1px, transparent 1px)',
+                backgroundSize: '28px 28px',
+              }}
+            />
+            <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-2xl">
+                <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-emerald-200">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  Hồ sơ ứng viên
+                </span>
+                <h1 className="mt-4 text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                  Chỉnh sửa hồ sơ chuyên môn
+                </h1>
+                <p className="mt-2 text-sm font-medium leading-6 text-slate-300 sm:text-base">
+                  Cập nhật đúng các trường đang được hệ thống dùng cho matching, tìm kiếm ứng viên,
+                  ứng tuyển nhanh và hồ sơ công khai với nhà tuyển dụng.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="h-10 rounded-xl border-white/20 bg-white/10 text-sm font-bold text-white hover:bg-white hover:text-slate-950"
+                >
+                  <Link to="/candidate/resume">
+                    <FileText className="h-4 w-4" />
+                    CV & Portfolio
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  className="h-10 rounded-xl bg-emerald-500 text-sm font-bold text-white hover:bg-emerald-400"
+                >
+                  <Link to="/candidate/profile">Xem hồ sơ</Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+          <div className="grid gap-3 bg-slate-50/70 p-4 sm:grid-cols-2 lg:grid-cols-4">
+            {profileSignals.map((item) => (
+              <ProfileSignalCard key={item.label} {...item} />
+            ))}
+          </div>
+          <div className="flex items-start gap-3 border-t border-emerald-100 bg-emerald-50/60 px-5 py-4 text-sm font-medium leading-6 text-emerald-900">
+            <Info className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700" />
+            <p>
+              Nên lưu từng nhóm thông tin sau khi chỉnh sửa. Trang này chỉ cập nhật dữ liệu hồ sơ;
+              CV và portfolio dự án được quản lý ở trang CV & Portfolio để đúng luồng hoạt động của
+              dự án.
+            </p>
+          </div>
         </div>
 
         {/* Basic Info Card */}
         <Card className="overflow-hidden rounded-xl border-slate-200/80 bg-white shadow-[0_20px_50px_-24px_rgba(15,23,42,0.15)]">
-          <div className="relative border-b border-slate-800/20 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 px-6 py-8 text-white md:px-10 md:py-10">
-            <div
-              className="pointer-events-none absolute inset-0 opacity-[0.07]"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-              }}
-            />
-            <div className="relative z-10 max-w-2xl space-y-3">
-              <p className="text-base font-semibold uppercase tracking-normal text-emerald-400">
-                Hồ sơ ứng viên
-              </p>
-              <h1 className="text-2xl font-semibold leading-tight tracking-normal text-white md:text-3xl">
-                Chỉnh sửa thông tin chuyên môn
-              </h1>
-              <p className="text-base leading-relaxed text-slate-300 md:text-base">
-                Thông tin chính xác giúp nhà tuyển dụng đọc hồ sơ nhanh hơn và liên hệ đúng thời điểm.
-              </p>
+          <div className="border-b border-slate-100 bg-white px-6 py-5 md:px-10">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-emerald-600">
+                  Bước 1
+                </p>
+                <h2 className="mt-1 text-xl font-bold text-slate-950">
+                  Thông tin liên hệ & định danh
+                </h2>
+                <p className="mt-1 text-sm font-medium leading-6 text-slate-500">
+                  Đây là dữ liệu nền cho hồ sơ công khai, bộ lọc ứng viên và quá trình nhà tuyển
+                  dụng liên hệ.
+                </p>
+              </div>
+              <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Lưu trực tiếp vào hồ sơ
+              </span>
             </div>
-            <div className="absolute right-0 top-0 h-1 w-32 bg-emerald-500 md:w-40" />
           </div>
 
           <CardContent className="p-6 md:p-10">
@@ -362,11 +845,7 @@ const EditProfilePage = () => {
               <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 p-4 sm:p-5">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                   <Avatar className="h-20 w-20 rounded-2xl border border-white/80 shadow-sm">
-                    <AvatarImage
-                      src={user?.avatar_url || user?.avatar}
-                      alt={displayName}
-                      className="object-cover"
-                    />
+                    <AvatarImage src={avatarUrl} alt={displayName} className="object-cover" />
                     <AvatarFallback className="bg-white text-xl font-bold text-emerald-700">
                       {displayName.charAt(0) || 'U'}
                     </AvatarFallback>
@@ -398,9 +877,7 @@ const EditProfilePage = () => {
                 <Label htmlFor="title" className="text-slate-700">
                   Chức danh công việc
                 </Label>
-                <p className="text-base text-muted-foreground">
-                  Ví dụ: Lập trình viên Full-stack
-                </p>
+                <p className="text-base text-muted-foreground">Ví dụ: Lập trình viên Full-stack</p>
                 <Input
                   id="title"
                   name="title"
@@ -410,6 +887,50 @@ const EditProfilePage = () => {
                   placeholder="Nhập chức danh hiện tại hoặc mong muốn"
                   autoComplete="organization-title"
                 />
+              </div>
+
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="experience_years" className="text-slate-700">
+                    Số năm kinh nghiệm
+                  </Label>
+                  <p className="text-base text-muted-foreground">
+                    Dùng để nhà tuyển dụng lọc theo cấp độ kinh nghiệm
+                  </p>
+                  <Input
+                    id="experience_years"
+                    name="experience_years"
+                    type="number"
+                    min={0}
+                    max={60}
+                    value={basicForm.experience_years}
+                    onChange={handleBasicChange}
+                    className={cn(fieldClass)}
+                    placeholder="Ví dụ: 3"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="education_level" className="text-slate-700">
+                    Trình độ học vấn cao nhất
+                  </Label>
+                  <p className="text-base text-muted-foreground">
+                    Đồng bộ với hồ sơ hiển thị cho nhà tuyển dụng
+                  </p>
+                  <select
+                    id="education_level"
+                    name="education_level"
+                    value={basicForm.education_level}
+                    onChange={handleBasicChange}
+                    className={cn(fieldClass, 'w-full px-3')}
+                  >
+                    {EDUCATION_LEVEL_OPTIONS.map((option) => (
+                      <option key={option.value || 'empty'} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <IdentityFormFields
@@ -487,6 +1008,17 @@ const EditProfilePage = () => {
           </CardContent>
         </Card>
 
+        <Card className="overflow-hidden rounded-xl border-slate-200/80 bg-white shadow-sm">
+          <CardContent className="p-6 md:p-8">
+            <ProfileExtrasSection
+              languages={profile?.languages || []}
+              certifications={profile?.certifications || []}
+              onSave={handleSaveExtras}
+              loading={loading}
+            />
+          </CardContent>
+        </Card>
+
         {/* Education Section */}
         <Card className="overflow-hidden rounded-xl border-slate-200/80 bg-white shadow-sm">
           <CardContent className="p-6 md:p-8">
@@ -534,6 +1066,7 @@ const EditProfilePage = () => {
         <Card className="overflow-hidden rounded-xl border-slate-200/80 bg-white shadow-sm">
           <CardContent className="p-6 md:p-8">
             <SocialLinksSection
+              key={JSON.stringify(profile?.social_links || {})}
               social_links={profile?.social_links || {}}
               onSave={handleSaveSocialLinks}
               loading={loading}

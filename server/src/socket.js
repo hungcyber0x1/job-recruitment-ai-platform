@@ -5,12 +5,12 @@
  * STATUS: Chỉ dùng cột `status`, không dùng `is_active`
  */
 const jwt = require('jsonwebtoken');
-const jwtConfig = require('./src/config/jwt.config');
-const UserRepository = require('./src/models/User');
-const SystemSettingsRepository = require('./src/models/SystemSettings');
-const ChatbotService = require('./src/services/chatbot');
-const { checkUserQuota, incrementUserQuota } = require('./src/middlewares/rate-limiter');
-const logger = require('./src/utils/logger');
+const jwtConfig = require('./config/jwt.config');
+const UserRepository = require('./models/User');
+const SystemSettingsRepository = require('./models/SystemSettings');
+const ChatbotService = require('./services/chatbot');
+const { checkUserQuota, incrementUserQuota } = require('./middlewares/rate-limiter');
+const logger = require('./utils/logger');
 
 /** Kiem tra user co bi block khong (locked/banned/inactive/has locked_at) */
 function isUserBlocked(user) {

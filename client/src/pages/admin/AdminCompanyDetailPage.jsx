@@ -2,23 +2,21 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle,
   ArrowLeft,
-  BadgeCheck,
   Ban,
   Briefcase,
   Building2,
   CheckCircle,
   Clock,
   ExternalLink,
-  Flag,
   Mail,
   MapPin,
   Phone,
-  ShieldAlert,
   Users,
   XCircle,
 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 
+import { PageHeader } from '@/components/admin';
 import adminService from '../../services/adminService';
 import { useNotification } from '../../context/NotificationContext';
 import { formatDate } from '../../utils/formatters';
@@ -39,41 +37,55 @@ import { Textarea } from '../../components/ui/textarea';
 const STATUS_META = {
   pending: {
     label: 'Chờ xác minh',
-    color: 'amber',
-    bg: 'bg-amber-50',
-    border: 'border-amber-200',
-    text: 'text-amber-700',
+    badgeClass: 'border-amber-200 bg-amber-50 text-amber-700',
     icon: Clock,
-    summary: 'Doanh nghiệp mới đăng ký, cần kiểm tra tính pháp lý của hồ sơ.',
+    summary:
+      'Doanh nghiệp mới đăng ký, cần kiểm tra tính pháp lý của hồ sơ trước khi được đăng tuyển.',
   },
   verified: {
     label: 'Đã xác minh',
-    color: 'emerald',
-    bg: 'bg-emerald-50',
-    border: 'border-emerald-200',
-    text: 'text-emerald-700',
+    badgeClass: 'border-emerald-200 bg-emerald-50 text-emerald-700',
     icon: CheckCircle,
     summary: 'Hồ sơ doanh nghiệp hợp lệ, có quyền đăng tuyển và tìm kiếm ứng viên.',
   },
   rejected: {
     label: 'Đã từ chối',
-    color: 'red',
-    bg: 'bg-red-50',
-    border: 'border-red-200',
-    text: 'text-red-700',
+    badgeClass: 'border-red-200 bg-red-50 text-red-700',
     icon: XCircle,
-    summary: 'Hồ sơ bị từ chối do thông tin không minh bạch hoặc vi phạm chính sách.',
+    summary:
+      'Hồ sơ bị từ chối, nhà tuyển dụng cần bổ sung hoặc chỉnh sửa thông tin trước khi gửi duyệt lại.',
+  },
+  flagged: {
+    label: 'Đang cảnh báo',
+    badgeClass: 'border-amber-200 bg-amber-50 text-amber-700',
+    icon: AlertTriangle,
+    summary: 'Hồ sơ đang bị gắn cờ kiểm duyệt; cần rà soát thêm trước khi tiếp tục vận hành.',
   },
   banned: {
     label: 'Đã khóa',
-    color: 'rose',
-    bg: 'bg-rose-50',
-    border: 'border-rose-200',
-    text: 'text-rose-700',
+    badgeClass: 'border-rose-200 bg-rose-50 text-rose-700',
     icon: Ban,
     summary: 'Tài khoản doanh nghiệp đã bị khóa do vi phạm hoặc quyết định moderation.',
   },
 };
+
+const LOCKED_USER_STATUSES = new Set(['banned', 'suspended', 'locked']);
+
+function resolveCompanyModerationStatus(company = {}) {
+  const userStatus = String(company.user_status ?? company.owner_status ?? '')
+    .trim()
+    .toLowerCase();
+  if (LOCKED_USER_STATUSES.has(userStatus)) return 'banned';
+  if (company.flagged) return 'flagged';
+  if (company.is_verified) return 'verified';
+  if (
+    String(company.verification_status ?? '')
+      .trim()
+      .toLowerCase() === 'rejected'
+  )
+    return 'rejected';
+  return 'pending';
+}
 
 const InfoCard = ({ icon: Icon, label, value }) => (
   <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -110,14 +122,7 @@ const AdminCompanyDetailPage = () => {
       }
 
       const normalized = normalizeCompanyEntity(raw);
-      const status =
-        raw.status === 'banned'
-          ? 'banned'
-          : raw.flagged
-            ? 'flagged'
-            : raw.is_verified
-              ? 'verified'
-              : 'pending';
+      const status = resolveCompanyModerationStatus(normalized);
 
       setCompany({
         ...normalized,
@@ -127,7 +132,14 @@ const AdminCompanyDetailPage = () => {
         last_name: String(raw.last_name ?? ''),
         phone: String(raw.phone ?? raw.user_phone ?? ''),
         tax_code: String(raw.tax_code ?? ''),
-        moderation_note: String(raw.moderation_note ?? ''),
+        moderation_note: String(raw.moderation_note ?? raw.rejection_reason ?? ''),
+        rejection_reason: String(raw.rejection_reason ?? ''),
+        verification_status: String(raw.verification_status ?? normalized.verification_status ?? '')
+          .trim()
+          .toLowerCase(),
+        user_status: String(raw.user_status ?? raw.owner_status ?? '')
+          .trim()
+          .toLowerCase(),
         is_verified: Boolean(raw.is_verified),
         flagged: Boolean(raw.flagged),
         job_count: Number(raw.job_count ?? 0),
@@ -155,7 +167,8 @@ const AdminCompanyDetailPage = () => {
     return STATUS_META[company.status] || STATUS_META.pending;
   }, [company]);
 
-  const ownerName = [company?.first_name, company?.last_name].filter(Boolean).join(' ') || 'Chưa cập nhật';
+  const ownerName =
+    [company?.first_name, company?.last_name].filter(Boolean).join(' ') || 'Chưa cập nhật';
 
   const runModerationAction = useCallback(
     async (action) => {
@@ -166,8 +179,11 @@ const AdminCompanyDetailPage = () => {
         await action();
         await fetchCompany();
       } catch (error) {
-        console.error('Company moderation action failed', error);
-        showNotification(error.response?.data?.message || 'Không thể cập nhật moderation.', 'error');
+        console.error('Cập nhật kiểm duyệt doanh nghiệp thất bại', error);
+        showNotification(
+          error.response?.data?.message || 'Không thể cập nhật trạng thái kiểm duyệt.',
+          'error'
+        );
       } finally {
         setSaving(false);
       }
@@ -183,13 +199,20 @@ const AdminCompanyDetailPage = () => {
       showNotification('Đã xác minh doanh nghiệp thành công.', 'success');
     });
 
-  const handleReject = () =>
-    runModerationAction(async () => {
-      await adminService.verifyCompany(company.id, false, rejectReason.trim() || null);
+  const handleReject = () => {
+    const reason = rejectReason.trim();
+    if (!reason) {
+      showNotification('Vui lòng nhập lý do từ chối doanh nghiệp.', 'error');
+      return;
+    }
+
+    return runModerationAction(async () => {
+      await adminService.verifyCompany(company.id, false, reason);
       setRejectDialogOpen(false);
       setRejectReason('');
-      showNotification('Đã chuyển doanh nghiệp về trạng thái chờ xem xét.', 'success');
+      showNotification('Đã từ chối doanh nghiệp và lưu lý do kiểm duyệt.', 'success');
     });
+  };
 
   const handleFlagToggle = () =>
     runModerationAction(async () => {
@@ -250,57 +273,69 @@ const AdminCompanyDetailPage = () => {
   const StatusIcon = moderationStatus.icon;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <Link
-            to="/admin/companies"
-            className="inline-flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition-colors hover:bg-slate-50"
-          >
-            <ArrowLeft size={18} />
-          </Link>
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-normal text-slate-400">
-              Company moderation
-            </p>
-            <h1 className="text-3xl font-bold tracking-normal text-slate-900">
-              {company.company_name || 'Chưa cập nhật'}
-            </h1>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          {!company.is_verified && (
+    <div className="space-y-7 pb-10 animate-fade-in">
+      <PageHeader
+        icon={Building2}
+        eyebrow="Kiểm duyệt doanh nghiệp"
+        badge={moderationStatus.label}
+        title={company.company_name || 'Chưa cập nhật'}
+        description={moderationStatus.summary}
+        actions={
+          <>
+            <Link
+              to="/admin/companies"
+              className="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 shadow-sm transition-all hover:border-emerald-200 hover:text-emerald-700"
+            >
+              <ArrowLeft size={18} />
+              Quay lại danh sách
+            </Link>
+            {!company.is_verified || company.status === 'rejected' ? (
+              <Button
+                type="button"
+                disabled={saving || company.status === 'banned'}
+                onClick={handleVerify}
+                className="h-11 rounded-xl bg-emerald-600 px-4 font-bold text-white hover:bg-emerald-700"
+              >
+                Xác minh
+              </Button>
+            ) : null}
+            <Button
+              type="button"
+              disabled={saving || company.status === 'banned'}
+              variant="outline"
+              onClick={() => setRejectDialogOpen(true)}
+              className="h-11 rounded-xl bg-white px-4 font-bold"
+            >
+              Từ chối / ghi chú
+            </Button>
             <Button
               type="button"
               disabled={saving}
-              onClick={handleVerify}
-              className="bg-emerald-600 text-white hover:bg-emerald-700"
+              variant="outline"
+              onClick={handleFlagToggle}
+              className="h-11 rounded-xl bg-white px-4 font-bold"
             >
-              Xác minh
+              {company.flagged ? 'Gỡ cờ cảnh báo' : 'Gắn cờ cảnh báo'}
             </Button>
-          )}
-          <Button
-            type="button"
-            disabled={saving}
-            variant="outline"
-            onClick={() => setRejectDialogOpen(true)}
-          >
-            Từ chối / ghi chú
-          </Button>
-          <Button type="button" disabled={saving} variant="outline" onClick={handleFlagToggle}>
-            {company.flagged ? 'Gỡ cờ cảnh báo' : 'Gắn cờ cảnh báo'}
-          </Button>
-          <Button
-            type="button"
-            disabled={saving || company.status === 'banned'}
-            variant="destructive"
-            onClick={handleBan}
-          >
-            Khóa doanh nghiệp
-          </Button>
+            <Button
+              type="button"
+              disabled={saving || company.status === 'banned'}
+              variant="destructive"
+              onClick={handleBan}
+              className="h-11 rounded-xl px-4 font-bold"
+            >
+              Khóa doanh nghiệp
+            </Button>
+          </>
+        }
+      >
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <InfoCard icon={Briefcase} label="Tin đăng" value={String(company.job_count)} />
+          <InfoCard icon={Users} label="Ứng tuyển" value={String(company.application_count)} />
+          <InfoCard icon={Mail} label="Email" value={company.email || 'Chưa cập nhật'} />
+          <InfoCard icon={Users} label="Người đại diện" value={ownerName} />
         </div>
-      </div>
+      </PageHeader>
 
       <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="border-b border-slate-100 px-6 py-6 sm:px-8">
@@ -319,7 +354,9 @@ const AdminCompanyDetailPage = () => {
               </div>
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-3">
-                  <Badge className={cn('gap-2 rounded-full px-3 py-1', moderationStatus.badgeClass)}>
+                  <Badge
+                    className={cn('gap-2 rounded-full px-3 py-1', moderationStatus.badgeClass)}
+                  >
                     <StatusIcon size={14} />
                     {moderationStatus.label}
                   </Badge>
@@ -337,11 +374,7 @@ const AdminCompanyDetailPage = () => {
 
             <div className="grid gap-3 sm:grid-cols-2 lg:w-[320px]">
               <InfoCard icon={Briefcase} label="Tin đăng" value={String(company.job_count)} />
-              <InfoCard
-                icon={Users}
-                label="Ứng tuyển"
-                value={String(company.application_count)}
-              />
+              <InfoCard icon={Users} label="Ứng tuyển" value={String(company.application_count)} />
             </div>
           </div>
         </div>
@@ -354,7 +387,10 @@ const AdminCompanyDetailPage = () => {
           <InfoCard
             icon={Building2}
             label="Lĩnh vực / quy mô"
-            value={[company.industry, company.company_size].filter(Boolean).join(' / ') || 'Chưa cập nhật'}
+            value={
+              [company.industry, company.company_size].filter(Boolean).join(' / ') ||
+              'Chưa cập nhật'
+            }
           />
           <InfoCard
             icon={AlertTriangle}
@@ -394,26 +430,24 @@ const AdminCompanyDetailPage = () => {
             <div className="grid gap-4 sm:grid-cols-2">
               <InfoCard
                 icon={Building2}
-                label="Ma so thue"
-                value={company.tax_code || 'Chua cap nhat'}
+                label="Mã số thuế"
+                value={company.tax_code || 'Chưa cập nhật'}
               />
               <InfoCard
                 icon={ExternalLink}
                 label="Website"
-                value={company.company_website || 'Chua cap nhat'}
+                value={company.company_website || 'Chưa cập nhật'}
               />
             </div>
           </div>
         </section>
 
         <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-bold text-slate-900">Ghi chu moderation</h2>
+          <h2 className="text-xl font-bold text-slate-900">Ghi chú moderation</h2>
           <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
-            <p className="text-sm font-semibold uppercase tracking-normal text-slate-400">
-              Noi bo
-            </p>
+            <p className="text-sm font-semibold uppercase tracking-normal text-slate-400">Nội bộ</p>
             <p className="mt-3 whitespace-pre-wrap text-base leading-7 text-slate-600">
-              {company.moderation_note || 'Chua co ghi chu moderation.'}
+              {company.moderation_note || company.rejection_reason || 'Chưa có ghi chú moderation.'}
             </p>
           </div>
         </section>
@@ -422,10 +456,10 @@ const AdminCompanyDetailPage = () => {
       <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Cap nhat moderation note</DialogTitle>
+            <DialogTitle>Cập nhật moderation note</DialogTitle>
             <DialogDescription>
-              Co the ghi ly do tu choi, yeu cau bo sung ho so, hoac de trong va dua ve trang thai
-              cho xem xet.
+              Ghi lý do từ chối hoặc yêu cầu bổ sung hồ sơ. Lý do là bắt buộc khi chuyển doanh
+              nghiệp sang trạng thái từ chối.
             </DialogDescription>
           </DialogHeader>
 
@@ -433,7 +467,7 @@ const AdminCompanyDetailPage = () => {
             rows={5}
             value={rejectReason}
             onChange={(event) => setRejectReason(event.target.value)}
-            placeholder="Nhap ghi chu moderation..."
+            placeholder="Nhập ghi chú moderation..."
           />
 
           <DialogFooter className="gap-2">
@@ -445,13 +479,13 @@ const AdminCompanyDetailPage = () => {
                 setRejectReason('');
               }}
             >
-              Huy
+              Hủy
             </Button>
             <Button type="button" variant="outline" disabled={saving} onClick={handleReject}>
-              Luu note va dua ve cho xem xet
+              Từ chối và lưu note
             </Button>
             <Button type="button" disabled={saving} onClick={handleVerify}>
-              Xac minh va luu note
+              Xác minh và lưu note
             </Button>
           </DialogFooter>
         </DialogContent>

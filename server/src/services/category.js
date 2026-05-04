@@ -93,7 +93,9 @@ class CategoryService {
     const parentId = data?.parent_id ? Number(data.parent_id) : null;
     const sortOrder = Number.isFinite(Number(data?.sort_order)) ? Number(data.sort_order) : 0;
     const isActive =
-      data?.is_active === undefined || data?.is_active === null ? 1 : Number(Boolean(data.is_active));
+      data?.is_active === undefined || data?.is_active === null
+        ? 1
+        : Number(Boolean(data.is_active));
     const slug = await this.ensureUniqueSlug(data?.slug || name);
 
     const [result] = await pool.query(
@@ -118,7 +120,7 @@ class CategoryService {
         : existing.description || null;
     const nextIcon =
       data?.icon !== undefined || data?.icon_url !== undefined
-        ? data.icon ?? data.icon_url ?? null
+        ? (data.icon ?? data.icon_url ?? null)
         : existing.icon || existing.icon_url || null;
     const nextParentId =
       data?.parent_id !== undefined
@@ -136,7 +138,10 @@ class CategoryService {
       data?.is_active !== undefined
         ? Number(Boolean(data.is_active))
         : Number(existing.is_active ?? 1);
-    const nextSlug = await this.ensureUniqueSlug(data?.slug || (data?.name ? nextName : existing.slug), id);
+    const nextSlug = await this.ensureUniqueSlug(
+      data?.slug || (data?.name ? nextName : existing.slug),
+      id
+    );
 
     await pool.query(
       `

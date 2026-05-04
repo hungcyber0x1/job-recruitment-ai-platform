@@ -40,10 +40,7 @@ const Modal = ({ isOpen, onClose, title, children, footer }) => {
       <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-border/70 bg-card shadow-2xl animate-in zoom-in-95 duration-200">
         <div className="flex items-center justify-between border-b border-border px-6 py-5">
           <h3 className="text-xl font-semibold tracking-tight text-foreground">{title}</h3>
-          <button
-            onClick={onClose}
-            className="role-topbar-icon h-9 w-9"
-          >
+          <button onClick={onClose} className="role-topbar-icon h-9 w-9">
             <X size={20} />
           </button>
         </div>

@@ -45,7 +45,12 @@ const LoginPage = () => {
       }
     }
     // 3) location.state.from (e.g. from PrivateRoute redirect)
-    if (fromPath && fromPath !== '/login' && getSafeRedirectShapeOnly(fromPath) && isPathAllowedForRole(userRole, fromLoc.pathname)) {
+    if (
+      fromPath &&
+      fromPath !== '/login' &&
+      getSafeRedirectShapeOnly(fromPath) &&
+      isPathAllowedForRole(userRole, fromLoc.pathname)
+    ) {
       return fromPath;
     }
     // 4) Default dashboard
@@ -60,9 +65,7 @@ const LoginPage = () => {
       // data = { success: true, data: { id, role, token, ... } }
       // Role is normalized by backend; extractAuthResponse normalizes on client.
       const { role: userRole } =
-        (data?.data && typeof data.data === 'object')
-          ? { role: data.data.role }
-          : { role: null };
+        data?.data && typeof data.data === 'object' ? { role: data.data.role } : { role: null };
 
       if (!userRole) {
         showNotification('Phản hồi đăng nhập không hợp lệ', 'error');
@@ -127,9 +130,7 @@ const LoginPage = () => {
             </Link>
           </div>
           <div className="mb-10">
-            <h2 className="text-3xl font-bold text-foreground mb-2 text-wrap-balance">
-              Đăng nhập
-            </h2>
+            <h2 className="text-3xl font-bold text-foreground mb-2 text-wrap-balance">Đăng nhập</h2>
             <p className="text-txt-muted font-medium">
               Nhập thông tin bên dưới để truy cập tài khoản của bạn.
             </p>

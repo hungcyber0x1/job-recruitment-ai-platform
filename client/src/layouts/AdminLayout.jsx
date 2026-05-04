@@ -1,166 +1,23 @@
 import PropTypes from 'prop-types';
-import React, { useState } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Bell, BookOpen, LayoutDashboard, Search, HelpCircle } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import NotificationDropdown from './NotificationDropdown';
-import { AccountHomeLink, Logo } from '@/components/common';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import React, { useMemo, useState } from 'react';
+
+import { filterAdminNavGroups } from '@/config/adminNavigation';
 import { cn } from '@/utils';
-import { ADMIN_NAV_GROUPS } from '@/config/adminNavigation';
-import { resolveMediaUrl } from '@/utils/mediaUrl';
-
-const isAdminNavActive = (pathname, path) => {
-  if (path === '/admin/dashboard') return pathname === '/admin/dashboard';
-  return pathname === path || pathname.startsWith(`${path}/`);
-};
-
-const SidebarContent = ({ items, user, onMobileClose }) => {
-  const location = useLocation();
-  const adminName =
-    user?.first_name && user?.last_name
-      ? `${user.first_name} ${user.last_name}`
-      : user?.name || 'Quản trị viên';
-  const avatarSrc = resolveMediaUrl(user?.avatar_url) || undefined;
-
-  return (
-    <div className="z-50 flex h-full w-64 flex-col border-r border-slate-800 bg-[#0B1120] text-slate-200">
-      <div className="border-b border-slate-800 bg-gradient-to-br from-primary/[0.12] via-primary/[0.05] to-transparent px-5 py-5">
-        <Link
-          to="/admin/dashboard"
-          className="group flex w-full flex-col items-center gap-3 text-center"
-          onClick={() => onMobileClose?.()}
-        >
-          <Logo
-            asLink={false}
-            className="mx-auto h-10 w-auto max-w-[172px] object-center transition-transform duration-200 group-hover:scale-[1.02]"
-          />
-          <span className="hidden min-w-0 truncate text-lg font-black tracking-tight text-slate-50">
-            Quản trị
-            <span className="text-primary"> Hub</span>
-          </span>
-          <div className="space-y-1 text-center">
-            <p className="text-base font-semibold text-slate-50">Quản trị hệ thống</p>
-            <p className="text-xs font-medium text-slate-400">Điều hành và giám sát nền tảng</p>
-          </div>
-        </Link>
-      </div>
-
-      <ScrollArea className="flex-1 px-3 py-4">
-        <nav className="flex flex-col gap-6">
-          {items.map((group) => (
-            <div key={group.title}>
-              <h3 className="mb-2 px-3 text-sm font-bold uppercase tracking-widest text-slate-500">
-                {group.title}
-              </h3>
-              <div className="space-y-0.5">
-                {group.items.map((item) => {
-                  const Icon = item.icon;
-                  const active = isAdminNavActive(location.pathname, item.path);
-                  return (
-                    <NavLink
-                      key={item.path}
-                      to={item.path}
-                      end={item.path === '/admin/dashboard'}
-                      onClick={() => onMobileClose?.()}
-                      className={cn(
-                        'group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-base font-medium transition-all duration-200',
-                        active
-                          ? 'bg-primary/15 text-primary shadow-sm ring-1 ring-primary/20'
-                          : 'text-slate-400 hover:bg-slate-800/80 hover:text-slate-100'
-                      )}
-                    >
-                      {active && (
-                        <span
-                          className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-primary shadow-[0_0_12px_hsl(var(--primary)_/_0.45)]"
-                          aria-hidden
-                        />
-                      )}
-                      <Icon
-                        size={20}
-                        className={cn(
-                          'shrink-0 transition-transform duration-200 group-hover:scale-105',
-                          active ? 'text-primary' : 'text-slate-500 group-hover:text-primary'
-                        )}
-                        aria-hidden
-                      />
-                      <span className="min-w-0 flex-1 truncate">{item.label}</span>
-                    </NavLink>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </nav>
-      </ScrollArea>
-
-      <div className="border-t border-slate-800 p-4">
-        <Link
-          to="/admin/profile"
-          className="group flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-900/50 p-3.5 shadow-sm transition-all hover:border-primary/30 hover:bg-primary/10"
-          onClick={() => onMobileClose?.()}
-        >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-700 bg-slate-800 shadow-sm transition-transform group-hover:scale-[1.02]">
-            {avatarSrc ? (
-              <img src={avatarSrc} alt="" className="h-full w-full object-cover" />
-            ) : (
-              <span className="text-base font-bold text-primary">
-                {(user?.first_name?.[0] || user?.name?.[0] || 'A').toUpperCase()}
-              </span>
-            )}
-          </div>
-          <div className="min-w-0 flex-1 text-left">
-            <p className="truncate text-base font-semibold text-slate-100 transition-colors group-hover:text-primary">
-              {adminName}
-            </p>
-            <p className="truncate text-base font-bold uppercase tracking-widest text-primary">
-              Quản trị viên
-            </p>
-          </div>
-        </Link>
-      </div>
-    </div>
-  );
-};
-
-SidebarContent.propTypes = {
-  items: PropTypes.arrayOf(
-    PropTypes.shape({
-      title: PropTypes.string.isRequired,
-      items: PropTypes.arrayOf(
-        PropTypes.shape({
-          path: PropTypes.string.isRequired,
-          label: PropTypes.string.isRequired,
-          icon: PropTypes.elementType.isRequired,
-        })
-      ).isRequired,
-    })
-  ).isRequired,
-  user: PropTypes.shape({
-    avatar_url: PropTypes.string,
-    first_name: PropTypes.string,
-    last_name: PropTypes.string,
-    name: PropTypes.string,
-  }),
-  onMobileClose: PropTypes.func,
-};
+import { useAuth } from '../context/AuthContext';
+import AdminHeader from './AdminHeader';
+import AdminSidebar from './AdminSidebar';
 
 const AdminLayout = ({ children }) => {
   const { user } = useAuth();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const items = ADMIN_NAV_GROUPS;
+  const navGroups = useMemo(() => filterAdminNavGroups(user), [user]);
 
   return (
-    <div className="flex min-h-screen bg-background">
-      {/* Desktop Sidebar */}
-      <aside className="z-50 hidden lg:fixed lg:inset-y-0 lg:flex lg:flex-col">
-        <SidebarContent items={items} user={user} />
+    <div className="role-admin-workspace-bg flex min-h-screen">
+      <aside className="z-50 hidden w-64 lg:fixed lg:inset-y-0 lg:flex lg:flex-col">
+        <AdminSidebar groups={navGroups} user={user} />
       </aside>
 
-      {/* Mobile Sidebar Overlay */}
       {isMobileSidebarOpen && (
         <div
           className="fixed inset-0 z-[60] bg-slate-900/20 backdrop-blur-md lg:hidden"
@@ -168,82 +25,23 @@ const AdminLayout = ({ children }) => {
         />
       )}
 
-      {/* Mobile Sidebar */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-[70] transition-transform duration-300 lg:hidden',
+          'fixed inset-y-0 left-0 z-[70] w-64 transition-transform duration-300 lg:hidden',
           isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
-        <SidebarContent
-          items={items}
+        <AdminSidebar
+          groups={navGroups}
           user={user}
-          onMobileClose={() => setIsMobileSidebarOpen(false)}
+          onNavigate={() => setIsMobileSidebarOpen(false)}
         />
       </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 lg:pl-64 flex flex-col min-h-screen bg-background">
-        {/* Top Header - Ô tìm kiếm + chuông + dấu hỏi */}
-        <header className="sticky top-0 z-40 h-16 flex items-center justify-between px-6 lg:px-8 bg-background/95 backdrop-blur border-b border-border">
-          <div className="flex min-w-0 flex-1 items-center gap-4">
-            <button
-              type="button"
-              className="lg:hidden p-2 rounded-lg text-slate-500 hover:bg-primary/10 hover:text-emerald-600 transition-colors"
-              onClick={() => setIsMobileSidebarOpen(true)}
-              aria-label="Mở menu"
-            >
-              <LayoutDashboard className="h-6 w-6" />
-            </button>
-            <div className="relative max-w-xl flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Tìm kiếm hệ thống..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-11 pl-11 pr-4 rounded-xl bg-white border border-border text-foreground placeholder:text-muted-foreground text-base font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/50"
-              />
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <AccountHomeLink />
-            <Link
-              to="/blog"
-              className="p-2.5 rounded-xl text-slate-500 hover:bg-primary/10 hover:text-emerald-600 transition-all hover:scale-105 active:scale-95"
-              aria-label="Blog công khai"
-              title="Blog công khai — cùng dữ liệu với quản trị Blog"
-            >
-              <BookOpen className="h-5 w-5" />
-            </Link>
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setShowNotifications(!showNotifications)}
-                className="p-2.5 rounded-xl text-slate-500 hover:bg-primary/10 hover:text-emerald-600 transition-all hover:scale-105 active:scale-95"
-                aria-label="Thông báo"
-              >
-                <Bell className="h-5 w-5" />
-                <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-emerald-500 border-2 border-white" />
-              </button>
-              <NotificationDropdown
-                isOpen={showNotifications}
-                onClose={() => setShowNotifications(false)}
-              />
-            </div>
-            <Link
-              to="/admin/support"
-              className="p-2.5 rounded-xl text-slate-500 hover:bg-primary/10 hover:text-emerald-600 transition-all hover:scale-105 active:scale-95"
-              aria-label="Trợ giúp"
-              title="Trợ giúp"
-            >
-              <HelpCircle className="h-5 w-5" />
-            </Link>
-          </div>
-        </header>
+      <div className="role-admin-workspace-bg flex min-h-screen flex-1 flex-col text-foreground lg:pl-64">
+        <AdminHeader onMenuClick={() => setIsMobileSidebarOpen(true)} />
 
-        {/* Page Content */}
-        <main className="flex-1 p-6 lg:p-8">
+        <main className="role-rounded-workspace flex-1 bg-transparent p-4 sm:p-6 lg:p-8">
           <div className="mx-auto max-w-[1600px]">{children}</div>
         </main>
       </div>

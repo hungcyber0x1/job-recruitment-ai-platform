@@ -64,19 +64,19 @@ describe('AuthController', () => {
     );
   });
 
-  it('does not return a token for pending employer registrations', async () => {
+  it('does not return a token for pending recruiter registrations', async () => {
     AuthService.register.mockResolvedValue({
       id: 6,
-      role: 'employer',
+      role: 'recruiter',
       status: 'pending',
     });
     AuthService.shouldIssueToken.mockReturnValue(false);
 
     const req = {
       body: {
-        email: 'employer@test.com',
+        email: 'recruiter@test.com',
         password: 'secret123',
-        role: 'employer',
+        role: 'recruiter',
         first_name: 'Anh',
         last_name: 'Tran',
         company_name: 'Acme Hiring',
@@ -96,6 +96,26 @@ describe('AuthController', () => {
           token: null,
           role: 'recruiter',
           requires_approval: true,
+        }),
+      })
+    );
+  });
+
+  it('returns success for stateless logout requests', async () => {
+    const req = {};
+    const res = createResponse();
+    const next = jest.fn();
+
+    AuthController.logout(req, res, next);
+    await flushPromises();
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        success: true,
+        data: null,
+        meta: expect.objectContaining({
+          message: 'Logged out successfully',
         }),
       })
     );

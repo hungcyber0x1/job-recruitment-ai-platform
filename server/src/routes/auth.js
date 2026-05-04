@@ -54,6 +54,7 @@ router.post('/register', authLimiter, registerValidator, validate, AuthControlle
  *       401: { description: Invalid credentials }
  */
 router.post('/login', authLimiter, loginValidator, validate, AuthController.login);
+router.post('/logout', AuthController.logout);
 router.use('/oauth', oauthRoutes);
 router.get('/me', protect, AuthController.getMe);
 router.put('/password', protect, AuthController.updatePassword);

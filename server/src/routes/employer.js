@@ -29,9 +29,19 @@ router.post(
   EmployerController.uploadLogo
 );
 
-router.get('/candidates/search', protect, authorize('recruiter'), EmployerController.searchCandidates);
+router.get(
+  '/candidates/search',
+  protect,
+  authorize('recruiter'),
+  EmployerController.searchCandidates
+);
 router.get('/talent-pool', protect, authorize('recruiter'), EmployerController.getTalentPool);
-router.post('/talent-pool/:candidateId', protect, authorize('recruiter'), EmployerController.saveCandidate);
+router.post(
+  '/talent-pool/:candidateId',
+  protect,
+  authorize('recruiter'),
+  EmployerController.saveCandidate
+);
 router.put(
   '/talent-pool/:candidateId',
   protect,
@@ -54,27 +64,107 @@ router.delete('/blog/posts/:id', protect, authorize('recruiter'), BlogController
 // ─── Team / Company Members ───────────────────────────────────────────────────
 router.get('/team', protect, authorize('recruiter'), CompanyMemberController.listMembers);
 router.post('/team/invite', protect, authorize('recruiter'), CompanyMemberController.inviteMember);
-router.put('/team/:userId/role', protect, authorize('recruiter'), CompanyMemberController.updateRole);
-router.put('/team/:userId/permissions', protect, authorize('recruiter'), CompanyMemberController.updatePermissions);
-router.delete('/team/:userId', protect, authorize('recruiter'), CompanyMemberController.removeMember);
-router.get('/team/permissions', protect, authorize('recruiter'), CompanyMemberController.getMyPermissions);
+router.put(
+  '/team/:userId/role',
+  protect,
+  authorize('recruiter'),
+  CompanyMemberController.updateRole
+);
+router.put(
+  '/team/:userId/permissions',
+  protect,
+  authorize('recruiter'),
+  CompanyMemberController.updatePermissions
+);
+router.delete(
+  '/team/:userId',
+  protect,
+  authorize('recruiter'),
+  CompanyMemberController.removeMember
+);
+router.get(
+  '/team/permissions',
+  protect,
+  authorize('recruiter'),
+  CompanyMemberController.getMyPermissions
+);
 
 // ─── Audit Logs ───────────────────────────────────────────────────────────────
-router.get('/audit/application/:applicationId', protect, authorize('recruiter'), AuditController.getApplicationAudit);
+router.get(
+  '/audit/application/:applicationId',
+  protect,
+  authorize('recruiter'),
+  AuditController.getApplicationAudit
+);
 router.get('/audit/job/:jobId', protect, authorize('recruiter'), AuditController.getJobAudit);
-router.get('/audit/communications', protect, authorize('recruiter'), AuditController.getCommunicationAudit);
+router.get(
+  '/audit/communications',
+  protect,
+  authorize('recruiter'),
+  AuditController.getCommunicationAudit
+);
 router.get('/audit/trail', protect, authorize('recruiter'), AuditController.getAuditTrail);
 
 // ─── Communication ────────────────────────────────────────────────────────────
-router.post('/communications/send', protect, authorize('recruiter'), CommunicationController.sendEmail);
-router.post('/communications/interview-invite', protect, authorize('recruiter'), CommunicationController.sendInterviewInvite);
-router.post('/communications/rejection', protect, authorize('recruiter'), CommunicationController.sendRejection);
-router.post('/communications/offer', protect, authorize('recruiter'), CommunicationController.sendOffer);
-router.post('/communications/bulk', protect, authorize('recruiter'), CommunicationController.sendBulk);
-router.get('/communications/history', protect, authorize('recruiter'), CommunicationController.getHistory);
-router.get('/communications/templates', protect, authorize('recruiter'), CommunicationController.getTemplates);
-router.post('/communications/templates', protect, authorize('recruiter'), CommunicationController.createTemplate);
-router.put('/communications/templates/:id', protect, authorize('recruiter'), CommunicationController.updateTemplate);
-router.delete('/communications/templates/:id', protect, authorize('recruiter'), CommunicationController.deleteTemplate);
+router.post(
+  '/communications/send',
+  protect,
+  authorize('recruiter'),
+  CommunicationController.sendEmail
+);
+router.post(
+  '/communications/interview-invite',
+  protect,
+  authorize('recruiter'),
+  CommunicationController.sendInterviewInvite
+);
+router.post(
+  '/communications/rejection',
+  protect,
+  authorize('recruiter'),
+  CommunicationController.sendRejection
+);
+router.post(
+  '/communications/offer',
+  protect,
+  authorize('recruiter'),
+  CommunicationController.sendOffer
+);
+router.post(
+  '/communications/bulk',
+  protect,
+  authorize('recruiter'),
+  CommunicationController.sendBulk
+);
+router.get(
+  '/communications/history',
+  protect,
+  authorize('recruiter'),
+  CommunicationController.getHistory
+);
+router.get(
+  '/communications/templates',
+  protect,
+  authorize('recruiter'),
+  CommunicationController.getTemplates
+);
+router.post(
+  '/communications/templates',
+  protect,
+  authorize('recruiter'),
+  CommunicationController.createTemplate
+);
+router.put(
+  '/communications/templates/:id',
+  protect,
+  authorize('recruiter'),
+  CommunicationController.updateTemplate
+);
+router.delete(
+  '/communications/templates/:id',
+  protect,
+  authorize('recruiter'),
+  CommunicationController.deleteTemplate
+);
 
 module.exports = router;

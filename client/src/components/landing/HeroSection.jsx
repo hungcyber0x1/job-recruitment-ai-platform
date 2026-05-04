@@ -137,7 +137,10 @@ const HeroSection = () => {
               </Link>
             </motion.div>
 
-            <motion.div variants={fadeUp} className="flex items-center gap-8 pt-4 flex-wrap justify-center">
+            <motion.div
+              variants={fadeUp}
+              className="flex items-center gap-8 pt-4 flex-wrap justify-center"
+            >
               <div className="flex -space-x-3">
                 {['PM', 'TH', 'LN', 'VD'].map((initials, i) => (
                   <div

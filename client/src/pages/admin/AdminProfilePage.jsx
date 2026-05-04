@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+import StatCard from '@/components/common/StatCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,6 +31,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import userService from '../../services/userService';
+import { resolveMediaUrl } from '@/utils/mediaUrl';
 import {
   buildUserProfilePayload,
   getUserFullName,
@@ -40,7 +42,7 @@ import {
 
 function SectionCard({ icon: Icon, title, description, action, children }) {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
+    <section className="min-w-0 rounded-lg border border-slate-200 bg-white shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 px-5 py-5 sm:px-6">
         <div className="flex min-w-0 items-start gap-3">
           {Icon ? (
@@ -57,7 +59,7 @@ function SectionCard({ icon: Icon, title, description, action, children }) {
         </div>
         {action}
       </div>
-      <div className="px-5 py-5 sm:px-6 sm:py-6">{children}</div>
+      <div className="min-w-0 px-5 py-5 sm:px-6 sm:py-6">{children}</div>
     </section>
   );
 }
@@ -69,7 +71,7 @@ function FieldBlock({ icon: Icon, label, hint, className = '', children }) {
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-50 text-slate-700 ring-1 ring-inset ring-slate-200">
           <Icon className="h-4 w-4" />
         </div>
-        <div>
+        <div className="min-w-0">
           <Label className="text-sm font-bold text-slate-800">{label}</Label>
           {hint ? <p className="mt-1 text-sm leading-6 text-slate-500">{hint}</p> : null}
         </div>
@@ -81,16 +83,22 @@ function FieldBlock({ icon: Icon, label, hint, className = '', children }) {
 
 function SummaryStat({ label, value, helper }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50/80 p-4">
-      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">{label}</p>
-      <p className="mt-2 text-lg font-bold text-slate-950">{value}</p>
-      <p className="mt-2 text-xs font-semibold leading-5 text-slate-500">{helper}</p>
-    </div>
+    <StatCard
+      title={label}
+      value={value}
+      subtitle={helper}
+      icon={ShieldCheck}
+      type="neutral"
+      className="min-w-0 max-w-full overflow-hidden"
+      titleClassName="break-words"
+      valueClassName="break-words text-xl leading-tight sm:text-2xl"
+      subtitleClassName="break-words"
+    />
   );
 }
 
 const AdminProfilePage = () => {
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, updateUser } = useAuth();
   const { showNotification } = useNotification();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
@@ -166,7 +174,9 @@ const AdminProfilePage = () => {
 
     setUploading(true);
     try {
-      await userService.uploadAvatar(file);
+      const response = await userService.uploadAvatar(file);
+      const nextAvatarUrl = response.data?.data?.avatar_url || response.data?.avatar_url;
+      if (nextAvatarUrl) updateUser({ avatar_url: nextAvatarUrl });
       await refreshUser();
       showNotification('Cập nhật ảnh đại diện thành công!', 'success');
     } catch (error) {
@@ -177,30 +187,30 @@ const AdminProfilePage = () => {
     }
   };
 
-  const displayName = useMemo(
-    () => getUserFullName(user) || 'Quản trị viên',
-    [user]
-  );
+  const displayName = useMemo(() => getUserFullName(user) || 'Quản trị viên', [user]);
 
   const roleLabel = useMemo(() => {
-    const normalizedRole = String(user?.role || '').trim().toLowerCase();
+    const normalizedRole = String(user?.role || '')
+      .trim()
+      .toLowerCase();
 
-    if (normalizedRole === 'admin' || normalizedRole === 'super_admin' || normalizedRole === 'superadmin') {
-      return 'Quản trị viên hệ thống';
-    }
-
-    return String(user?.role || 'Quản trị viên').trim() || 'Quản trị viên hệ thống';
+    if (normalizedRole === 'recruiter') return 'Nhà tuyển dụng';
+    if (normalizedRole === 'candidate') return 'Ứng viên';
+    return 'Admin';
   }, [user?.role]);
 
   const regionLabel = formData.region
     ? USER_REGION_LABELS[normalizeUserRegion(formData.region)] || formData.region
     : 'Chưa chọn';
+  const avatarSrc = resolveMediaUrl(user?.avatar_url) || undefined;
 
   const profileChecklist = useMemo(
     () => [
       {
         label: 'Họ và tên',
-        done: Boolean(String(formData.first_name || '').trim() && String(formData.last_name || '').trim()),
+        done: Boolean(
+          String(formData.first_name || '').trim() && String(formData.last_name || '').trim()
+        ),
         helper: 'Tên hiển thị cho tài khoản quản trị.',
       },
       {
@@ -219,7 +229,15 @@ const AdminProfilePage = () => {
         helper: 'Địa chỉ liên hệ phục vụ hồ sơ nội bộ.',
       },
     ],
-    [formData.address, formData.first_name, formData.gender, formData.last_name, formData.phone, formData.region, user?.email]
+    [
+      formData.address,
+      formData.first_name,
+      formData.gender,
+      formData.last_name,
+      formData.phone,
+      formData.region,
+      user?.email,
+    ]
   );
 
   const completedCount = profileChecklist.filter((item) => item.done).length;
@@ -231,19 +249,22 @@ const AdminProfilePage = () => {
       label: 'Vai trò',
       value: roleLabel,
       helper: 'Quyền truy cập hệ thống',
-      tone: 'bg-sky-50 text-sky-700 ring-sky-100',
+      icon: Shield,
+      type: 'primary',
     },
     {
       label: 'Vùng miền',
       value: regionLabel,
       helper: 'Khu vực đang thiết lập',
-      tone: 'bg-violet-50 text-violet-700 ring-violet-100',
+      icon: Globe2,
+      type: 'neutral',
     },
     {
       label: 'Trạng thái',
       value: user?.email ? 'Sẵn sàng vận hành' : 'Cần kiểm tra',
       helper: 'Thông tin cơ bản của tài khoản',
-      tone: 'bg-amber-50 text-amber-700 ring-amber-100',
+      icon: ShieldCheck,
+      type: 'warning',
     },
   ];
 
@@ -299,34 +320,22 @@ const AdminProfilePage = () => {
                   Hồ sơ cá nhân
                 </h1>
                 <p className="mt-4 max-w-3xl text-sm font-medium leading-7 text-slate-600 sm:text-base">
-                  Quản lý thông tin tài khoản quản trị trong một bố cục sáng, gọn và đồng nhất với các
-                  trang doanh nghiệp, để việc cập nhật hồ sơ và kiểm soát nhận diện hệ thống rõ ràng hơn.
+                  Quản lý thông tin tài khoản quản trị trong một bố cục sáng, gọn và đồng nhất với
+                  các trang doanh nghiệp, để việc cập nhật hồ sơ và kiểm soát nhận diện hệ thống rõ
+                  ràng hơn.
                 </p>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {heroCards.map((card) => (
-                  <div
+                  <StatCard
                     key={card.label}
-                    className="rounded-lg border border-white/80 bg-white/85 p-4 shadow-sm backdrop-blur"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-normal text-slate-500">
-                          {card.label}
-                        </p>
-                        <p className="mt-2 text-2xl font-bold tracking-normal text-slate-950">
-                          {card.value}
-                        </p>
-                        <p className="mt-2 text-sm leading-6 text-slate-500">{card.helper}</p>
-                      </div>
-                      <div
-                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset ${card.tone}`}
-                      >
-                        <ShieldCheck className="h-4 w-4" />
-                      </div>
-                    </div>
-                  </div>
+                    title={card.label}
+                    value={card.value}
+                    subtitle={card.helper}
+                    icon={card.icon}
+                    type={card.type}
+                  />
                 ))}
               </div>
             </div>
@@ -337,21 +346,30 @@ const AdminProfilePage = () => {
               </p>
               <p className="mt-2 text-2xl font-bold text-slate-950">{displayName}</p>
               <p className="mt-2 text-sm leading-6 text-slate-500">
-                Thông tin trong hồ sơ này được dùng để nhận diện tài khoản quản trị trên khu vực admin.
+                Thông tin trong hồ sơ này được dùng để nhận diện tài khoản quản trị trên khu vực
+                admin.
               </p>
 
               <div className="mt-4 grid gap-3">
                 <div className="rounded-lg bg-slate-50/90 p-3 ring-1 ring-inset ring-slate-100">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">Email</p>
-                  <p className="mt-1 truncate text-sm font-bold text-slate-900">{user?.email || 'Chưa cập nhật'}</p>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">
+                    Email
+                  </p>
+                  <p className="mt-1 truncate text-sm font-bold text-slate-900">
+                    {user?.email || 'Chưa cập nhật'}
+                  </p>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-lg bg-slate-50/90 p-3 ring-1 ring-inset ring-slate-100">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">ID</p>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">
+                      ID
+                    </p>
                     <p className="mt-1 text-sm font-bold text-slate-900">#{user?.id ?? 'N/A'}</p>
                   </div>
                   <div className="rounded-lg bg-slate-50/90 p-3 ring-1 ring-inset ring-slate-100">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">Vai trò</p>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">
+                      Vai trò
+                    </p>
                     <p className="mt-1 text-sm font-bold text-slate-900">{roleLabel}</p>
                   </div>
                 </div>
@@ -362,8 +380,8 @@ const AdminProfilePage = () => {
       </section>
 
       <main className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-          <div className="space-y-6">
+        <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="min-w-0 space-y-6">
             <SectionCard
               icon={UserRound}
               title="Thông tin cá nhân"
@@ -443,7 +461,10 @@ const AdminProfilePage = () => {
                     label="Giới tính"
                     hint="Thông tin nhận diện cơ bản cho hồ sơ."
                   >
-                    <Select value={formData.gender || ''} onValueChange={(value) => handleSelectChange('gender', value)}>
+                    <Select
+                      value={formData.gender || ''}
+                      onValueChange={(value) => handleSelectChange('gender', value)}
+                    >
                       <SelectTrigger className="h-12 rounded-lg border-slate-200 px-4 font-semibold">
                         <SelectValue placeholder="Chọn giới tính" />
                       </SelectTrigger>
@@ -496,7 +517,8 @@ const AdminProfilePage = () => {
 
                 <div className="flex flex-col gap-4 border-t border-slate-100 pt-6 sm:flex-row sm:items-center sm:justify-between">
                   <p className="max-w-xl text-sm leading-6 text-slate-500">
-                    Các thay đổi tại đây sẽ được cập nhật trực tiếp vào hồ sơ tài khoản admin sau khi lưu.
+                    Các thay đổi tại đây sẽ được cập nhật trực tiếp vào hồ sơ tài khoản admin sau
+                    khi lưu.
                   </p>
                   <Button
                     type="submit"
@@ -511,20 +533,20 @@ const AdminProfilePage = () => {
             </SectionCard>
           </div>
 
-          <aside className="space-y-6 xl:sticky xl:top-24 xl:self-start">
+          <aside className="min-w-0 space-y-6 xl:sticky xl:top-24 xl:self-start">
             <SectionCard
               icon={UserRound}
               title="Nhận diện tài khoản"
               description="Khu vực tóm tắt avatar, định danh và tín hiệu hồ sơ hiện tại."
             >
-              <div className="space-y-5">
-                <div className="rounded-lg border border-slate-200 bg-[linear-gradient(180deg,#f8fafc_0%,#ffffff_100%)] p-5">
-                  <div className="flex flex-col items-center text-center">
+              <div className="min-w-0 space-y-5">
+                <div className="min-w-0 rounded-lg border border-slate-200 bg-[linear-gradient(180deg,#f8fafc_0%,#ffffff_100%)] p-5">
+                  <div className="flex min-w-0 flex-col items-center text-center">
                     <div className="relative">
                       <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-2xl border border-white bg-emerald-50 shadow-lg ring-1 ring-inset ring-slate-100">
-                        {user?.avatar_url ? (
+                        {avatarSrc ? (
                           <img
-                            src={user.avatar_url}
+                            src={avatarSrc}
                             alt={displayName}
                             className="h-full w-full object-cover"
                           />
@@ -552,17 +574,31 @@ const AdminProfilePage = () => {
                       </button>
                     </div>
 
-                    <p className="mt-5 text-2xl font-bold text-slate-950">{displayName}</p>
+                    <p className="mt-5 max-w-full break-words text-2xl font-bold text-slate-950">
+                      {displayName}
+                    </p>
                     <p className="mt-2 text-sm font-bold uppercase tracking-normal text-emerald-600">
                       {roleLabel}
                     </p>
                   </div>
                 </div>
 
-                <div className="grid gap-3">
-                  <SummaryStat label="Email" value={user?.email || 'Chưa cập nhật'} helper="Tài khoản đăng nhập hiện tại" />
-                  <SummaryStat label="ID quản trị" value={`#${user?.id ?? 'N/A'}`} helper="Định danh nội bộ của người dùng" />
-                  <SummaryStat label="Vùng miền" value={regionLabel} helper="Khu vực đang hiển thị trên hồ sơ" />
+                <div className="grid min-w-0 gap-3">
+                  <SummaryStat
+                    label="Email"
+                    value={user?.email || 'Chưa cập nhật'}
+                    helper="Tài khoản đăng nhập hiện tại"
+                  />
+                  <SummaryStat
+                    label="ID quản trị"
+                    value={`#${user?.id ?? 'N/A'}`}
+                    helper="Định danh nội bộ của người dùng"
+                  />
+                  <SummaryStat
+                    label="Vùng miền"
+                    value={regionLabel}
+                    helper="Khu vực đang hiển thị trên hồ sơ"
+                  />
                 </div>
               </div>
             </SectionCard>
@@ -580,7 +616,9 @@ const AdminProfilePage = () => {
                         Trạng thái hồ sơ
                       </p>
                       <p className="mt-2 text-3xl font-bold text-slate-950">
-                        {remainingProfileFields > 0 ? `${remainingProfileFields} mục cần bổ sung` : 'Đã đầy đủ'}
+                        {remainingProfileFields > 0
+                          ? `${remainingProfileFields} mục cần bổ sung`
+                          : 'Đã đầy đủ'}
                       </p>
                       <p className="mt-2 text-sm leading-6 text-slate-500">
                         {remainingProfileFields > 0
@@ -602,7 +640,10 @@ const AdminProfilePage = () => {
 
                 <div className="space-y-3">
                   {profileChecklist.map((item) => (
-                    <div key={item.label} className="flex items-start gap-3 rounded-lg bg-slate-50/80 p-4 ring-1 ring-inset ring-slate-100">
+                    <div
+                      key={item.label}
+                      className="flex items-start gap-3 rounded-lg bg-slate-50/80 p-4 ring-1 ring-inset ring-slate-100"
+                    >
                       <CheckCircle2
                         className={`mt-0.5 h-4 w-4 shrink-0 ${
                           item.done ? 'text-emerald-600' : 'text-slate-300'
@@ -626,8 +667,8 @@ const AdminProfilePage = () => {
               <div className="rounded-lg border border-emerald-100 bg-emerald-50/70 p-4">
                 <p className="text-sm font-bold text-emerald-800">Giữ tài khoản admin an toàn</p>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Nên dùng mật khẩu riêng cho tài khoản quản trị và rà soát định kỳ phần cài đặt bảo mật
-                  để giảm rủi ro truy cập trái phép.
+                  Nên dùng mật khẩu riêng cho tài khoản quản trị và rà soát định kỳ phần cài đặt bảo
+                  mật để giảm rủi ro truy cập trái phép.
                 </p>
                 <Button
                   type="button"

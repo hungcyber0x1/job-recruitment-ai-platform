@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 
+import { PageHeader } from '@/components/admin';
 import Badge from '../../components/common/Badge';
 import Button from '../../components/common/Button';
 import Card from '../../components/common/Card';
@@ -48,15 +49,13 @@ const getJobDisplayStatus = (status) =>
 /**
  * Canonical employment type display — từ JOB_TYPE_FORM_LABELS.
  */
-const getEmploymentTypeLabel = (type) =>
-  JOB_TYPE_FORM_LABELS[type] || type || EMPTY;
+const getEmploymentTypeLabel = (type) => JOB_TYPE_FORM_LABELS[type] || type || EMPTY;
 
 /**
  * Canonical education display — từ EDUCATION_LEVEL_CONFIG.
  */
 const getEducationLabel = (level) =>
-  EDUCATION_LEVEL_CONFIG[level]?.label ||
-  (level === 'any' ? 'Không bắt buộc' : level || EMPTY);
+  EDUCATION_LEVEL_CONFIG[level]?.label || (level === 'any' ? 'Không bắt buộc' : level || EMPTY);
 
 function displayOrEmpty(value, fallback = EMPTY) {
   if (value == null) return fallback;
@@ -109,7 +108,8 @@ const AdminJobDetailPage = () => {
             title: String(rawJob.title ?? ''),
             company_name: String(rawJob.company_name ?? ''),
             employer_id: rawJob.employer_id ?? null,
-            company_location: rawJob.company_location != null ? String(rawJob.company_location) : '',
+            company_location:
+              rawJob.company_location != null ? String(rawJob.company_location) : '',
             category_name: rawJob.category_name != null ? String(rawJob.category_name) : '',
             status: String(rawJob.status ?? '').toLowerCase(),
             description: String(rawJob.description ?? ''),
@@ -160,12 +160,8 @@ const AdminJobDetailPage = () => {
   };
 
   const statusMeta = job ? getJobDisplayStatus(job.status) : null;
-  const educationLabel = job
-    ? getEducationLabel(job.education_required || job.education)
-    : EMPTY;
-  const employmentLabel = job
-    ? getEmploymentTypeLabel(job.type || job.employment_type)
-    : EMPTY;
+  const educationLabel = job ? getEducationLabel(job.education_required || job.education) : EMPTY;
+  const employmentLabel = job ? getEmploymentTypeLabel(job.type || job.employment_type) : EMPTY;
   const salaryText = job?.salary_negotiable
     ? 'Thỏa thuận'
     : job
@@ -179,127 +175,126 @@ const AdminJobDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="p-10 text-center font-medium text-muted-foreground">
-        Đang tải dữ liệu...
-      </div>
+      <div className="p-10 text-center font-medium text-muted-foreground">Đang tải dữ liệu...</div>
     );
   }
 
   if (!job) {
     return (
-      <div className="p-10 text-center font-medium text-muted-foreground">
-        Không tìm thấy job.
-      </div>
+      <div className="p-10 text-center font-medium text-muted-foreground">Không tìm thấy job.</div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 pb-10">
-      <section
-        aria-label="Hướng dẫn moderation"
-        className="rounded-xl border border-border/80 bg-gradient-to-br from-muted/40 via-card to-card p-5 shadow-sm sm:p-6"
+    <div className="space-y-7 pb-10 animate-fade-in">
+      <PageHeader
+        icon={Briefcase}
+        eyebrow="Quản trị tin tuyển dụng"
+        badge={statusMeta?.label || displayOrEmpty(job.status, EMPTY)}
+        title={job.title || EMPTY}
+        description={
+          displayOrEmpty(job.company_name) +
+          ' · ' +
+          locationLine +
+          ' · Đăng ' +
+          formatDate(job.created_at)
+        }
+        actions={
+          <>
+            <Link
+              to="/admin/jobs"
+              className="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 shadow-sm transition-all hover:border-emerald-200 hover:text-emerald-700"
+            >
+              <ArrowLeft size={18} />
+              Quay lại danh sách
+            </Link>
+            {updating ? <RefreshCw size={18} className="animate-spin text-primary" /> : null}
+            {job.status === 'pending_review' ? (
+              <>
+                <button
+                  disabled={updating}
+                  onClick={() => updateStatus('published', 'Đã duyệt và xuất bản tin tuyển dụng.')}
+                  className="inline-flex h-11 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-bold text-white shadow-sm transition-all hover:bg-emerald-700 disabled:opacity-50"
+                >
+                  <CheckCircle size={18} />
+                  Duyệt tin
+                </button>
+                <button
+                  disabled={updating}
+                  onClick={() => setShowRejectModal(true)}
+                  className="inline-flex h-11 items-center gap-2 rounded-xl bg-red-500 px-4 text-sm font-bold text-white shadow-sm transition-all hover:bg-red-600 disabled:opacity-50"
+                >
+                  <XCircle size={18} />
+                  Từ chối
+                </button>
+              </>
+            ) : null}
+            {job.status === 'published' ? (
+              <button
+                disabled={updating}
+                onClick={() => updateStatus('closed', 'Đã ẩn tin tuyển dụng khỏi nền tảng.')}
+                className="inline-flex h-11 items-center gap-2 rounded-xl bg-slate-800 px-4 text-sm font-bold text-white shadow-sm transition-all hover:bg-slate-900 disabled:opacity-50"
+              >
+                <XCircle size={18} />
+                Khóa tin
+              </button>
+            ) : null}
+            {job.status === 'closed' ? (
+              <button
+                disabled={updating}
+                onClick={() => updateStatus('published', 'Đã tái bản tin tuyển dụng.')}
+                className="inline-flex h-11 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-bold text-white shadow-sm transition-all hover:bg-emerald-700 disabled:opacity-50"
+              >
+                <CheckCircle size={18} />
+                Đăng lại
+              </button>
+            ) : null}
+            {job.status !== 'pending_review' ? (
+              <button
+                disabled={updating}
+                onClick={() =>
+                  updateStatus('pending_review', 'Đã đưa tin tuyển dụng về trạng thái chờ duyệt.')
+                }
+                className="inline-flex h-11 items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 text-sm font-bold text-amber-700 shadow-sm transition-all hover:bg-amber-100 disabled:opacity-50"
+              >
+                <RefreshCw size={18} />
+                Chờ duyệt
+              </button>
+            ) : null}
+            <Button
+              variant="secondary"
+              size="md"
+              className="border border-slate-200 px-4"
+              to={'/admin/applications?search=' + encodeURIComponent(job.title || '')}
+              leftIcon={Users}
+            >
+              Xem ứng tuyển
+            </Button>
+          </>
+        }
       >
-        <p className="text-base font-bold uppercase tracking-normal text-muted-foreground">
-          Job governance
-        </p>
-        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-3">
           {jobModules.map((module) => {
             const Icon = module.icon;
             return (
               <div
                 key={module.title}
-                className="flex gap-3 rounded-xl border border-border/60 bg-background/80 p-4 shadow-sm backdrop-blur-sm"
+                className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4"
               >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Icon size={20} strokeWidth={2} />
-                </div>
-                <div className="min-w-0">
-                  <h2 className="text-base font-bold text-foreground">{module.title}</h2>
-                  <p className="mt-1 text-base leading-relaxed text-muted-foreground">
-                    {module.description}
-                  </p>
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100">
+                    <Icon size={18} strokeWidth={2} />
+                  </div>
+                  <div className="min-w-0">
+                    <h2 className="text-sm font-bold text-slate-950">{module.title}</h2>
+                    <p className="mt-1 text-sm leading-6 text-slate-500">{module.description}</p>
+                  </div>
                 </div>
               </div>
             );
           })}
         </div>
-      </section>
-
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <Link
-          to="/admin/jobs"
-          className="group inline-flex items-center gap-2 text-base font-semibold text-muted-foreground transition-colors hover:text-primary"
-        >
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-card shadow-sm transition-colors group-hover:border-primary/30 group-hover:bg-primary/5">
-            <ArrowLeft size={18} />
-          </span>
-          Quay lại danh sách
-        </Link>
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="mr-2 flex h-full items-center border-r border-slate-200 pr-4 lg:flex">
-            {updating && <RefreshCw size={18} className="animate-spin text-primary" />}
-          </div>
-
-          {job.status === 'pending_review' && (
-            <>
-              <button
-                disabled={updating}
-                onClick={() => updateStatus('published', 'Đã duyệt và xuất bản tin tuyển dụng.')}
-                className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white hover:bg-emerald-700 transition-all shadow-md shadow-emerald-500/10 active:scale-95 disabled:opacity-50"
-              >
-                <CheckCircle size={18} /> Duyệt tin
-              </button>
-              <button
-                disabled={updating}
-                onClick={() => setShowRejectModal(true)}
-                className="inline-flex items-center gap-2 rounded-xl bg-red-500 px-6 py-3 text-sm font-bold text-white hover:bg-red-600 transition-all shadow-md shadow-red-500/10 active:scale-95 disabled:opacity-50"
-              >
-                <XCircle size={18} /> Từ chối
-              </button>
-            </>
-          )}
-
-          {job.status === 'published' && (
-            <button
-              disabled={updating}
-              onClick={() => updateStatus('closed', 'Đã ẩn tin tuyển dụng khỏi nền tảng.')}
-              className="inline-flex items-center gap-2 rounded-xl bg-slate-800 px-6 py-3 text-sm font-bold text-white hover:bg-slate-900 transition-all active:scale-95 disabled:opacity-50"
-            >
-              <XCircle size={18} /> Khóa tin
-            </button>
-          )}
-
-          {job.status === 'closed' && (
-            <button
-              disabled={updating}
-              onClick={() => updateStatus('published', 'Đã tái bản tin tuyển dụng.')}
-              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white hover:bg-emerald-700 transition-all active:scale-95 disabled:opacity-50"
-            >
-              <CheckCircle size={18} /> Đăng lại
-            </button>
-          )}
-
-          {job.status !== 'pending_review' && (
-            <button
-              disabled={updating}
-              onClick={() => updateStatus('pending_review', 'Đã đưa tin tuyển dụng về trạng thái chờ duyệt.')}
-              className="inline-flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-6 py-3 text-sm font-bold text-amber-700 hover:bg-amber-100 transition-all active:scale-95 disabled:opacity-50"
-            >
-              <RefreshCw size={18} /> Đưa về chờ duyệt
-            </button>
-          )}
-
-          <Button
-            variant="secondary"
-            size="md"
-            className="px-6 border border-slate-200"
-            to={`/admin/applications?search=${encodeURIComponent(job.title || '')}`}
-            leftIcon={Users}
-          >
-            Xem ứng tuyển
-          </Button>
-        </div>
-      </div>
+      </PageHeader>
 
       <Card className="overflow-hidden border-border/80 p-0 shadow-md">
         <div className="border-b border-border/60 bg-muted/25 px-6 py-5 sm:px-8 sm:py-6">
@@ -370,9 +365,7 @@ const AdminJobDetailPage = () => {
                 <p className="text-base font-bold uppercase tracking-normal text-muted-foreground">
                   Hạn nộp
                 </p>
-                <p className="mt-2 text-base font-bold text-foreground">
-                  {deadlineText ?? EMPTY}
-                </p>
+                <p className="mt-2 text-base font-bold text-foreground">{deadlineText ?? EMPTY}</p>
               </div>
             </div>
           </div>
@@ -405,9 +398,7 @@ const AdminJobDetailPage = () => {
           ].map((block) => (
             <Card key={block.title} className="border-border/80 p-6 shadow-sm sm:p-8">
               <div className="border-l-4 border-primary/50 pl-5">
-                <h2 className="text-lg font-bold tracking-normal text-foreground">
-                  {block.title}
-                </h2>
+                <h2 className="text-lg font-bold tracking-normal text-foreground">{block.title}</h2>
                 <div
                   className="mt-4 prose prose-slate max-w-none text-base leading-[1.7] text-foreground/85"
                   dangerouslySetInnerHTML={{ __html: sanitizeHtml(block.body) || block.empty }}
@@ -476,7 +467,7 @@ const AdminJobDetailPage = () => {
           </Card>
         </div>
       </div>
-      
+
       {/* Reject Reason Modal */}
       <Modal
         isOpen={showRejectModal}

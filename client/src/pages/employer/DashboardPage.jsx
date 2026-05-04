@@ -6,26 +6,25 @@ import {
   Briefcase,
   Calendar,
   ChevronRight,
-  Clock3,
+  Clock,
+  FileText,
   Megaphone,
+  PieChart as PieChartIconLucide,
   Plus,
+  Radar,
   Search,
-  Settings,
+  ShieldCheck,
   Sparkles,
-  Target,
+  Star,
   TrendingUp,
   Users,
-  Workflow,
+  Zap,
 } from 'lucide-react';
-import { Area, AreaChart, CartesianGrid, Tooltip, XAxis, YAxis } from 'recharts';
+import { Cell, Pie, PieChart, Tooltip } from 'recharts';
 
-import ChartSurface, {
-  CHART_MUTED_TICK_STYLE,
-  CHART_TOOLTIP_STYLE,
-} from '@/components/charts/ChartSurface';
-import EmployerStatCard from '../../components/employer/EmployerStatCard';
+import ChartSurface, { CHART_TOOLTIP_STYLE } from '@/components/charts/ChartSurface';
+import StatCard from '@/components/common/StatCard';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -34,6 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { cn } from '@/utils';
 import {
   APPLICATION_STATUS,
   INTERVIEW_APPLICATION_STATUSES,
@@ -42,31 +42,99 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { applicationService, jobService } from '../../services';
 
-const FUNNEL_LABELS = {
-  pending: 'Ứng tuyển',
-  shortlisted: 'Rút gọn',
-  interviewing: 'Phỏng vấn',
-  offered: 'Đề nghị',
-  hired: 'Nhận việc',
-  rejected: 'Từ chối',
-};
+const numberFormatter = new Intl.NumberFormat('vi-VN');
 
-const FUNNEL_COLORS = {
-  pending: '#0f766e',
-  shortlisted: '#6366f1',
-  interviewing: '#3b82f6',
-  offered: '#f59e0b',
-  hired: '#22c55e',
-  rejected: '#f43f5e',
+const TONE = {
+  emerald: {
+    soft: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
+    border: 'border-emerald-200',
+    icon: 'bg-emerald-600 text-white shadow-emerald-500/25',
+    bar: 'bg-emerald-500',
+    dot: 'bg-emerald-500',
+    text: 'text-emerald-700',
+    gradient: 'from-emerald-500/15 via-emerald-50 to-white',
+    chart: '#10b981',
+  },
+  sky: {
+    soft: 'bg-sky-50 text-sky-700 ring-sky-100',
+    border: 'border-sky-200',
+    icon: 'bg-sky-600 text-white shadow-sky-500/25',
+    bar: 'bg-sky-500',
+    dot: 'bg-sky-500',
+    text: 'text-sky-700',
+    gradient: 'from-sky-500/15 via-sky-50 to-white',
+    chart: '#0ea5e9',
+  },
+  blue: {
+    soft: 'bg-blue-50 text-blue-700 ring-blue-100',
+    border: 'border-blue-200',
+    icon: 'bg-blue-600 text-white shadow-blue-500/25',
+    bar: 'bg-blue-500',
+    dot: 'bg-blue-500',
+    text: 'text-blue-700',
+    gradient: 'from-blue-500/15 via-blue-50 to-white',
+    chart: '#3b82f6',
+  },
+  cyan: {
+    soft: 'bg-cyan-50 text-cyan-700 ring-cyan-100',
+    border: 'border-cyan-200',
+    icon: 'bg-cyan-600 text-white shadow-cyan-500/25',
+    bar: 'bg-cyan-500',
+    dot: 'bg-cyan-500',
+    text: 'text-cyan-700',
+    gradient: 'from-cyan-500/15 via-cyan-50 to-white',
+    chart: '#06b6d4',
+  },
+  amber: {
+    soft: 'bg-amber-50 text-amber-700 ring-amber-100',
+    border: 'border-amber-200',
+    icon: 'bg-amber-500 text-white shadow-amber-500/25',
+    bar: 'bg-amber-500',
+    dot: 'bg-amber-500',
+    text: 'text-amber-700',
+    gradient: 'from-amber-500/15 via-amber-50 to-white',
+    chart: '#f59e0b',
+  },
+  violet: {
+    soft: 'bg-violet-50 text-violet-700 ring-violet-100',
+    border: 'border-violet-200',
+    icon: 'bg-violet-600 text-white shadow-violet-500/25',
+    bar: 'bg-violet-500',
+    dot: 'bg-violet-500',
+    text: 'text-violet-700',
+    gradient: 'from-violet-500/15 via-violet-50 to-white',
+    chart: '#8b5cf6',
+  },
+  rose: {
+    soft: 'bg-rose-50 text-rose-700 ring-rose-100',
+    border: 'border-rose-200',
+    icon: 'bg-rose-500 text-white shadow-rose-500/25',
+    bar: 'bg-rose-500',
+    dot: 'bg-rose-500',
+    text: 'text-rose-700',
+    gradient: 'from-rose-500/15 via-rose-50 to-white',
+    chart: '#f43f5e',
+  },
+  slate: {
+    soft: 'bg-slate-50 text-slate-700 ring-slate-100',
+    border: 'border-slate-200',
+    icon: 'bg-slate-900 text-white shadow-slate-500/25',
+    bar: 'bg-slate-400',
+    dot: 'bg-slate-400',
+    text: 'text-slate-700',
+    gradient: 'from-slate-400/15 via-slate-50 to-white',
+    chart: '#64748b',
+  },
 };
 
 const FUNNEL_STAGES = [
-  { key: APPLICATION_STATUS.SUBMITTED, label: 'Đã nộp', fill: '#0f766e' },
-  { key: APPLICATION_STATUS.SHORTLISTED, label: 'Rút gọn', fill: '#6366f1' },
-  { key: APPLICATION_STATUS.INTERVIEW_SCHEDULED, label: 'Lịch PV', fill: '#3b82f6' },
-  { key: APPLICATION_STATUS.INTERVIEWED, label: 'Đã PV', fill: '#0ea5e9' },
-  { key: APPLICATION_STATUS.OFFERED, label: 'Đề nghị', fill: '#f59e0b' },
-  { key: APPLICATION_STATUS.HIRED, label: 'Nhận việc', fill: '#22c55e' },
+  { key: APPLICATION_STATUS.SUBMITTED, label: 'Đã nộp', tone: 'amber' },
+  { key: APPLICATION_STATUS.SHORTLISTED, label: 'Rút gọn', tone: 'violet' },
+  { key: APPLICATION_STATUS.INTERVIEW_SCHEDULED, label: 'Lịch PV', tone: 'blue' },
+  { key: APPLICATION_STATUS.INTERVIEWED, label: 'Đã PV', tone: 'cyan' },
+  { key: APPLICATION_STATUS.OFFERED, label: 'Đề nghị', tone: 'amber' },
+  { key: APPLICATION_STATUS.HIRED, label: 'Nhận việc', tone: 'emerald' },
+  { key: APPLICATION_STATUS.REJECTED, label: 'Từ chối', tone: 'rose' },
 ];
 
 const PERIOD_OPTIONS = [
@@ -75,40 +143,15 @@ const PERIOD_OPTIONS = [
   { value: 'month', label: '30 ngày' },
   { value: 'quarter', label: '90 ngày' },
 ];
+
 const DAY_IN_MS = 86_400_000;
 
-const TONE_STYLES = {
-  emerald: {
-    icon: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
-    badge: 'border-emerald-200 bg-emerald-50 text-emerald-700',
-    soft: 'bg-emerald-50',
-    text: 'text-emerald-700',
-  },
-  blue: {
-    icon: 'bg-blue-50 text-blue-700 ring-blue-100',
-    badge: 'border-blue-200 bg-blue-50 text-blue-700',
-    soft: 'bg-blue-50',
-    text: 'text-blue-700',
-  },
-  violet: {
-    icon: 'bg-violet-50 text-violet-700 ring-violet-100',
-    badge: 'border-violet-200 bg-violet-50 text-violet-700',
-    soft: 'bg-violet-50',
-    text: 'text-violet-700',
-  },
-  amber: {
-    icon: 'bg-amber-50 text-amber-700 ring-amber-100',
-    badge: 'border-amber-200 bg-amber-50 text-amber-700',
-    soft: 'bg-amber-50',
-    text: 'text-amber-700',
-  },
-  slate: {
-    icon: 'bg-slate-100 text-slate-700 ring-slate-200',
-    badge: 'border-slate-200 bg-slate-100 text-slate-700',
-    soft: 'bg-slate-100',
-    text: 'text-slate-700',
-  },
+const toNumber = (value, fallback = 0) => {
+  const numericValue = Number(value);
+  return Number.isFinite(numericValue) ? numericValue : fallback;
 };
+
+const formatNumber = (value) => numberFormatter.format(toNumber(value));
 
 const formatCompactNumber = (value) =>
   new Intl.NumberFormat('vi-VN', {
@@ -138,142 +181,366 @@ const getCandidateName = (app) =>
 
 const getJobTitle = (item) => item?.jobTitle || item?.title || item?.job_title || 'Vai trò';
 
-const getToneStyle = (tone) => TONE_STYLES[tone] || TONE_STYLES.emerald;
+const getToneStyle = (tone) => TONE[tone] || TONE.emerald;
 
-function DashboardSection({
-  icon: Icon,
-  eyebrow,
+const getInitials = (name) =>
+  String(name || 'UV')
+    .split(/\s+/)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2) || 'UV';
+
+const SectionCard = ({
   title,
-  description,
+  subtitle,
+  icon: Icon,
   action,
   children,
-  className = '',
-}) {
-  return (
-    <section
-      className={`rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition-all hover:border-emerald-200/70 hover:shadow-md sm:p-6 ${className}`}
-    >
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex min-w-0 items-start gap-3">
-          {Icon ? (
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100">
-              <Icon className="h-4 w-4" />
-            </div>
-          ) : null}
-          <div className="min-w-0">
-            {eyebrow ? (
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-600">
-                {eyebrow}
-              </p>
-            ) : null}
-            <h2 className="mt-1 text-base font-bold text-slate-950">{title}</h2>
-            {description ? (
-              <p className="mt-1 text-sm leading-6 text-slate-500">{description}</p>
-            ) : null}
+  className,
+  eyebrow,
+  compact = false,
+}) => (
+  <section
+    className={cn(
+      'rounded-[1.75rem] border border-white/70 bg-white/90 shadow-[0_18px_50px_rgba(15,23,42,0.08)] ring-1 ring-slate-900/5 backdrop-blur',
+      compact ? 'p-4' : 'p-5',
+      className
+    )}
+  >
+    <div className={cn('flex items-start justify-between gap-4', compact ? 'mb-3' : 'mb-4')}>
+      <div className="flex min-w-0 items-start gap-3">
+        {Icon ? (
+          <div
+            className={cn(
+              'flex shrink-0 items-center justify-center bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100',
+              compact ? 'h-9 w-9 rounded-xl' : 'h-11 w-11 rounded-2xl'
+            )}
+          >
+            <Icon className={cn(compact ? 'h-4 w-4' : 'h-5 w-5')} />
           </div>
-        </div>
-        {action}
-      </div>
-      <div className="mt-6">{children}</div>
-    </section>
-  );
-}
-
-function SidebarSection({ eyebrow, title, description, action, children, className = '' }) {
-  return (
-    <section className={`rounded-lg border border-slate-200 bg-white p-5 shadow-sm ${className}`}>
-      <div className="flex items-start justify-between gap-4">
+        ) : null}
         <div className="min-w-0">
           {eyebrow ? (
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-emerald-700">
+            <p
+              className={cn(
+                'mb-1 font-black uppercase tracking-[0.22em] text-emerald-600',
+                compact ? 'text-[10px]' : 'text-[11px]'
+              )}
+            >
               {eyebrow}
             </p>
           ) : null}
-          <h3 className="mt-2 text-[1.35rem] font-bold tracking-tight text-slate-950">{title}</h3>
-          {description ? (
-            <p className="mt-1 text-sm leading-6 text-slate-500">{description}</p>
+          <h2
+            className={cn(
+              'font-black tracking-tight text-slate-950',
+              compact ? 'text-sm' : 'text-base'
+            )}
+          >
+            {title}
+          </h2>
+          {subtitle ? (
+            <p
+              className={cn(
+                'mt-1 line-clamp-2 font-medium text-slate-500',
+                compact ? 'text-xs leading-5' : 'text-sm leading-6'
+              )}
+            >
+              {subtitle}
+            </p>
           ) : null}
         </div>
-        {action}
       </div>
-      <div className="mt-5">{children}</div>
-    </section>
-  );
-}
+      {action}
+    </div>
+    {children}
+  </section>
+);
 
-function SignalListItem({ item }) {
-  const score = Number(item.score ?? 0);
-  const scoreClass =
-    score >= 90
-      ? 'text-emerald-700'
-      : score >= 75
-        ? 'text-blue-700'
-        : score >= 60
-          ? 'text-amber-700'
-          : 'text-slate-500';
+const StatTile = ({
+  label,
+  value,
+  helper,
+  icon: Icon,
+  tone = 'emerald',
+  loading = false,
+  trend,
+  className,
+}) => {
+  const isTextValue = typeof value === 'string' && /[^\d.,\s]/.test(value);
 
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3">
-      <Avatar className="h-10 w-10 border border-slate-100 shadow-sm">
-        <AvatarFallback className="bg-slate-100 text-xs font-bold text-slate-600">
-          {getCandidateName(item)
-            .split(/\s+/)
-            .map((part) => part[0])
-            .join('')
-            .toUpperCase()
-            .slice(0, 2) || 'UV'}
-        </AvatarFallback>
-      </Avatar>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-slate-900">{getCandidateName(item)}</p>
-            <p className="truncate text-sm text-slate-500">{getJobTitle(item)}</p>
-          </div>
-          <span className={`text-sm font-bold ${scoreClass}`}>{score}%</span>
-        </div>
-        <p className="mt-2 text-xs text-slate-400">{formatRelative(item.updated_at || item.created_at)}</p>
-      </div>
-    </div>
+    <StatCard
+      title={label}
+      value={loading ? '—' : isTextValue ? value : formatNumber(value)}
+      subtitle={helper}
+      icon={Icon}
+      type={tone}
+      trend={trend}
+      className={className}
+    />
   );
-}
+};
 
-function GuideLinkRow({ icon: Icon, label, helper, value, to, tone = 'emerald' }) {
+const CampaignRow = ({ job }) => {
+  const isOpen = job.status === 'published';
+
+  return (
+    <Link
+      to={`/employer/applications?jobId=${job.id}`}
+      className="group flex items-center gap-3 rounded-2xl border border-slate-100 bg-white/80 p-3 transition-all hover:border-emerald-100 hover:bg-emerald-50/40 hover:shadow-sm"
+    >
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100">
+        <Briefcase className="h-5 w-5" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <p className="truncate text-sm font-black text-slate-900 group-hover:text-emerald-700">
+            {job.title || 'Vị trí tuyển dụng'}
+          </p>
+          <span
+            className={cn(
+              'hidden rounded-full px-2 py-0.5 text-[10px] font-black ring-1 ring-inset sm:inline-flex',
+              isOpen
+                ? 'bg-emerald-50 text-emerald-700 ring-emerald-100'
+                : 'bg-amber-50 text-amber-700 ring-amber-100'
+            )}
+          >
+            {isOpen ? 'Đang mở' : 'Cần chú ý'}
+          </span>
+        </div>
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-slate-500">
+          <span className="inline-flex items-center gap-1">
+            <Users className="h-3 w-3" />
+            {formatNumber(job.applicants)} hồ sơ
+          </span>
+        </div>
+      </div>
+      <ChevronRight className="h-4 w-4 text-slate-300 transition-transform group-hover:translate-x-0.5 group-hover:text-emerald-500" />
+    </Link>
+  );
+};
+
+const CandidateSignalRow = ({ item }) => (
+  <Link
+    to={item.id ? `/employer/applications/${item.id}` : '/employer/applications'}
+    className="group flex items-center gap-3 rounded-2xl border border-slate-100 bg-white/80 p-3 transition-all hover:border-emerald-100 hover:bg-emerald-50/40 hover:shadow-sm"
+  >
+    <Avatar className="h-11 w-11 border border-slate-100 shadow-sm">
+      <AvatarFallback className="bg-slate-100 text-xs font-black text-slate-600">
+        {getInitials(getCandidateName(item))}
+      </AvatarFallback>
+    </Avatar>
+    <div className="min-w-0 flex-1">
+      <p className="truncate text-sm font-black text-slate-900 group-hover:text-emerald-700">
+        {getCandidateName(item)}
+      </p>
+      <p className="mt-0.5 truncate text-xs font-semibold text-slate-500">{getJobTitle(item)}</p>
+      <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">
+        {formatRelative(item.updated_at || item.created_at)}
+      </p>
+    </div>
+    <ChevronRight className="h-4 w-4 text-slate-300 transition-transform group-hover:translate-x-0.5 group-hover:text-emerald-500" />
+  </Link>
+);
+
+const ActionPlanRow = ({ icon: Icon, title, helper, to, tone = 'emerald' }) => {
   const toneStyle = getToneStyle(tone);
 
   return (
     <Link
       to={to}
-      className="group flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50/80 p-4 transition-all hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-white hover:shadow-sm"
+      className="group flex items-start gap-3 rounded-2xl border border-slate-100 bg-white/80 p-4 transition-all hover:border-emerald-100 hover:bg-emerald-50/40"
     >
       <div
-        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset ${toneStyle.icon}`}
+        className={cn(
+          'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ring-1 ring-inset',
+          toneStyle.soft
+        )}
       >
-        <Icon className="h-4 w-4" />
+        <Icon className="h-5 w-5" />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-sm font-semibold text-slate-900">{label}</p>
-          {value ? <span className={`text-sm font-bold ${toneStyle.text}`}>{value}</span> : null}
-        </div>
-        <p className="mt-1 text-sm leading-6 text-slate-500">{helper}</p>
+        <p className="text-sm font-black text-slate-900 group-hover:text-emerald-700">{title}</p>
+        <p className="mt-1 text-xs font-semibold leading-5 text-slate-500">{helper}</p>
       </div>
-      <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-slate-300 transition-transform group-hover:translate-x-0.5 group-hover:text-slate-500" />
+      <ArrowRight className="mt-1 h-4 w-4 text-slate-300 transition-transform group-hover:translate-x-0.5 group-hover:text-emerald-600" />
     </Link>
   );
-}
+};
+
+const QuickAction = ({ to, icon: Icon, label, helper, tone = 'emerald' }) => {
+  const toneStyle = getToneStyle(tone);
+
+  return (
+    <Link
+      to={to}
+      className="group relative overflow-hidden rounded-[1.35rem] border border-white/70 bg-white p-4 shadow-sm ring-1 ring-slate-900/5 transition-all hover:-translate-y-0.5 hover:shadow-lg"
+    >
+      <div className={cn('absolute inset-0 bg-gradient-to-br opacity-75', toneStyle.gradient)} />
+      <div className="relative flex items-center gap-3">
+        <div
+          className={cn(
+            'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ring-1 ring-inset',
+            toneStyle.soft
+          )}
+        >
+          <Icon className="h-5 w-5" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-black text-slate-900 group-hover:text-emerald-700">
+            {label}
+          </p>
+          <p className="truncate text-xs font-semibold text-slate-500">{helper}</p>
+        </div>
+        <ArrowRight className="h-4 w-4 text-slate-300 transition-transform group-hover:translate-x-0.5 group-hover:text-emerald-600" />
+      </div>
+    </Link>
+  );
+};
+
+const EmptyPieGraphic = () => (
+  <div className="relative h-12 w-12 rounded-full bg-slate-200">
+    <div className="absolute right-0 top-0 h-6 w-6 rounded-tr-full bg-emerald-400" />
+    <div className="absolute bottom-0 left-0 h-6 w-6 rounded-bl-full bg-sky-400" />
+    <div className="absolute inset-3 rounded-full bg-white" />
+  </div>
+);
+
+const RecruitmentPipelinePieChart = ({ data, total, loading }) => {
+  const chartData = data.filter((item) => item.value > 0);
+  const hasData = chartData.length > 0;
+  const legendData = data;
+
+  if (loading) {
+    return (
+      <div className="grid gap-8 py-4 lg:grid-cols-[minmax(420px,1fr)_minmax(280px,1fr)] lg:items-center">
+        <div className="flex justify-center">
+          <div className="h-80 w-80 animate-pulse rounded-full bg-slate-100 sm:h-96 sm:w-96 lg:h-[26rem] lg:w-[26rem]" />
+        </div>
+        <div className="space-y-3">
+          {[1, 2, 3, 4].map((item) => (
+            <div key={item} className="h-12 animate-pulse rounded-2xl bg-slate-100" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-8 py-4 lg:grid-cols-[minmax(420px,1fr)_minmax(280px,1fr)] lg:items-center">
+      <div className="flex justify-center">
+        <div className="relative h-80 w-80 shrink-0 sm:h-96 sm:w-96 lg:h-[26rem] lg:w-[26rem]">
+          {hasData ? (
+            <>
+              <ChartSurface
+                className="h-80 w-80 flex-none bg-transparent p-0 shadow-none ring-0 sm:h-96 sm:w-96 lg:h-[26rem] lg:w-[26rem]"
+                minChartHeight={416}
+              >
+                <PieChart>
+                  <Tooltip
+                    contentStyle={CHART_TOOLTIP_STYLE}
+                    formatter={(value, name) => [`${formatNumber(value)} hồ sơ`, name]}
+                  />
+                  <Pie
+                    data={chartData}
+                    dataKey="value"
+                    nameKey="label"
+                    innerRadius={112}
+                    outerRadius={166}
+                    paddingAngle={5}
+                    cornerRadius={14}
+                    stroke="#ffffff"
+                    strokeWidth={7}
+                  >
+                    {chartData.map((entry) => (
+                      <Cell key={entry.key} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ChartSurface>
+              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+                <span className="text-[11px] font-black uppercase tracking-[0.24em] text-slate-400">
+                  Tổng hồ sơ
+                </span>
+                <span className="mt-2 text-6xl font-black tracking-tight text-slate-950 tabular-nums">
+                  {formatNumber(total)}
+                </span>
+                <span className="mt-3 rounded-full bg-emerald-50 px-4 py-2 text-[11px] font-black text-emerald-700 ring-1 ring-emerald-100">
+                  Pipeline
+                </span>
+              </div>
+            </>
+          ) : (
+            <div className="flex h-full w-full flex-col items-center justify-center rounded-[1.75rem] border border-dashed border-slate-200 bg-white/80 text-center">
+              <EmptyPieGraphic />
+              <p className="mt-3 text-sm font-black text-slate-700">Chưa có dữ liệu</p>
+              <p className="mt-1 text-xs font-semibold text-slate-500">
+                Các trạng thái sẽ hiển thị khi có hồ sơ ứng tuyển.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="rounded-[1.5rem] border border-slate-100 bg-white/80 p-4 shadow-sm ring-1 ring-slate-900/5">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-emerald-600">
+              Chú thích trạng thái
+            </p>
+            <p className="mt-1 text-xs font-semibold text-slate-500">
+              Số lượng hồ sơ theo từng giai đoạn tuyển dụng.
+            </p>
+          </div>
+          <span className="rounded-full bg-slate-50 px-3 py-1 text-xs font-black text-slate-600 ring-1 ring-slate-100">
+            {formatNumber(total)} hồ sơ
+          </span>
+        </div>
+
+        <div className="grid gap-2 sm:grid-cols-2">
+          {legendData.map((item) => (
+            <div key={item.key} className="rounded-2xl border border-slate-100 bg-slate-50/70 p-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex min-w-0 items-center gap-2">
+                  <span
+                    className="h-2.5 w-2.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: item.color }}
+                  />
+                  <span className="truncate text-xs font-black text-slate-700">{item.label}</span>
+                </div>
+                <span className="text-xs font-black text-slate-950 tabular-nums">
+                  {formatNumber(item.value)}
+                </span>
+              </div>
+              <p className="mt-1.5 text-[11px] font-bold text-slate-400">
+                {formatNumber(item.value)} hồ sơ trong giai đoạn này
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const EmployerDashboard = () => {
   const { user } = useAuth();
   const [jobs, setJobs] = useState([]);
   const [applications, setApplications] = useState([]);
   const [period, setPeriod] = useState('month');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchData = async () => {
+      setLoading(true);
       try {
         const jobsRes = await jobService.getMyJobs().catch(() => ({ data: { data: [] } }));
         const jobsData = Array.isArray(jobsRes.data?.data) ? jobsRes.data.data : [];
+
+        if (!isMounted) return;
         setJobs(jobsData);
 
         if (!jobsData.length) {
@@ -287,13 +554,15 @@ const EmployerDashboard = () => {
           )
         );
 
+        if (!isMounted) return;
+
         const merged = appResponses.flatMap((response, index) => {
           const job = jobsData[index];
           const list = Array.isArray(response.data?.data) ? response.data.data : [];
           return list.map((app) => ({
             ...app,
             status: normalizeApplicationStatus(app?.status),
-            jobTitle: job?.title || app?.jobTitle || 'Vai trò',
+            jobTitle: job?.title || app?.jobTitle || app?.job_title || 'Vai trò',
             jobId: job?.id || app?.job_id,
           }));
         });
@@ -301,10 +570,16 @@ const EmployerDashboard = () => {
         setApplications(merged);
       } catch (error) {
         console.error('Failed to fetch employer dashboard', error);
+      } finally {
+        if (isMounted) setLoading(false);
       }
     };
 
     fetchData();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const filteredApplications = useMemo(() => {
@@ -323,7 +598,6 @@ const EmployerDashboard = () => {
 
   const publishedJobs = jobs.filter((item) => item.status === 'published').length;
   const reviewJobs = jobs.filter((item) => item.status === 'pending_review').length;
-  const draftJobs = jobs.filter((item) => item.status === 'draft').length;
   const interviewCount = filteredApplications.filter((item) =>
     INTERVIEW_APPLICATION_STATUSES.has(item.status)
   ).length;
@@ -338,137 +612,30 @@ const EmployerDashboard = () => {
   ).length;
   const totalProfiles = filteredApplications.length;
 
-  const averageScreeningScore = totalProfiles
-    ? Math.round(
-      filteredApplications.reduce(
-        (sum, item) => sum + Number(item.score ?? 76),
-        0
-      ) / totalProfiles
-    )
-    : 78;
-
-  const priorityCount = filteredApplications.filter(
-    (item) => Number(item.score ?? 0) >= 80
-  ).length;
-
-  const priorityRate = totalProfiles ? Math.round((priorityCount / totalProfiles) * 100) : 0;
-  const pipelinePercent = totalProfiles ? Math.min(95, averageScreeningScore + 7) : 85;
-
   const jobsWithoutApplicants = useMemo(
     () =>
-      jobs.filter(
-        (job) => !applications.some((item) => String(item.jobId) === String(job.id))
-      ).length,
+      jobs.filter((job) => !applications.some((item) => String(item.jobId) === String(job.id)))
+        .length,
     [jobs, applications]
   );
 
-  const latestActivityAt = useMemo(() => {
-    const timestamps = filteredApplications
-      .map((item) => new Date(item.updated_at || item.created_at || 0).getTime())
-      .filter((value) => Number.isFinite(value) && value > 0);
-
-    if (!timestamps.length) return null;
-    return new Date(Math.max(...timestamps)).toISOString();
-  }, [filteredApplications]);
-
-  const funnelChartData = useMemo(
+  const pipelineChartData = useMemo(
     () =>
-      FUNNEL_STAGES.map((stage) => ({
-        key: stage.key,
-        name: stage.label,
-        value: filteredApplications.filter((item) => item.status === stage.key).length,
-        fill: stage.fill,
-      })),
+      FUNNEL_STAGES.map((stage) => {
+        const toneStyle = getToneStyle(stage.tone);
+        return {
+          ...stage,
+          value: filteredApplications.filter((item) => item.status === stage.key).length,
+          color: toneStyle.chart,
+        };
+      }),
     [filteredApplications]
   );
 
-  const trendChartData = useMemo(() => {
-    const source = filteredApplications;
-    const bucketCount = 6;
-    const now = new Date();
-
-    let rangeDays =
-      period === 'week' ? 7 : period === 'month' ? 30 : period === 'quarter' ? 90 : 180;
-    if (period === 'all' && source.length) {
-      const validDates = source
-        .map((item) => new Date(item.created_at || item.updated_at || 0).getTime())
-        .filter((value) => Number.isFinite(value) && value > 0);
-      if (validDates.length) {
-        const earliest = Math.min(...validDates);
-        rangeDays = Math.max(30, Math.ceil((now.getTime() - earliest) / DAY_IN_MS));
-      }
-    }
-
-    const start = new Date(now.getTime() - rangeDays * DAY_IN_MS);
-    const totalMs = Math.max(1, now.getTime() - start.getTime());
-    const bucketMs = totalMs / bucketCount;
-    const formatter = new Intl.DateTimeFormat('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-    });
-
-    const buckets = Array.from({ length: bucketCount }, (_, index) => {
-      const bucketEnd = new Date(start.getTime() + bucketMs * (index + 1));
-      return {
-        label: formatter.format(bucketEnd),
-        profiles: 0,
-        highMatch: 0,
-        interviews: 0,
-      };
-    });
-
-    source.forEach((item) => {
-      const timestamp = new Date(item.created_at || item.updated_at || 0).getTime();
-      if (!Number.isFinite(timestamp) || timestamp < start.getTime() || timestamp > now.getTime()) {
-        return;
-      }
-
-      const index = Math.min(
-        bucketCount - 1,
-        Math.max(0, Math.floor((timestamp - start.getTime()) / bucketMs))
-      );
-
-      buckets[index].profiles += 1;
-      if (Number(item.score ?? 0) >= 80) {
-        buckets[index].highMatch += 1;
-      }
-      if (INTERVIEW_APPLICATION_STATUSES.has(item.status)) {
-        buckets[index].interviews += 1;
-      }
-    });
-
-    return buckets;
-  }, [filteredApplications, period]);
-
-  const pipelineDistribution = useMemo(() => {
-    const total = jobs.length || 15;
-    const byDepartment = jobs.reduce((acc, item) => {
-      const department = item.department || item.category || 'Khác';
-      acc[department] = (acc[department] || 0) + 1;
-      return acc;
-    }, {});
-
-    const entries = Object.entries(byDepartment);
-
-    if (!entries.length) {
-      return [
-        { name: 'IT', value: Math.round(total * 0.65), fill: '#10b981' },
-        { name: 'Sales', value: Math.round(total * 0.25), fill: '#3b82f6' },
-        {
-          name: 'Khác',
-          value: total - Math.round(total * 0.65) - Math.round(total * 0.25),
-          fill: '#94a3b8',
-        },
-      ].filter((item) => item.value > 0);
-    }
-
-    const colors = ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#94a3b8'];
-    return entries.map(([name, value], index) => ({
-      name,
-      value,
-      fill: colors[index % colors.length],
-    }));
-  }, [jobs]);
+  const pipelineTotal = Math.max(
+    totalProfiles,
+    pipelineChartData.reduce((sum, item) => sum + toNumber(item.value), 0)
+  );
 
   const recentMatches = useMemo(
     () =>
@@ -478,769 +645,347 @@ const EmployerDashboard = () => {
             new Date(b.updated_at || b.created_at || 0) -
             new Date(a.updated_at || a.created_at || 0)
         )
-        .slice(0, 5)
-        .map((item, index) => ({
-          ...item,
-          score: Number(item.score ?? 98 - index * 3),
-        })),
+        .slice(0, 5),
     [filteredApplications]
   );
 
   const topJobsWithStats = useMemo(
     () =>
       jobs.slice(0, 6).map((job) => {
-        const jobApplications = applications.filter((item) => String(item.jobId) === String(job.id));
-        const highMatch = jobApplications.filter(
-          (item) => Number(item.score ?? 0) >= 80
-        ).length;
+        const jobApplications = applications.filter(
+          (item) => String(item.jobId) === String(job.id)
+        );
 
         return {
           ...job,
           applicants: jobApplications.length,
-          highMatch,
-          matchRate: jobApplications.length
-            ? Math.round((highMatch / jobApplications.length) * 100)
-            : 0,
-          statusLabel: job.status === 'published' ? 'Đang mở' : 'Cần chú ý',
         };
       }),
     [jobs, applications]
   );
 
-  const spotlightMatch = recentMatches[0] || null;
-  const distributionTotal = pipelineDistribution.reduce((sum, item) => sum + item.value, 0) || 1;
-  const lastTrendPoint = trendChartData[trendChartData.length - 1] || {
-    profiles: 0,
-    highMatch: 0,
-    interviews: 0,
-  };
-  const previousTrendPoint = trendChartData[trendChartData.length - 2] || {
-    profiles: 0,
-    highMatch: 0,
-    interviews: 0,
-  };
-  const trendDelta = lastTrendPoint.profiles - previousTrendPoint.profiles;
-
-  const commandCenterStatus = useMemo(() => {
+  const commandCenterSummary = useMemo(() => {
     if (!totalProfiles) {
-      return {
-        label: 'Chờ tín hiệu',
-        tone: 'slate',
-        summary:
-          'Chưa có nhiều hồ sơ trong kỳ đang chọn. Bạn có thể mở thêm chiến dịch hoặc chủ động tìm ứng viên phù hợp.',
-      };
+      return 'Chưa có nhiều hồ sơ trong kỳ đang chọn. Hãy mở thêm chiến dịch hoặc chủ động tìm ứng viên mới.';
     }
 
     if (reviewJobs > 0 || jobsWithoutApplicants > 0) {
-      return {
-        label: 'Cần tinh chỉnh',
-        tone: 'amber',
-        summary:
-          'Một số chiến dịch đang thiếu nhịp đầu vào hoặc còn hồ sơ chờ xử lý. Nên ưu tiên rà soát và tin chưa phát sinh hồ sơ.',
-      };
+      return 'Một số chiến dịch cần được tinh chỉnh vì còn tin chờ duyệt hoặc chưa có hồ sơ đầu vào.';
     }
 
-    if (interviewCount > 0 || priorityRate >= 70) {
-      return {
-        label: 'Đang ổn định',
-        tone: 'emerald',
-        summary:
-          'Quy trình đang có tín hiệu tốt và chất lượng hồ sơ tích cực. Phù hợp để đẩy nhanh phỏng vấn và chốt đề nghị tuyển dụng.',
-      };
+    if (interviewCount > 0 || offerCount > 0 || hiredCount > 0) {
+      return 'Quy trình đang có tín hiệu tốt. Nên đẩy nhanh phỏng vấn và chốt các hồ sơ đã vào vòng sâu.';
     }
 
-    return {
-      label: 'Đang mở rộng',
-      tone: 'blue',
-      summary:
-        'Nguồn hồ sơ đang tăng nhưng cần thêm thời gian để chuyển đổi sang các vòng sâu hơn trong quy trình.',
-    };
-  }, [priorityRate, interviewCount, jobsWithoutApplicants, reviewJobs, totalProfiles]);
-
-  const overviewStats = [
-    {
-      icon: Megaphone,
-      label: 'Tuyển đang mở',
-      value: formatCompactNumber(publishedJobs),
-      helper: `${formatCompactNumber(jobs.length)} chiến dịch đang được quản lý trên bảng điều khiển.`,
-      tone: 'emerald',
-    },
-    {
-      icon: TrendingUp,
-      label: 'Mức ưu tiên',
-      value: `${priorityRate}%`,
-      helper: `${formatCompactNumber(priorityCount)} hồ sơ nên xem trước.`,
-      tone: 'violet',
-    },
-    {
-      icon: Target,
-      label: 'Cần chú ý',
-      value: formatCompactNumber(reviewJobs + jobsWithoutApplicants),
-      helper: `${jobsWithoutApplicants} tin chưa có hồ sơ, ${reviewJobs} tin đang chờ duyệt.`,
-      tone: 'amber',
-    },
-  ];
-
-  const summaryPills = [
-    {
-      icon: Target,
-      label: 'Hồ sơ xử lý hiệu quả',
-      value: `${pipelinePercent}%`,
-      tone: 'emerald',
-    },
-    {
-      icon: Workflow,
-      label: 'Đợi tối ưu thêm',
-      value: `${reviewJobs + jobsWithoutApplicants}`,
-      tone: 'blue',
-    },
-  ];
-
-  const commandBlocks = [
-    {
-      label: 'Theo dõi sâu',
-      value: interviewCount + offerCount,
-      helper:
-        interviewCount + offerCount
-          ? 'Ứng viên đã vào vòng phỏng vấn hoặc đề nghị tuyển dụng.'
-          : 'Chưa phát sinh hồ sơ ở vòng sâu hơn.',
-    },
-    {
-      label: 'Đề nghị & đã tuyển',
-      value: offerCount + hiredCount,
-      helper:
-        offerCount + hiredCount
-          ? 'Có tín hiệu chốt cuối ở một số chiến dịch.'
-          : 'Chưa có hồ sơ tiến đến giai đoạn chốt cuối.',
-    },
-  ];
-
-  const capacityRows = pipelineDistribution.slice(0, 4).map((item) => ({
-    ...item,
-    share: Math.round((item.value / distributionTotal) * 100),
-  }));
-
-  const guideRows = [
-    {
-      icon: Calendar,
-      label: 'Phỏng vấn',
-      helper:
-        interviewCount + offerCount
-          ? 'Khóa lịch và phản hồi nhanh cho các hồ sơ đã vào vòng sâu.'
-          : 'Chưa có nhiều hồ sơ ở vòng phỏng vấn hoặc đề nghị tuyển dụng.',
-      value: formatCompactNumber(interviewCount + offerCount),
-      to: '/employer/interview-schedule',
-      tone: interviewCount + offerCount ? 'blue' : 'slate',
-    },
-    {
-      icon: Briefcase,
-      label: 'Chiến dịch',
-      helper:
-        reviewJobs + jobsWithoutApplicants
-          ? 'Rà lại tin chờ duyệt hoặc chưa có đầu vào để giữ nhịp quy trình.'
-          : 'Các chiến dịch hiện tại đang được duy trì tương đối ổn định.',
-      value: formatCompactNumber(reviewJobs + jobsWithoutApplicants),
-      to: '/employer/jobs',
-      tone: reviewJobs + jobsWithoutApplicants ? 'amber' : 'emerald',
-    },
-  ];
+    return 'Nguồn hồ sơ đang tăng nhưng cần thêm thời gian để đi tới các vòng sâu hơn trong quy trình.';
+  }, [hiredCount, interviewCount, jobsWithoutApplicants, offerCount, reviewJobs, totalProfiles]);
 
   const companyName = user?.company_name || user?.companyName || 'Doanh nghiệp của bạn';
   const currentPeriodLabel =
     PERIOD_OPTIONS.find((item) => item.value === period)?.label || '30 ngày';
-  const commandTone = getToneStyle(commandCenterStatus.tone);
-  const activeCampaignShare = jobs.length ? Math.round((publishedJobs / jobs.length) * 100) : 0;
+  const firstName = user?.first_name || user?.name?.split(' ')[0] || 'Nhà tuyển dụng';
+  const activeCampaignSummaryText = `${formatCompactNumber(publishedJobs)} tin đang nhận hồ sơ`;
+
+  const overviewStats = [
+    {
+      icon: Megaphone,
+      label: 'Tin đang mở',
+      value: publishedJobs,
+      helper: `${formatCompactNumber(jobs.length)} chiến dịch đang quản lý`,
+      tone: 'emerald',
+      trend: activeCampaignSummaryText,
+    },
+    {
+      icon: FileText,
+      label: 'Hồ sơ ứng tuyển',
+      value: totalProfiles,
+      helper: `${formatCompactNumber(pendingCount)} hồ sơ chờ sàng lọc`,
+      tone: 'sky',
+    },
+    {
+      icon: Users,
+      label: 'Phỏng vấn',
+      value: interviewCount + offerCount,
+      helper: 'Lịch phỏng vấn và đề nghị',
+      tone: 'violet',
+    },
+  ];
+
+  const actionPlan = [
+    {
+      icon: Plus,
+      title: 'Mở chiến dịch mới',
+      helper: 'Tạo tin tuyển dụng mới để tăng nguồn hồ sơ đầu vào.',
+      to: '/employer/jobs/post',
+      tone: 'emerald',
+    },
+    {
+      icon: Radar,
+      title: 'Tìm ứng viên',
+      helper: 'Chủ động tìm kiếm và lưu ứng viên vào kho talent pool.',
+      to: '/employer/search-candidates',
+      tone: 'sky',
+    },
+    {
+      icon: Calendar,
+      title: 'Điều phối lịch phỏng vấn',
+      helper: 'Rà lịch hẹn và phản hồi nhanh cho các hồ sơ đã vào vòng sâu.',
+      to: '/employer/interview-schedule',
+      tone: 'violet',
+    },
+  ];
+
+  const operationTools = [
+    {
+      label: 'Báo cáo tuyển dụng',
+      helper: 'Theo dõi hiệu suất và kết quả theo thời gian',
+      icon: BarChart3,
+      to: '/employer/reports',
+      tone: 'sky',
+    },
+    {
+      label: 'Kho ứng viên',
+      helper: 'Mở danh sách ứng viên đã lưu và phân nhóm',
+      icon: Star,
+      to: '/employer/saved-candidates',
+      tone: 'emerald',
+    },
+    {
+      label: 'Nội dung tuyển dụng',
+      helper: 'Quản lý blog và nội dung thương hiệu tuyển dụng',
+      icon: Sparkles,
+      to: '/employer/blog',
+      tone: 'violet',
+    },
+  ];
 
   return (
-    <div className="pb-12 pt-2 animate-fade-in">
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="space-y-6">
-          <section className="relative overflow-hidden rounded-lg border border-slate-200 bg-[linear-gradient(135deg,#f8fffc_0%,#f4f8ff_48%,#ffffff_100%)] p-6 shadow-sm sm:p-8">
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent opacity-70" />
-            <div className="pointer-events-none absolute -top-24 right-8 h-64 w-64 rounded-full bg-emerald-100/70 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-20 left-20 h-64 w-64 rounded-full bg-blue-100/60 blur-3xl" />
+    <div className="min-h-screen bg-transparent pb-12">
+      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-transparent">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-40"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px)',
+            backgroundSize: '32px 32px',
+          }}
+          aria-hidden
+        />
+        <div className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+          <section className="relative mb-6 overflow-hidden rounded-[2rem] border border-border/70 bg-card p-6 shadow-premium sm:p-8 lg:p-10">
+            <div
+              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_88%_18%,rgba(16,185,129,0.12),transparent_30%),radial-gradient(circle_at_8%_100%,rgba(16,185,129,0.08),transparent_28%)]"
+              aria-hidden
+            />
+            <div
+              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(15,23,42,0.04)_1px,transparent_0)] bg-[length:28px_28px] opacity-60"
+              aria-hidden
+            />
+            <div
+              className="pointer-events-none absolute left-8 top-0 h-px w-56 bg-gradient-to-r from-primary/50 to-transparent"
+              aria-hidden
+            />
 
-            <div className="relative space-y-6">
-              <div className="flex flex-wrap items-center gap-3">
-                <Badge className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700 shadow-sm">
-                  <Sparkles className="mr-1 h-3.5 w-3.5" />
-                  Trung tâm điều phối tuyển dụng
-                </Badge>
-                <Badge className="rounded-full border border-slate-200 bg-white/80 px-3 py-1 text-xs font-semibold text-slate-600">
-                  {currentPeriodLabel}
-                </Badge>
-              </div>
+            <div className="relative flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
+              <div className="min-w-0 max-w-3xl">
+                <div className="mb-5 flex flex-wrap items-center gap-2.5">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-xs font-bold uppercase tracking-normal text-primary">
+                    <Sparkles className="h-4 w-4" /> Trung tâm nhà tuyển dụng
+                  </span>
+                  <span className="inline-flex items-center gap-2 rounded-full border border-border bg-white/80 px-4 py-2 text-xs font-bold text-foreground-soft shadow-sm backdrop-blur-sm">
+                    <Clock className="h-4 w-4 text-primary" /> {currentPeriodLabel}
+                  </span>
+                </div>
 
-              <div className="max-w-4xl space-y-4">
-                <h1 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-[3rem] sm:leading-[1.08]">
-                  Trung tâm điều phối tuyển dụng cho{' '}
-                  <span className="text-emerald-600">{companyName}</span>
+                <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+                  Xin chào, <span className="text-primary">{firstName}</span>
                 </h1>
-                <p className="max-w-3xl text-base leading-7 text-slate-600">
-                  Theo dõi toàn bộ nhịp hồ sơ, tín hiệu AI và chuyển đổi trong cùng một bảng điều khiển
-                  nhà tuyển dụng thống nhất với bố cục hồ sơ công ty, dễ quét nhanh và dễ mở rộng về sau.
+                <p className="mt-4 max-w-2xl text-base font-medium leading-relaxed text-muted-foreground">
+                  Điều phối tuyển dụng cho{' '}
+                  <span className="font-bold text-foreground">{companyName}</span>: theo dõi tin
+                  đăng, hồ sơ ứng tuyển, lịch phỏng vấn và tín hiệu cần xử lý trong một bố cục thống
+                  nhất như trang tổng quan ứng viên.
                 </p>
               </div>
 
-              <div className="flex flex-wrap gap-3">
-                {summaryPills.map((item) => {
-                  const toneStyle = getToneStyle(item.tone);
-                  const Icon = item.icon;
-                  return (
-                    <div
-                      key={item.label}
-                      className="inline-flex items-center gap-2 rounded-full border border-white/90 bg-white/85 px-4 py-2 text-sm shadow-sm"
-                    >
-                      <div
-                        className={`flex h-7 w-7 items-center justify-center rounded-full ring-1 ring-inset ${toneStyle.icon}`}
-                      >
-                        <Icon className="h-3.5 w-3.5" />
-                      </div>
-                      <span className="font-medium text-slate-600">{item.label}:</span>
-                      <span className="font-bold text-slate-950">{item.value}</span>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row lg:shrink-0">
                 <Button
                   asChild
-                  className="h-11 rounded-lg bg-slate-950 px-5 text-sm font-semibold text-white hover:bg-emerald-600"
+                  className="h-12 rounded-xl bg-primary px-6 text-base font-bold text-white shadow-md shadow-primary/20 hover:bg-primary/90"
                 >
                   <Link to="/employer/jobs/post">
-                    <Plus className="mr-2 h-4 w-4" />
+                    <Zap className="h-4 w-4" />
                     Đăng tin mới
                   </Link>
                 </Button>
                 <Button
                   asChild
                   variant="outline"
-                  className="h-11 rounded-lg border-slate-200 bg-white/85 px-5 text-sm font-semibold text-slate-700 hover:border-emerald-200 hover:bg-white hover:text-emerald-700"
-                >
-                  <Link to="/employer/reports">
-                    <BarChart3 className="mr-2 h-4 w-4" />
-                    Báo cáo
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="h-11 rounded-lg border-slate-200 bg-white/85 px-5 text-sm font-semibold text-slate-700 hover:border-emerald-200 hover:bg-white hover:text-emerald-700"
+                  className="h-12 rounded-xl border-border bg-white px-6 text-base font-bold text-foreground shadow-sm hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
                 >
                   <Link to="/employer/search-candidates">
-                    <Search className="mr-2 h-4 w-4" />
+                    <Search className="h-4 w-4" />
                     Tìm ứng viên
                   </Link>
                 </Button>
               </div>
-
-              <div className="overflow-hidden rounded-xl border border-slate-200/80 bg-white/70 shadow-sm backdrop-blur">
-                <div className="grid gap-px bg-slate-200/70 md:grid-cols-2 xl:grid-cols-4">
-                  {overviewStats.map((item) => (
-                    <EmployerStatCard key={item.label} {...item} />
-                  ))}
-                </div>
-              </div>
             </div>
           </section>
 
-          <DashboardSection
-            icon={BarChart3}
-            eyebrow="Trung tâm phân tích"
-            title="Nhịp tuyển dụng và chuyển đổi"
-            description="Tập trung các tín hiệu chính của quy trình vào một khu vực lớn, dễ quét nhanh hơn và giảm cảm giác thẻ vụn."
-            action={
-              <Select value={period} onValueChange={setPeriod}>
-                <SelectTrigger className="h-10 w-[160px] rounded-lg border-slate-200 bg-slate-50 text-sm font-semibold text-slate-700">
-                  <SelectValue placeholder="Chọn kỳ" />
-                </SelectTrigger>
-                <SelectContent className="border-slate-200 bg-white">
-                  {PERIOD_OPTIONS.map((item) => (
-                    <SelectItem key={item.value} value={item.value} className="text-sm font-semibold">
-                      {item.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            }
-          >
-            <div className="rounded-xl border border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-4 sm:p-5">
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                    Hồ sơ và nhóm phù hợp cao
-                  </p>
-                  <h3 className="mt-2 text-lg font-bold text-slate-950">
-                    Xu hướng hồ sơ vào hệ thống
-                  </h3>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Badge className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600">
-                    {trendChartData.length} mốc
-                  </Badge>
-                  <Badge className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                    {formatCompactNumber(priorityCount)} hồ sơ ưu tiên
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="mt-5 h-[340px] min-h-[260px] w-full">
-                <ChartSurface className="h-full" minChartHeight={260}>
-                  <AreaChart data={trendChartData} margin={{ top: 12, right: 10, left: -18, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="dashboardProfilesFill" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#10b981" stopOpacity="0.22" />
-                        <stop offset="100%" stopColor="#10b981" stopOpacity="0.04" />
-                      </linearGradient>
-                      <linearGradient id="dashboardHighMatchFill" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.18" />
-                        <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.02" />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid vertical={false} stroke="#e2e8f0" strokeDasharray="4 4" />
-                    <XAxis
-                      dataKey="label"
-                      axisLine={false}
-                      tickLine={false}
-                      tick={CHART_MUTED_TICK_STYLE}
-                    />
-                    <YAxis
-                      allowDecimals={false}
-                      axisLine={false}
-                      tickLine={false}
-                      width={32}
-                      tick={CHART_MUTED_TICK_STYLE}
-                    />
-                    <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
-                    <Area
-                      type="monotone"
-                      dataKey="profiles"
-                      name="Hồ sơ"
-                      stroke="#10b981"
-                      strokeWidth={3}
-                      fill="url(#dashboardProfilesFill)"
-                      activeDot={{ r: 5, strokeWidth: 0, fill: '#10b981' }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="highMatch"
-                      name="Phù hợp tốt"
-                      stroke="#3b82f6"
-                      strokeWidth={2.5}
-                      fill="url(#dashboardHighMatchFill)"
-                      activeDot={{ r: 5, strokeWidth: 0, fill: '#3b82f6' }}
-                    />
-                  </AreaChart>
-                </ChartSurface>
-              </div>
-
-              <div className="mt-5 grid gap-3 md:grid-cols-3">
-                <div className="rounded-xl border border-slate-200 bg-white p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
-                    Nhịp mới nhất
-                  </p>
-                  <p className="mt-2 text-3xl font-bold text-slate-950">
-                    {formatCompactNumber(lastTrendPoint.profiles)}
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-slate-500">
-                    {trendDelta >= 0 ? '+' : ''}
-                    {trendDelta} hồ sơ so với mốc liền trước.
-                  </p>
-                </div>
-                <div className="rounded-xl border border-slate-200 bg-white p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
-                    Match nổi bật
-                  </p>
-                  <p className="mt-2 text-3xl font-bold text-slate-950">
-                    {formatCompactNumber(lastTrendPoint.highMatch)}
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-slate-500">
-                    Hồ sơ phù hợp tốt xuất hiện ở nhịp gần nhất.
-                  </p>
-                </div>
-                <div className="rounded-xl border border-slate-200 bg-white p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
-                    Phỏng vấn phát sinh
-                  </p>
-                  <p className="mt-2 text-3xl font-bold text-slate-950">
-                    {formatCompactNumber(lastTrendPoint.interviews)}
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-slate-500">
-                    Hồ sơ đã đi sâu vào vòng trao đổi trong cùng nhịp.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </DashboardSection>
-
-          <DashboardSection
-            icon={Briefcase}
-            eyebrow="Điều phối"
-            title="Hiệu suất chiến dịch tuyển dụng"
-            description="Danh sách vị trí trọng tâm với số hồ sơ, chất lượng và thao tác điều phối nhanh ngay trên một khu vực lớn."
-            action={
-              <Button
-                asChild
-                variant="ghost"
-                className="h-10 rounded-lg px-4 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"
-              >
-                <Link to="/employer/jobs">Quản lý tất cả</Link>
-              </Button>
-            }
-          >
-            <div className="grid gap-3 md:grid-cols-4">
-              <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
-                  Tổng vị trí
-                </p>
-                <p className="mt-2 text-2xl font-bold text-slate-950">{formatCompactNumber(jobs.length)}</p>
-                <p className="mt-1 text-sm leading-6 text-slate-500">Số chiến dịch đang được quản lý.</p>
-              </div>
-              <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
-                  Hồ sơ toàn bảng
-                </p>
-                <p className="mt-2 text-2xl font-bold text-slate-950">
-                  {formatCompactNumber(applications.length)}
-                </p>
-                <p className="mt-1 text-sm leading-6 text-slate-500">Toàn bộ hồ sơ lấy từ các chiến dịch hiện có.</p>
-              </div>
-              <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
-                  Tin đang mở
-                </p>
-                <p className="mt-2 text-2xl font-bold text-slate-950">
-                  {formatCompactNumber(publishedJobs)}
-                </p>
-                <p className="mt-1 text-sm leading-6 text-slate-500">Các vị trí đang nhận hồ sơ từ ứng viên.</p>
-              </div>
-              <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
-                  Phù hợp cao
-                </p>
-                <p className="mt-2 text-2xl font-bold text-slate-950">{priorityRate}%</p>
-                <p className="mt-1 text-sm leading-6 text-slate-500">Tỷ trọng hồ sơ đạt mức phù hợp nổi bật.</p>
-              </div>
-            </div>
-
-            <div className="mt-6 data-table-shell overflow-hidden rounded-lg border border-slate-200 shadow-none">
-              <div className="data-table-scroll">
-                <table className="data-table text-sm">
-                  <thead>
-                    <tr>
-                      <th className="px-4 py-4 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                        Vị trí tuyển dụng
-                      </th>
-                      <th className="px-4 py-4 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                        Hồ sơ
-                      </th>
-                      <th className="px-4 py-4 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                        Chất lượng
-                      </th>
-                      <th className="px-4 py-4 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                        Trạng thái
-                      </th>
-                      <th className="px-4 py-4 text-right text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                        Hành động
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {topJobsWithStats.map((job) => (
-                      <tr key={job.id} className="group">
-                        <td className="px-4 py-5">
-                          <div className="min-w-[220px]">
-                            <p className="font-bold text-slate-900 transition-colors group-hover:text-emerald-700">
-                              {job.title || 'Vị trí'}
-                            </p>
-                            <p className="mt-1 text-sm text-slate-500">
-                              {job.location || 'Từ xa'} • {job.employment_type || 'Toàn thời gian'}
-                            </p>
-                          </div>
-                        </td>
-                        <td className="px-4 py-5">
-                          <div>
-                            <p className="text-lg font-bold text-slate-950">{job.applicants}</p>
-                            <p className="text-sm text-slate-500">
-                              {job.applicants ? 'đã vào quy trình' : 'chưa phát sinh'}
-                            </p>
-                          </div>
-                        </td>
-                        <td className="px-4 py-5">
-                          <div className="min-w-[180px]">
-                            <div className="flex items-center justify-between gap-3">
-                              <span className="text-sm font-semibold text-slate-700">
-                                {job.highMatch} hồ sơ ưu tiên
-                              </span>
-                              <span className="text-sm font-bold text-emerald-700">{job.matchRate}%</span>
-                            </div>
-                            <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
-                              <div
-                                className="h-full rounded-full bg-emerald-500"
-                                style={{ width: `${job.matchRate}%` }}
-                              />
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-5">
-                          <Badge
-                            className={`rounded-full border px-3 py-1 text-xs font-semibold ${job.statusLabel === 'Đang mở'
-                              ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                              : 'border-amber-200 bg-amber-50 text-amber-700'
-                              }`}
-                          >
-                            {job.statusLabel}
-                          </Badge>
-                        </td>
-                        <td className="px-4 py-5">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button
-                              asChild
-                              variant="outline"
-                              className="h-9 rounded-lg border-slate-200 px-3 text-sm font-semibold text-slate-700 hover:border-emerald-200 hover:text-emerald-700"
-                            >
-                              <Link to={`/employer/jobs/${job.id}/edit`}>
-                                <Settings className="mr-2 h-4 w-4" />
-                                Sửa tin
-                              </Link>
-                            </Button>
-                            <Button
-                              asChild
-                              className="h-9 rounded-lg bg-slate-950 px-3 text-sm font-semibold text-white hover:bg-emerald-600"
-                            >
-                              <Link to={`/employer/applications?jobId=${job.id}`}>
-                                Xem quy trình
-                                <ArrowRight className="ml-2 h-4 w-4" />
-                              </Link>
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-
-                {topJobsWithStats.length === 0 && (
-                  <div className="py-16 text-center">
-                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-slate-50">
-                      <Briefcase className="h-7 w-7 text-slate-300" />
-                    </div>
-                    <p className="mt-4 text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">
-                      Chưa có chiến dịch tuyển dụng nào
-                    </p>
-                    <p className="mt-2 text-sm leading-6 text-slate-500">
-                      Bắt đầu bằng một tin tuyển dụng mới để bảng điều khiển có thêm dữ liệu vận hành.
-                    </p>
-                    <Button
-                      asChild
-                      className="mt-5 h-10 rounded-lg bg-emerald-600 px-5 text-sm font-semibold text-white hover:bg-emerald-700"
-                    >
-                      <Link to="/employer/jobs/post">Đăng tin ngay</Link>
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </DashboardSection>
+          <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {overviewStats.map((item) => (
+              <StatTile key={item.label} {...item} loading={loading} />
+            ))}
+          </div>
         </div>
+      </div>
 
-        <div className="space-y-6 self-start xl:sticky xl:top-24">
-          <section className="overflow-hidden rounded-lg border border-slate-900 bg-slate-950 p-5 text-white shadow-xl shadow-slate-300/30">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                  Trung tâm điều phối
-                </p>
-                <h2 className="mt-2 text-[2rem] font-bold leading-none text-white">
-                  Bức tranh hiện tại
-                </h2>
-              </div>
-              <span className="rounded-full border border-white/20 bg-white px-3 py-1 text-xs font-semibold text-blue-700">
-                {currentPeriodLabel}
-              </span>
-            </div>
-
-            <div className="mt-5 rounded-xl border border-white/10 bg-white/5 p-4">
-              <div className="flex items-end justify-between gap-3">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
-                    Sức khỏe quy trình
-                  </p>
-                  <p className="mt-2 text-5xl font-bold text-white">{pipelinePercent}%</p>
-                </div>
-                <div className="text-right text-sm text-slate-300">
-                  <p>{formatCompactNumber(priorityCount)} ưu tiên cao</p>
-                  <p className="mt-1 inline-flex items-center gap-1">
-                    <Clock3 className="h-3.5 w-3.5" />
-                    {formatRelative(latestActivityAt)}
-                  </p>
-                </div>
-              </div>
-              <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
-                <div
-                  className={`h-full rounded-full ${commandTone.soft}`}
-                  style={{ width: `${pipelinePercent}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="mt-4 space-y-3">
-              {commandBlocks.map((item) => (
-                <div key={item.label} className="rounded-xl border border-white/10 bg-white/5 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
-                    {item.label}
-                  </p>
-                  <p className="mt-2 text-3xl font-bold text-white">{item.value}</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-300">{item.helper}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
-                Gợi ý hành động
-              </p>
-              <p className="mt-2 text-sm leading-6 text-slate-300">{commandCenterStatus.summary}</p>
-            </div>
-
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <Button
-                asChild
-                variant="outline"
-                className="h-11 rounded-lg border-white/15 bg-white/5 px-4 text-sm font-semibold text-white hover:bg-white hover:text-slate-950"
+      <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+        <div className="space-y-5">
+          <main className="min-w-0 space-y-5">
+            <div className="grid gap-5 lg:grid-cols-3">
+              <SectionCard
+                icon={Briefcase}
+                title="Chiến dịch trọng tâm"
+                subtitle="Các tin tuyển dụng cần theo dõi nhanh về hồ sơ, chất lượng và trạng thái mở."
+                eyebrow="Tin tuyển dụng"
+                action={
+                  <Link
+                    to="/employer/jobs"
+                    className="inline-flex h-9 shrink-0 items-center gap-1 rounded-xl px-3 text-xs font-black text-emerald-700 hover:bg-emerald-50"
+                  >
+                    Xem tất cả <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                }
               >
-                <Link to="/employer/jobs">
-                  Quản lý chiến dịch
-                  <ChevronRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-          </section>
-
-          <SidebarSection
-            eyebrow="Tín hiệu AI"
-            title="Ứng viên có tín hiệu AI"
-            action={
-              <Badge className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
-                {formatCompactNumber(recentMatches.length)}
-              </Badge>
-            }
-          >
-            {spotlightMatch ? (
-              <div className="rounded-xl border border-slate-200 bg-[linear-gradient(135deg,#ffffff_0%,#f8fbff_100%)] p-4">
-                <div className="flex items-start gap-3">
-                  <Avatar className="h-12 w-12 border border-slate-100 shadow-sm">
-                    <AvatarFallback className="bg-slate-100 text-sm font-bold text-slate-700">
-                      {getCandidateName(spotlightMatch)
-                        .split(/\s+/)
-                        .map((part) => part[0])
-                        .join('')
-                        .toUpperCase()
-                        .slice(0, 2) || 'UV'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="truncate text-base font-bold text-slate-950">
-                          {getCandidateName(spotlightMatch)}
-                        </p>
-                        <p className="truncate text-sm text-slate-500">
-                          {getJobTitle(spotlightMatch)}
-                        </p>
-                      </div>
-                      <span className="text-sm font-bold text-emerald-700">
-                        {spotlightMatch.score}%
-                      </span>
+                <div className="space-y-3">
+                  {loading ? (
+                    [1, 2, 3, 4].map((item) => (
+                      <div key={item} className="h-[82px] animate-pulse rounded-2xl bg-slate-100" />
+                    ))
+                  ) : topJobsWithStats.length > 0 ? (
+                    topJobsWithStats
+                      .slice(0, 4)
+                      .map((job) => <CampaignRow key={job.id} job={job} />)
+                  ) : (
+                    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 p-8 text-center">
+                      <Briefcase className="mx-auto h-9 w-9 text-slate-300" />
+                      <p className="mt-3 text-sm font-black text-slate-700">
+                        Chưa có tin tuyển dụng
+                      </p>
+                      <p className="mt-1 text-xs font-semibold text-slate-500">
+                        Đăng tin đầu tiên để bắt đầu theo dõi tại đây.
+                      </p>
                     </div>
-                    <p className="mt-2 text-xs text-slate-400">
-                      {formatRelative(spotlightMatch.updated_at || spotlightMatch.created_at)}
-                    </p>
-                  </div>
+                  )}
                 </div>
-              </div>
-            ) : (
-              <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-6 text-center">
-                <Users className="mx-auto h-8 w-8 text-slate-300" />
-                <p className="mt-3 text-sm font-semibold text-slate-700">Chưa có tín hiệu AI mới</p>
-                <p className="mt-1 text-sm leading-6 text-slate-500">
-                  Khi AI cập nhật chấm điểm hoặc hồ sơ mới xuất hiện, khu vực này sẽ phản ánh ngay.
-                </p>
-              </div>
-            )}
+              </SectionCard>
 
-            <div className="mt-4 space-y-3">
-              {recentMatches.slice(1).map((item, index) => (
-                <SignalListItem key={item.id || index} item={item} />
-              ))}
-            </div>
-          </SidebarSection>
-
-          <SidebarSection
-            eyebrow="Sức tải"
-            title="Năng lực vận hành"
-            description="Tóm tắt sức tải chiến dịch và phân bổ vị trí đang chiếm trọng tâm tuyển dụng."
-          >
-            <div className="rounded-xl border border-emerald-100 bg-[linear-gradient(135deg,#ecfdf5_0%,#ffffff_90%)] p-4">
-              <div className="flex items-center gap-4">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-600 text-3xl font-bold text-white">
-                  {publishedJobs}
+              <SectionCard
+                icon={Users}
+                title="Ứng viên gần đây"
+                subtitle="Theo dõi nhanh các hồ sơ mới nhất trong pipeline."
+                eyebrow="Hồ sơ mới"
+                action={
+                  <Link
+                    to="/employer/applications"
+                    className="inline-flex h-9 shrink-0 items-center gap-1 rounded-xl px-3 text-xs font-black text-emerald-700 hover:bg-emerald-50"
+                  >
+                    Chi tiết <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                }
+              >
+                <div className="space-y-3">
+                  {loading ? (
+                    [1, 2, 3, 4].map((item) => (
+                      <div key={item} className="h-[72px] animate-pulse rounded-2xl bg-slate-100" />
+                    ))
+                  ) : recentMatches.length > 0 ? (
+                    recentMatches
+                      .slice(0, 4)
+                      .map((item, index) => (
+                        <CandidateSignalRow key={item.id || index} item={item} />
+                      ))
+                  ) : (
+                    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 p-8 text-center">
+                      <Users className="mx-auto h-9 w-9 text-slate-300" />
+                      <p className="mt-3 text-sm font-black text-slate-700">Chưa có hồ sơ mới</p>
+                      <p className="mt-1 text-xs font-semibold text-slate-500">
+                        Khi ứng viên nộp hồ sơ, danh sách sẽ hiển thị tại đây.
+                      </p>
+                    </div>
+                  )}
                 </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-slate-900">đang mở</p>
-                  <p className="mt-1 text-sm leading-6 text-slate-500">
-                    {activeCampaignShare}% chiến dịch hiện ở trạng thái nhận hồ sơ.
+              </SectionCard>
+
+              <SectionCard
+                icon={ShieldCheck}
+                title="Kế hoạch điều phối"
+                subtitle="Các hành động đề xuất giúp giữ nhịp tuyển dụng không bị nghẽn."
+                eyebrow="Việc nên làm tiếp theo"
+              >
+                <div className="space-y-3">
+                  {actionPlan.map((action) => (
+                    <ActionPlanRow key={action.title} {...action} />
+                  ))}
+                </div>
+                <div className="mt-4 rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4">
+                  <p className="text-[11px] font-black uppercase tracking-[0.18em] text-emerald-700">
+                    Gợi ý hệ thống
+                  </p>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
+                    {commandCenterSummary}
                   </p>
                 </div>
+              </SectionCard>
+            </div>
+
+            <SectionCard
+              icon={TrendingUp}
+              title="Phân tích pipeline tuyển dụng"
+              subtitle="Biểu đồ trạng thái kèm chú thích chi tiết để theo dõi từng giai đoạn và nhận diện điểm nghẽn."
+              eyebrow="Phân tích tuyển dụng"
+              className="min-w-0"
+              compact
+              action={
+                <Select value={period} onValueChange={setPeriod}>
+                  <SelectTrigger className="h-9 w-[150px] rounded-xl border-slate-200 bg-slate-50 text-xs font-black text-slate-700">
+                    <SelectValue placeholder="Chọn kỳ" />
+                  </SelectTrigger>
+                  <SelectContent className="border-slate-200 bg-white">
+                    {PERIOD_OPTIONS.map((item) => (
+                      <SelectItem
+                        key={item.value}
+                        value={item.value}
+                        className="text-sm font-semibold"
+                      >
+                        {item.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              }
+            >
+              <RecruitmentPipelinePieChart
+                data={pipelineChartData}
+                total={pipelineTotal}
+                loading={loading}
+              />
+            </SectionCard>
+
+            <SectionCard
+              icon={PieChartIconLucide}
+              title="Công cụ vận hành"
+              subtitle="Mở nhanh các khu vực hỗ trợ phân tích, lưu ứng viên và xây dựng thương hiệu tuyển dụng."
+              eyebrow="Điều phối nhanh"
+            >
+              <div className="grid gap-3 sm:grid-cols-3">
+                {operationTools.map((tool) => (
+                  <QuickAction key={tool.to} {...tool} />
+                ))}
               </div>
-            </div>
-
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
-                  Phỏng vấn
-                </p>
-                <p className="mt-2 text-2xl font-bold text-slate-950">{interviewCount}</p>
-                <p className="mt-1 text-sm leading-6 text-slate-500">Ứng viên đã vào vòng sâu.</p>
-              </div>
-            </div>
-
-            <div className="mt-4 space-y-3">
-              {capacityRows.map((item) => (
-                <div key={item.name} className="rounded-xl border border-slate-200 bg-slate-50/80 p-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="h-2.5 w-2.5 rounded-full"
-                        style={{ backgroundColor: item.fill }}
-                      />
-                      <span className="text-sm font-semibold text-slate-700">{item.name}</span>
-                    </div>
-                    <span className="text-sm font-bold text-slate-950">{item.share}%</span>
-                  </div>
-                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-white">
-                    <div
-                      className="h-full rounded-full"
-                      style={{ backgroundColor: item.fill, width: `${item.share}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </SidebarSection>
-
-          <SidebarSection
-            eyebrow="Gợi ý hành động"
-            title="Điểm cần ưu tiên"
-            description="Những việc nên xử lý trước để giữ nhịp tuyển dụng rõ ràng và không bị nghẽn."
-          >
-            <div className="space-y-3">
-              {guideRows.map((item) => (
-                <GuideLinkRow key={item.label} {...item} />
-              ))}
-            </div>
-          </SidebarSection>
+            </SectionCard>
+          </main>
         </div>
       </div>
     </div>

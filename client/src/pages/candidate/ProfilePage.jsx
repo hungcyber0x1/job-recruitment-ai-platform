@@ -5,8 +5,10 @@ import {
   Briefcase,
   Building2,
   Camera,
+  CheckCircle2,
   Clock3,
   DollarSign,
+  FileText,
   Github,
   Globe,
   Globe2,
@@ -22,12 +24,14 @@ import {
   User,
 } from 'lucide-react';
 
+import StatCard from '@/components/common/StatCard';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/utils/cn';
 import { getUserFullName } from '@/utils';
 import { decodeHtml } from '@/utils/sanitizeHtml';
+import { JOB_SEARCH_STATUS_CONFIG, JOB_TYPES_LIST } from '@/constants/candidateProfile';
 
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
@@ -65,23 +69,53 @@ function normalizeList(value, pickName = true) {
     .filter(Boolean);
 }
 
+const MILLION_VND = 1000000;
+
+function normalizeSalaryAmount(value, currency = 'VND') {
+  if (value === null || value === undefined || value === '') return null;
+  const amount = Number(value);
+  if (!Number.isFinite(amount) || amount <= 0) return null;
+
+  // Dữ liệu cũ từng nhập theo "triệu" vẫn được hiển thị hợp lý,
+  // còn dữ liệu chuẩn mới luôn lưu VND đầy đủ để đồng bộ bộ lọc recruiter.
+  if (currency === 'VND' && amount < 1000) return amount * MILLION_VND;
+  return amount;
+}
+
+function formatCurrencyAmount(value, currency = 'VND') {
+  if (value === null) return '';
+  if (currency === 'VND') {
+    if (value >= MILLION_VND) return `${Math.round(value / MILLION_VND)} triệu`;
+    return `${value.toLocaleString('vi-VN')} VND`;
+  }
+
+  return `${value.toLocaleString('vi-VN')} ${currency}`;
+}
+
 function formatSalary(profile) {
-  const salaryMin = Number(profile?.expected_salary_min || 0);
-  const salaryMax = Number(profile?.expected_salary_max || 0);
+  const currency = profile?.salary_currency || 'VND';
+  const salaryMin = normalizeSalaryAmount(profile?.expected_salary_min, currency);
+  const salaryMax = normalizeSalaryAmount(profile?.expected_salary_max, currency);
 
-  if (salaryMin > 0 && salaryMax > 0) {
-    return `${(salaryMin / 1000000).toFixed(0)}M - ${(salaryMax / 1000000).toFixed(0)}M`;
+  if (salaryMin === null && salaryMax === null) return 'Thỏa thuận';
+  if (salaryMin !== null && salaryMax !== null) {
+    return `${formatCurrencyAmount(salaryMin, currency)} - ${formatCurrencyAmount(salaryMax, currency)}`;
   }
+  if (salaryMin !== null) return `Từ ${formatCurrencyAmount(salaryMin, currency)}`;
+  return `Đến ${formatCurrencyAmount(salaryMax, currency)}`;
+}
 
-  if (salaryMin > 0) {
-    return `Từ ${(salaryMin / 1000000).toFixed(0)}M`;
-  }
+function getJobTypeLabel(value) {
+  const option = JOB_TYPES_LIST.find((item) => item.value === value || item.label === value);
+  return option?.label || value;
+}
 
-  if (salaryMax > 0) {
-    return `Đến ${(salaryMax / 1000000).toFixed(0)}M`;
-  }
-
-  return 'Thỏa thuận';
+function getProfileDisplayName(user, profile) {
+  return (
+    getUserFullName(user) ||
+    [profile?.first_name, profile?.last_name].filter(Boolean).join(' ').trim() ||
+    'Ứng viên'
+  );
 }
 
 function formatPeriod(item) {
@@ -122,23 +156,7 @@ const InfoRow = ({ icon: Icon, label, value }) => (
 );
 
 const MetricTile = ({ label, value, helper, icon: Icon, tone = 'emerald' }) => (
-  <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-md">
-    <div className="flex items-start justify-between gap-3">
-      <div className="min-w-0">
-        <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">{label}</p>
-        <p className="mt-1 text-2xl font-bold tracking-tight text-slate-950 tabular-nums">{value}</p>
-        {helper ? <p className="mt-1 line-clamp-2 text-xs font-medium leading-5 text-slate-500">{helper}</p> : null}
-      </div>
-      <div
-        className={cn(
-          'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset',
-          toneStyles[tone] || toneStyles.emerald
-        )}
-      >
-        <Icon className="h-4 w-4" />
-      </div>
-    </div>
-  </div>
+  <StatCard title={label} value={value} subtitle={helper} icon={Icon} type={tone} />
 );
 
 const SectionHeader = ({ icon: Icon, title, subtitle, meta, tone = 'emerald', action }) => (
@@ -154,7 +172,9 @@ const SectionHeader = ({ icon: Icon, title, subtitle, meta, tone = 'emerald', ac
       </div>
       <div className="min-w-0">
         <h2 className="text-base font-bold tracking-tight text-slate-950">{title}</h2>
-        {subtitle ? <p className="mt-1 text-sm font-medium leading-6 text-slate-500">{subtitle}</p> : null}
+        {subtitle ? (
+          <p className="mt-1 text-sm font-medium leading-6 text-slate-500">{subtitle}</p>
+        ) : null}
       </div>
     </div>
     <div className="flex shrink-0 items-center gap-2">
@@ -178,7 +198,10 @@ const ChipList = ({ items, tone = 'slate', empty = 'Chưa cập nhật' }) => {
       {items.map((item) => (
         <span
           key={item}
-          className={cn('rounded-lg px-2.5 py-1.5 text-xs font-semibold ring-1 ring-inset', toneStyles[tone])}
+          className={cn(
+            'rounded-lg px-2.5 py-1.5 text-xs font-semibold ring-1 ring-inset',
+            toneStyles[tone]
+          )}
         >
           {item}
         </span>
@@ -267,42 +290,49 @@ const ProfilePage = () => {
     email,
     phone,
     bio,
-    careerObjective,
     skillList,
     languages,
     experiences,
     education,
     certifications,
     socialLinks,
-    statusConfig,
+    jobSearchStatusMeta,
     expectedSalary,
     preferredWorkTypes,
     preferredLocations,
-    targetIndustries,
+    willingToRelocate,
     yearsExperience,
+    projects,
+    hasResume,
     lastUpdatedStr,
   } = useMemo(() => {
     const updatedAt = profile?.updated_at || user?.updated_at || new Date().toISOString();
 
     return {
-      displayName: getUserFullName(user) || 'Ứng viên',
+      displayName: getProfileDisplayName(user, profile),
       title: profile?.title || profile?.current_job_title || 'Chuyên viên',
       location: profile?.location || 'Chưa cập nhật',
       email: user?.email || 'Chưa cập nhật',
       phone: profile?.phone || 'Chưa cập nhật',
       bio: cleanText(profile?.bio),
-      careerObjective: cleanText(profile?.career_objective),
       skillList: normalizeList(profile?.skills),
       languages: Array.isArray(profile?.languages) ? profile.languages : [],
-      experiences: Array.isArray(profile?.experiences) ? profile.experiences : [],
+      experiences: Array.isArray(profile?.experiences)
+        ? profile.experiences
+        : Array.isArray(profile?.experience)
+          ? profile.experience
+          : [],
       education: Array.isArray(profile?.education) ? profile.education : [],
       certifications: Array.isArray(profile?.certifications) ? profile.certifications : [],
       socialLinks: profile?.social_links || {},
+      jobSearchStatusMeta: JOB_SEARCH_STATUS_CONFIG[profile?.job_search_status] || null,
       expectedSalary: formatSalary(profile),
-      preferredWorkTypes: normalizeList(profile?.preferred_job_types),
+      preferredWorkTypes: normalizeList(profile?.preferred_job_types).map(getJobTypeLabel),
       preferredLocations: normalizeList(profile?.preferred_locations),
-      targetIndustries: normalizeList(profile?.target_industries),
-      yearsExperience: profile?.years_of_experience ?? null,
+      willingToRelocate: Boolean(profile?.willing_to_relocate),
+      yearsExperience: profile?.years_of_experience ?? profile?.experience_years ?? null,
+      projects: normalizeList(profile?.projects, false),
+      hasResume: Boolean(profile?.resume_url),
       lastUpdatedStr: new Date(updatedAt).toLocaleDateString('vi-VN', {
         day: '2-digit',
         month: '2-digit',
@@ -364,9 +394,10 @@ const ProfilePage = () => {
   const hasSocialLinks = Boolean(
     socialLinks?.linkedin || socialLinks?.github || socialLinks?.portfolio || socialLinks?.website
   );
+  const JobStatusIcon = jobSearchStatusMeta?.icon || Briefcase;
 
   return (
-    <div className="min-h-screen bg-slate-50/40 pb-14 animate-fade-in">
+    <div className="min-h-screen bg-transparent pb-14 animate-fade-in">
       <input
         ref={avatarInputRef}
         type="file"
@@ -375,7 +406,7 @@ const ProfilePage = () => {
         onChange={handleAvatarChange}
       />
 
-      <section className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_84%)]">
+      <section className="relative overflow-hidden border-b border-emerald-100/70 bg-transparent">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
           style={{
@@ -414,6 +445,19 @@ const ProfilePage = () => {
                         <User className="h-3.5 w-3.5" />
                         Hồ sơ ứng viên
                       </span>
+                      {jobSearchStatusMeta ? (
+                        <span
+                          className={cn(
+                            'inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-bold',
+                            jobSearchStatusMeta.bg,
+                            jobSearchStatusMeta.text,
+                            jobSearchStatusMeta.border
+                          )}
+                        >
+                          <JobStatusIcon className="h-3.5 w-3.5" />
+                          {jobSearchStatusMeta.label}
+                        </span>
+                      ) : null}
                       <span className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-bold text-slate-600">
                         Cập nhật {lastUpdatedStr}
                       </span>
@@ -424,8 +468,9 @@ const ProfilePage = () => {
                     </h1>
                     <p className="mt-2 text-base font-semibold text-emerald-700">{title}</p>
                     <p className="mt-3 max-w-2xl text-sm font-medium leading-6 text-slate-600">
-                      Hồ sơ nghề nghiệp được trình bày theo cấu trúc rõ ràng, giúp nhà tuyển dụng nắm nhanh năng lực,
-                      kinh nghiệm và mức độ sẵn sàng của bạn.
+                      Hồ sơ nghề nghiệp dùng chung cho tìm kiếm ứng viên, matching việc làm và luồng
+                      ứng tuyển nhanh. Các mục CV, portfolio và chứng chỉ được đồng bộ từ dữ liệu hồ
+                      sơ thật của dự án.
                     </p>
 
                     <div className="mt-4 flex flex-wrap justify-center gap-2 md:justify-start">
@@ -444,13 +489,20 @@ const ProfilePage = () => {
                     </div>
 
                     <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center md:justify-start">
-                      <Button asChild className="h-10 rounded-lg bg-slate-950 px-4 text-sm font-bold text-white hover:bg-emerald-700">
+                      <Button
+                        asChild
+                        className="h-10 rounded-lg bg-slate-950 px-4 text-sm font-bold text-white hover:bg-emerald-700"
+                      >
                         <Link to="/candidate/profile/edit">
                           <Pencil className="h-4 w-4" />
                           Chỉnh sửa hồ sơ
                         </Link>
                       </Button>
-                      <Button asChild variant="outline" className="h-10 rounded-lg bg-white px-4 text-sm font-bold text-slate-700">
+                      <Button
+                        asChild
+                        variant="outline"
+                        className="h-10 rounded-lg bg-white px-4 text-sm font-bold text-slate-700"
+                      >
                         <Link to="/candidate/resume">
                           <Briefcase className="h-4 w-4 text-emerald-600" />
                           Quản lý CV
@@ -460,7 +512,7 @@ const ProfilePage = () => {
                   </div>
                 </div>
 
-                <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   <MetricTile
                     label="Năm kinh nghiệm"
                     value={experienceMetricValue}
@@ -482,10 +534,16 @@ const ProfilePage = () => {
                     icon={Globe}
                     tone="violet"
                   />
+                  <MetricTile
+                    label="CV ứng tuyển"
+                    value={hasResume ? 'Có' : 'Chưa'}
+                    helper={hasResume ? 'Sẵn sàng ứng tuyển nhanh' : 'Quản lý tại CV & Portfolio'}
+                    icon={FileText}
+                    tone={hasResume ? 'emerald' : 'amber'}
+                  />
                 </div>
               </CardContent>
             </Card>
-
           </div>
         </div>
       </section>
@@ -507,22 +565,16 @@ const ProfilePage = () => {
                   <EmptyPanel
                     message="Chưa có phần giới thiệu cá nhân. Hãy bổ sung để nhà tuyển dụng hiểu rõ thế mạnh của bạn."
                     action={
-                      <Button asChild size="sm" className="rounded-lg bg-emerald-600 font-semibold text-white hover:bg-emerald-700">
+                      <Button
+                        asChild
+                        size="sm"
+                        className="rounded-lg bg-emerald-600 font-semibold text-white hover:bg-emerald-700"
+                      >
                         <Link to="/candidate/profile/edit">Bổ sung giới thiệu</Link>
                       </Button>
                     }
                   />
                 )}
-
-                {careerObjective ? (
-                  <div className="mt-5 rounded-lg border border-amber-100 bg-amber-50/60 p-4">
-                    <div className="mb-2 flex items-center gap-2 text-sm font-bold text-amber-800">
-                      <Target className="h-4 w-4" />
-                      Mục tiêu nghề nghiệp
-                    </div>
-                    <p className="whitespace-pre-line text-sm leading-7 text-slate-600">{careerObjective}</p>
-                  </div>
-                ) : null}
               </CardContent>
             </Card>
 
@@ -535,7 +587,12 @@ const ProfilePage = () => {
                   meta={`${experiences.length} mục`}
                   tone="emerald"
                   action={
-                    <Button asChild variant="outline" size="sm" className="h-8 rounded-lg bg-white text-xs font-bold">
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="sm"
+                      className="h-8 rounded-lg bg-white text-xs font-bold"
+                    >
                       <Link to="/candidate/profile/edit">Cập nhật</Link>
                     </Button>
                   }
@@ -590,7 +647,11 @@ const ProfilePage = () => {
                   <EmptyPanel
                     message="Dữ liệu kinh nghiệm làm việc chưa được bổ sung."
                     action={
-                      <Button asChild size="sm" className="rounded-lg bg-emerald-600 font-semibold text-white hover:bg-emerald-700">
+                      <Button
+                        asChild
+                        size="sm"
+                        className="rounded-lg bg-emerald-600 font-semibold text-white hover:bg-emerald-700"
+                      >
                         <Link to="/candidate/profile/edit">Thêm kinh nghiệm</Link>
                       </Button>
                     }
@@ -685,19 +746,41 @@ const ProfilePage = () => {
 
                 {hasSocialLinks ? (
                   <div className="mt-5 border-t border-slate-100 pt-5">
-                    <p className="mb-3 text-xs font-bold uppercase tracking-[0.12em] text-slate-400">Liên kết</p>
+                    <p className="mb-3 text-xs font-bold uppercase tracking-[0.12em] text-slate-400">
+                      Liên kết
+                    </p>
                     <div className="flex flex-wrap gap-2">
                       {socialLinks.linkedin ? (
-                        <SocialLink href={socialLinks.linkedin} icon={Linkedin} label="LinkedIn" className="bg-sky-50 text-sky-700 ring-sky-100" />
+                        <SocialLink
+                          href={socialLinks.linkedin}
+                          icon={Linkedin}
+                          label="LinkedIn"
+                          className="bg-sky-50 text-sky-700 ring-sky-100"
+                        />
                       ) : null}
                       {socialLinks.github ? (
-                        <SocialLink href={socialLinks.github} icon={Github} label="GitHub" className="bg-slate-950 text-white ring-slate-900" />
+                        <SocialLink
+                          href={socialLinks.github}
+                          icon={Github}
+                          label="GitHub"
+                          className="bg-slate-950 text-white ring-slate-900"
+                        />
                       ) : null}
                       {socialLinks.portfolio ? (
-                        <SocialLink href={socialLinks.portfolio} icon={Globe2} label="Hồ sơ dự án" className="bg-violet-50 text-violet-700 ring-violet-100" />
+                        <SocialLink
+                          href={socialLinks.portfolio}
+                          icon={Globe2}
+                          label="Hồ sơ dự án"
+                          className="bg-violet-50 text-violet-700 ring-violet-100"
+                        />
                       ) : null}
                       {socialLinks.website ? (
-                        <SocialLink href={socialLinks.website} icon={Globe} label="Website" className="bg-emerald-50 text-emerald-700 ring-emerald-100" />
+                        <SocialLink
+                          href={socialLinks.website}
+                          icon={Globe}
+                          label="Website"
+                          className="bg-emerald-50 text-emerald-700 ring-emerald-100"
+                        />
                       ) : null}
                     </div>
                   </div>
@@ -709,17 +792,41 @@ const ProfilePage = () => {
               <CardContent className="p-5">
                 <SectionHeader icon={Briefcase} title="Mong muốn công việc" tone="sky" />
                 <div className="space-y-4">
+                  <InfoRow
+                    icon={Target}
+                    label="Trạng thái"
+                    value={jobSearchStatusMeta?.label || 'Chưa cập nhật'}
+                  />
                   <div>
-                    <p className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-slate-400">Hình thức làm việc</p>
-                    <ChipList items={preferredWorkTypes} tone="sky" />
+                    <p className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-slate-400">
+                      Hình thức làm việc
+                    </p>
+                    <ChipList
+                      items={preferredWorkTypes}
+                      tone="sky"
+                      empty="Chưa chọn hình thức làm việc"
+                    />
                   </div>
                   <div>
-                    <p className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-slate-400">Địa điểm</p>
-                    <ChipList items={preferredLocations} />
+                    <p className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-slate-400">
+                      Địa điểm ưu tiên
+                    </p>
+                    <ChipList items={preferredLocations} empty="Chưa chọn địa điểm ưu tiên" />
                   </div>
-                  <div>
-                    <p className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-slate-400">Ngành nghề mục tiêu</p>
-                    <ChipList items={targetIndustries} tone="violet" />
+                  <div
+                    className={cn(
+                      'flex items-start gap-3 rounded-lg border p-3 text-sm font-semibold',
+                      willingToRelocate
+                        ? 'border-emerald-100 bg-emerald-50 text-emerald-700'
+                        : 'border-slate-200 bg-slate-50 text-slate-500'
+                    )}
+                  >
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+                    <span>
+                      {willingToRelocate
+                        ? 'Sẵn sàng chuyển địa điểm làm việc khi có cơ hội phù hợp.'
+                        : 'Chưa bật tùy chọn sẵn sàng chuyển địa điểm.'}
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -727,7 +834,44 @@ const ProfilePage = () => {
 
             <Card className={SURFACE_CARD_CLASS}>
               <CardContent className="p-5">
-                <SectionHeader icon={Puzzle} title="Kỹ năng" meta={`${skillList.length}`} tone="emerald" />
+                <SectionHeader
+                  icon={FileText}
+                  title="CV & Portfolio"
+                  tone={hasResume ? 'emerald' : 'amber'}
+                  action={
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="sm"
+                      className="h-8 rounded-lg bg-white text-xs font-bold"
+                    >
+                      <Link to="/candidate/resume">Quản lý</Link>
+                    </Button>
+                  }
+                />
+                <div className="grid gap-2.5">
+                  <InfoRow
+                    icon={FileText}
+                    label="CV ứng tuyển"
+                    value={hasResume ? 'Đã có CV chính' : 'Chưa có CV chính'}
+                  />
+                  <InfoRow
+                    icon={Globe2}
+                    label="Portfolio"
+                    value={projects.length > 0 ? `${projects.length} dự án` : 'Chưa có dự án'}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className={SURFACE_CARD_CLASS}>
+              <CardContent className="p-5">
+                <SectionHeader
+                  icon={Puzzle}
+                  title="Kỹ năng"
+                  meta={`${skillList.length}`}
+                  tone="emerald"
+                />
                 <ChipList items={skillList} tone="emerald" empty="Chưa xác định kỹ năng cốt lõi" />
               </CardContent>
             </Card>
@@ -751,14 +895,19 @@ const ProfilePage = () => {
                             </span>
                           </div>
                           <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-                            <div className="h-full rounded-full bg-sky-500" style={{ width: `${progress}%` }} />
+                            <div
+                              className="h-full rounded-full bg-sky-500"
+                              style={{ width: `${progress}%` }}
+                            />
                           </div>
                         </div>
                       );
                     })}
                   </div>
                 ) : (
-                  <p className="text-sm font-medium text-slate-400">Hệ thống chưa ghi nhận ngoại ngữ</p>
+                  <p className="text-sm font-medium text-slate-400">
+                    Hệ thống chưa ghi nhận ngoại ngữ
+                  </p>
                 )}
               </CardContent>
             </Card>

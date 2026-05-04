@@ -17,7 +17,10 @@ const Input = React.forwardRef(({ label, error, icon: Icon, className, ...props 
         {Icon && (
           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors duration-200 group-focus-within/input:text-primary">
             {React.isValidElement(Icon) ? (
-              React.cloneElement(Icon, { size: Icon.props.size || 18, className: cn('shrink-0', Icon.props.className) })
+              React.cloneElement(Icon, {
+                size: Icon.props.size || 18,
+                className: cn('shrink-0', Icon.props.className),
+              })
             ) : (
               <Icon size={18} className="shrink-0" />
             )}
@@ -37,9 +40,7 @@ const Input = React.forwardRef(({ label, error, icon: Icon, className, ...props 
         />
       </div>
       {error && (
-        <span className="mt-0.5 text-xs font-medium text-danger animate-fade-in">
-          {error}
-        </span>
+        <span className="mt-0.5 text-xs font-medium text-danger animate-fade-in">{error}</span>
       )}
     </div>
   );

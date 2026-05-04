@@ -123,7 +123,11 @@ describe('MessagingService', () => {
       applicationContext,
       11
     );
-    expect(RecruitmentMessageRepository.markConversationRead).toHaveBeenCalledWith(501, 'candidate', 11);
+    expect(RecruitmentMessageRepository.markConversationRead).toHaveBeenCalledWith(
+      501,
+      'candidate',
+      11
+    );
     expect(result).toEqual({ conversation, messages: [] });
   });
 

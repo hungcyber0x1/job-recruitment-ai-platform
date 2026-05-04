@@ -6,7 +6,6 @@ import {
   FileText,
   MapPin,
   DollarSign,
-
   Building2,
   MessageSquare,
 } from 'lucide-react';
@@ -19,7 +18,15 @@ import { formatDate, formatTimeAgo } from '../../../utils/formatters';
 import { decodeHtml } from '../../../utils/sanitizeHtml';
 import ApplicationNotes from './ApplicationNotes';
 
-const ApplicationDetailModal = ({ isOpen, onClose, application, history, loading, notes, onNoteSaved }) => {
+const ApplicationDetailModal = ({
+  isOpen,
+  onClose,
+  application,
+  history,
+  loading,
+  notes,
+  onNoteSaved,
+}) => {
   const config = application ? getStatusConfig(application.status) : null;
   const StatusIcon = config?.icon;
   const isOffered = application?.status === 'offered';
@@ -96,23 +103,31 @@ const ApplicationDetailModal = ({ isOpen, onClose, application, history, loading
               <div className="grid grid-cols-2 gap-3">
                 {application.expected_salary && (
                   <div className="rounded-lg bg-white border border-emerald-100 p-3">
-                    <p className="text-xs text-emerald-600 font-bold uppercase mb-1">Mức lương mong muốn</p>
+                    <p className="text-xs text-emerald-600 font-bold uppercase mb-1">
+                      Mức lương mong muốn
+                    </p>
                     <p className="text-sm font-semibold text-slate-800">
-                      {application.expected_salary?.toLocaleString('vi-VN')} {application.salary_currency || 'VND'}
+                      {application.expected_salary?.toLocaleString('vi-VN')}{' '}
+                      {application.salary_currency || 'VND'}
                     </p>
                   </div>
                 )}
                 {application.offered_salary && (
                   <div className="rounded-lg bg-emerald-500/10 border border-emerald-200 p-3">
-                    <p className="text-xs text-emerald-700 font-bold uppercase mb-1">Offer đã nhận</p>
+                    <p className="text-xs text-emerald-700 font-bold uppercase mb-1">
+                      Offer đã nhận
+                    </p>
                     <p className="text-sm font-bold text-emerald-800">
-                      {application.offered_salary?.toLocaleString('vi-VN')} {application.salary_currency || 'VND'}
+                      {application.offered_salary?.toLocaleString('vi-VN')}{' '}
+                      {application.salary_currency || 'VND'}
                     </p>
                   </div>
                 )}
                 {application.offered_start_date && (
                   <div className="rounded-lg bg-white border border-emerald-100 p-3">
-                    <p className="text-xs text-emerald-600 font-bold uppercase mb-1">Ngày bắt đầu dự kiến</p>
+                    <p className="text-xs text-emerald-600 font-bold uppercase mb-1">
+                      Ngày bắt đầu dự kiến
+                    </p>
                     <p className="text-sm font-semibold text-slate-800">
                       {formatDate(application.offered_start_date)}
                     </p>
@@ -120,7 +135,9 @@ const ApplicationDetailModal = ({ isOpen, onClose, application, history, loading
                 )}
                 {application.offered_response_deadline && (
                   <div className="rounded-lg bg-amber-50 border border-amber-200 p-3">
-                    <p className="text-xs text-amber-700 font-bold uppercase mb-1">Hạn phản hồi offer</p>
+                    <p className="text-xs text-amber-700 font-bold uppercase mb-1">
+                      Hạn phản hồi offer
+                    </p>
                     <p className="text-sm font-bold text-amber-800">
                       {formatDate(application.offered_response_deadline)}
                     </p>
@@ -136,8 +153,6 @@ const ApplicationDetailModal = ({ isOpen, onClose, application, history, loading
             </Card>
           )}
 
-
-
           {/* Application Summary */}
           <Card className="border border-border p-5">
             <h4 className="text-base font-bold text-foreground flex items-center gap-2 mb-4">
@@ -152,7 +167,8 @@ const ApplicationDetailModal = ({ isOpen, onClose, application, history, loading
               {application.cv_name && (
                 <p className="flex items-center gap-2">
                   <Building2 size={15} className="text-accent shrink-0" />
-                  CV đã sử dụng: <span className="font-medium text-foreground">{application.cv_name}</span>
+                  CV đã sử dụng:{' '}
+                  <span className="font-medium text-foreground">{application.cv_name}</span>
                 </p>
               )}
               <p>

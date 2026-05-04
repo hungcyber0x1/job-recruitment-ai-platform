@@ -27,8 +27,16 @@ const VISIBLE_FIELDS = [
   { key: 'education', label: 'Học vấn', description: 'Hiển thị thông tin học vấn' },
   { key: 'certifications', label: 'Chứng chỉ', description: 'Hiển thị chứng chỉ và bằng cấp' },
   { key: 'portfolio', label: 'Hồ sơ dự án', description: 'Hiển thị liên kết dự án, GitHub' },
-  { key: 'phone', label: 'Số điện thoại', description: 'Hiển thị số điện thoại cho nhà tuyển dụng' },
-  { key: 'salary_expectation', label: 'Lương kỳ vọng', description: 'Hiển thị mức lương mong muốn' },
+  {
+    key: 'phone',
+    label: 'Số điện thoại',
+    description: 'Hiển thị số điện thoại cho nhà tuyển dụng',
+  },
+  {
+    key: 'salary_expectation',
+    label: 'Lương kỳ vọng',
+    description: 'Hiển thị mức lương mong muốn',
+  },
 ];
 
 const CandidatePrivacySettings = () => {
@@ -54,7 +62,7 @@ const CandidatePrivacySettings = () => {
           privacyService.getCvAccessLogs({ limit: 10 }),
         ]);
         if (privacyRes.status === 'fulfilled') {
-          setSettings(prev => ({ ...prev, ...(privacyRes.value.data?.data || {}) }));
+          setSettings((prev) => ({ ...prev, ...(privacyRes.value.data?.data || {}) }));
         }
         if (logsRes.status === 'fulfilled') {
           setAccessLogs(logsRes.value.data?.data || []);
@@ -73,12 +81,12 @@ const CandidatePrivacySettings = () => {
     setSaving(true);
     try {
       await privacyService.updatePrivacySettings({ [key]: newValue });
-      setSettings(prev => ({ ...prev, [key]: newValue }));
+      setSettings((prev) => ({ ...prev, [key]: newValue }));
       showNotification('Đã cập nhật cài đặt!', 'success');
     } catch (err) {
       console.warn('Failed to update privacy setting:', err?.message);
       showNotification('Không thể cập nhật. Vui lòng thử lại.', 'error');
-      setSettings(prev => ({ ...prev, [key]: !newValue }));
+      setSettings((prev) => ({ ...prev, [key]: !newValue }));
     } finally {
       setSaving(false);
     }
@@ -87,13 +95,13 @@ const CandidatePrivacySettings = () => {
   const handleFieldToggle = async (fieldKey) => {
     const currentFields = settings.visible_fields || [];
     const newFields = currentFields.includes(fieldKey)
-      ? currentFields.filter(f => f !== fieldKey)
+      ? currentFields.filter((f) => f !== fieldKey)
       : [...currentFields, fieldKey];
 
     setSaving(true);
     try {
       await privacyService.updateFieldVisibility(newFields);
-      setSettings(prev => ({ ...prev, visible_fields: newFields }));
+      setSettings((prev) => ({ ...prev, visible_fields: newFields }));
       showNotification('Đã cập nhật hiển thị trường!', 'success');
     } catch (err) {
       console.warn('Failed to update field visibility:', err?.message);
@@ -151,7 +159,9 @@ const CandidatePrivacySettings = () => {
               <Search className="h-5 w-5 text-slate-400" />
               <div>
                 <p className="font-bold text-slate-800">Cho phép tìm kiếm</p>
-                <p className="text-xs text-slate-400">Nhà tuyển dụng có thể tìm thấy hồ sơ của bạn</p>
+                <p className="text-xs text-slate-400">
+                  Nhà tuyển dụng có thể tìm thấy hồ sơ của bạn
+                </p>
               </div>
             </div>
             <Switch
@@ -210,7 +220,7 @@ const CandidatePrivacySettings = () => {
           </p>
         </CardHeader>
         <CardContent className="space-y-3">
-          {VISIBLE_FIELDS.map(field => {
+          {VISIBLE_FIELDS.map((field) => {
             const isVisible = (settings.visible_fields || []).includes(field.key);
             return (
               <div
@@ -229,7 +239,12 @@ const CandidatePrivacySettings = () => {
                     <AlertCircle className="h-4 w-4 text-slate-300 shrink-0" />
                   )}
                   <div>
-                    <p className={cn('text-sm font-bold', isVisible ? 'text-slate-800' : 'text-slate-500')}>
+                    <p
+                      className={cn(
+                        'text-sm font-bold',
+                        isVisible ? 'text-slate-800' : 'text-slate-500'
+                      )}
+                    >
                       {field.label}
                     </p>
                     <p className="text-xs text-slate-400">{field.description}</p>
@@ -266,18 +281,26 @@ const CandidatePrivacySettings = () => {
           ) : accessLogs.length > 0 ? (
             <div className="space-y-3">
               {accessLogs.map((log, i) => (
-                <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <div
+                  key={i}
+                  className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100"
+                >
                   <div className="flex items-center gap-3">
                     <div className="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-600">
                       {(log.recruiter_name || 'R')[0]}
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-slate-800">{log.recruiter_name || 'Nhà tuyển dụng'}</p>
+                      <p className="text-sm font-bold text-slate-800">
+                        {log.recruiter_name || 'Nhà tuyển dụng'}
+                      </p>
                       <p className="text-xs text-slate-400">{log.company_name || 'Công ty'}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <Badge variant={log.action === 'viewed' ? 'default' : 'outline'} className="text-xs">
+                    <Badge
+                      variant={log.action === 'viewed' ? 'default' : 'outline'}
+                      className="text-xs"
+                    >
                       {log.action === 'viewed' ? 'Đã xem' : log.action || 'Xem'}
                     </Badge>
                     <p className="text-xs text-slate-400 mt-1">

@@ -89,7 +89,10 @@ const SkillManagementPage = () => {
   }, [fetchData]);
 
   const activeCategories = useMemo(
-    () => categories.filter((category) => category.isActive).sort((a, b) => a.name.localeCompare(b.name, 'vi')),
+    () =>
+      categories
+        .filter((category) => category.isActive)
+        .sort((a, b) => a.name.localeCompare(b.name, 'vi')),
     [categories]
   );
 
@@ -173,10 +176,7 @@ const SkillManagementPage = () => {
   const handleToggleActive = async (skill) => {
     try {
       await adminService.updateSkill(skill.id, { is_active: !skill.isActive });
-      showNotification(
-        `Đã ${skill.isActive ? 'vô hiệu hóa' : 'kích hoạt'} kỹ năng`,
-        'success'
-      );
+      showNotification(`Đã ${skill.isActive ? 'vô hiệu hóa' : 'kích hoạt'} kỹ năng`, 'success');
       fetchData();
     } catch (error) {
       console.error('Failed to toggle skill:', error);
@@ -239,7 +239,8 @@ const SkillManagementPage = () => {
               Danh sách kỹ năng ({filteredSkills.length})
             </CardTitle>
             <p className="mt-1 text-sm text-slate-500">
-              Dùng một contract admin duy nhất, không còn fallback mock hay endpoint public sai nghĩa.
+              Dùng một contract admin duy nhất, không còn fallback mock hay endpoint public sai
+              nghĩa.
             </p>
           </div>
 
@@ -262,7 +263,10 @@ const SkillManagementPage = () => {
         <CardContent className="space-y-4 p-4 sm:p-6">
           <div className="flex flex-col gap-4 sm:flex-row">
             <div className="relative flex-1">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              />
               <Input
                 placeholder="Tìm kiếm theo kỹ năng hoặc ngành..."
                 value={searchQuery}

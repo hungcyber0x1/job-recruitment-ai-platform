@@ -1,9 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, User, Mail, Shield, CheckCircle, AlertTriangle, FileText, MapPin, Key, Send, Loader2, RotateCcw } from 'lucide-react';
+import {
+  X,
+  Save,
+  User,
+  Mail,
+  Shield,
+  CheckCircle,
+  AlertTriangle,
+  FileText,
+  MapPin,
+  Key,
+  Send,
+  Loader2,
+  RotateCcw,
+} from 'lucide-react';
 import { Button } from '../../ui/button';
 import { Badge } from '../../ui/badge';
 import adminService from '../../../services/adminService';
 import { useNotification } from '../../../context/NotificationContext';
+
+const ROLE_VALUES = new Set(['admin', 'recruiter', 'candidate']);
+
+function normalizeEditableRole(role) {
+  const normalizedRole = String(role ?? '')
+    .trim()
+    .toLowerCase();
+  return ROLE_VALUES.has(normalizedRole) ? normalizedRole : 'candidate';
+}
 
 const AdminUserEditModal = ({ isOpen, onClose, user, onSave, loading }) => {
   const { showNotification } = useNotification();
@@ -20,7 +43,7 @@ const AdminUserEditModal = ({ isOpen, onClose, user, onSave, loading }) => {
   const [newPassword, setNewPassword] = useState('');
   const [actionLoading, setActionLoading] = useState({
     resetPassword: false,
-    resendVerification: false
+    resendVerification: false,
   });
 
   useEffect(() => {
@@ -28,7 +51,7 @@ const AdminUserEditModal = ({ isOpen, onClose, user, onSave, loading }) => {
       setFormData({
         full_name: user.full_name || '',
         email: user.email || '',
-        role: user.role || 'candidate',
+        role: normalizeEditableRole(user.role),
         status: user.status || 'active',
         region: user.region || '',
         gender: user.gender || '',
@@ -46,7 +69,7 @@ const AdminUserEditModal = ({ isOpen, onClose, user, onSave, loading }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleResetPassword = async () => {
@@ -56,33 +79,36 @@ const AdminUserEditModal = ({ isOpen, onClose, user, onSave, loading }) => {
     }
 
     try {
-      setActionLoading(prev => ({ ...prev, resetPassword: true }));
+      setActionLoading((prev) => ({ ...prev, resetPassword: true }));
       await adminService.resetPassword(user.id, newPassword);
       showNotification('Đã đặt lại mật khẩu thành công!', 'success');
       setNewPassword('');
     } catch (err) {
       showNotification('Lỗi khi đặt lại mật khẩu.', 'error');
     } finally {
-      setActionLoading(prev => ({ ...prev, resetPassword: false }));
+      setActionLoading((prev) => ({ ...prev, resetPassword: false }));
     }
   };
 
   const handleResendEmail = async () => {
     try {
-      setActionLoading(prev => ({ ...prev, resendVerification: true }));
+      setActionLoading((prev) => ({ ...prev, resendVerification: true }));
       await adminService.resendVerificationEmail(user.id);
       showNotification('Đã gửi lại email xác thực.', 'success');
     } catch (err) {
       showNotification('Lỗi khi gửi lại email.', 'error');
     } finally {
-      setActionLoading(prev => ({ ...prev, resendVerification: false }));
+      setActionLoading((prev) => ({ ...prev, resendVerification: false }));
     }
   };
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 overflow-y-auto">
-      <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onClick={onClose} />
-      
+      <div
+        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
+        onClick={onClose}
+      />
+
       <div className="relative w-full max-w-2xl bg-white rounded-xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
         <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div className="flex items-center gap-3">
@@ -91,10 +117,15 @@ const AdminUserEditModal = ({ isOpen, onClose, user, onSave, loading }) => {
             </div>
             <div>
               <h2 className="text-xl font-bold text-slate-900">Chỉnh sửa người dùng</h2>
-              <p className="text-sm text-slate-500 font-medium">Cập nhật thông tin và phân quyền hệ thống</p>
+              <p className="text-sm text-slate-500 font-medium">
+                Cập nhật thông tin và phân quyền hệ thống
+              </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-400 hover:text-slate-600">
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-400 hover:text-slate-600"
+          >
             <X size={24} />
           </button>
         </div>
@@ -104,7 +135,10 @@ const AdminUserEditModal = ({ isOpen, onClose, user, onSave, loading }) => {
             <div className="space-y-2">
               <label className="text-sm font-bold text-slate-700 ml-1">Họ và tên</label>
               <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <User
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                  size={18}
+                />
                 <input
                   name="full_name"
                   value={formData.full_name}
@@ -114,11 +148,14 @@ const AdminUserEditModal = ({ isOpen, onClose, user, onSave, loading }) => {
                 />
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <label className="text-sm font-bold text-slate-700 ml-1">Email</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <Mail
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                  size={18}
+                />
                 <input
                   name="email"
                   value={formData.email}
@@ -144,7 +181,7 @@ const AdminUserEditModal = ({ isOpen, onClose, user, onSave, loading }) => {
                 className="w-full px-4 h-12 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all font-bold text-slate-700"
               >
                 <option value="candidate">Ứng viên (Candidate)</option>
-                <option value="employer">Nhà tuyển dụng (Employer)</option>
+                <option value="recruiter">Nhà tuyển dụng (Recruiter)</option>
                 <option value="admin">Quản trị viên (Admin)</option>
               </select>
             </div>
@@ -224,11 +261,14 @@ const AdminUserEditModal = ({ isOpen, onClose, user, onSave, loading }) => {
             <div className="flex items-center gap-2 text-amber-800 font-bold text-sm uppercase tracking-normal">
               <Key size={16} /> Quản trị bảo mật
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <div className="relative">
-                  <Key className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                  <Key
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                    size={16}
+                  />
                   <input
                     type="password"
                     value={newPassword}
@@ -243,7 +283,11 @@ const AdminUserEditModal = ({ isOpen, onClose, user, onSave, loading }) => {
                   disabled={actionLoading.resetPassword || !newPassword}
                   className="w-full h-12 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold uppercase tracking-normal transition-all"
                 >
-                  {actionLoading.resetPassword ? <Loader2 className="animate-spin h-4 w-4" /> : 'Đặt lại mật khẩu'}
+                  {actionLoading.resetPassword ? (
+                    <Loader2 className="animate-spin h-4 w-4" />
+                  ) : (
+                    'Đặt lại mật khẩu'
+                  )}
                 </Button>
               </div>
 
@@ -253,21 +297,27 @@ const AdminUserEditModal = ({ isOpen, onClose, user, onSave, loading }) => {
                   onClick={handleResendEmail}
                   disabled={
                     actionLoading.resendVerification ||
-                    (!['pending', 'pending_verification'].includes(user.status) && user.email_verified_at)
+                    (!['pending', 'pending_verification'].includes(user.status) &&
+                      user.email_verified_at)
                   }
                   variant="outline"
                   className="w-full h-12 rounded-xl border-amber-200 text-amber-700 hover:bg-amber-100 text-xs font-bold uppercase tracking-normal transition-all"
                 >
-                  {actionLoading.resendVerification ? <Loader2 className="animate-spin h-4 w-4" /> : (
+                  {actionLoading.resendVerification ? (
+                    <Loader2 className="animate-spin h-4 w-4" />
+                  ) : (
                     <>
                       <Send size={14} className="mr-2" />
                       Gửi lại xác thực
                     </>
                   )}
                 </Button>
-                {(!['pending', 'pending_verification'].includes(user.status) && user.email_verified_at) && (
-                  <span className="text-xs text-amber-600 font-medium mt-2 text-center">Tài khoản này đã được xác thực email.</span>
-                )}
+                {!['pending', 'pending_verification'].includes(user.status) &&
+                  user.email_verified_at && (
+                    <span className="text-xs text-amber-600 font-medium mt-2 text-center">
+                      Tài khoản này đã được xác thực email.
+                    </span>
+                  )}
               </div>
             </div>
           </div>

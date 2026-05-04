@@ -45,7 +45,11 @@ class EmployerController {
   });
 
   saveCandidate = catchAsync(async (req, res) => {
-    const result = await EmployerService.saveCandidate(req.user.id, req.params.candidateId, req.body);
+    const result = await EmployerService.saveCandidate(
+      req.user.id,
+      req.params.candidateId,
+      req.body
+    );
     return ApiResponse.success(res, result, { message: 'Candidate saved to talent pool' });
   });
 

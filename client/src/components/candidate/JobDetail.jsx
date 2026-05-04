@@ -87,51 +87,45 @@ const JobDetail = ({ job, onApply }) => {
             <h3 className="mb-8 text-xl font-bold uppercase tracking-normal text-slate-900">
               Mô tả công việc
             </h3>
-            {job.description?.trim()
-              ? (
-                <div className="prose prose-slate max-w-none text-base leading-relaxed font-medium text-slate-600">
-                  <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(job.description) }} />
-                </div>
-              )
-              : (
-                <p className="whitespace-pre-line font-medium leading-loose text-slate-400">
-                  Đang cập nhật mô tả công việc.
-                </p>
-              )}
+            {job.description?.trim() ? (
+              <div className="prose prose-slate max-w-none text-base leading-relaxed font-medium text-slate-600">
+                <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(job.description) }} />
+              </div>
+            ) : (
+              <p className="whitespace-pre-line font-medium leading-loose text-slate-400">
+                Đang cập nhật mô tả công việc.
+              </p>
+            )}
           </Card>
 
           <Card className="border-none p-10 shadow-xl shadow-slate-100/50">
             <h3 className="mb-8 text-xl font-bold uppercase tracking-normal text-slate-900">
               Yêu cầu kỹ thuật
             </h3>
-            {job.requirements?.trim()
-              ? (
-                <div className="prose prose-slate max-w-none text-base leading-relaxed font-medium text-slate-600">
-                  <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(job.requirements) }} />
-                </div>
-              )
-              : (
-                <p className="whitespace-pre-line font-medium leading-loose text-slate-400">
-                  Đang cập nhật yêu cầu.
-                </p>
-              )}
+            {job.requirements?.trim() ? (
+              <div className="prose prose-slate max-w-none text-base leading-relaxed font-medium text-slate-600">
+                <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(job.requirements) }} />
+              </div>
+            ) : (
+              <p className="whitespace-pre-line font-medium leading-loose text-slate-400">
+                Đang cập nhật yêu cầu.
+              </p>
+            )}
           </Card>
 
           <Card className="border-none p-10 shadow-xl shadow-slate-100/50">
             <h3 className="mb-8 text-xl font-bold uppercase tracking-normal text-slate-900">
               Quyền lợi của bạn
             </h3>
-            {job.benefits?.trim()
-              ? (
-                <div className="prose prose-slate max-w-none text-base leading-relaxed font-medium text-slate-600">
-                  <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(job.benefits) }} />
-                </div>
-              )
-              : (
-                <p className="whitespace-pre-line font-medium leading-loose text-slate-400">
-                  Đang cập nhật quyền lợi.
-                </p>
-              )}
+            {job.benefits?.trim() ? (
+              <div className="prose prose-slate max-w-none text-base leading-relaxed font-medium text-slate-600">
+                <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(job.benefits) }} />
+              </div>
+            ) : (
+              <p className="whitespace-pre-line font-medium leading-loose text-slate-400">
+                Đang cập nhật quyền lợi.
+              </p>
+            )}
           </Card>
         </div>
 
@@ -158,7 +152,8 @@ const JobDetail = ({ job, onApply }) => {
             <Card className="border-none p-8 text-center shadow-xl shadow-indigo-100/50">
               <h4 className="mb-2 text-lg font-bold text-slate-900">Mẹo ứng tuyển</h4>
               <p className="mb-6 text-base font-medium leading-relaxed text-slate-400">
-                Hãy đảm bảo CV của bạn nêu rõ kinh nghiệm và kỹ năng phù hợp với vị trí này để tăng cơ hội được liên hệ.
+                Hãy đảm bảo CV của bạn nêu rõ kinh nghiệm và kỹ năng phù hợp với vị trí này để tăng
+                cơ hội được liên hệ.
               </p>
               <Button
                 variant="secondary"

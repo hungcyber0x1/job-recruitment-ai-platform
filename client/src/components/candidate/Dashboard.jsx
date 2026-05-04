@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import Badge from '../common/Badge';
 import Button from '../common/Button';
 import Card from '../common/Card';
+import StatCard from '../common/StatCard';
 import EmptyState from '../common/EmptyState';
 import { getStatusLabel } from '../../constants/status';
 
@@ -13,63 +14,42 @@ const CandidateDashboard = ({ stats, recentApplications }) => {
     {
       label: 'Việc làm đã ứng tuyển',
       value: stats.applications,
-      icon: <Briefcase size={20} />,
-      bg: 'bg-emerald-50',
-      color: 'text-emerald-600',
+      icon: Briefcase,
+      type: 'success',
     },
     {
       label: 'Hồ sơ đã xem',
       value: stats.views,
-      icon: <CheckCircle size={20} />,
-      bg: 'bg-blue-50',
-      color: 'text-blue-600',
+      icon: CheckCircle,
+      type: 'primary',
     },
     {
       label: 'Tin nhắn mới',
       value: stats.messages,
-      icon: <MessageSquare size={20} />,
-      bg: 'bg-violet-50',
-      color: 'text-violet-600',
+      icon: MessageSquare,
+      type: 'neutral',
     },
     {
       label: 'Việc làm đã lưu',
       value: stats.saved,
-      icon: <Star size={20} />,
-      bg: 'bg-amber-50',
-      color: 'text-amber-600',
+      icon: Star,
+      type: 'warning',
     },
   ];
-
 
   return (
     <div className="space-y-10">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {summaryCards.map((item) => {
-          const Icon = item.icon;
-          return (
-            <Card
-              key={item.label}
-              hover
-              className="group relative overflow-hidden border-none p-6 shadow-xl shadow-slate-100/50 transition-all hover:shadow-2xl hover:shadow-slate-200/60"
-            >
-              <div className="absolute right-0 top-0 h-24 w-24 rounded-full bg-gradient-to-br from-slate-50 to-transparent opacity-60 transition-transform duration-700 group-hover:scale-110" />
-              <div className="relative z-10 flex items-center gap-5">
-                <div
-                  className={`flex h-13 w-13 items-center justify-center rounded-2xl ${item.bg} ${item.color} shadow-sm transition-transform group-hover:scale-110`}
-                >
-                  <Icon size={22} />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-slate-900">{item.value}</p>
-                  <p className="text-sm font-bold uppercase tracking-normal text-slate-400">
-                    {item.label}
-                  </p>
-                </div>
-              </div>
-            </Card>
-          );
-        })}
+        {summaryCards.map((item) => (
+          <StatCard
+            key={item.label}
+            title={item.label}
+            value={item.value}
+            icon={item.icon}
+            type={item.type}
+          />
+        ))}
       </div>
       {/* Main Content: Recent Applications + Sidebar */}
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
@@ -91,7 +71,11 @@ const CandidateDashboard = ({ stats, recentApplications }) => {
           {recentApplications.length ? (
             <div className="space-y-4">
               {recentApplications.map((application) => (
-                <Card key={application.id} hover className="group border-border p-5 transition-all hover:border-emerald-200 hover:shadow-md">
+                <Card
+                  key={application.id}
+                  hover
+                  className="group border-border p-5 transition-all hover:border-emerald-200 hover:shadow-md"
+                >
                   <div className="flex items-center gap-5">
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-50 border border-slate-100">
                       {application.company_logo ? (
@@ -112,9 +96,9 @@ const CandidateDashboard = ({ stats, recentApplications }) => {
                         {application.company_name} ·{' '}
                         {application.applied_at
                           ? new Date(application.applied_at).toLocaleDateString('vi-VN', {
-                            day: '2-digit',
-                            month: 'short',
-                          })
+                              day: '2-digit',
+                              month: 'short',
+                            })
                           : ''}
                       </p>
                     </div>

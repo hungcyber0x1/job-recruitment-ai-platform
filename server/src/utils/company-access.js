@@ -47,7 +47,9 @@ function pickPrimaryMembership(memberships = []) {
     const roleDelta = (ROLE_PRIORITY[right.role] || 0) - (ROLE_PRIORITY[left.role] || 0);
     if (roleDelta !== 0) return roleDelta;
 
-    const manageDelta = Number(Boolean(right.can_manage_applications)) - Number(Boolean(left.can_manage_applications));
+    const manageDelta =
+      Number(Boolean(right.can_manage_applications)) -
+      Number(Boolean(left.can_manage_applications));
     if (manageDelta !== 0) return manageDelta;
 
     const editDelta = Number(Boolean(right.can_edit_job)) - Number(Boolean(left.can_edit_job));
@@ -61,24 +63,27 @@ async function resolveRecruiterCompanyContext(actor) {
   const userId = extractUserId(actor);
   if (!userId) return null;
 
-  const cachedCompanyId = actor && typeof actor === 'object'
-    ? parseCompanyId(actor.company_id || actor.companyId)
-    : null;
+  const cachedCompanyId =
+    actor && typeof actor === 'object' ? parseCompanyId(actor.company_id || actor.companyId) : null;
 
   if (cachedCompanyId) {
     const company = await CompanyRepository.findById(cachedCompanyId);
     if (company) {
-      const cachedRole = String(actor.company_role || '').trim().toLowerCase();
-      const permissions = cachedRole === COMPANY_ROLES.OWNER
-        ? buildOwnerPermissions()
-        : normalizeMembershipPermissions(actor.company_permissions || actor);
+      const cachedRole = String(actor.company_role || '')
+        .trim()
+        .toLowerCase();
+      const permissions =
+        cachedRole === COMPANY_ROLES.OWNER
+          ? buildOwnerPermissions()
+          : normalizeMembershipPermissions(actor.company_permissions || actor);
 
       return {
         ...company,
         id: company.id,
         company_id: company.id,
         companyId: company.id,
-        company_role: cachedRole || (Number(company.user_id) === userId ? COMPANY_ROLES.OWNER : null),
+        company_role:
+          cachedRole || (Number(company.user_id) === userId ? COMPANY_ROLES.OWNER : null),
         company_permissions: permissions,
       };
     }

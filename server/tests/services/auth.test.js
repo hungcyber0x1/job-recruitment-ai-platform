@@ -1,7 +1,9 @@
 jest.mock('../../src/models/User', () => ({
   findByEmail: jest.fn(),
   findById: jest.fn(),
+  createAuthUser: jest.fn(),
   updatePassword: jest.fn(),
+  recordSuccessfulLogin: jest.fn(),
   unlinkOAuth: jest.fn(),
 }));
 
@@ -44,11 +46,11 @@ describe('AuthService', () => {
     jest.clearAllMocks();
   });
 
-  it('does not issue a token for pending employer accounts', () => {
+  it('does not issue a token for pending recruiter accounts', () => {
     expect(
       AuthService.shouldIssueToken({
         id: 101,
-        role: 'employer',
+        role: 'recruiter',
         status: 'pending',
       })
     ).toBe(false);
@@ -64,11 +66,11 @@ describe('AuthService', () => {
     ).toBe(false);
   });
 
-  it('blocks pending employers from logging in', async () => {
+  it('blocks pending recruiters from logging in', async () => {
     UserRepository.findByEmail.mockResolvedValue({
       id: 8,
       email: 'pending@company.test',
-      role: 'employer',
+      role: 'recruiter',
       status: 'pending', // Chỉ dùng status, không cần is_active
       password: 'hashed-password',
     });
@@ -89,6 +91,7 @@ describe('AuthService', () => {
       password: 'hashed-password',
     });
     bcrypt.compare.mockResolvedValue(true);
+    UserRepository.recordSuccessfulLogin.mockResolvedValue(true);
 
     const result = await AuthService.login('candidate@test.com', 'secret123');
 
@@ -98,6 +101,54 @@ describe('AuthService', () => {
       role: 'candidate',
       status: 'active',
       email: 'candidate@test.com',
+      has_local_password: true,
+    });
+    expect(UserRepository.recordSuccessfulLogin).toHaveBeenCalledWith(12);
+  });
+
+  it('registers local users through schema-compatible repository helper', async () => {
+    const connection = {
+      beginTransaction: jest.fn(),
+      commit: jest.fn(),
+      rollback: jest.fn(),
+      release: jest.fn(),
+      query: jest.fn(),
+    };
+    const { pool } = require('../../src/config/database.config');
+    pool.getConnection.mockResolvedValue(connection);
+    UserRepository.findByEmail.mockResolvedValue(null);
+    UserRepository.createAuthUser.mockResolvedValue({ insertId: 33, status: 'active' });
+    UserRepository.findById.mockResolvedValue({
+      id: 33,
+      email: 'new-candidate@test.com',
+      role: 'candidate',
+      status: 'active',
+      password: 'hashed-password',
+    });
+    bcrypt.genSalt.mockResolvedValue('salt');
+    bcrypt.hash.mockResolvedValue('hashed-password');
+
+    const result = await AuthService.register({
+      email: 'new-candidate@test.com',
+      password: 'Password@123',
+      role: 'candidate',
+      first_name: 'Lan',
+      last_name: 'Nguyen',
+    });
+
+    expect(UserRepository.createAuthUser).toHaveBeenCalledWith(connection, {
+      email: 'new-candidate@test.com',
+      passwordHash: 'hashed-password',
+      role: 'candidate',
+      firstName: 'Lan',
+      lastName: 'Nguyen',
+      status: 'active',
+    });
+    expect(connection.commit).toHaveBeenCalled();
+    expect(result).toMatchObject({
+      id: 33,
+      role: 'candidate',
+      status: 'active',
       has_local_password: true,
     });
   });

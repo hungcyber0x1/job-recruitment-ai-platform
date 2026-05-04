@@ -21,11 +21,6 @@ const ADMIN_PERMISSIONS = Object.freeze({
   BACKUP_MANAGE: 'backup:manage',
 });
 
-const SUPER_ADMIN_EMAILS = new Set([
-  'superadmin@hirebot.vn',
-  'superadmin@hireai.vn',
-]);
-
 const ADMIN_PERMISSION_ALIASES = Object.freeze({
   users: [ADMIN_PERMISSIONS.USERS_READ, ADMIN_PERMISSIONS.USERS_MANAGE],
   jobs: [ADMIN_PERMISSIONS.JOBS_MANAGE],
@@ -43,26 +38,13 @@ const ADMIN_PERMISSION_ALIASES = Object.freeze({
 const ADMIN_PERMISSION_IDS = Object.freeze(Object.values(ADMIN_PERMISSIONS));
 
 const ADMIN_PRESETS = Object.freeze({
-  super_admin: Object.freeze([ADMIN_PERMISSIONS.ALL]),
-  admin: Object.freeze([
-    ADMIN_PERMISSIONS.DASHBOARD,
-    ADMIN_PERMISSIONS.USERS_READ,
-    ADMIN_PERMISSIONS.USERS_MANAGE,
-    ADMIN_PERMISSIONS.COMPANIES_MANAGE,
-    ADMIN_PERMISSIONS.JOBS_MANAGE,
-    ADMIN_PERMISSIONS.APPLICATIONS_MANAGE,
-    ADMIN_PERMISSIONS.CONTENT_MANAGE,
-    ADMIN_PERMISSIONS.TAXONOMY_MANAGE,
-    ADMIN_PERMISSIONS.AI_MANAGE,
-    ADMIN_PERMISSIONS.SUPPORT_MANAGE,
-    ADMIN_PERMISSIONS.ANALYTICS_READ,
-    ADMIN_PERMISSIONS.AUDIT_READ,
-  ]),
+  admin: Object.freeze([ADMIN_PERMISSIONS.ALL]),
 });
 
 function normalizeRole(role) {
-  const normalizedRole = String(role ?? '').trim().toLowerCase();
-  return normalizedRole === 'employer' ? 'recruiter' : normalizedRole;
+  return String(role ?? '')
+    .trim()
+    .toLowerCase();
 }
 
 function parsePermissionValue(value) {
@@ -85,7 +67,9 @@ function parsePermissionValue(value) {
 function normalizeAdminPermissions(value) {
   const result = new Set();
   parsePermissionValue(value).forEach((item) => {
-    const key = String(item ?? '').trim().toLowerCase();
+    const key = String(item ?? '')
+      .trim()
+      .toLowerCase();
     if (!key) return;
     if (key === ADMIN_PERMISSIONS.ALL) {
       result.add(ADMIN_PERMISSIONS.ALL);
@@ -102,20 +86,8 @@ function normalizeAdminPermissions(value) {
   return Array.from(result);
 }
 
-function isSuperAdminIdentity(user = {}) {
-  if (normalizeRole(user.role) !== 'admin') return false;
-  const email = String(user.email ?? '').trim().toLowerCase();
-  if (SUPER_ADMIN_EMAILS.has(email)) return true;
-  return normalizeAdminPermissions(user.permissions).includes(ADMIN_PERMISSIONS.ALL);
-}
-
 function getEffectiveAdminPermissions(user = {}) {
   if (normalizeRole(user.role) !== 'admin') return [];
-  if (isSuperAdminIdentity(user)) return [...ADMIN_PRESETS.super_admin];
-
-  const explicitPermissions = normalizeAdminPermissions(user.permissions);
-  if (explicitPermissions.length) return explicitPermissions;
-
   return [...ADMIN_PRESETS.admin];
 }
 
@@ -128,17 +100,15 @@ function hasAdminPermission(user = {}, requiredPermission) {
 
 function getAdminPreset(user = {}) {
   if (normalizeRole(user.role) !== 'admin') return null;
-  return isSuperAdminIdentity(user) ? 'super_admin' : 'admin';
+  return 'admin';
 }
 
 module.exports = {
   ADMIN_PERMISSIONS,
   ADMIN_PERMISSION_IDS,
   ADMIN_PRESETS,
-  SUPER_ADMIN_EMAILS,
   getAdminPreset,
   getEffectiveAdminPermissions,
   hasAdminPermission,
-  isSuperAdminIdentity,
   normalizeAdminPermissions,
 };

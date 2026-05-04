@@ -52,6 +52,10 @@ export default function MainRoutes() {
         element={renderCandidatePage(P.AddProjectPage)}
       />
       <Route path="/candidate/saved-jobs" element={renderCandidatePage(P.SavedJobsPage)} />
+      <Route
+        path="/candidate/saved-companies"
+        element={renderCandidatePage(P.CandidateSavedCompaniesPage)}
+      />
       <Route path="/candidate/jobs" element={renderCandidatePage(P.CandidateJobsPage)} />
       <Route path="/candidate/jobs/:id" element={renderCandidatePage(P.CandidateJobDetailPage)} />
       <Route path="/candidate/companies" element={renderCandidatePage(P.CandidateCompaniesPage)} />
@@ -64,9 +68,15 @@ export default function MainRoutes() {
         element={renderCandidatePage(P.CandidateNotificationsPage)}
       />
       <Route path="/candidate/messages" element={renderCandidatePage(P.CandidateMessagesPage)} />
-      <Route path="/candidate/interviews" element={renderCandidatePage(P.CandidateInterviewSchedulePage)} />
+      <Route
+        path="/candidate/interviews"
+        element={renderCandidatePage(P.CandidateInterviewSchedulePage)}
+      />
       <Route path="/candidate/interview-prep" element={renderCandidatePage(P.InterviewPrepPage)} />
-      <Route path="/candidate/profile-analytics" element={<Navigate to="/candidate/profile" replace />} />
+      <Route
+        path="/candidate/profile-analytics"
+        element={<Navigate to="/candidate/profile" replace />}
+      />
       <Route path="/candidate/chat" element={renderCandidatePage(P.CandidateChatCareerPage)} />
       <Route path="/candidate/settings" element={renderCandidatePage(P.CandidateSettingsPage)} />
 
@@ -95,10 +105,7 @@ export default function MainRoutes() {
         element={renderRecruiterPage(P.SearchCandidatesPage)}
       />
       {/* Talent Pool - Professional Candidate Management */}
-      <Route
-        path="/employer/talent-pool"
-        element={renderRecruiterPage(P.TalentPoolPreviewPage)}
-      />
+      <Route path="/employer/talent-pool" element={renderRecruiterPage(P.TalentPoolPreviewPage)} />
       <Route
         path="/employer/saved-candidates"
         element={renderRecruiterPage(P.SavedCandidatesPage)}
@@ -116,14 +123,13 @@ export default function MainRoutes() {
         element={renderRecruiterPage(P.RecruiterNotificationsPage)}
       />
 
-      {/* —— Admin (path khớp AdminLayout / AdminHeader) —— */}
+      {/* —— Admin: quản lý đúng các dữ liệu/nội dung người dùng nhìn thấy hoặc tương tác —— */}
       <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
       <Route path="/admin/dashboard" element={renderAdminPage(P.AdminDashboardPage)} />
-      <Route path="/admin/profile" element={renderAdminPage(P.AdminProfilePage)} />
       <Route path="/admin/users" element={renderAdminPage(P.UsersPage)} />
       <Route path="/admin/users/:id" element={renderAdminPage(P.AdminUserDetailPage)} />
       <Route path="/admin/jobs" element={renderAdminPage(P.AdminJobsPage)} />
-      <Route path="/admin/jobs/new" element={renderAdminPage(P.AdminJobEditorPage)} />
+      <Route path="/admin/jobs/new" element={<Navigate to="/admin/jobs" replace />} />
       <Route path="/admin/jobs/:id" element={renderAdminPage(P.AdminJobDetailPage)} />
       <Route path="/admin/jobs/:id/edit" element={renderAdminPage(P.AdminJobEditorPage)} />
       <Route path="/admin/companies" element={renderAdminPage(P.AdminCompaniesPage)} />
@@ -133,40 +139,35 @@ export default function MainRoutes() {
         path="/admin/applications/:id"
         element={renderAdminPage(P.AdminApplicationDetailPage)}
       />
-      <Route path="/admin/interviews" element={renderAdminPage(P.EmployerInterviewSchedulePage)} />
-      <Route path="/admin/categories" element={renderAdminPage(P.AdminCategoriesPage)} />
-      <Route path="/admin/analytics" element={renderAdminPage(P.AdminAnalyticsPage)} />
-      <Route path="/admin/moderation" element={renderAdminPage(P.AdminModerationPage)} />
-      <Route path="/admin/support" element={renderAdminPage(P.AdminSupportPage)} />
-      <Route path="/admin/service-health" element={renderAdminPage(P.AdminServiceHealthPage)} />
-      <Route
-        path="/admin/feature-flags"
-        element={renderAdminPage(P.AdminFeatureFlagsPage, {
-          adminPermission: ADMIN_PERMISSIONS.SETTINGS_MANAGE,
-        })}
-      />
-      <Route
-        path="/admin/settings"
-        element={renderAdminPage(P.AdminSettingsPage, {
-          adminPermission: ADMIN_PERMISSIONS.SETTINGS_MANAGE,
-        })}
-      />
-      <Route
-        path="/admin/permissions"
-        element={renderAdminPage(P.AdminPermissionsPage, {
-          adminPermission: ADMIN_PERMISSIONS.ADMIN_PERMISSIONS,
-        })}
-      />
-      <Route path="/admin/chatbot" element={renderAdminPage(P.AdminChatbotPage)} />
-      <Route path="/admin/ai-tools" element={renderAdminPage(P.AIToolsAdminPage)} />
-      <Route path="/admin/skills" element={renderAdminPage(P.SkillManagementPage)} />
+      <Route path="/admin/homepage" element={<Navigate to="/admin/blog" replace />} />
       <Route path="/admin/blog" element={renderAdminPage(P.AdminBlogPage)} />
-      <Route path="/admin/homepage" element={renderAdminPage(P.HomepageCMSPage)} />
-      <Route path="/admin/email-logs" element={renderAdminPage(P.EmailLogsPage)} />
       <Route
-        path="/admin/notifications"
-        element={renderAdminPage(P.AdminNotificationsPage)}
+        path="/admin/categories"
+        element={renderAdminPage(P.AdminCategoriesPage, {
+          adminPermission: ADMIN_PERMISSIONS.TAXONOMY_MANAGE,
+        })}
       />
+      <Route
+        path="/admin/skills"
+        element={renderAdminPage(P.SkillManagementPage, {
+          adminPermission: ADMIN_PERMISSIONS.TAXONOMY_MANAGE,
+        })}
+      />
+      <Route path="/admin/analytics" element={renderAdminPage(P.AdminAnalyticsPage)} />
+      <Route path="/admin/settings" element={renderAdminPage(P.AdminSettingsPage)} />
+      <Route path="/admin/profile" element={renderAdminPage(P.AdminProfilePage)} />
+
+      {/* Legacy admin modules are detached from the visible Admin UI and redirected to active modules. */}
+      <Route path="/admin/interviews" element={<Navigate to="/admin/applications" replace />} />
+      <Route path="/admin/chatbot" element={<Navigate to="/admin/settings" replace />} />
+      <Route path="/admin/moderation" element={<Navigate to="/admin/jobs" replace />} />
+      <Route path="/admin/support" element={<Navigate to="/admin/dashboard" replace />} />
+      <Route path="/admin/service-health" element={<Navigate to="/admin/settings" replace />} />
+      <Route path="/admin/feature-flags" element={<Navigate to="/admin/settings" replace />} />
+      <Route path="/admin/permissions" element={<Navigate to="/admin/users" replace />} />
+      <Route path="/admin/ai-tools" element={<Navigate to="/admin/dashboard" replace />} />
+      <Route path="/admin/email-logs" element={<Navigate to="/admin/dashboard" replace />} />
+      <Route path="/admin/notifications" element={<Navigate to="/admin/dashboard" replace />} />
 
       <Route path="*" element={renderLazyPage(P.NotFoundPage)} />
     </Routes>

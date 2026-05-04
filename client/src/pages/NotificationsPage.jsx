@@ -12,7 +12,7 @@ import {
   Trash2,
 } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
+import StatCard from '@/components/common/StatCard';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 
@@ -25,7 +25,16 @@ const TYPE_CONFIG = {
   application: {
     label: 'Ứng tuyển',
     icon: () => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <rect width="20" height="14" x="2" y="7" rx="2" ry="2" />
         <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
       </svg>
@@ -35,7 +44,16 @@ const TYPE_CONFIG = {
   job: {
     label: 'Tin tuyển dụng',
     icon: () => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5z" />
         <polyline points="14 2 14 8 20 8" />
       </svg>
@@ -45,7 +63,16 @@ const TYPE_CONFIG = {
   interview: {
     label: 'Phỏng vấn',
     icon: () => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <circle cx="12" cy="12" r="10" />
         <polyline points="12 6 12 12 16 12" />
       </svg>
@@ -55,7 +82,16 @@ const TYPE_CONFIG = {
   message: {
     label: 'Tin nhắn',
     icon: () => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z" />
       </svg>
     ),
@@ -64,7 +100,16 @@ const TYPE_CONFIG = {
   system: {
     label: 'Hệ thống',
     icon: () => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
         <line x1="12" y1="9" x2="12" y2="13" />
         <line x1="12" y1="17" x2="12.01" y2="17" />
@@ -75,7 +120,16 @@ const TYPE_CONFIG = {
   moderation: {
     label: 'Kiểm duyệt',
     icon: () => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
       </svg>
     ),
@@ -84,7 +138,16 @@ const TYPE_CONFIG = {
   company: {
     label: 'Công ty',
     icon: () => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
         <polyline points="9 22 9 12 15 12 15 22" />
       </svg>
@@ -94,7 +157,16 @@ const TYPE_CONFIG = {
   report: {
     label: 'Báo cáo',
     icon: () => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <circle cx="12" cy="12" r="10" />
         <line x1="12" y1="8" x2="12" y2="12" />
         <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -105,7 +177,16 @@ const TYPE_CONFIG = {
   job_expiring: {
     label: 'Sắp hết hạn',
     icon: () => (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <circle cx="12" cy="12" r="10" />
         <polyline points="12 6 12 12 16 12" />
       </svg>
@@ -176,7 +257,11 @@ const getNotificationData = (notification) => {
   if (!rawData) return {};
   if (typeof rawData === 'object') return rawData;
   if (typeof rawData === 'string') {
-    try { return JSON.parse(rawData); } catch (_) { return {}; }
+    try {
+      return JSON.parse(rawData);
+    } catch {
+      return {};
+    }
   }
   return {};
 };
@@ -215,20 +300,6 @@ const getContextTags = (notification) => {
   return tags;
 };
 
-const StatCard = ({ label, value, icon: Icon, tone }) => (
-  <div className="rounded-lg border bg-white p-4 shadow-sm">
-    <div className="flex items-start justify-between gap-3">
-      <div>
-        <div className="text-3xl font-bold leading-none text-slate-950">{value ?? '—'}</div>
-        <div className="mt-1 text-sm font-bold text-slate-700">{label}</div>
-      </div>
-      <div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1', tone)}>
-        <Icon size={18} />
-      </div>
-    </div>
-  </div>
-);
-
 const SidebarCard = ({ title, icon: Icon, children, className }) => (
   <Card className={cn('overflow-hidden rounded-lg border-slate-200 bg-white shadow-sm', className)}>
     <CardContent className="p-5">
@@ -241,7 +312,7 @@ const SidebarCard = ({ title, icon: Icon, children, className }) => (
   </Card>
 );
 
-const NotificationCard = ({ notification, onAction, onMarkAsRead, onDelete, isAdmin }) => {
+const NotificationCard = ({ notification, onAction, onMarkAsRead, onDelete }) => {
   const typeConfig = getTypeConfig(notification.type);
   const Icon = typeConfig.icon;
   const isUnread = !notification.is_read;
@@ -257,7 +328,12 @@ const NotificationCard = ({ notification, onAction, onMarkAsRead, onDelete, isAd
       <div className="p-4">
         <div className="flex items-start gap-3">
           {/* Icon */}
-          <div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1', typeConfig.tone)}>
+          <div
+            className={cn(
+              'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1',
+              typeConfig.tone
+            )}
+          >
             <Icon />
           </div>
 
@@ -265,10 +341,22 @@ const NotificationCard = ({ notification, onAction, onMarkAsRead, onDelete, isAd
           <div className="min-w-0 flex-1">
             {/* Meta row */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className={cn('inline-flex items-center rounded-md border px-2.5 py-0.5 text-[11px] font-bold ring-1', typeConfig.tone)}>
+              <span
+                className={cn(
+                  'inline-flex items-center rounded-md border px-2.5 py-0.5 text-[11px] font-bold ring-1',
+                  typeConfig.tone
+                )}
+              >
                 {typeConfig.label}
               </span>
-              <span className={cn('inline-flex items-center rounded-md px-2.5 py-0.5 text-[11px] font-bold ring-1', isUnread ? 'bg-emerald-600 text-white ring-emerald-700' : 'bg-slate-100 text-slate-500 ring-slate-200')}>
+              <span
+                className={cn(
+                  'inline-flex items-center rounded-md px-2.5 py-0.5 text-[11px] font-bold ring-1',
+                  isUnread
+                    ? 'bg-emerald-600 text-white ring-emerald-700'
+                    : 'bg-slate-100 text-slate-500 ring-slate-200'
+                )}
+              >
                 {isUnread ? 'Cần xem' : 'Đã đọc'}
               </span>
               <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400">
@@ -295,7 +383,8 @@ const NotificationCard = ({ notification, onAction, onMarkAsRead, onDelete, isAd
                       'inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-semibold ring-1',
                       {
                         slate: 'border-slate-200 bg-slate-50 text-slate-600 ring-slate-200',
-                        emerald: 'border-emerald-200 bg-emerald-50 text-emerald-700 ring-emerald-200',
+                        emerald:
+                          'border-emerald-200 bg-emerald-50 text-emerald-700 ring-emerald-200',
                         blue: 'border-blue-200 bg-blue-50 text-blue-700 ring-blue-200',
                         violet: 'border-violet-200 bg-violet-50 text-violet-700 ring-violet-200',
                         rose: 'border-rose-200 bg-rose-50 text-rose-700 ring-rose-200',
@@ -399,7 +488,8 @@ const NotificationsPage = ({ userRole = 'candidate' }) => {
       Number(typeStats?.[type]?.total ?? notifications.filter((item) => item.type === type).length);
 
     const totalFromStats = Object.values(typeStats || {}).reduce(
-      (sum, item) => sum + Number(item?.total || 0), 0
+      (sum, item) => sum + Number(item?.total || 0),
+      0
     );
     const total = totalFromStats || notifications.length;
     const readCount = Math.max(0, total - unreadCount);
@@ -432,8 +522,12 @@ const NotificationsPage = ({ userRole = 'candidate' }) => {
       const query = searchQuery.trim().toLowerCase();
       filtered = filtered.filter(
         (item) =>
-          String(item.title || '').toLowerCase().includes(query) ||
-          String(item.message || '').toLowerCase().includes(query)
+          String(item.title || '')
+            .toLowerCase()
+            .includes(query) ||
+          String(item.message || '')
+            .toLowerCase()
+            .includes(query)
       );
     }
 
@@ -486,7 +580,7 @@ const NotificationsPage = ({ userRole = 'candidate' }) => {
         prev.map((item) => (item.id === notificationId ? { ...item, is_read: true } : item))
       );
       setUnreadCount((prev) => Math.max(0, prev - 1));
-    } catch (error) {
+    } catch {
       showNotification('Không thể đánh dấu đã đọc', 'error');
     }
   };
@@ -497,7 +591,7 @@ const NotificationsPage = ({ userRole = 'candidate' }) => {
       setNotifications((prev) => prev.map((item) => ({ ...item, is_read: true })));
       setUnreadCount(0);
       showNotification('Đã đánh dấu tất cả là đã đọc', 'success');
-    } catch (error) {
+    } catch {
       showNotification('Không thể đánh dấu đã đọc', 'error');
     }
   };
@@ -511,7 +605,7 @@ const NotificationsPage = ({ userRole = 'candidate' }) => {
         setUnreadCount((prev) => Math.max(0, prev - 1));
       }
       showNotification('Đã xóa thông báo', 'success');
-    } catch (error) {
+    } catch {
       showNotification('Không thể xóa thông báo', 'error');
     }
   };
@@ -531,7 +625,7 @@ const NotificationsPage = ({ userRole = 'candidate' }) => {
     if (notification.type === 'message' && conversationId) {
       if (userRole === 'candidate') path = `/candidate/messages?conversationId=${conversationId}`;
       if (userRole === 'recruiter') path = `/employer/messages?conversationId=${conversationId}`;
-      if (userRole === 'admin') path = '/admin/support';
+      if (userRole === 'admin') path = '/admin/dashboard';
     } else if (applicationId) {
       if (userRole === 'candidate') path = `/candidate/applications?applicationId=${applicationId}`;
       if (userRole === 'recruiter') path = `/employer/applications?applicationId=${applicationId}`;
@@ -543,16 +637,16 @@ const NotificationsPage = ({ userRole = 'candidate' }) => {
     } else if (companyId) {
       path = `/admin/companies/${companyId}`;
     } else if (userRole === 'admin' && ['moderation', 'report'].includes(notification.type)) {
-      path = '/admin/moderation';
+      path = '/admin/jobs';
     }
 
     if (path) navigate(path);
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/40 pb-16">
+    <div className="min-h-screen bg-transparent pb-16">
       {/* Header */}
-      <div className="border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
+      <div className="border-b border-emerald-100/70 bg-transparent">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
           style={{
@@ -646,10 +740,12 @@ const NotificationsPage = ({ userRole = 'candidate' }) => {
                       >
                         {tab.label}
                         {count > 0 && (
-                          <span className={cn(
-                            'inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold',
-                            active ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
-                          )}>
+                          <span
+                            className={cn(
+                              'inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold',
+                              active ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                            )}
+                          >
                             {count}
                           </span>
                         )}
@@ -689,13 +785,19 @@ const NotificationsPage = ({ userRole = 'candidate' }) => {
                 <span className="text-sm font-semibold text-slate-700">
                   <b className="text-emerald-700">{displayList.length}</b> thông báo
                   {(searchQuery || activeTab !== 'all') && (
-                    <span className="font-medium text-slate-500"> / {notifications.length} tổng</span>
+                    <span className="font-medium text-slate-500">
+                      {' '}
+                      / {notifications.length} tổng
+                    </span>
                   )}
                 </span>
                 {(searchQuery || activeTab !== 'all') && (
                   <button
                     type="button"
-                    onClick={() => { setSearchQuery(''); setActiveTab('all'); }}
+                    onClick={() => {
+                      setSearchQuery('');
+                      setActiveTab('all');
+                    }}
                     className="inline-flex h-8 items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 text-xs font-bold text-slate-500 transition-colors hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
                   >
                     Xóa bộ lọc
@@ -707,7 +809,10 @@ const NotificationsPage = ({ userRole = 'candidate' }) => {
             {loading ? (
               <div className="space-y-3">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="h-28 animate-pulse rounded-lg border border-slate-200 bg-white" />
+                  <div
+                    key={i}
+                    className="h-28 animate-pulse rounded-lg border border-slate-200 bg-white"
+                  />
                 ))}
               </div>
             ) : notifications.length === 0 ? (
@@ -723,7 +828,9 @@ const NotificationsPage = ({ userRole = 'candidate' }) => {
             ) : displayList.length === 0 ? (
               <div className="rounded-lg border border-dashed border-slate-200 bg-white px-6 py-14 text-center shadow-sm">
                 <Search className="mx-auto h-8 w-8 text-slate-300" />
-                <p className="mt-4 text-base font-bold text-slate-800">Không tìm thấy kết quả phù hợp</p>
+                <p className="mt-4 text-base font-bold text-slate-800">
+                  Không tìm thấy kết quả phù hợp
+                </p>
                 <p className="mt-2 text-sm text-slate-500">Thử thay đổi từ khóa hoặc bộ lọc.</p>
               </div>
             ) : (
@@ -734,7 +841,6 @@ const NotificationsPage = ({ userRole = 'candidate' }) => {
                   onAction={handleNotificationClick}
                   onMarkAsRead={handleMarkAsRead}
                   onDelete={handleDelete}
-                  isAdmin={isAdmin}
                 />
               ))
             )}
@@ -745,21 +851,52 @@ const NotificationsPage = ({ userRole = 'candidate' }) => {
             <SidebarCard title="Theo loại" icon={Bell}>
               <div className="mt-3 space-y-2">
                 {[
-                  { label: 'Ứng tuyển', count: stats.applicationCount, tone: 'bg-emerald-50 text-emerald-700 border-emerald-100' },
-                  { label: 'Tin tuyển dụng', count: stats.jobCount, tone: 'bg-blue-50 text-blue-700 border-blue-100' },
-                  { label: 'Phỏng vấn', count: stats.interviewCount, tone: 'bg-violet-50 text-violet-700 border-violet-100' },
-                  { label: 'Tin nhắn', count: stats.messageCount, tone: 'bg-emerald-50 text-emerald-700 border-emerald-100' },
-                  { label: 'Hệ thống', count: stats.systemCount, tone: 'bg-amber-50 text-amber-700 border-amber-100' },
+                  {
+                    label: 'Ứng tuyển',
+                    count: stats.applicationCount,
+                    tone: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+                  },
+                  {
+                    label: 'Tin tuyển dụng',
+                    count: stats.jobCount,
+                    tone: 'bg-blue-50 text-blue-700 border-blue-100',
+                  },
+                  {
+                    label: 'Phỏng vấn',
+                    count: stats.interviewCount,
+                    tone: 'bg-violet-50 text-violet-700 border-violet-100',
+                  },
+                  {
+                    label: 'Tin nhắn',
+                    count: stats.messageCount,
+                    tone: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+                  },
+                  {
+                    label: 'Hệ thống',
+                    count: stats.systemCount,
+                    tone: 'bg-amber-50 text-amber-700 border-amber-100',
+                  },
                   ...(isAdmin
                     ? [
-                      { label: 'Kiểm duyệt', count: stats.moderationCount, tone: 'bg-rose-50 text-rose-700 border-rose-100' },
-                      { label: 'Báo cáo', count: stats.reportCount, tone: 'bg-rose-50 text-rose-700 border-rose-100' },
-                    ]
+                        {
+                          label: 'Kiểm duyệt',
+                          count: stats.moderationCount,
+                          tone: 'bg-rose-50 text-rose-700 border-rose-100',
+                        },
+                        {
+                          label: 'Báo cáo',
+                          count: stats.reportCount,
+                          tone: 'bg-rose-50 text-rose-700 border-rose-100',
+                        },
+                      ]
                     : []),
                 ].map((item) => (
                   <div
                     key={item.label}
-                    className={cn('flex items-center justify-between rounded-lg border px-3 py-2.5', item.tone)}
+                    className={cn(
+                      'flex items-center justify-between rounded-lg border px-3 py-2.5',
+                      item.tone
+                    )}
                   >
                     <span className="text-sm font-semibold">{item.label}</span>
                     <span className="text-xl font-bold">{item.count}</span>
@@ -767,7 +904,6 @@ const NotificationsPage = ({ userRole = 'candidate' }) => {
                 ))}
               </div>
             </SidebarCard>
-
           </aside>
         </div>
       </main>
@@ -793,7 +929,6 @@ NotificationCard.propTypes = {
   onAction: PropTypes.func.isRequired,
   onMarkAsRead: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
-  isAdmin: PropTypes.bool.isRequired,
 };
 
 NotificationsPage.propTypes = {

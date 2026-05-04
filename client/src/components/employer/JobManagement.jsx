@@ -10,22 +10,16 @@ import {
   Briefcase,
   Building2,
   Calendar,
-  ChevronDown,
   ChevronRight,
   Clock3,
   Edit,
   Eye,
-  FileText,
-  Filter,
-  Globe,
   MapPin,
-  MoreHorizontal,
   Plus,
   Search,
   Sparkles,
   Target,
   Trash2,
-  TrendingUp,
   Users,
   Workflow,
   Zap,
@@ -83,11 +77,6 @@ function formatRelativeTime(dateStr) {
   return `${days} ngày trước`;
 }
 
-function calculateResponseRate(applicants, views) {
-  if (!views) return 0;
-  return Math.round((applicants / views) * 100);
-}
-
 function getStatusConfig(status) {
   const configs = {
     published: {
@@ -142,103 +131,6 @@ const staggerContainer = {
   },
 };
 
-// Modern Glassmorphism Stat Card
-const GlassStatCard = ({ icon: Icon, label, value, sublabel, trend, color = 'emerald' }) => {
-  const colorClasses = {
-    emerald: {
-      bg: 'bg-gradient-to-br from-emerald-500/10 to-emerald-600/5',
-      icon: 'bg-emerald-500/15 text-emerald-600 border-emerald-500/20',
-      accent: 'text-emerald-600',
-    },
-    blue: {
-      bg: 'bg-gradient-to-br from-blue-500/10 to-blue-600/5',
-      icon: 'bg-blue-500/15 text-blue-600 border-blue-500/20',
-      accent: 'text-blue-600',
-    },
-    violet: {
-      bg: 'bg-gradient-to-br from-violet-500/10 to-violet-600/5',
-      icon: 'bg-violet-500/15 text-violet-600 border-violet-500/20',
-      accent: 'text-violet-600',
-    },
-    amber: {
-      bg: 'bg-gradient-to-br from-amber-500/10 to-amber-600/5',
-      icon: 'bg-amber-500/15 text-amber-600 border-amber-500/20',
-      accent: 'text-amber-600',
-    },
-    rose: {
-      bg: 'bg-gradient-to-br from-rose-500/10 to-rose-600/5',
-      icon: 'bg-rose-500/15 text-rose-600 border-rose-500/20',
-      accent: 'text-rose-600',
-    },
-  };
-
-  const colors = colorClasses[color] || colorClasses.emerald;
-
-  return (
-    <motion.div
-      variants={fadeInUp}
-      className={cn(
-        'relative overflow-hidden rounded-2xl border backdrop-blur-xl transition-all duration-300',
-        'hover:shadow-lg hover:shadow-black/5 hover:-translate-y-0.5',
-        'bg-white/80 border-white/50',
-        colors.bg
-      )}
-    >
-      <div className="p-5">
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500/80">
-              {label}
-            </p>
-            <p className="text-3xl font-bold tracking-tight text-slate-900">{value}</p>
-            {sublabel && (
-              <p className="text-sm text-slate-500">{sublabel}</p>
-            )}
-          </div>
-          <div
-            className={cn(
-              'flex h-12 w-12 items-center justify-center rounded-xl border',
-              colors.icon
-            )}
-          >
-            <Icon className="h-5 w-5" />
-          </div>
-        </div>
-        {trend !== undefined && (
-          <div className="mt-3 flex items-center gap-1.5">
-            <span
-              className={cn(
-                'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold',
-                trend > 0
-                  ? 'bg-emerald-100/80 text-emerald-700'
-                  : trend < 0
-                    ? 'bg-rose-100/80 text-rose-700'
-                    : 'bg-slate-100/80 text-slate-600'
-              )}
-            >
-              <TrendingUp
-                className={cn('h-3 w-3', trend < 0 && 'rotate-180')}
-              />
-              {Math.abs(trend)}%
-            </span>
-            <span className="text-xs text-slate-500">so với tuần trước</span>
-          </div>
-        )}
-      </div>
-      <div
-        className={cn(
-          'absolute -right-4 -bottom-4 h-24 w-24 rounded-full opacity-20 blur-2xl',
-          color === 'emerald' && 'bg-emerald-500',
-          color === 'blue' && 'bg-blue-500',
-          color === 'violet' && 'bg-violet-500',
-          color === 'amber' && 'bg-amber-500',
-          color === 'rose' && 'bg-rose-500'
-        )}
-      />
-    </motion.div>
-  );
-};
-
 // Modern Filter Tab
 const ModernFilterTab = ({ label, count, active, onClick }) => (
   <motion.button
@@ -257,9 +149,7 @@ const ModernFilterTab = ({ label, count, active, onClick }) => (
     <span
       className={cn(
         'rounded-full px-2.5 py-0.5 text-xs font-bold',
-        active
-          ? 'bg-white/20 text-white/90'
-          : 'bg-slate-100 text-slate-500'
+        active ? 'bg-white/20 text-white/90' : 'bg-slate-100 text-slate-500'
       )}
     >
       {count}
@@ -273,12 +163,8 @@ const ModernJobCard = ({ job, index, deletingId, onDelete }) => {
   const applicants = Number(job.applicant_count || 0);
   const views = Number(job.views || 0);
   const vacancies = Number.parseInt(job.vacancies, 10);
-  const vacanciesLabel = Number.isFinite(vacancies) && vacancies > 0
-    ? `${formatCompactNumber(vacancies)} người`
-    : null;
-  const responseRate = calculateResponseRate(applicants, views);
-  const [isExpanded, setIsExpanded] = useState(false);
-
+  const vacanciesLabel =
+    Number.isFinite(vacancies) && vacancies > 0 ? `${formatCompactNumber(vacancies)} người` : null;
   return (
     <motion.div
       variants={fadeInUp}
@@ -329,9 +215,7 @@ const ModernJobCard = ({ job, index, deletingId, onDelete }) => {
                         statusConfig.badgeClass
                       )}
                     >
-                      <span
-                        className={cn('h-1.5 w-1.5 rounded-full', statusConfig.dotClass)}
-                      />
+                      <span className={cn('h-1.5 w-1.5 rounded-full', statusConfig.dotClass)} />
                       {statusConfig.label}
                     </span>
                     <Badge className="rounded-full border border-slate-200/80 bg-white/80 px-3 py-1 font-semibold text-slate-600 backdrop-blur">
@@ -368,31 +252,6 @@ const ModernJobCard = ({ job, index, deletingId, onDelete }) => {
 
               {/* Right: Quick Stats & Actions */}
               <div className="flex flex-col gap-3 sm:flex-row lg:flex-col lg:items-end xl:w-64">
-                {/* Response Rate */}
-                <div className="hidden rounded-xl border border-slate-200/60 bg-white/90 p-4 backdrop-blur">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-500/80">
-                        Tỷ lệ phản hồi
-                      </p>
-                      <p className="mt-1.5 text-2xl font-bold tracking-tight text-slate-900">
-                        {responseRate}%
-                      </p>
-                    </div>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50/80 text-emerald-600 ring-1 ring-emerald-500/20">
-                      <TrendingUp className="h-4 w-4" />
-                    </div>
-                  </div>
-                  <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-100">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${Math.min(100, responseRate)}%` }}
-                      transition={{ duration: 0.8, delay: 0.2 }}
-                      className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400"
-                    />
-                  </div>
-                </div>
-
                 {/* Applicants Button */}
                 <Button
                   asChild
@@ -421,8 +280,12 @@ const ModernJobCard = ({ job, index, deletingId, onDelete }) => {
                 <Users className="h-4 w-4" />
               </div>
               <div>
-                <p className="text-xs font-medium text-slate-500">{applicants > 0 ? 'Hồ sơ đã nhận' : 'Chưa có hồ sơ'}</p>
-                <p className="text-lg font-bold text-slate-900">{formatCompactNumber(applicants)}</p>
+                <p className="text-xs font-medium text-slate-500">
+                  {applicants > 0 ? 'Hồ sơ đã nhận' : 'Chưa có hồ sơ'}
+                </p>
+                <p className="text-lg font-bold text-slate-900">
+                  {formatCompactNumber(applicants)}
+                </p>
               </div>
             </div>
           </div>
@@ -433,7 +296,9 @@ const ModernJobCard = ({ job, index, deletingId, onDelete }) => {
                 <Eye className="h-4 w-4" />
               </div>
               <div>
-                <p className="text-xs font-medium text-slate-500">{views > 0 ? 'Lượt quan tâm' : 'Cần tiếp cận'}</p>
+                <p className="text-xs font-medium text-slate-500">
+                  {views > 0 ? 'Lượt quan tâm' : 'Cần tiếp cận'}
+                </p>
                 <p className="text-lg font-bold text-slate-900">{formatCompactNumber(views)}</p>
               </div>
             </div>
@@ -445,7 +310,9 @@ const ModernJobCard = ({ job, index, deletingId, onDelete }) => {
                 <Clock3 className="h-4 w-4" />
               </div>
               <div>
-                <p className="text-xs font-medium text-slate-500">{job.deadline ? 'Hạn nhận HS' : 'Chưa đặt'}</p>
+                <p className="text-xs font-medium text-slate-500">
+                  {job.deadline ? 'Hạn nhận HS' : 'Chưa đặt'}
+                </p>
                 <p className="text-lg font-bold text-slate-900">
                   {job.deadline ? formatShortDate(job.deadline) : '--'}
                 </p>
@@ -459,7 +326,9 @@ const ModernJobCard = ({ job, index, deletingId, onDelete }) => {
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-2 rounded-full bg-slate-100/80 px-3 py-1.5 text-xs font-medium text-slate-600 backdrop-blur">
               <Workflow className="h-3.5 w-3.5 text-emerald-500" />
-              {applicants > 0 ? `${formatCompactNumber(applicants)} hồ sơ đang theo dõi` : 'Sẵn sàng nhận hồ sơ mới'}
+              {applicants > 0
+                ? `${formatCompactNumber(applicants)} hồ sơ đang theo dõi`
+                : 'Sẵn sàng nhận hồ sơ mới'}
             </span>
           </div>
 
@@ -512,7 +381,12 @@ const SidebarCard = ({ icon: Icon, title, children, className }) => (
       </div>
       <h3 className="text-base font-bold text-slate-900">{title}</h3>
     </div>
-    <div className={cn('rounded-xl border border-slate-200/60 bg-white/90 p-4 backdrop-blur', className)}>
+    <div
+      className={cn(
+        'rounded-xl border border-slate-200/60 bg-white/90 p-4 backdrop-blur',
+        className
+      )}
+    >
       {children}
     </div>
   </motion.div>
@@ -521,9 +395,11 @@ const SidebarCard = ({ icon: Icon, title, children, className }) => (
 // Quick Action Card
 const QuickActionCard = ({ icon: Icon, title, description, to, color = 'emerald' }) => {
   const colorMap = {
-    emerald: 'hover:from-emerald-50/80 hover:to-emerald-100/50 hover:border-emerald-200/80 hover:text-emerald-700',
+    emerald:
+      'hover:from-emerald-50/80 hover:to-emerald-100/50 hover:border-emerald-200/80 hover:text-emerald-700',
     blue: 'hover:from-blue-50/80 hover:to-blue-100/50 hover:border-blue-200/80 hover:text-blue-700',
-    violet: 'hover:from-violet-50/80 hover:to-violet-100/50 hover:border-violet-200/80 hover:text-violet-700',
+    violet:
+      'hover:from-violet-50/80 hover:to-violet-100/50 hover:border-violet-200/80 hover:text-violet-700',
   };
 
   return (
@@ -546,9 +422,7 @@ const QuickActionCard = ({ icon: Icon, title, description, to, color = 'emerald'
         <Icon className="h-5 w-5" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-slate-900 group-hover:text-current">
-          {title}
-        </p>
+        <p className="text-sm font-semibold text-slate-900 group-hover:text-current">{title}</p>
         <p className="mt-1 text-xs leading-relaxed text-slate-500 group-hover:text-current">
           {description}
         </p>
@@ -631,16 +505,6 @@ const JobManagement = ({ jobs = [], onDelete }) => {
     [jobs]
   );
 
-  const performanceRate = useMemo(
-    () => calculateResponseRate(stats.totalApplicants, stats.totalViews),
-    [stats.totalApplicants, stats.totalViews]
-  );
-
-  const openCoverage = useMemo(() => {
-    if (!stats.total) return 0;
-    return Math.round((stats.published / stats.total) * 100);
-  }, [stats.published, stats.total]);
-
   const mostViewedJob = useMemo(() => getTopJob(jobs, 'views'), [jobs]);
   const mostAppliedJob = useMemo(() => getTopJob(jobs, 'applicant_count'), [jobs]);
 
@@ -649,7 +513,8 @@ const JobManagement = ({ jobs = [], onDelete }) => {
     if (stats.total === 0) {
       notes.push({
         title: 'Khởi động pipeline tuyển dụng',
-        description: 'Bạn chưa có tin nào hiển thị. Hãy đăng vị trí đầu tiên để bắt đầu nhận hồ sơ.',
+        description:
+          'Bạn chưa có tin nào hiển thị. Hãy đăng vị trí đầu tiên để bắt đầu nhận hồ sơ.',
         type: 'success',
       });
       return notes;
@@ -664,26 +529,21 @@ const JobManagement = ({ jobs = [], onDelete }) => {
     if (tabCounts.draft > 0) {
       notes.push({
         title: `${tabCounts.draft} bản nháp cần hoàn thiện`,
-        description: 'Hoàn tất mô tả công việc, quyền lợi và deadline để không bị đứt nhịp tuyển dụng.',
-        type: 'warning',
-      });
-    }
-    if (false && performanceRate > 0 && performanceRate < 5) {
-      notes.push({
-        title: 'Tỷ lệ phản hồi đang khá thấp',
-        description: 'Nên rà soát lại tiêu đề, mức lương hoặc CTA để tăng chất lượng chuyển đổi.',
+        description:
+          'Hoàn tất mô tả công việc, quyền lợi và deadline để không bị đứt nhịp tuyển dụng.',
         type: 'warning',
       });
     }
     if (notes.length === 0) {
       notes.push({
         title: 'Nhịp tuyển dụng đang ổn định',
-        description: 'Các chỉ số chính đang cân bằng. Bạn có thể tập trung tối ưu chất lượng hồ sơ đầu vào.',
+        description:
+          'Các chỉ số chính đang cân bằng. Bạn có thể tập trung tối ưu chất lượng hồ sơ đầu vào.',
         type: 'success',
       });
     }
     return notes.slice(0, 3);
-  }, [performanceRate, stats.total, tabCounts.draft, tabCounts.pending_review]);
+  }, [stats.total, tabCounts.draft, tabCounts.pending_review]);
 
   const handleDelete = async (jobId) => {
     if (!window.confirm('Bạn có chắc muốn xóa tin tuyển dụng này không?')) return;
@@ -719,7 +579,7 @@ const JobManagement = ({ jobs = [], onDelete }) => {
               </Badge>
               <Badge className="rounded-full border border-slate-200/80 bg-white/80 px-4 py-1.5 font-semibold text-slate-600 backdrop-blur">
                 <Sparkles className="mr-1.5 h-3.5 w-3.5 text-emerald-500" />
-                AI-Powered
+                Không gian điều phối
               </Badge>
             </div>
 
@@ -728,7 +588,8 @@ const JobManagement = ({ jobs = [], onDelete }) => {
                 Quản lý tuyển dụng thông minh
               </h1>
               <p className="mt-3 text-base text-slate-600">
-                Theo dõi toàn bộ tin tuyển dụng, hiệu suất ứng tuyển và các điểm cần xử lý trong cùng một không gian làm việc chuyên nghiệp.
+                Theo dõi toàn bộ tin tuyển dụng, hiệu suất ứng tuyển và các điểm cần xử lý trong
+                cùng một không gian làm việc chuyên nghiệp.
               </p>
             </div>
           </motion.div>
@@ -871,7 +732,9 @@ const JobManagement = ({ jobs = [], onDelete }) => {
                     <Briefcase className="h-7 w-7" />
                   </div>
                   <h3 className="mt-5 text-xl font-bold tracking-tight text-slate-900">
-                    {jobs.length === 0 ? 'Chưa có tin tuyển dụng nào' : 'Không tìm thấy tin phù hợp'}
+                    {jobs.length === 0
+                      ? 'Chưa có tin tuyển dụng nào'
+                      : 'Không tìm thấy tin tuyển dụng'}
                   </h3>
                   <p className="mt-3 max-w-md text-sm leading-7 text-slate-500">
                     {jobs.length === 0
@@ -919,39 +782,20 @@ const JobManagement = ({ jobs = [], onDelete }) => {
             className="space-y-6"
           >
             {/* Performance Overview */}
-            <SidebarCard icon={Target} title="Hiệu suất tuyển dụng">
+            <SidebarCard icon={Target} title="Tổng quan tuyển dụng">
               <div className="space-y-4">
-                {/* Response Rate */}
-                <div className="hidden rounded-xl border border-slate-200/50 bg-slate-50/50 p-4">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-slate-600">Tỷ lệ phản hồi</p>
-                    <span className="text-lg font-bold text-slate-900">{performanceRate}%</span>
-                  </div>
-                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-white">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${Math.min(100, performanceRate)}%` }}
-                      transition={{ duration: 0.8, delay: 0.5 }}
-                      className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400"
-                    />
-                  </div>
-                  <p className="mt-2 text-xs text-slate-500">Mức chuyển đổi từ lượt xem sang hồ sơ</p>
-                </div>
-
-                {/* Open Coverage */}
                 <div className="rounded-xl border border-slate-200/50 bg-slate-50/50 p-4">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-slate-600">Độ phủ tin đang mở</p>
-                    <span className="text-lg font-bold text-slate-900">{openCoverage}%</span>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-medium text-slate-600">Tin đang mở</p>
+                    <span className="text-lg font-bold text-slate-900">
+                      {formatCompactNumber(stats.published)}
+                    </span>
                   </div>
-                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-white">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${Math.min(100, openCoverage)}%` }}
-                      transition={{ duration: 0.8, delay: 0.6 }}
-                      className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-400"
-                    />
-                  </div>
+                  <p className="mt-2 text-xs leading-5 text-slate-500">
+                    {stats.total > 0
+                      ? `Trong tổng số ${formatCompactNumber(stats.total)} tin tuyển dụng.`
+                      : 'Chưa có tin tuyển dụng nào.'}
+                  </p>
                 </div>
 
                 {/* Top Jobs */}
@@ -1034,21 +878,6 @@ const JobManagement = ({ jobs = [], onDelete }) => {
       </main>
     </div>
   );
-};
-
-GlassStatCard.propTypes = {
-  icon: PropTypes.elementType.isRequired,
-  label: PropTypes.string.isRequired,
-  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-  sublabel: PropTypes.string,
-  trend: PropTypes.number,
-  color: PropTypes.string,
-};
-
-GlassStatCard.defaultProps = {
-  sublabel: '',
-  trend: undefined,
-  color: 'emerald',
 };
 
 ModernFilterTab.propTypes = {

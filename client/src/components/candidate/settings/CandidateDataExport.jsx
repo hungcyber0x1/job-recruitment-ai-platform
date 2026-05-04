@@ -37,7 +37,10 @@ const DataExportSection = () => {
     try {
       const res = await privacyService.requestDataExport();
       setExportStatus(res.data?.data || { status: 'pending' });
-      showNotification('Yêu cầu xuất dữ liệu đã được gửi! Bạn sẽ nhận email khi hoàn tất.', 'success');
+      showNotification(
+        'Yêu cầu xuất dữ liệu đã được gửi! Bạn sẽ nhận email khi hoàn tất.',
+        'success'
+      );
     } catch (err) {
       console.warn('DataExport request failed:', err?.message);
       showNotification('Không thể gửi yêu cầu. Vui lòng thử lại.', 'error');
@@ -221,11 +224,13 @@ const AccountDeletionSection = () => {
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
-              <label className="text-sm font-medium text-slate-700">Nhập mật khẩu để xác nhận</label>
+              <label className="text-sm font-medium text-slate-700">
+                Nhập mật khẩu để xác nhận
+              </label>
               <Input
                 type="password"
                 value={password}
-                onChange={e => setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="Mật khẩu"
                 className="mt-1 rounded-xl h-11"
               />
@@ -236,7 +241,7 @@ const AccountDeletionSection = () => {
               </label>
               <Input
                 value={confirmText}
-                onChange={e => setConfirmText(e.target.value)}
+                onChange={(e) => setConfirmText(e.target.value)}
                 placeholder="XÓA TÀI KHOẢN"
                 className="mt-1 rounded-xl h-11"
               />

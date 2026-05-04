@@ -14,7 +14,17 @@ class ApplicationOfferRepository extends BaseRepository {
    * Tạo hoặc cập nhật offer cho một application.
    * Mỗi application chỉ có 1 offer tại một thời điểm (UNIQUE trên application_id).
    */
-  async upsert({ application_id, salary_offered, salary_currency, response_deadline, start_date, benefits, offer_letter_url, notes, created_by }) {
+  async upsert({
+    application_id,
+    salary_offered,
+    salary_currency,
+    response_deadline,
+    start_date,
+    benefits,
+    offer_letter_url,
+    notes,
+    created_by,
+  }) {
     // Dùng INSERT ... ON DUPLICATE KEY UPDATE
     const [result] = await this.pool.query(
       `INSERT INTO application_offers

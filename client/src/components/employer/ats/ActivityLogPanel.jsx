@@ -48,10 +48,12 @@ const AuditEntry = ({ entry }) => {
       <div className="absolute left-[7px] top-1 bottom-0 w-px bg-slate-100 last:hidden" />
 
       {/* Dot */}
-      <div className={cn(
-        'absolute left-0 top-1 h-3.5 w-3.5 rounded-full border-2 border-white shadow-sm z-10',
-        cfg?.bg || 'bg-slate-100'
-      )}>
+      <div
+        className={cn(
+          'absolute left-0 top-1 h-3.5 w-3.5 rounded-full border-2 border-white shadow-sm z-10',
+          cfg?.bg || 'bg-slate-100'
+        )}
+      >
         <Icon className={cn('h-2 w-2 absolute inset-0 m-auto', cfg?.color || 'text-slate-400')} />
       </div>
 
@@ -66,7 +68,10 @@ const AuditEntry = ({ entry }) => {
             </p>
           </div>
           <span className="text-xs font-mono text-slate-300 shrink-0">
-            {new Date(entry.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+            {new Date(entry.created_at).toLocaleTimeString('vi-VN', {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
           </span>
         </div>
 
@@ -138,9 +143,7 @@ const ApplicationAuditLog = ({ applicationId }) => {
     if (applicationId) loadAudit();
   }, [applicationId, loadAudit]);
 
-  const filteredAudit = filter === 'all'
-    ? audit
-    : audit.filter(e => e.action.includes(filter));
+  const filteredAudit = filter === 'all' ? audit : audit.filter((e) => e.action.includes(filter));
 
   return (
     <div className="space-y-4">
@@ -148,7 +151,9 @@ const ApplicationAuditLog = ({ applicationId }) => {
         <div className="flex items-center gap-2">
           <Activity className="h-4 w-4 text-emerald-500" />
           <h3 className="text-sm font-bold text-slate-700">Nhật ký hoạt động</h3>
-          <Badge variant="outline" className="text-xs">{filteredAudit.length} sự kiện</Badge>
+          <Badge variant="outline" className="text-xs">
+            {filteredAudit.length} sự kiện
+          </Badge>
         </div>
         <Button size="sm" variant="ghost" className="h-8 rounded-lg" onClick={loadAudit}>
           <RefreshCw className={cn('h-3.5 w-3.5', loading && 'animate-spin')} />
@@ -162,7 +167,7 @@ const ApplicationAuditLog = ({ applicationId }) => {
           { key: 'status', label: 'Trạng thái' },
           { key: 'note', label: 'Ghi chú' },
           { key: 'email', label: 'Email' },
-        ].map(f => (
+        ].map((f) => (
           <button
             key={f.key}
             onClick={() => setFilter(f.key)}

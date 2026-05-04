@@ -41,47 +41,55 @@ const CompanyCard = ({ company }) => {
   useEffect(() => {
     if (!isCandidate || isSaved || !company.id || company.is_saved != null) return;
     // Optional: check if already saved if not provided in props
-    candidateService.checkCompanySaved(company.id)
-      .then(res => setIsSaved(!!res.data?.data?.saved))
+    candidateService
+      .checkCompanySaved(company.id)
+      .then((res) => setIsSaved(!!res.data?.data?.saved))
       .catch(() => {});
   }, [company.id, company.is_saved, isCandidate, isSaved]);
 
-  const handleToggleSave = useCallback(async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleToggleSave = useCallback(
+    async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
 
-    if (!isAuthenticated) {
-      if (window.confirm('Bạn cần đăng nhập với vai trò ứng viên để lưu công ty. Chuyển đến trang đăng nhập?')) {
-        navigate('/login', { state: { from: { pathname: window.location.pathname } } });
+      if (!isAuthenticated) {
+        if (
+          window.confirm(
+            'Bạn cần đăng nhập với vai trò ứng viên để lưu công ty. Chuyển đến trang đăng nhập?'
+          )
+        ) {
+          navigate('/login', { state: { from: { pathname: window.location.pathname } } });
+        }
+        return;
       }
-      return;
-    }
 
-    if (!isCandidate) {
-      showNotification('Tính năng này chỉ dành cho ứng viên', 'info');
-      return;
-    }
-
-    if (saving) return;
-
-    setSaving(true);
-    try {
-      if (isSaved) {
-        await candidateService.unsaveCompany(company.id);
-        setIsSaved(false);
-        showNotification('Đã bỏ lưu công ty', 'info');
-      } else {
-        await candidateService.saveCompany(company.id);
-        setIsSaved(true);
-        showNotification('Đã lưu công ty thành công', 'success');
+      if (!isCandidate) {
+        showNotification('Tính năng này chỉ dành cho ứng viên', 'info');
+        return;
       }
-    } catch (err) {
-      console.error('Failed to toggle company save:', err);
-      showNotification('Không thể thực hiện tác vụ này', 'error');
-    } finally {
-      setSaving(false);
-    }
-  }, [company.id, isCandidate, isAuthenticated, isSaved, navigate, saving, showNotification]);
+
+      if (saving) return;
+
+      setSaving(true);
+      try {
+        if (isSaved) {
+          await candidateService.unsaveCompany(company.id);
+          setIsSaved(false);
+          showNotification('Đã bỏ lưu công ty', 'info');
+        } else {
+          await candidateService.saveCompany(company.id);
+          setIsSaved(true);
+          showNotification('Đã lưu công ty thành công', 'success');
+        }
+      } catch (err) {
+        console.error('Failed to toggle company save:', err);
+        showNotification('Không thể thực hiện tác vụ này', 'error');
+      } finally {
+        setSaving(false);
+      }
+    },
+    [company.id, isCandidate, isAuthenticated, isSaved, navigate, saving, showNotification]
+  );
 
   const initials =
     company.name

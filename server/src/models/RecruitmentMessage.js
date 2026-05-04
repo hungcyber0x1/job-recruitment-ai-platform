@@ -16,7 +16,14 @@ function parsePositiveInt(value) {
 }
 
 function isTruthy(value) {
-  return value === true || String(value || '').trim().toLowerCase() === 'true' || value === '1' || value === 1;
+  return (
+    value === true ||
+    String(value || '')
+      .trim()
+      .toLowerCase() === 'true' ||
+    value === '1' ||
+    value === 1
+  );
 }
 
 class RecruitmentMessageRepository extends BaseRepository {
@@ -155,29 +162,79 @@ class RecruitmentMessageRepository extends BaseRepository {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
 
-    await this._ensureColumn(CONVERSATION_TABLE, 'job_id', 'INT UNSIGNED NULL AFTER application_id');
+    await this._ensureColumn(
+      CONVERSATION_TABLE,
+      'job_id',
+      'INT UNSIGNED NULL AFTER application_id'
+    );
     await this._ensureColumn(
       CONVERSATION_TABLE,
       'conversation_type',
       "ENUM('application', 'recruiter_initiated', 'free_chat') NOT NULL DEFAULT 'application' AFTER company_id"
     );
-    await this._ensureColumn(CONVERSATION_TABLE, 'initiated_by_user_id', 'INT UNSIGNED NULL AFTER conversation_type');
-    await this._ensureColumn(CONVERSATION_TABLE, 'candidate_archived_at', 'DATETIME NULL AFTER last_read_recruiter_at');
-    await this._ensureColumn(CONVERSATION_TABLE, 'recruiter_archived_at', 'DATETIME NULL AFTER candidate_archived_at');
-    await this._ensureColumn(CONVERSATION_TABLE, 'candidate_deleted_at', 'DATETIME NULL AFTER recruiter_archived_at');
-    await this._ensureColumn(CONVERSATION_TABLE, 'recruiter_deleted_at', 'DATETIME NULL AFTER candidate_deleted_at');
-    await this._ensureColumn(CONVERSATION_TABLE, 'candidate_blocked_at', 'DATETIME NULL AFTER recruiter_deleted_at');
-    await this._ensureColumn(CONVERSATION_TABLE, 'recruiter_blocked_at', 'DATETIME NULL AFTER candidate_blocked_at');
+    await this._ensureColumn(
+      CONVERSATION_TABLE,
+      'initiated_by_user_id',
+      'INT UNSIGNED NULL AFTER conversation_type'
+    );
+    await this._ensureColumn(
+      CONVERSATION_TABLE,
+      'candidate_archived_at',
+      'DATETIME NULL AFTER last_read_recruiter_at'
+    );
+    await this._ensureColumn(
+      CONVERSATION_TABLE,
+      'recruiter_archived_at',
+      'DATETIME NULL AFTER candidate_archived_at'
+    );
+    await this._ensureColumn(
+      CONVERSATION_TABLE,
+      'candidate_deleted_at',
+      'DATETIME NULL AFTER recruiter_archived_at'
+    );
+    await this._ensureColumn(
+      CONVERSATION_TABLE,
+      'recruiter_deleted_at',
+      'DATETIME NULL AFTER candidate_deleted_at'
+    );
+    await this._ensureColumn(
+      CONVERSATION_TABLE,
+      'candidate_blocked_at',
+      'DATETIME NULL AFTER recruiter_deleted_at'
+    );
+    await this._ensureColumn(
+      CONVERSATION_TABLE,
+      'recruiter_blocked_at',
+      'DATETIME NULL AFTER candidate_blocked_at'
+    );
 
     await this._ensureColumn(MESSAGE_TABLE, 'attachment_url', 'VARCHAR(1000) NULL AFTER metadata');
-    await this._ensureColumn(MESSAGE_TABLE, 'attachment_name', 'VARCHAR(255) NULL AFTER attachment_url');
-    await this._ensureColumn(MESSAGE_TABLE, 'attachment_mime', 'VARCHAR(160) NULL AFTER attachment_name');
-    await this._ensureColumn(MESSAGE_TABLE, 'attachment_size', 'INT UNSIGNED NULL AFTER attachment_mime');
-    await this._ensureColumn(MESSAGE_TABLE, 'status', "ENUM('sent', 'delivered', 'seen') NOT NULL DEFAULT 'sent' AFTER attachment_size");
+    await this._ensureColumn(
+      MESSAGE_TABLE,
+      'attachment_name',
+      'VARCHAR(255) NULL AFTER attachment_url'
+    );
+    await this._ensureColumn(
+      MESSAGE_TABLE,
+      'attachment_mime',
+      'VARCHAR(160) NULL AFTER attachment_name'
+    );
+    await this._ensureColumn(
+      MESSAGE_TABLE,
+      'attachment_size',
+      'INT UNSIGNED NULL AFTER attachment_mime'
+    );
+    await this._ensureColumn(
+      MESSAGE_TABLE,
+      'status',
+      "ENUM('sent', 'delivered', 'seen') NOT NULL DEFAULT 'sent' AFTER attachment_size"
+    );
     await this._ensureColumn(MESSAGE_TABLE, 'delivered_at', 'DATETIME NULL AFTER status');
     await this._ensureColumn(MESSAGE_TABLE, 'seen_at', 'DATETIME NULL AFTER delivered_at');
 
-    await this._safeQuery(`ALTER TABLE ${CONVERSATION_TABLE} MODIFY COLUMN application_id INT UNSIGNED NULL`);
+    await this._safeQuery(
+      `ALTER TABLE ${CONVERSATION_TABLE} MODIFY COLUMN application_id INT UNSIGNED NULL`
+    );
     await this._safeQuery(
       `ALTER TABLE ${CONVERSATION_TABLE} MODIFY COLUMN conversation_type ENUM('application', 'recruiter_initiated', 'free_chat') NOT NULL DEFAULT 'application'`
     );
@@ -283,7 +340,7 @@ class RecruitmentMessageRepository extends BaseRepository {
           cand.experience_years AS candidate_experience_years,
           cand.location AS candidate_location,
           cand.resume_url AS candidate_resume_url,
-          cand.phone AS candidate_phone,
+          cu.phone AS candidate_phone,
           cand.education_level AS candidate_education_level,
           cand.bio AS candidate_bio,
           TRIM(CONCAT(COALESCE(cu.first_name, ''), ' ', COALESCE(cu.last_name, ''))) AS candidate_name,
@@ -588,11 +645,7 @@ class RecruitmentMessageRepository extends BaseRepository {
   } = {}) {
     await this.ensureSchema();
     const select = this._conversationSelect(viewer);
-    const where = [
-      'c.candidate_user_id = ?',
-      'c.recruiter_user_id = ?',
-      'c.company_id = ?',
-    ];
+    const where = ['c.candidate_user_id = ?', 'c.recruiter_user_id = ?', 'c.company_id = ?'];
     const params = [...select.params, candidateUserId, recruiterUserId, companyId];
 
     if (applicationId) {
@@ -666,7 +719,9 @@ class RecruitmentMessageRepository extends BaseRepository {
       params.push(parsedJobId);
     }
 
-    const normalizedStatus = String(status || '').trim().toLowerCase();
+    const normalizedStatus = String(status || '')
+      .trim()
+      .toLowerCase();
     if (normalizedStatus && normalizedStatus !== 'all') {
       where.push('c.status = ?');
       params.push(normalizedStatus);
@@ -704,7 +759,10 @@ class RecruitmentMessageRepository extends BaseRepository {
     return rows;
   }
 
-  async findMessages(conversationId, { limit = 100, offset = 0, latest = false, beforeId = null, before_id = null } = {}) {
+  async findMessages(
+    conversationId,
+    { limit = 100, offset = 0, latest = false, beforeId = null, before_id = null } = {}
+  ) {
     await this.ensureSchema();
     const parsedLimit = clampLimit(limit, 100, 200);
     const parsedOffset = Math.max(Number.parseInt(offset, 10) || 0, 0);
@@ -718,7 +776,9 @@ class RecruitmentMessageRepository extends BaseRepository {
       params.push(parsedBeforeId);
     }
 
-    const orderSql = shouldLoadLatest ? 'ORDER BY m.created_at DESC, m.id DESC' : 'ORDER BY m.created_at ASC, m.id ASC';
+    const orderSql = shouldLoadLatest
+      ? 'ORDER BY m.created_at DESC, m.id DESC'
+      : 'ORDER BY m.created_at ASC, m.id ASC';
     const paginationSql = parsedBeforeId ? 'LIMIT ?' : 'LIMIT ? OFFSET ?';
     const paginationParams = parsedBeforeId ? [parsedLimit] : [parsedLimit, parsedOffset];
 
@@ -787,8 +847,13 @@ class RecruitmentMessageRepository extends BaseRepository {
         ]
       );
 
-      const previewSource = attachment?.name ? `📎 ${attachment.name}${body ? ` · ${body}` : ''}` : body;
-      const preview = String(previewSource || '').replace(/\s+/g, ' ').trim().slice(0, 500);
+      const previewSource = attachment?.name
+        ? `📎 ${attachment.name}${body ? ` · ${body}` : ''}`
+        : body;
+      const preview = String(previewSource || '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, 500);
       await connection.query(
         `
           UPDATE ${CONVERSATION_TABLE}
@@ -823,7 +888,10 @@ class RecruitmentMessageRepository extends BaseRepository {
     }
   }
 
-  async findAttachmentByFilename(filename, { viewerId = 0, viewerRole = 'candidate', companyId = null } = {}) {
+  async findAttachmentByFilename(
+    filename,
+    { viewerId = 0, viewerRole = 'candidate', companyId = null } = {}
+  ) {
     await this.ensureSchema();
     const where = ['m.attachment_url = ?'];
     const params = [`/api/messages/attachments/${encodeURIComponent(filename)}`];
@@ -932,7 +1000,12 @@ class RecruitmentMessageRepository extends BaseRepository {
 
   async archiveConversation(conversationId, role, archived = true) {
     await this.ensureSchema();
-    const column = role === 'candidate' ? 'candidate_archived_at' : role === 'recruiter' ? 'recruiter_archived_at' : null;
+    const column =
+      role === 'candidate'
+        ? 'candidate_archived_at'
+        : role === 'recruiter'
+          ? 'recruiter_archived_at'
+          : null;
     if (!column) return false;
 
     const [result] = await this.pool.query(
@@ -948,7 +1021,12 @@ class RecruitmentMessageRepository extends BaseRepository {
 
   async deleteConversationForRole(conversationId, role) {
     await this.ensureSchema();
-    const column = role === 'candidate' ? 'candidate_deleted_at' : role === 'recruiter' ? 'recruiter_deleted_at' : null;
+    const column =
+      role === 'candidate'
+        ? 'candidate_deleted_at'
+        : role === 'recruiter'
+          ? 'recruiter_deleted_at'
+          : null;
     if (!column) return false;
 
     const [result] = await this.pool.query(
@@ -964,7 +1042,12 @@ class RecruitmentMessageRepository extends BaseRepository {
 
   async setBlockState(conversationId, role, blocked = true) {
     await this.ensureSchema();
-    const column = role === 'candidate' ? 'candidate_blocked_at' : role === 'recruiter' ? 'recruiter_blocked_at' : null;
+    const column =
+      role === 'candidate'
+        ? 'candidate_blocked_at'
+        : role === 'recruiter'
+          ? 'recruiter_blocked_at'
+          : null;
     if (!column) return false;
 
     const connection = await this.pool.getConnection();

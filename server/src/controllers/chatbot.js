@@ -240,9 +240,7 @@ class ChatbotController {
       const analysis = await AIService.analyzeCV(cvText, jobDescription);
 
       // Clean up the uploaded file after processing
-      try {
-        await fs.promises.unlink(filePath);
-      } catch (_) {}
+      await fs.promises.unlink(filePath).catch(() => null);
 
       if (!analysis?.success) {
         return res.status(500).json({
@@ -285,7 +283,11 @@ class ChatbotController {
         });
       }
 
-      const coverLetter = await AIService.generateCoverLetter(cvData, jobDescription, candidateName);
+      const coverLetter = await AIService.generateCoverLetter(
+        cvData,
+        jobDescription,
+        candidateName
+      );
 
       if (!coverLetter) {
         return res.status(500).json({

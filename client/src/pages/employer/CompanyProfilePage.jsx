@@ -232,9 +232,6 @@ const CompanyProfilePage = () => {
     .filter(([key]) => !String(profile?.[key] ?? '').trim())
     .map(([, label]) => label);
 
-  const completion = Math.round(
-    ((requiredFields.length - missingFields.length) / requiredFields.length) * 100
-  );
   const completedFields = requiredFields.length - missingFields.length;
 
   const websiteValue = String(profile?.company_website ?? '').trim();
@@ -309,7 +306,7 @@ const CompanyProfilePage = () => {
   if (missingFields.length > 0) {
     nextActions.push({
       title: `Còn thiếu ${missingFields.length} trường thông tin`,
-      description: `Nên ưu tiên bổ sung: ${missingFields.slice(0, 3).join(', ')}.`,
+      description: `Nên bổ sung: ${missingFields.slice(0, 3).join(', ')}.`,
       to: '/employer/company-profile/edit',
       cta: 'Hoàn thiện hồ sơ công ty',
     });
@@ -331,8 +328,8 @@ const CompanyProfilePage = () => {
   }));
 
   return (
-    <div className="min-h-screen bg-slate-50/40 pb-14 animate-fade-in">
-      <section className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_84%)]">
+    <div className="min-h-screen bg-transparent pb-14 animate-fade-in">
+      <section className="relative overflow-hidden border-b border-emerald-100/70 bg-transparent">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
           style={{
@@ -394,9 +391,15 @@ const CompanyProfilePage = () => {
                     </p>
 
                     <div className="mt-4 flex flex-wrap justify-center gap-2 md:justify-start">
-                      <FactChip icon={MapPin}>{profile?.location || 'Chưa cập nhật địa điểm'}</FactChip>
-                      <FactChip icon={Users}>{profile?.company_size || 'Chưa cập nhật quy mô'}</FactChip>
-                      <FactChip icon={Target}>{profile?.industry || 'Chưa cập nhật lĩnh vực'}</FactChip>
+                      <FactChip icon={MapPin}>
+                        {profile?.location || 'Chưa cập nhật địa điểm'}
+                      </FactChip>
+                      <FactChip icon={Users}>
+                        {profile?.company_size || 'Chưa cập nhật quy mô'}
+                      </FactChip>
+                      <FactChip icon={Target}>
+                        {profile?.industry || 'Chưa cập nhật lĩnh vực'}
+                      </FactChip>
                     </div>
 
                     <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center md:justify-start">
@@ -437,11 +440,11 @@ const CompanyProfilePage = () => {
 
                 <div className="mt-6 grid gap-3 sm:grid-cols-3">
                   <EmployerStatCard
-                    label="Mức hoàn thiện"
-                    value={`${completion}%`}
-                    helper="Sẵn sàng hiển thị"
+                    label="Trạng thái hồ sơ"
+                    value={missingFields.length > 0 ? 'Cần bổ sung' : 'Sẵn sàng'}
+                    helper="Hiển thị doanh nghiệp"
                     icon={Building2}
-                    tone="emerald"
+                    tone={missingFields.length > 0 ? 'amber' : 'emerald'}
                   />
                   <EmployerStatCard
                     label="Trường đã đủ"
@@ -582,14 +585,20 @@ const CompanyProfilePage = () => {
                       <div className="absolute bottom-4 left-4 right-4 flex items-end gap-3">
                         <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/80 bg-white text-lg font-bold text-emerald-700 shadow-sm">
                           {logoImage ? (
-                            <img src={logoImage} alt={companyName} className="h-full w-full object-cover" />
+                            <img
+                              src={logoImage}
+                              alt={companyName}
+                              className="h-full w-full object-cover"
+                            />
                           ) : (
                             companyInitial
                           )}
                         </div>
                         <div className="min-w-0 text-white">
                           <p className="truncate text-sm font-bold">{companyName}</p>
-                          <p className="truncate text-xs font-medium text-white/80">{companySubtitle}</p>
+                          <p className="truncate text-xs font-medium text-white/80">
+                            {companySubtitle}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -634,7 +643,9 @@ const CompanyProfilePage = () => {
                         <ModerationIcon className="h-4 w-4" />
                       </div>
                       <div>
-                        <h3 className="text-sm font-bold text-slate-950">{moderationStatus.label}</h3>
+                        <h3 className="text-sm font-bold text-slate-950">
+                          {moderationStatus.label}
+                        </h3>
                         <p className="mt-2 text-sm leading-6 text-slate-600">
                           {moderationStatus.summary}
                         </p>
@@ -677,24 +688,25 @@ const CompanyProfilePage = () => {
 
             <Card className={SURFACE_CARD_CLASS}>
               <CardContent className="p-5">
-                <SectionHeader icon={Target} title="Mức sẵn sàng hồ sơ" tone="sky" />
+                <SectionHeader icon={Target} title="Trạng thái hồ sơ" tone="sky" />
                 <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-4">
-                  <div className="flex items-end justify-between gap-3">
+                  <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">
-                        Hoàn thiện
+                        Trường thông tin
                       </p>
-                      <p className="mt-1 text-3xl font-bold text-slate-950">{completion}%</p>
+                      <p className="mt-1 text-2xl font-bold text-slate-950">
+                        {completedFields}/{requiredFields.length}
+                      </p>
                     </div>
-                    <span className="rounded-lg bg-white px-2.5 py-1 text-xs font-bold text-slate-600 ring-1 ring-inset ring-slate-200">
-                      {completedFields}/{requiredFields.length}
+                    <span
+                      className={cn(
+                        'rounded-lg px-2.5 py-1 text-xs font-bold ring-1 ring-inset',
+                        missingFields.length > 0 ? toneStyles.amber : toneStyles.emerald
+                      )}
+                    >
+                      {missingFields.length > 0 ? 'Cần bổ sung' : 'Đã đủ'}
                     </span>
-                  </div>
-                  <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
-                    <div
-                      className="h-full rounded-full bg-emerald-600"
-                      style={{ width: `${completion}%` }}
-                    />
                   </div>
                   <p className="mt-4 text-sm font-medium leading-6 text-slate-600">
                     {moderationStatus.summary}
@@ -715,7 +727,9 @@ const CompanyProfilePage = () => {
                         className="block rounded-lg border border-slate-200 bg-slate-50/70 p-4 transition-colors hover:border-emerald-200 hover:bg-white"
                       >
                         <p className="text-sm font-bold text-slate-900">{action.title}</p>
-                        <p className="mt-2 text-sm leading-6 text-slate-500">{action.description}</p>
+                        <p className="mt-2 text-sm leading-6 text-slate-500">
+                          {action.description}
+                        </p>
                         <div className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-emerald-600">
                           {action.cta}
                           <ArrowRight className="h-4 w-4" />

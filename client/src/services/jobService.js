@@ -2,6 +2,7 @@ import api from './api';
 
 export const jobService = {
   getJobs: (params) => api.get('jobs', { params }),
+  getRecentInterestedJobs: (params) => api.get('jobs/recent-interested', { params }),
   getJob: (id) => api.get(`jobs/${id}`),
   getMyJobs: () => api.get('jobs/my-jobs'),
   createJob: (data) => api.post('jobs', data),

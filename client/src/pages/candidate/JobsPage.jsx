@@ -1,16 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import {
-  ArrowRight,
-  ArrowUpDown,
-  Briefcase,
-  MessageSquare,
-  Search,
-  Star,
-} from 'lucide-react';
+import { ArrowRight, ArrowUpDown, Briefcase, MessageSquare, Search, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import StatCard from '@/components/common/StatCard';
 import JobCard from '../../components/candidate/jobs/JobCard';
 import { applicationService, jobService } from '../../services';
 import {
@@ -36,6 +30,7 @@ const FILTER_TABS = [
   { value: 'salary', label: 'Lương cao' },
 ];
 
+const JOBS_PER_PAGE = 6;
 const OPEN_JOB_STATUSES = new Set(['published', 'active', 'open']);
 const ACTIVE_APPLICATION_STATUS_SET = new Set(getActiveStatuses());
 const INTERVIEW_APPLICATION_STATUS_SET = new Set(getInterviewStatuses());
@@ -58,7 +53,9 @@ function getJobTitle(job) {
 }
 
 function getJobStatus(job) {
-  return String(job?.status || job?.job_status || '').trim().toLowerCase();
+  return String(job?.status || job?.job_status || '')
+    .trim()
+    .toLowerCase();
 }
 
 function isJobOpenForApplications(job) {
@@ -123,30 +120,6 @@ const SidebarCard = ({ title, icon: Icon, children, className }) => (
   </Card>
 );
 
-const StatCard = ({ icon: Icon, label, value, helper, tone }) => {
-  const toneClasses = {
-    emerald: 'border-emerald-100 bg-emerald-50 text-emerald-700',
-    blue: 'border-blue-100 bg-blue-50 text-blue-700',
-    amber: 'border-amber-100 bg-amber-50 text-amber-700',
-    violet: 'border-violet-100 bg-violet-50 text-violet-700',
-  }[tone] || tone;
-
-  return (
-    <div className="rounded-lg border bg-white p-4 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="text-3xl font-bold leading-none text-slate-950">{value ?? '—'}</div>
-          <div className="mt-1 text-sm font-bold text-slate-700">{label}</div>
-          {helper && <div className="mt-0.5 text-xs font-medium text-slate-500">{helper}</div>}
-        </div>
-        <div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1', toneClasses)}>
-          <Icon size={18} />
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const JobsPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -158,6 +131,7 @@ const JobsPage = () => {
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -239,6 +213,36 @@ const JobsPage = () => {
     return sortJobsByOption(result, sortBy);
   }, [searchedJobs, activeFilter, sortBy]);
 
+  const totalPages = Math.max(1, Math.ceil(visibleJobs.length / JOBS_PER_PAGE));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const paginatedJobs = useMemo(() => {
+    const startIndex = (safeCurrentPage - 1) * JOBS_PER_PAGE;
+    return visibleJobs.slice(startIndex, startIndex + JOBS_PER_PAGE);
+  }, [visibleJobs, safeCurrentPage]);
+  const currentPageStart = visibleJobs.length === 0 ? 0 : (safeCurrentPage - 1) * JOBS_PER_PAGE + 1;
+  const currentPageEnd = Math.min(safeCurrentPage * JOBS_PER_PAGE, visibleJobs.length);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [normalizedQuery, activeFilter, sortBy]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  const paginationPages = useMemo(() => {
+    const maxVisiblePages = 5;
+    const halfWindow = Math.floor(maxVisiblePages / 2);
+    let start = Math.max(1, safeCurrentPage - halfWindow);
+    const end = Math.min(totalPages, start + maxVisiblePages - 1);
+
+    start = Math.max(1, end - maxVisiblePages + 1);
+
+    return Array.from({ length: end - start + 1 }, (_, index) => start + index);
+  }, [safeCurrentPage, totalPages]);
+
   const summaryCards = [
     {
       label: 'Tin đang mở',
@@ -264,16 +268,17 @@ const JobsPage = () => {
     {
       label: 'Phản hồi nhà tuyển dụng',
       value: loading ? null : respondedCount,
-      helper: successCount > 0 ? `${successCount} kết quả tích cực` : 'Sơ tuyển, phỏng vấn hoặc kết quả',
+      helper:
+        successCount > 0 ? `${successCount} kết quả tích cực` : 'Sơ tuyển, phỏng vấn hoặc kết quả',
       icon: MessageSquare,
       tone: 'bg-violet-50 text-violet-600 ring-violet-100',
     },
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50/40 pb-16">
+    <div className="min-h-screen bg-transparent pb-16">
       {/* Header */}
-      <div className="border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
+      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-transparent">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
           style={{
@@ -298,11 +303,11 @@ const JobsPage = () => {
                   Khám phá việc làm
                 </h1>
                 <p className="mt-0.5 max-w-2xl text-sm font-medium text-slate-600">
-                  Theo dõi cơ hội phù hợp, trạng thái ứng tuyển và cơ hội mới trong một giao diện gọn, rõ và đồng nhất.
+                  Theo dõi cơ hội phù hợp, trạng thái ứng tuyển và cơ hội mới trong một giao diện
+                  gọn, rõ và đồng nhất.
                 </p>
               </div>
             </div>
-
           </div>
 
           {/* Stats row */}
@@ -418,25 +423,32 @@ const JobsPage = () => {
           {/* Jobs list */}
           <section className="space-y-3">
             {/* Result count bar */}
-            <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-2.5 shadow-sm">
+            <div className="flex flex-col gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
               <span className="text-sm font-semibold text-slate-700">
                 {visibleJobs.length} <span className="font-medium text-slate-500">việc làm</span>
               </span>
               <span className="text-xs font-medium text-slate-500">
-                {jobs.length} tin đang tuyển
+                {visibleJobs.length > 0
+                  ? `Hiển thị ${currentPageStart}-${currentPageEnd} / ${visibleJobs.length} · Trang ${safeCurrentPage}/${totalPages}`
+                  : `${jobs.length} tin đang tuyển`}
               </span>
             </div>
 
             {loading ? (
               <div className="space-y-3">
                 {[1, 2, 3, 4].map((item) => (
-                  <div key={item} className="h-28 animate-pulse rounded-lg border border-slate-200 bg-white" />
+                  <div
+                    key={item}
+                    className="h-28 animate-pulse rounded-lg border border-slate-200 bg-white"
+                  />
                 ))}
               </div>
             ) : visibleJobs.length === 0 ? (
               <div className="rounded-lg border border-dashed border-slate-200 bg-white px-6 py-14 text-center shadow-sm">
                 <Briefcase className="mx-auto h-8 w-8 text-slate-300" />
-                <p className="mt-4 text-base font-bold text-slate-800">Không tìm thấy việc làm phù hợp</p>
+                <p className="mt-4 text-base font-bold text-slate-800">
+                  Không tìm thấy việc làm phù hợp
+                </p>
                 <p className="mt-2 text-sm text-slate-500">
                   Thử đổi từ khóa hoặc xóa bộ lọc để xem thêm cơ hội.
                 </p>
@@ -449,7 +461,72 @@ const JobsPage = () => {
                 </Button>
               </div>
             ) : (
-              visibleJobs.map((job) => <JobCard key={job.id} job={job} />)
+              <>
+                <div className="space-y-3">
+                  {paginatedJobs.map((job) => (
+                    <JobCard key={job.id} job={job} />
+                  ))}
+                </div>
+
+                {totalPages > 1 && (
+                  <nav
+                    className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between"
+                    aria-label="Phân trang việc làm"
+                  >
+                    <p className="text-sm font-semibold text-slate-600">
+                      Đang xem{' '}
+                      <span className="text-slate-950">
+                        {currentPageStart}-{currentPageEnd}
+                      </span>{' '}
+                      trong <span className="text-slate-950">{visibleJobs.length}</span> việc làm
+                    </p>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={safeCurrentPage === 1}
+                        onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                        className="h-9 rounded-lg border-slate-200 px-3 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-45"
+                      >
+                        Trước
+                      </Button>
+
+                      <div className="flex items-center gap-1">
+                        {paginationPages.map((page) => (
+                          <button
+                            key={page}
+                            type="button"
+                            onClick={() => setCurrentPage(page)}
+                            className={cn(
+                              'flex h-9 min-w-9 items-center justify-center rounded-lg border px-3 text-sm font-bold transition-colors',
+                              page === safeCurrentPage
+                                ? 'border-emerald-600 bg-emerald-600 text-white shadow-sm shadow-emerald-900/10'
+                                : 'border-slate-200 bg-white text-slate-600 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700'
+                            )}
+                            aria-current={page === safeCurrentPage ? 'page' : undefined}
+                            aria-label={`Trang ${page}`}
+                          >
+                            {page}
+                          </button>
+                        ))}
+                      </div>
+
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={safeCurrentPage === totalPages}
+                        onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                        className="h-9 rounded-lg border-slate-200 px-3 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-45"
+                      >
+                        Sau
+                      </Button>
+                    </div>
+                  </nav>
+                )}
+              </>
             )}
           </section>
 
@@ -474,9 +551,14 @@ const JobsPage = () => {
                     tone: 'border-violet-100 bg-violet-50 text-violet-700',
                   },
                 ].map((item) => (
-                  <div key={item.label} className={cn('min-w-0 rounded-lg border px-2 py-3 text-center', item.tone)}>
+                  <div
+                    key={item.label}
+                    className={cn('min-w-0 rounded-lg border px-2 py-3 text-center', item.tone)}
+                  >
                     <p className="text-2xl font-bold leading-none">{item.count}</p>
-                    <p className="mt-1 break-words text-xs font-semibold leading-tight">{item.label}</p>
+                    <p className="mt-1 break-words text-xs font-semibold leading-tight">
+                      {item.label}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -492,7 +574,6 @@ const JobsPage = () => {
                 </Link>
               </Button>
             </SidebarCard>
-
           </aside>
         </div>
       </main>
@@ -501,4 +582,3 @@ const JobsPage = () => {
 };
 
 export default JobsPage;
-

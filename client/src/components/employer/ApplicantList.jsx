@@ -6,9 +6,7 @@ import Avatar from '../common/Avatar';
 import Badge from '../common/Badge';
 import { getStatusLabel, APPLICATION_STATUS } from '../../constants/status';
 
-const VALID_SHORTLIST_TRANSITIONS = new Set([
-  APPLICATION_STATUS.SUBMITTED,
-]);
+const VALID_SHORTLIST_TRANSITIONS = new Set([APPLICATION_STATUS.SUBMITTED]);
 
 const VALID_REJECT_TRANSITIONS = new Set([
   APPLICATION_STATUS.SUBMITTED,
@@ -90,24 +88,26 @@ const ApplicantList = ({ applicants, onUpdateStatus }) => {
               </td>
               <td className="px-8 py-6 text-right">
                 <div className="flex justify-end gap-2">
-                  {!TERMINAL_STATUSES.has(applicant.status) && VALID_SHORTLIST_TRANSITIONS.has(applicant.status) && (
-                    <button
-                      onClick={() => onUpdateStatus(applicant.id, 'shortlisted')}
-                      className="rounded-xl border border-border p-2.5 text-txt-light transition-colors duration-200 ease-out hover:bg-muted/40 hover:text-state-success"
-                      title="Shortlist"
-                    >
-                      <UserCheck size={18} />
-                    </button>
-                  )}
-                  {!TERMINAL_STATUSES.has(applicant.status) && VALID_REJECT_TRANSITIONS.has(applicant.status) && (
-                    <button
-                      onClick={() => onUpdateStatus(applicant.id, 'rejected')}
-                      className="rounded-xl border border-border p-2.5 text-txt-light transition-colors duration-200 ease-out hover:bg-muted/40 hover:text-state-danger"
-                      title="Từ chối"
-                    >
-                      <UserX size={18} />
-                    </button>
-                  )}
+                  {!TERMINAL_STATUSES.has(applicant.status) &&
+                    VALID_SHORTLIST_TRANSITIONS.has(applicant.status) && (
+                      <button
+                        onClick={() => onUpdateStatus(applicant.id, 'shortlisted')}
+                        className="rounded-xl border border-border p-2.5 text-txt-light transition-colors duration-200 ease-out hover:bg-muted/40 hover:text-state-success"
+                        title="Shortlist"
+                      >
+                        <UserCheck size={18} />
+                      </button>
+                    )}
+                  {!TERMINAL_STATUSES.has(applicant.status) &&
+                    VALID_REJECT_TRANSITIONS.has(applicant.status) && (
+                      <button
+                        onClick={() => onUpdateStatus(applicant.id, 'rejected')}
+                        className="rounded-xl border border-border p-2.5 text-txt-light transition-colors duration-200 ease-out hover:bg-muted/40 hover:text-state-danger"
+                        title="Từ chối"
+                      >
+                        <UserX size={18} />
+                      </button>
+                    )}
                   <Link
                     to={`/employer/applications/${applicant.id}`}
                     className="rounded-xl border border-border p-2.5 text-txt-light transition-colors duration-200 ease-out hover:bg-muted/40 hover:text-secondary"

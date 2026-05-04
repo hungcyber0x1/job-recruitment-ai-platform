@@ -19,8 +19,8 @@ const CommandPalette = ({ isOpen, onClose }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const flattenedItems = useMemo(() => {
-    return ADMIN_NAV_GROUPS.flatMap(group =>
-      group.items.map(item => ({
+    return ADMIN_NAV_GROUPS.flatMap((group) =>
+      group.items.map((item) => ({
         ...item,
         groupLabel: group.title.replace(/^[0-9]+\.\s*/, ''),
       }))
@@ -30,9 +30,9 @@ const CommandPalette = ({ isOpen, onClose }) => {
   const filteredItems = useMemo(() => {
     if (!search.trim()) return flattenedItems;
     const query = search.toLowerCase();
-    return flattenedItems.filter(item =>
-      item.label.toLowerCase().includes(query) ||
-      item.groupLabel.toLowerCase().includes(query)
+    return flattenedItems.filter(
+      (item) =>
+        item.label.toLowerCase().includes(query) || item.groupLabel.toLowerCase().includes(query)
     );
   }, [search, flattenedItems]);
 
@@ -42,10 +42,13 @@ const CommandPalette = ({ isOpen, onClose }) => {
     onClose();
   }, [onClose]);
 
-  const handleSelect = useCallback((item) => {
-    navigate(item.path);
-    handleClose();
-  }, [handleClose, navigate]);
+  const handleSelect = useCallback(
+    (item) => {
+      navigate(item.path);
+      handleClose();
+    },
+    [handleClose, navigate]
+  );
 
   const handleSearchChange = useCallback((event) => {
     setSearch(event.target.value);
@@ -58,10 +61,12 @@ const CommandPalette = ({ isOpen, onClose }) => {
       if (!isOpen) return;
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        setSelectedIndex(prev => (prev + 1) % Math.max(1, filteredItems.length));
+        setSelectedIndex((prev) => (prev + 1) % Math.max(1, filteredItems.length));
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        setSelectedIndex(prev => (prev - 1 + filteredItems.length) % Math.max(1, filteredItems.length));
+        setSelectedIndex(
+          (prev) => (prev - 1 + filteredItems.length) % Math.max(1, filteredItems.length)
+        );
       } else if (e.key === 'Enter' && filteredItems.length > 0) {
         e.preventDefault();
         handleSelect(filteredItems[selectedIndex]);
@@ -119,22 +124,37 @@ const CommandPalette = ({ isOpen, onClose }) => {
                     onMouseEnter={() => setSelectedIndex(index)}
                     className={cn(
                       'group flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition-all duration-150',
-                      active
-                        ? 'bg-primary text-white shadow-lg'
-                        : 'text-slate-300 hover:bg-white/5'
+                      active ? 'bg-primary text-white shadow-lg' : 'text-slate-300 hover:bg-white/5'
                     )}
                   >
-                    <div className={cn(
-                      'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors',
-                      active ? 'bg-white/20' : 'bg-white/5 group-hover:bg-primary/20'
-                    )}>
-                      <Icon size={15} className={active ? 'text-white' : 'text-slate-400 group-hover:text-primary'} />
+                    <div
+                      className={cn(
+                        'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors',
+                        active ? 'bg-white/20' : 'bg-white/5 group-hover:bg-primary/20'
+                      )}
+                    >
+                      <Icon
+                        size={15}
+                        className={
+                          active ? 'text-white' : 'text-slate-400 group-hover:text-primary'
+                        }
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className={cn('text-sm font-bold truncate', active ? 'text-white' : 'text-slate-200')}>
+                      <p
+                        className={cn(
+                          'text-sm font-bold truncate',
+                          active ? 'text-white' : 'text-slate-200'
+                        )}
+                      >
                         {item.label}
                       </p>
-                      <p className={cn('text-xs font-medium truncate', active ? 'text-white/60' : 'text-slate-500')}>
+                      <p
+                        className={cn(
+                          'text-xs font-medium truncate',
+                          active ? 'text-white/60' : 'text-slate-500'
+                        )}
+                      >
                         {item.groupLabel}
                       </p>
                     </div>
@@ -150,10 +170,16 @@ const CommandPalette = ({ isOpen, onClose }) => {
         <div className="flex items-center justify-between border-t border-white/5 px-5 py-3">
           <div className="flex items-center gap-3 text-xs font-bold text-slate-500">
             <span className="flex items-center gap-1">
-              <kbd className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 font-mono text-xs">↑↓</kbd> Di chuyển
+              <kbd className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 font-mono text-xs">
+                ↑↓
+              </kbd>{' '}
+              Di chuyển
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 font-mono text-xs">↵</kbd> Chọn
+              <kbd className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 font-mono text-xs">
+                ↵
+              </kbd>{' '}
+              Chọn
             </span>
           </div>
           <span className="text-xs font-bold uppercase tracking-normal text-primary/50">

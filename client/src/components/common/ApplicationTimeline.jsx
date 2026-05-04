@@ -17,8 +17,7 @@ const ApplicationTimeline = ({ timeline, currentStatus }) => {
     ? [...timeline].sort((a, b) => new Date(a.changed_at) - new Date(b.changed_at))
     : [];
 
-  const isRejectedOrWithdrawn = (status) =>
-    status === 'rejected' || status === 'withdrawn';
+  const isRejectedOrWithdrawn = (status) => status === 'rejected' || status === 'withdrawn';
 
   const isFinalState = (status) =>
     status === 'hired' || status === 'accepted' || status === 'rejected' || status === 'withdrawn';
@@ -43,7 +42,12 @@ const ApplicationTimeline = ({ timeline, currentStatus }) => {
       return (
         <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center shadow-md">
           <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2.5}
+              d="M5 13l4 4L19 7"
+            />
           </svg>
         </div>
       );
@@ -53,7 +57,12 @@ const ApplicationTimeline = ({ timeline, currentStatus }) => {
       return (
         <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-md ring-4 ring-primary/20">
           <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2.5}
+              d="M5 13l4 4L19 7"
+            />
           </svg>
         </div>
       );
@@ -90,7 +99,11 @@ const ApplicationTimeline = ({ timeline, currentStatus }) => {
                     <div className="flex items-center justify-between">
                       <h4
                         className={`font-bold tracking-normal ${
-                          isActive ? 'text-primary' : isRejectedOrWithdrawn(item.status) ? 'text-red-600' : 'text-foreground'
+                          isActive
+                            ? 'text-primary'
+                            : isRejectedOrWithdrawn(item.status)
+                              ? 'text-red-600'
+                              : 'text-foreground'
                         }`}
                       >
                         {label}
@@ -107,7 +120,9 @@ const ApplicationTimeline = ({ timeline, currentStatus }) => {
               );
             })
           ) : (
-            <div className="text-center text-muted-foreground py-8">Không có dữ liệu tiến trình</div>
+            <div className="text-center text-muted-foreground py-8">
+              Không có dữ liệu tiến trình
+            </div>
           )}
         </div>
       </div>

@@ -17,19 +17,13 @@ import {
   Users,
 } from 'lucide-react';
 
-import { Badge } from '@/components/ui/badge';
+import StatCard from '@/components/common/StatCard';
 import adminService from '../../services/adminService';
 import { useNotification } from '../../context/NotificationContext';
 import Button from '../common/Button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Textarea } from '../ui/textarea';
 
 const DEFAULT_FORM = {
@@ -118,14 +112,8 @@ function FieldBlock({ icon: Icon, label, hint, className = '', children }) {
   );
 }
 
-function SummaryStat({ label, value, helper }) {
-  return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50/80 p-4">
-      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">{label}</p>
-      <p className="mt-2 text-xl font-bold text-slate-950">{value}</p>
-      <p className="mt-2 text-xs font-semibold leading-5 text-slate-500">{helper}</p>
-    </div>
-  );
+function SummaryStat({ label, value, helper, icon: Icon = LayoutGrid, type = 'neutral' }) {
+  return <StatCard title={label} value={value} subtitle={helper} icon={Icon} type={type} />;
 }
 
 const normalizeText = (value) => String(value ?? '').trim();
@@ -233,19 +221,22 @@ const AdminJobForm = ({ job = null, onSuccess, onCancel }) => {
   );
 
   const selectedCategoryLabel = useMemo(
-    () => categoryOptions.find((item) => item.value === formData.category_id)?.label || 'Chưa chọn danh mục',
+    () =>
+      categoryOptions.find((item) => item.value === formData.category_id)?.label ||
+      'Chưa chọn danh mục',
     [categoryOptions, formData.category_id]
   );
 
   const selectedCompanyName = useMemo(
     () =>
-      companies.find((company) => String(company.id) === String(formData.company_id))?.company_name ||
-      'Chưa chọn công ty',
+      companies.find((company) => String(company.id) === String(formData.company_id))
+        ?.company_name || 'Chưa chọn công ty',
     [companies, formData.company_id]
   );
 
   const selectedJobTypeLabel = useMemo(
-    () => JOB_TYPE_OPTIONS.find((item) => item.value === formData.type)?.label || 'Chưa chọn hình thức',
+    () =>
+      JOB_TYPE_OPTIONS.find((item) => item.value === formData.type)?.label || 'Chưa chọn hình thức',
     [formData.type]
   );
 
@@ -365,7 +356,13 @@ const AdminJobForm = ({ job = null, onSuccess, onCancel }) => {
         readyText: 'Đã có phần quyền lợi để truyền thông tốt hơn.',
       },
     ],
-    [formData.benefits, formData.company_id, formData.description, formData.requirements, formData.title]
+    [
+      formData.benefits,
+      formData.company_id,
+      formData.description,
+      formData.requirements,
+      formData.title,
+    ]
   );
 
   const filledFieldCount = useMemo(
@@ -432,7 +429,11 @@ const AdminJobForm = ({ job = null, onSuccess, onCancel }) => {
                 </SelectTrigger>
                 <SelectContent className="max-h-[320px] rounded-lg border-slate-200">
                   {companies.map((company) => (
-                    <SelectItem key={company.id} value={String(company.id)} className="cursor-pointer rounded-md py-2.5">
+                    <SelectItem
+                      key={company.id}
+                      value={String(company.id)}
+                      className="cursor-pointer rounded-md py-2.5"
+                    >
                       {company.company_name}
                     </SelectItem>
                   ))}
@@ -454,7 +455,11 @@ const AdminJobForm = ({ job = null, onSuccess, onCancel }) => {
                 </SelectTrigger>
                 <SelectContent className="rounded-lg border-slate-200">
                   {categoryOptions.map((item) => (
-                    <SelectItem key={item.value} value={item.value} className="cursor-pointer rounded-md py-2.5">
+                    <SelectItem
+                      key={item.value}
+                      value={item.value}
+                      className="cursor-pointer rounded-md py-2.5"
+                    >
                       {item.label}
                     </SelectItem>
                   ))}
@@ -476,7 +481,11 @@ const AdminJobForm = ({ job = null, onSuccess, onCancel }) => {
                 </SelectTrigger>
                 <SelectContent className="rounded-lg border-slate-200">
                   {JOB_TYPE_OPTIONS.map((item) => (
-                    <SelectItem key={item.value} value={item.value} className="cursor-pointer rounded-md py-2.5">
+                    <SelectItem
+                      key={item.value}
+                      value={item.value}
+                      className="cursor-pointer rounded-md py-2.5"
+                    >
                       {item.label}
                     </SelectItem>
                   ))}
@@ -540,7 +549,12 @@ const AdminJobForm = ({ job = null, onSuccess, onCancel }) => {
                   </div>
                   <button
                     type="button"
-                    onClick={() => setFormData((prev) => ({ ...prev, salary_negotiable: !prev.salary_negotiable }))}
+                    onClick={() =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        salary_negotiable: !prev.salary_negotiable,
+                      }))
+                    }
                     className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out outline-none focus:ring-2 focus:ring-emerald-300 focus:ring-offset-2 ${
                       formData.salary_negotiable ? 'bg-emerald-500' : 'bg-slate-300'
                     }`}
@@ -672,49 +686,57 @@ const AdminJobForm = ({ job = null, onSuccess, onCancel }) => {
           description="Theo dõi nhanh mức độ hoàn thiện và các thông tin cốt lõi trước khi lưu."
         >
           <div className="space-y-4">
-            <div className="rounded-lg border border-slate-200 bg-slate-50/80 p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">
-                    Tiến độ form
-                  </p>
-                  <p className="mt-2 text-3xl font-bold text-slate-950">{filledFieldCount}/9</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-500">
-                    {readyToPublish
-                      ? 'Các thành phần quan trọng đã sẵn sàng để lưu.'
-                      : 'Vẫn còn một vài trường nên hoàn thiện thêm trước khi xuất bản.'}
-                  </p>
-                </div>
-                <Badge
-                  className={`rounded-full border px-3 py-1 text-xs font-bold ${
-                    readyToPublish
-                      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                      : 'border-amber-200 bg-amber-50 text-amber-700'
-                  }`}
-                >
-                  {readyToPublish ? 'Sẵn sàng lưu' : 'Cần bổ sung'}
-                </Badge>
-              </div>
-
-              <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-200">
+            <StatCard
+              title="Tiến độ form"
+              value={`${filledFieldCount}/9`}
+              subtitle={
+                readyToPublish
+                  ? 'Các thành phần quan trọng đã sẵn sàng để lưu.'
+                  : 'Vẫn còn một vài trường nên hoàn thiện thêm trước khi xuất bản.'
+              }
+              icon={ListChecks}
+              type={readyToPublish ? 'success' : 'warning'}
+              badge={readyToPublish ? 'Sẵn sàng lưu' : 'Cần bổ sung'}
+            >
+              <div className="h-2 overflow-hidden rounded-full bg-gray-100">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-cyan-400"
+                  className={`h-full rounded-full ${readyToPublish ? 'bg-green-600' : 'bg-amber-600'}`}
                   style={{ width: `${completionPercent}%` }}
                 />
               </div>
-            </div>
+            </StatCard>
 
             <div className="grid gap-3">
-              <SummaryStat label="Công ty" value={selectedCompanyName} helper="Doanh nghiệp sở hữu tin đăng" />
-              <SummaryStat label="Danh mục" value={selectedCategoryLabel} helper="Nhóm hiển thị của vị trí tuyển dụng" />
-              <SummaryStat label="Hình thức" value={selectedJobTypeLabel} helper="Mô hình làm việc sẽ được công khai" />
-              <SummaryStat label="Mức lương" value={salaryPreview} helper="Khoảng lương đang cấu hình" />
+              <SummaryStat
+                label="Công ty"
+                value={selectedCompanyName}
+                helper="Doanh nghiệp sở hữu tin đăng"
+              />
+              <SummaryStat
+                label="Danh mục"
+                value={selectedCategoryLabel}
+                helper="Nhóm hiển thị của vị trí tuyển dụng"
+              />
+              <SummaryStat
+                label="Hình thức"
+                value={selectedJobTypeLabel}
+                helper="Mô hình làm việc sẽ được công khai"
+              />
+              <SummaryStat
+                label="Mức lương"
+                value={salaryPreview}
+                helper="Khoảng lương đang cấu hình"
+              />
               <SummaryStat
                 label="Số lượng"
                 value={`${Number.parseInt(formData.vacancies, 10) || 1} người`}
                 helper="Nhu cầu cần tuyển"
               />
-              <SummaryStat label="Hạn hồ sơ" value={deadlinePreview} helper="Mốc thời gian để ứng viên theo dõi" />
+              <SummaryStat
+                label="Hạn hồ sơ"
+                value={deadlinePreview}
+                helper="Mốc thời gian để ứng viên theo dõi"
+              />
             </div>
 
             <div className="rounded-lg border border-slate-200 bg-white p-4 ring-1 ring-inset ring-slate-100">
@@ -749,7 +771,10 @@ const AdminJobForm = ({ job = null, onSuccess, onCancel }) => {
         >
           <div className="space-y-3">
             {publishingGuidelines.map((item) => (
-              <div key={item.title} className="rounded-lg border border-emerald-100 bg-emerald-50/70 p-4">
+              <div
+                key={item.title}
+                className="rounded-lg border border-emerald-100 bg-emerald-50/70 p-4"
+              >
                 <p className="text-sm font-bold text-emerald-800">{item.title}</p>
                 <p className="mt-2 text-sm leading-6 text-slate-600">{item.description}</p>
               </div>

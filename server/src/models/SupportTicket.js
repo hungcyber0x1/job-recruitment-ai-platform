@@ -59,7 +59,6 @@ class SupportTicketRepository {
     return { data: rows, total: countResult[0].total };
   }
 
-
   async countByStatus(status) {
     const [rows] = await pool.query(
       'SELECT COUNT(*) AS total FROM support_tickets WHERE status = ?',
@@ -93,7 +92,13 @@ class SupportTicketRepository {
     const { ticketId, senderId, message, isInternal, attachments } = messageData;
     const [result] = await pool.query(
       'INSERT INTO support_messages (ticket_id, sender_id, message, is_internal, attachments) VALUES (?, ?, ?, ?, ?)',
-      [ticketId, senderId, message, isInternal || 0, attachments ? JSON.stringify(attachments) : null]
+      [
+        ticketId,
+        senderId,
+        message,
+        isInternal || 0,
+        attachments ? JSON.stringify(attachments) : null,
+      ]
     );
     return result.insertId;
   }

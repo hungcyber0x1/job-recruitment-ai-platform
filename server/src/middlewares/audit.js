@@ -6,8 +6,7 @@ const logger = require('../utils/logger');
  */
 function auditMiddleware(req, res, next) {
   const userId = req.user ? req.user.id : 'anonymous';
-  const rawRole = req.user ? req.user.role : 'guest';
-  const role = rawRole === 'employer' ? 'recruiter' : rawRole;
+  const role = req.user ? req.user.role : 'guest';
   const { method, originalUrl } = req;
   const timestamp = new Date().toISOString();
 

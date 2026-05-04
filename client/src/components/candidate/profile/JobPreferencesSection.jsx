@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import { DollarSign, MapPin, Building2, Globe, ChevronDown, ChevronUp } from 'lucide-react';
+import { DollarSign, MapPin, Building2, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/utils/index';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -15,6 +19,33 @@ import {
   VIETNAM_LOCATIONS,
   SALARY_CURRENCIES,
 } from '@/constants/candidateProfile';
+
+const MILLION_VND = 1000000;
+
+const toInputSalary = (value, currency = 'VND') => {
+  if (value === null || value === undefined || value === '') return '';
+  const amount = Number(value);
+  if (!Number.isFinite(amount) || amount <= 0) return '';
+
+  if (currency === 'VND') {
+    return amount >= MILLION_VND ? Math.round(amount / MILLION_VND) : amount;
+  }
+
+  return amount;
+};
+
+const toPayloadSalary = (value, currency = 'VND') => {
+  if (value === null || value === undefined || value === '') return null;
+  const amount = Number(value);
+  if (!Number.isFinite(amount) || amount <= 0) return null;
+
+  return currency === 'VND' ? amount * MILLION_VND : amount;
+};
+
+const getSalaryPlaceholder = (currency, boundary) => {
+  if (currency === 'VND') return `${boundary} (triệu VND)`;
+  return `${boundary} (${currency})`;
+};
 
 const JobPreferencesSection = ({
   job_search_status,
@@ -28,11 +59,12 @@ const JobPreferencesSection = ({
   loading,
 }) => {
   const [expanded, setExpanded] = useState(false);
+  const initialCurrency = salary_currency || 'VND';
   const [form, setForm] = useState({
     job_search_status: job_search_status || JOB_SEARCH_STATUS.OPEN_TO_WORK,
-    expected_salary_min: expected_salary_min || '',
-    expected_salary_max: expected_salary_max || '',
-    salary_currency: salary_currency || 'VND',
+    expected_salary_min: toInputSalary(expected_salary_min, initialCurrency),
+    expected_salary_max: toInputSalary(expected_salary_max, initialCurrency),
+    salary_currency: initialCurrency,
     preferred_job_types: preferred_job_types || [],
     preferred_locations: preferred_locations || [],
     willing_to_relocate: willing_to_relocate || false,
@@ -40,23 +72,21 @@ const JobPreferencesSection = ({
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  const statusConfig = JOB_SEARCH_STATUS_CONFIG[form.job_search_status] || JOB_SEARCH_STATUS_CONFIG[JOB_SEARCH_STATUS.OPEN_TO_WORK];
-
   const toggleJobType = (value) => {
-    setForm(f => ({
+    setForm((f) => ({
       ...f,
       preferred_job_types: f.preferred_job_types.includes(value)
-        ? f.preferred_job_types.filter(v => v !== value)
+        ? f.preferred_job_types.filter((v) => v !== value)
         : [...f.preferred_job_types, value],
     }));
     setSaved(false);
   };
 
   const toggleLocation = (value) => {
-    setForm(f => ({
+    setForm((f) => ({
       ...f,
       preferred_locations: f.preferred_locations.includes(value)
-        ? f.preferred_locations.filter(v => v !== value)
+        ? f.preferred_locations.filter((v) => v !== value)
         : [...f.preferred_locations, value],
     }));
     setSaved(false);
@@ -67,8 +97,8 @@ const JobPreferencesSection = ({
     try {
       await onSave({
         job_search_status: form.job_search_status,
-        expected_salary_min: form.expected_salary_min ? Number(form.expected_salary_min) : null,
-        expected_salary_max: form.expected_salary_max ? Number(form.expected_salary_max) : null,
+        expected_salary_min: toPayloadSalary(form.expected_salary_min, form.salary_currency),
+        expected_salary_max: toPayloadSalary(form.expected_salary_max, form.salary_currency),
         salary_currency: form.salary_currency,
         preferred_job_types: form.preferred_job_types,
         preferred_locations: form.preferred_locations,
@@ -81,8 +111,6 @@ const JobPreferencesSection = ({
       setSaving(false);
     }
   };
-
-  const prefix = SALARY_CURRENCIES.find(c => c.value === form.salary_currency)?.prefix || '';
 
   return (
     <div className="space-y-4">
@@ -98,7 +126,11 @@ const JobPreferencesSection = ({
           onClick={() => setExpanded(!expanded)}
           className="h-8 text-xs text-muted-foreground"
         >
-          {expanded ? <ChevronUp className="h-3 w-3 mr-1" /> : <ChevronDown className="h-3 w-3 mr-1" />}
+          {expanded ? (
+            <ChevronUp className="h-3 w-3 mr-1" />
+          ) : (
+            <ChevronDown className="h-3 w-3 mr-1" />
+          )}
           {expanded ? 'Thu gọn' : 'Mở rộng'}
         </Button>
       </div>
@@ -118,7 +150,10 @@ const JobPreferencesSection = ({
                   <button
                     key={key}
                     type="button"
-                    onClick={() => { setForm(f => ({ ...f, job_search_status: key })); setSaved(false); }}
+                    onClick={() => {
+                      setForm((f) => ({ ...f, job_search_status: key }));
+                      setSaved(false);
+                    }}
                     className={cn(
                       'flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left transition-all text-sm font-medium',
                       form.job_search_status === key
@@ -144,30 +179,41 @@ const JobPreferencesSection = ({
               <Input
                 type="number"
                 min={0}
-                placeholder="Từ (triệu)"
+                placeholder={getSalaryPlaceholder(form.salary_currency, 'Từ')}
                 value={form.expected_salary_min}
-                onChange={(e) => { setForm(f => ({ ...f, expected_salary_min: e.target.value })); setSaved(false); }}
+                onChange={(e) => {
+                  setForm((f) => ({ ...f, expected_salary_min: e.target.value }));
+                  setSaved(false);
+                }}
                 className="h-12 rounded-xl text-sm"
               />
               <span className="text-slate-400 text-sm shrink-0">—</span>
               <Input
                 type="number"
                 min={0}
-                placeholder="Đến (triệu)"
+                placeholder={getSalaryPlaceholder(form.salary_currency, 'Đến')}
                 value={form.expected_salary_max}
-                onChange={(e) => { setForm(f => ({ ...f, expected_salary_max: e.target.value })); setSaved(false); }}
+                onChange={(e) => {
+                  setForm((f) => ({ ...f, expected_salary_max: e.target.value }));
+                  setSaved(false);
+                }}
                 className="h-12 rounded-xl text-sm"
               />
               <Select
                 value={form.salary_currency}
-                onValueChange={(v) => { setForm(f => ({ ...f, salary_currency: v })); setSaved(false); }}
+                onValueChange={(v) => {
+                  setForm((f) => ({ ...f, salary_currency: v }));
+                  setSaved(false);
+                }}
               >
                 <SelectTrigger className="h-12 w-28 rounded-xl text-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {SALARY_CURRENCIES.map(c => (
-                    <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                  {SALARY_CURRENCIES.map((c) => (
+                    <SelectItem key={c.value} value={c.value}>
+                      {c.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -181,7 +227,7 @@ const JobPreferencesSection = ({
               Loại hình công việc ưa thích
             </Label>
             <div className="flex flex-wrap gap-2">
-              {JOB_TYPES_LIST.map(type => (
+              {JOB_TYPES_LIST.map((type) => (
                 <button
                   key={type.value}
                   type="button"
@@ -206,7 +252,7 @@ const JobPreferencesSection = ({
               Địa điểm ưa thích
             </Label>
             <div className="flex flex-wrap gap-2">
-              {VIETNAM_LOCATIONS.map(loc => (
+              {VIETNAM_LOCATIONS.map((loc) => (
                 <button
                   key={loc.value}
                   type="button"
@@ -229,9 +275,15 @@ const JobPreferencesSection = ({
             <Checkbox
               id="willing-relocate"
               checked={form.willing_to_relocate}
-              onCheckedChange={(checked) => { setForm(f => ({ ...f, willing_to_relocate: !!checked })); setSaved(false); }}
+              onCheckedChange={(checked) => {
+                setForm((f) => ({ ...f, willing_to_relocate: !!checked }));
+                setSaved(false);
+              }}
             />
-            <label htmlFor="willing-relocate" className="text-sm text-slate-700 cursor-pointer select-none font-medium">
+            <label
+              htmlFor="willing-relocate"
+              className="text-sm text-slate-700 cursor-pointer select-none font-medium"
+            >
               Sẵn sàng chuyển đổi địa điểm làm việc
             </label>
           </div>
@@ -239,9 +291,7 @@ const JobPreferencesSection = ({
           {/* Save Button */}
           <div className="flex items-center justify-end gap-3 pt-1">
             {saved && (
-              <span className="text-xs text-emerald-600 font-semibold animate-pulse">
-                ✓ Đã lưu
-              </span>
+              <span className="text-xs text-emerald-600 font-semibold animate-pulse">✓ Đã lưu</span>
             )}
             <Button
               type="button"

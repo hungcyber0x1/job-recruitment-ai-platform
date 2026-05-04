@@ -16,6 +16,7 @@ import {
   Users,
   X,
 } from 'lucide-react';
+import StatCard from '@/components/common/StatCard';
 import { JobCompanySidebar } from '../../components/candidate/jobs/JobDetailComponents';
 import ApplyModal from '../../components/candidate/jobs/ApplyModal';
 import { useAuth } from '../../context/AuthContext';
@@ -43,11 +44,11 @@ const JOB_TYPE_LABELS = {
 const normalizeSkills = (skills) =>
   Array.isArray(skills)
     ? skills
-      .map((skill) => {
-        if (typeof skill === 'string') return skill;
-        return skill?.name || skill?.skill_name || skill?.label || '';
-      })
-      .filter(Boolean)
+        .map((skill) => {
+          if (typeof skill === 'string') return skill;
+          return skill?.name || skill?.skill_name || skill?.label || '';
+        })
+        .filter(Boolean)
     : [];
 
 const stripHtml = (value) =>
@@ -66,7 +67,8 @@ const escapeHtml = (value) =>
 
 const formatNumber = (value) => Number(value || 0).toLocaleString('vi-VN');
 
-const formatSalaryLabel = (job = {}) => {
+const formatSalaryLabel = (job = null) => {
+  if (job == null) return 'Thỏa thuận';
   const direct = job.salary_range || job.salary || job.salary_text;
   if (direct) return direct;
 
@@ -81,7 +83,8 @@ const formatSalaryLabel = (job = {}) => {
   return 'Thỏa thuận';
 };
 
-const formatWorkMode = (job = {}) => {
+const formatWorkMode = (job = null) => {
+  if (job == null) return 'Chưa cập nhật';
   const raw = String(job.type || job.job_type || job.work_mode || '').trim();
   if (!raw) return 'Chưa cập nhật';
   return JOB_TYPE_LABELS[raw] || JOB_TYPE_LABELS[raw.toLowerCase()] || raw;
@@ -107,30 +110,6 @@ const getStatusTone = ({ isApplied, deadlinePassed, status }) => {
   return 'blue';
 };
 
-const StatCard = ({ icon: Icon, label, value, helper, tone = 'emerald' }) => {
-  const toneClasses = {
-    emerald: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
-    blue: 'bg-blue-50 text-blue-700 ring-blue-100',
-    violet: 'bg-violet-50 text-violet-700 ring-violet-100',
-    amber: 'bg-amber-50 text-amber-700 ring-amber-100',
-  }[tone];
-
-  return (
-    <Card className="rounded-lg border-slate-200 bg-white p-3 shadow-sm transition-all duration-200 hover:border-emerald-200 hover:shadow-md">
-      <div className="flex items-start gap-3">
-        <div className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset', toneClasses)}>
-          <Icon className="h-4 w-4" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">{label}</p>
-          <p className="mt-1 truncate text-sm font-black text-slate-950 sm:text-base">{value}</p>
-          <p className="mt-0.5 line-clamp-1 text-xs font-medium leading-5 text-slate-500">{helper}</p>
-        </div>
-      </div>
-    </Card>
-  );
-};
-
 const GuidanceItem = ({ title, description }) => (
   <div className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2.5 transition-colors hover:border-emerald-100 hover:bg-emerald-50/50">
     <p className="text-sm font-bold text-slate-900">{title}</p>
@@ -149,7 +128,9 @@ const DetailSection = ({ icon: Icon, title, html, tone = 'emerald' }) => {
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 hover:border-emerald-200 hover:shadow-md sm:p-5">
       <div className="mb-3 flex items-center gap-3">
-        <div className={cn('flex h-9 w-9 items-center justify-center rounded-lg border', toneClasses)}>
+        <div
+          className={cn('flex h-9 w-9 items-center justify-center rounded-lg border', toneClasses)}
+        >
           <Icon className="h-4 w-4" />
         </div>
         <h2 className="text-base font-bold text-slate-950">{title}</h2>
@@ -354,7 +335,9 @@ const JobDetailPage = () => {
       icon: Users,
       label: 'Số lượng',
       value: job?.vacancies ? `${formatNumber(job.vacancies)} người` : 'Không giới hạn',
-      helper: job?.deadline ? `Hạn nộp ${formatDate(job.deadline)}` : 'Chưa giới hạn thời gian nộp.',
+      helper: job?.deadline
+        ? `Hạn nộp ${formatDate(job.deadline)}`
+        : 'Chưa giới hạn thời gian nộp.',
       tone: 'violet',
     },
   ];
@@ -429,8 +412,8 @@ const JobDetailPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50/70 pb-12">
-      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
+    <div className="min-h-screen bg-transparent pb-12">
+      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-transparent">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
           style={{
@@ -475,7 +458,9 @@ const JobDetailPage = () => {
                 leftIcon={isApplied ? CheckCircle2 : Target}
                 className={cn(
                   'h-10 rounded-lg px-4 text-sm font-bold',
-                  applyBlocked ? 'bg-white text-slate-500' : 'bg-emerald-600 text-white hover:bg-emerald-700'
+                  applyBlocked
+                    ? 'bg-white text-slate-500'
+                    : 'bg-emerald-600 text-white hover:bg-emerald-700'
                 )}
               >
                 {getApplyButtonText({ isApplied, deadlinePassed, status: job.status })}
@@ -533,7 +518,9 @@ const JobDetailPage = () => {
                 >
                   <option value="all">Tất cả nội dung</option>
                   {detailSections.map((section) => (
-                    <option key={section.id} value={section.id}>{section.label}</option>
+                    <option key={section.id} value={section.id}>
+                      {section.label}
+                    </option>
                   ))}
                 </select>
                 {(contentSearch || sectionFilter !== 'all') && (
@@ -577,21 +564,27 @@ const JobDetailPage = () => {
                 </div>
 
                 <div className="grid gap-2 bg-slate-50/70 p-4">
-                  <QuickInfoRow label="Ngày đăng" value={job.created_at ? formatDate(job.created_at) : 'Chưa cập nhật'} />
-                  <QuickInfoRow label="Hạn nộp" value={job.deadline ? formatDate(job.deadline) : 'Không giới hạn'} />
+                  <QuickInfoRow
+                    label="Ngày đăng"
+                    value={job.created_at ? formatDate(job.created_at) : 'Chưa cập nhật'}
+                  />
+                  <QuickInfoRow
+                    label="Hạn nộp"
+                    value={job.deadline ? formatDate(job.deadline) : 'Không giới hạn'}
+                  />
                   <QuickInfoRow label="Hình thức" value={workModeLabel} />
                 </div>
               </div>
             </Card>
 
             {visibleSections.length > 0 ? (
-              visibleSections.map((section) => (
-                <DetailSection key={section.id} {...section} />
-              ))
+              visibleSections.map((section) => <DetailSection key={section.id} {...section} />)
             ) : (
               <Card className="rounded-lg border-slate-200 bg-white p-8 text-center shadow-sm">
                 <Search className="mx-auto h-8 w-8 text-slate-300" />
-                <h2 className="mt-3 text-base font-bold text-slate-900">Không tìm thấy nội dung phù hợp</h2>
+                <h2 className="mt-3 text-base font-bold text-slate-900">
+                  Không tìm thấy nội dung phù hợp
+                </h2>
                 <p className="mx-auto mt-1 max-w-md text-sm text-slate-500">
                   Thử đổi từ khóa hoặc chọn lại bộ lọc để xem toàn bộ thông tin tuyển dụng.
                 </p>
@@ -615,14 +608,22 @@ const JobDetailPage = () => {
                   <Brain className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">Gợi ý hồ sơ</p>
-                  <h2 className="mt-1 text-base font-bold text-slate-950">Chuẩn bị trước khi nộp</h2>
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">
+                    Gợi ý hồ sơ
+                  </p>
+                  <h2 className="mt-1 text-base font-bold text-slate-950">
+                    Chuẩn bị trước khi nộp
+                  </h2>
                 </div>
               </div>
 
               <div className="mt-4 space-y-2.5">
                 {guidanceItems.map((item) => (
-                  <GuidanceItem key={item.title} title={item.title} description={item.description} />
+                  <GuidanceItem
+                    key={item.title}
+                    title={item.title}
+                    description={item.description}
+                  />
                 ))}
               </div>
 
@@ -642,7 +643,8 @@ const JobDetailPage = () => {
               </p>
               <h2 className="mt-2 text-base font-bold">Những gì nhà tuyển dụng đang tìm kiếm</h2>
               <p className="mt-2 text-xs font-medium leading-5 text-slate-300">
-                Dùng phần này để rà lại CV, danh mục dự án và phần giới thiệu bản thân trước khi gửi hồ sơ.
+                Dùng phần này để rà lại CV, danh mục dự án và phần giới thiệu bản thân trước khi gửi
+                hồ sơ.
               </p>
 
               <div className="mt-4 flex flex-wrap gap-2">

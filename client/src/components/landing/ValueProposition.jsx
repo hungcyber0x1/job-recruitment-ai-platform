@@ -6,7 +6,8 @@ const values = [
   {
     icon: Brain,
     title: 'Phân tích chuyên sâu',
-    description: 'Hiểu kỹ năng, kinh nghiệm và tiềm năng của bạn thông qua phân tích dữ liệu hiệu quả',
+    description:
+      'Hiểu kỹ năng, kinh nghiệm và tiềm năng của bạn thông qua phân tích dữ liệu hiệu quả',
     stat: '94.7%',
     statLabel: 'độ chính xác',
   },
@@ -27,7 +28,8 @@ const values = [
   {
     icon: BarChart3,
     title: 'Định hướng rõ ràng',
-    description: 'AI gợi ý các bước ưu tiên dựa trên xu hướng thị trường và mục tiêu cá nhân của bạn',
+    description:
+      'AI gợi ý các bước ưu tiên dựa trên xu hướng thị trường và mục tiêu cá nhân của bạn',
     stat: '24/7',
     statLabel: 'tư vấn liên tục',
   },
@@ -56,8 +58,8 @@ const ValueProposition = () => {
             Hệ thống là trung tâm <span className="landing-heading-muted">mọi trải nghiệm</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed font-medium max-w-[65ch]">
-            Không chỉ là công cụ tìm việc — HireBOT là người đồng hành thông minh trong hành trình sự
-            nghiệp của bạn
+            Không chỉ là công cụ tìm việc — HireBOT là người đồng hành thông minh trong hành trình
+            sự nghiệp của bạn
           </p>
         </motion.div>
 

@@ -250,8 +250,8 @@ const ModernHero = () => {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="mx-auto mb-12 max-w-2xl text-lg font-medium leading-relaxed text-neutral-600 md:text-xl lg:mx-0 xl:max-w-[36rem]"
             >
-              Hệ thống phân tích kỹ năng trong CV của bạn và đối chiếu với yêu cầu thực tế từ nhà tuyển
-              dụng — gợi ý đúng vị trí, đúng thời điểm.
+              Hệ thống phân tích kỹ năng trong CV của bạn và đối chiếu với yêu cầu thực tế từ nhà
+              tuyển dụng — gợi ý đúng vị trí, đúng thời điểm.
             </motion.p>
 
             <motion.div

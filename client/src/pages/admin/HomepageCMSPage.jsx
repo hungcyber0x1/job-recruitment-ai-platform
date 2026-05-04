@@ -21,6 +21,7 @@ import {
   X,
 } from 'lucide-react';
 
+import StatCard from '@/components/common/StatCard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useNotification } from '@/context/NotificationContext';
@@ -39,7 +40,15 @@ const INPUT_CLASS =
 const TEXTAREA_CLASS =
   'w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100';
 
-function SectionCard({ icon: Icon, title, description, action, className = '', children, ...props }) {
+function SectionCard({
+  icon: Icon,
+  title,
+  description,
+  action,
+  className = '',
+  children,
+  ...props
+}) {
   return (
     <section
       className={`rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition-all hover:border-emerald-200/70 hover:shadow-md sm:p-6 ${className}`}
@@ -359,28 +368,28 @@ const HomepageCMSPage = () => {
       value: formatNumber(totalManagedItems),
       helper: 'Số phần tử đang quản lý',
       icon: LayoutGrid,
-      className: 'bg-slate-50 text-slate-700 ring-slate-100',
+      type: 'neutral',
     },
     {
       label: 'Thống kê',
       value: formatNumber(quickStatsItems.length),
       helper: 'Khối số liệu hiển thị',
       icon: Users,
-      className: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
+      type: 'success',
     },
     {
       label: 'Đánh giá',
       value: formatNumber(testimonialItems.length),
       helper: 'Câu chuyện người dùng',
       icon: Quote,
-      className: 'bg-amber-50 text-amber-700 ring-amber-100',
+      type: 'warning',
     },
     {
       label: 'Đối tác',
       value: formatNumber(partnerItems.length),
       helper: 'Logo trusted by',
       icon: Building2,
-      className: 'bg-sky-50 text-sky-700 ring-sky-100',
+      type: 'primary',
     },
   ];
 
@@ -419,7 +428,8 @@ const HomepageCMSPage = () => {
                   {editMode === 'create' ? 'Thêm mục nội dung' : 'Cập nhật mục nội dung'}
                 </h3>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-                  Điền thông tin cần hiển thị trên homepage. Bố cục và thứ tự sẽ được áp dụng sau khi lưu.
+                  Điền thông tin cần hiển thị trên homepage. Bố cục và thứ tự sẽ được áp dụng sau
+                  khi lưu.
                 </p>
               </div>
               <Button
@@ -762,7 +772,12 @@ const HomepageCMSPage = () => {
           </div>
 
           <div className="flex flex-wrap justify-end gap-3 border-t border-slate-200 bg-slate-50 px-6 py-4 sm:px-7">
-            <Button type="button" variant="outline" onClick={closeEditor} className="h-11 rounded-lg">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={closeEditor}
+              className="h-11 rounded-lg"
+            >
               Hủy
             </Button>
             <Button
@@ -833,39 +848,22 @@ const HomepageCMSPage = () => {
                 </h1>
                 <p className="mt-4 max-w-3xl text-sm font-medium leading-7 text-slate-600 sm:text-base">
                   Quản trị các khối nội dung cốt lõi của trang chủ như thống kê nền tảng, đánh giá
-                  người dùng và hệ đối tác trong cùng một không gian vận hành sáng sủa, đồng nhất
-                  và dễ kiểm soát hơn.
+                  người dùng và hệ đối tác trong cùng một không gian vận hành sáng sủa, đồng nhất và
+                  dễ kiểm soát hơn.
                 </p>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                {summaryCards.map((card) => {
-                  const Icon = card.icon;
-
-                  return (
-                    <div
-                      key={card.label}
-                      className="rounded-lg border border-white/80 bg-white/85 p-4 shadow-sm backdrop-blur"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-normal text-slate-500">
-                            {card.label}
-                          </p>
-                          <p className="mt-2 text-2xl font-bold tracking-normal text-slate-950">
-                            {card.value}
-                          </p>
-                          <p className="mt-2 text-sm text-slate-500">{card.helper}</p>
-                        </div>
-                        <div
-                          className={`flex h-10 w-10 items-center justify-center rounded-lg ring-1 ring-inset ${card.className}`}
-                        >
-                          <Icon className="h-4 w-4" />
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                {summaryCards.map((card) => (
+                  <StatCard
+                    key={card.label}
+                    title={card.label}
+                    value={card.value}
+                    subtitle={card.helper}
+                    icon={card.icon}
+                    type={card.type}
+                  />
+                ))}
               </div>
 
               <div className="flex flex-wrap gap-3">
@@ -1083,7 +1081,9 @@ const HomepageCMSPage = () => {
                           </div>
                         </div>
 
-                        <div className="mt-4 flex items-center gap-1">{renderStars(item.rating)}</div>
+                        <div className="mt-4 flex items-center gap-1">
+                          {renderStars(item.rating)}
+                        </div>
                         <p className="mt-4 text-sm leading-7 text-slate-600">{item.content}</p>
 
                         <div className="mt-5 flex flex-wrap items-center gap-2">

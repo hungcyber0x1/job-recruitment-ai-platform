@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 
+import StatCard from '@/components/common/StatCard';
 import { resolveBrowserApiUrl } from '../../config';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
@@ -92,7 +93,10 @@ const APPLICATION_STATUS_META = {
   pending: { label: 'Chờ xử lý', className: 'bg-amber-50 text-amber-700 ring-amber-100' },
   submitted: { label: 'Đã nộp', className: 'bg-blue-50 text-blue-700 ring-blue-100' },
   reviewing: { label: 'Đang xem xét', className: 'bg-sky-50 text-sky-700 ring-sky-100' },
-  shortlisted: { label: 'Qua sơ loại', className: 'bg-emerald-50 text-emerald-700 ring-emerald-100' },
+  shortlisted: {
+    label: 'Qua sơ loại',
+    className: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
+  },
   interview: { label: 'Phỏng vấn', className: 'bg-violet-50 text-violet-700 ring-violet-100' },
   offered: { label: 'Đã đề nghị', className: 'bg-emerald-50 text-emerald-700 ring-emerald-100' },
   hired: { label: 'Đã tuyển', className: 'bg-emerald-50 text-emerald-700 ring-emerald-100' },
@@ -139,7 +143,12 @@ const getConversationAvatar = (conversation, role) => {
 const getCounterpartSubtitle = (conversation, role) => {
   if (!conversation) return '';
   if (role === 'candidate') {
-    return conversation.recruiter_name || conversation.recruiter_email || conversation.company_name || 'Nhà tuyển dụng';
+    return (
+      conversation.recruiter_name ||
+      conversation.recruiter_email ||
+      conversation.company_name ||
+      'Nhà tuyển dụng'
+    );
   }
   return conversation.candidate_email || conversation.candidate_name || 'Ứng viên';
 };
@@ -148,10 +157,12 @@ const normalizeText = (value) => String(value || '').trim();
 
 const getStatusMeta = (status) => {
   const key = normalizeText(status).toLowerCase();
-  return APPLICATION_STATUS_META[key] || {
-    label: status || 'Đang xử lý',
-    className: 'bg-slate-50 text-slate-700 ring-slate-200',
-  };
+  return (
+    APPLICATION_STATUS_META[key] || {
+      label: status || 'Đang xử lý',
+      className: 'bg-slate-50 text-slate-700 ring-slate-200',
+    }
+  );
 };
 
 const getMessageStatusMeta = (status) => {
@@ -211,7 +222,9 @@ const getAttachmentUrl = (url) => {
 };
 
 const getFileExtension = (name) => {
-  const match = String(name || '').toLowerCase().match(/\.[a-z0-9]+$/);
+  const match = String(name || '')
+    .toLowerCase()
+    .match(/\.[a-z0-9]+$/);
   return match?.[0] || '';
 };
 
@@ -221,7 +234,10 @@ const isAllowedAttachment = (file) => {
 };
 
 const getCurrentUserName = (user) =>
-  user?.fullName || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || user?.email || 'Người dùng';
+  user?.fullName ||
+  `${user?.first_name || ''} ${user?.last_name || ''}`.trim() ||
+  user?.email ||
+  'Người dùng';
 
 const isSameDate = (a, b) => {
   if (!a || !b) return false;
@@ -231,23 +247,13 @@ const isSameDate = (a, b) => {
   return da.toDateString() === db.toDateString();
 };
 
-const StatCard = ({ label, value, helper, icon: Icon, tone }) => (
-  <div className="group rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-sm shadow-slate-200/60 ring-1 ring-white/70 transition hover:-translate-y-0.5 hover:border-emerald-100 hover:shadow-lg hover:shadow-emerald-100/50">
-    <div className="flex items-start justify-between gap-3">
-      <div className="min-w-0">
-        <div className="truncate text-2xl font-black leading-none tracking-tight text-slate-950 sm:text-3xl">{value}</div>
-        <div className="mt-2 text-sm font-bold text-slate-700">{label}</div>
-        {helper && <div className="mt-0.5 truncate text-xs font-medium text-slate-500">{helper}</div>}
-      </div>
-      <div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ring-1 transition group-hover:scale-105', tone)}>
-        <Icon size={18} />
-      </div>
-    </div>
-  </div>
-);
-
 const SidebarCard = ({ title, icon: Icon, children, className, action }) => (
-  <div className={cn('rounded-2xl border border-slate-200/80 bg-white/95 p-5 shadow-sm shadow-slate-200/70 ring-1 ring-white/70', className)}>
+  <div
+    className={cn(
+      'rounded-2xl border border-slate-200/80 bg-white/95 p-5 shadow-sm shadow-slate-200/70 ring-1 ring-white/70',
+      className
+    )}
+  >
     <div className="flex items-start justify-between gap-3">
       <h3 className="flex items-center gap-2 text-base font-bold text-slate-950">
         <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100">
@@ -261,7 +267,9 @@ const SidebarCard = ({ title, icon: Icon, children, className, action }) => (
   </div>
 );
 
-const SkeletonBar = ({ className }) => <div className={cn('animate-pulse rounded-lg bg-slate-100', className)} />;
+const SkeletonBar = ({ className }) => (
+  <div className={cn('animate-pulse rounded-lg bg-slate-100', className)} />
+);
 
 const ConversationSkeleton = () => (
   <div className="space-y-2 p-2">
@@ -285,7 +293,9 @@ const MessageSkeleton = () => (
     {[0, 1, 2, 3, 4].map((item) => (
       <div key={item} className={cn('flex', item % 2 ? 'justify-end' : 'justify-start')}>
         <div className="w-[72%] max-w-sm space-y-2">
-          <SkeletonBar className={cn('h-12', item % 2 ? 'ml-auto w-4/5 bg-emerald-100' : 'w-full')} />
+          <SkeletonBar
+            className={cn('h-12', item % 2 ? 'ml-auto w-4/5 bg-emerald-100' : 'w-full')}
+          />
           <SkeletonBar className={cn('h-3 w-20', item % 2 && 'ml-auto')} />
         </div>
       </div>
@@ -299,7 +309,9 @@ const EmptyConversationState = ({ copy, onShowArchived, showArchived = false }) 
       <Inbox className="h-7 w-7" />
     </div>
     <h2 className="mt-5 text-xl font-bold text-slate-950">{copy.emptyTitle}</h2>
-    <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-500">{copy.emptyDescription}</p>
+    <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-slate-500">
+      {copy.emptyDescription}
+    </p>
     <div className="mt-6 flex flex-wrap justify-center gap-3">
       <Link
         to={copy.primaryCta.to}
@@ -329,7 +341,7 @@ const EmptyConversationState = ({ copy, onShowArchived, showArchived = false }) 
 );
 
 const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
-  const normalizedRole = role === 'employer' ? 'recruiter' : role;
+  const normalizedRole = role;
   const copy = ROLE_COPY[normalizedRole] || ROLE_COPY.candidate;
   const { user } = useAuth();
   const { showNotification } = useNotification();
@@ -385,7 +397,10 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
       }
     });
     if (activeConversation?.job_id && !map.has(String(activeConversation.job_id))) {
-      map.set(String(activeConversation.job_id), activeConversation.job_title || `Công việc #${activeConversation.job_id}`);
+      map.set(
+        String(activeConversation.job_id),
+        activeConversation.job_title || `Công việc #${activeConversation.job_id}`
+      );
     }
     return Array.from(map.entries()).map(([id, title]) => ({ id, title }));
   }, [activeConversation, conversations]);
@@ -407,14 +422,19 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
         conversation.last_message_preview,
         conversation.application_status,
       ];
-      return fields.some((value) => String(value || '').toLowerCase().includes(query));
+      return fields.some((value) =>
+        String(value || '')
+          .toLowerCase()
+          .includes(query)
+      );
     });
   }, [conversations, normalizedRole, searchTerm]);
 
   const activeTodayCount = useMemo(() => {
     const today = new Date();
     return conversations.filter((conversation) => {
-      const timestamp = conversation.last_message_at || conversation.updated_at || conversation.created_at;
+      const timestamp =
+        conversation.last_message_at || conversation.updated_at || conversation.created_at;
       return isSameDate(timestamp, today);
     }).length;
   }, [conversations]);
@@ -423,10 +443,13 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
     () =>
       messages.map((message, index) => ({
         ...message,
-        showDateSeparator: index === 0 || !isSameDate(message.created_at, messages[index - 1]?.created_at),
+        showDateSeparator:
+          index === 0 || !isSameDate(message.created_at, messages[index - 1]?.created_at),
       })),
     [messages]
   );
+
+  const applicationOpenRef = useRef({ key: '', promise: null });
 
   const refreshConversations = useCallback(
     async ({ silent = false } = {}) => {
@@ -455,7 +478,10 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
       if (!id) return null;
       if (!silent) setMessagesLoading(true);
       try {
-        const response = await messageService.getConversation(id, { limit: HISTORY_PAGE_SIZE, latest: true });
+        const response = await messageService.getConversation(id, {
+          limit: HISTORY_PAGE_SIZE,
+          latest: true,
+        });
         const payload = unwrap(response);
         const conversation = payload.conversation || null;
         const nextMessages = Array.isArray(payload.messages) ? payload.messages : [];
@@ -466,7 +492,7 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
         setLoadError(null);
 
         if (conversation?.id) {
-          messageService.markRead(conversation.id).catch(() => { });
+          messageService.markRead(conversation.id).catch(() => {});
           setConversations((prev) =>
             prev.map((item) =>
               Number(item.id) === Number(conversation.id) ? { ...item, unread_count: 0 } : item
@@ -495,32 +521,55 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
   const openApplicationConversation = useCallback(
     async (id) => {
       if (!id) return null;
-      setMessagesLoading(true);
-      try {
-        const response = await messageService.openByApplication(id);
-        const payload = unwrap(response);
-        const conversation = payload.conversation || null;
-        const nextMessages = Array.isArray(payload.messages) ? payload.messages : [];
-
-        setActiveConversation(conversation);
-        setMessages(nextMessages);
-        setHistoryExhausted(false);
-        setLoadError(null);
-        if (conversation?.id) {
-          setSearchParams({ conversationId: String(conversation.id) }, { replace: true });
-        }
-        await refreshConversations({ silent: true });
-        return conversation;
-      } catch (error) {
-        console.error('Failed to open application conversation:', error);
-        setLoadError('Không mở được hội thoại cho hồ sơ ứng tuyển này.');
-        showNotification('Không mở được hội thoại cho hồ sơ ứng tuyển này.', 'error');
-        return null;
-      } finally {
-        setMessagesLoading(false);
+      const key = `${normalizedRole}:${id}`;
+      if (applicationOpenRef.current.key === key && applicationOpenRef.current.promise) {
+        return applicationOpenRef.current.promise;
       }
+
+      const promise = (async () => {
+        setMessagesLoading(true);
+        try {
+          const response = await messageService.openByApplication(id);
+          const payload = unwrap(response);
+          const conversation = payload.conversation || null;
+          const nextMessages = Array.isArray(payload.messages) ? payload.messages : [];
+
+          setActiveConversation(conversation);
+          setMessages(nextMessages);
+          setHistoryExhausted(false);
+          setLoadError(null);
+          if (conversation?.id) {
+            setSearchParams({ conversationId: String(conversation.id) }, { replace: true });
+          }
+          await refreshConversations({ silent: true });
+          return conversation;
+        } catch (error) {
+          const status = error.response?.status;
+          console.error('Failed to open application conversation:', error);
+          setActiveConversation(null);
+          setMessages([]);
+          setHistoryExhausted(false);
+          setLoadError(
+            status === 404
+              ? 'Không tìm thấy hồ sơ ứng tuyển hoặc hồ sơ đã bị xóa.'
+              : 'Không mở được hội thoại cho hồ sơ ứng tuyển này.'
+          );
+          if (status !== 404) {
+            showNotification('Không mở được hội thoại cho hồ sơ ứng tuyển này.', 'error');
+          }
+          return null;
+        } finally {
+          setMessagesLoading(false);
+          if (applicationOpenRef.current.key === key) {
+            applicationOpenRef.current = { key: '', promise: null };
+          }
+        }
+      })();
+
+      applicationOpenRef.current = { key, promise };
+      return promise;
     },
-    [refreshConversations, setSearchParams, showNotification]
+    [normalizedRole, refreshConversations, setSearchParams, showNotification]
   );
 
   const initialize = useCallback(async () => {
@@ -529,7 +578,14 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
     try {
       const items = await refreshConversations({ silent: true });
       if (applicationId) {
-        await openApplicationConversation(applicationId);
+        const matchedConversation = items.find(
+          (item) => Number(item.application_id) === Number(applicationId)
+        );
+        if (matchedConversation?.id) {
+          await loadConversation(matchedConversation.id, { updateUrl: true });
+        } else {
+          await openApplicationConversation(applicationId);
+        }
       } else if (conversationId) {
         await loadConversation(conversationId, { updateUrl: false });
       } else if (items[0]?.id) {
@@ -549,7 +605,13 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
     } finally {
       setLoading(false);
     }
-  }, [applicationId, conversationId, loadConversation, openApplicationConversation, refreshConversations]);
+  }, [
+    applicationId,
+    conversationId,
+    loadConversation,
+    openApplicationConversation,
+    refreshConversations,
+  ]);
 
   useEffect(() => {
     initialize();
@@ -615,7 +677,10 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
     const body = input.trim();
     if ((!body && !selectedFile) || !activeConversation?.id || sending) return;
     if (body.length > MAX_MESSAGE_LENGTH) {
-      showNotification(`Tin nhắn không được vượt quá ${MAX_MESSAGE_LENGTH.toLocaleString('vi-VN')} ký tự.`, 'error');
+      showNotification(
+        `Tin nhắn không được vượt quá ${MAX_MESSAGE_LENGTH.toLocaleString('vi-VN')} ký tự.`,
+        'error'
+      );
       return;
     }
     if (selectedFile && !validateSelectedFile(selectedFile)) return;
@@ -624,10 +689,10 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
     const now = new Date().toISOString();
     const optimisticAttachment = selectedFile
       ? {
-        name: selectedFile.name,
-        mime: selectedFile.type,
-        size: selectedFile.size,
-      }
+          name: selectedFile.name,
+          mime: selectedFile.type,
+          size: selectedFile.size,
+        }
       : null;
     const preview = selectedFile ? `📎 ${selectedFile.name}${body ? ` · ${body}` : ''}` : body;
     const optimisticMessage = {
@@ -654,18 +719,25 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
     setSelectedFile(null);
     setMessages((prev) => [...prev, optimisticMessage]);
     setActiveConversation((prev) =>
-      prev ? { ...prev, last_message_preview: preview, last_message_at: now, message_count: Number(prev.message_count || 0) + 1 } : prev
+      prev
+        ? {
+            ...prev,
+            last_message_preview: preview,
+            last_message_at: now,
+            message_count: Number(prev.message_count || 0) + 1,
+          }
+        : prev
     );
     setConversations((prev) =>
       prev.map((item) =>
         Number(item.id) === Number(activeConversation.id)
           ? {
-            ...item,
-            last_message_preview: preview,
-            last_message_at: now,
-            unread_count: 0,
-            message_count: Number(item.message_count || 0) + 1,
-          }
+              ...item,
+              last_message_preview: preview,
+              last_message_at: now,
+              unread_count: 0,
+              message_count: Number(item.message_count || 0) + 1,
+            }
           : item
       )
     );
@@ -682,7 +754,10 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
       setMessages((prev) => prev.filter((item) => item.id !== optimisticId));
       setInput(body);
       if (fileToSend) setSelectedFile(fileToSend);
-      showNotification(error.response?.data?.message || 'Không gửi được tin nhắn. Vui lòng thử lại.', 'error');
+      showNotification(
+        error.response?.data?.message || 'Không gửi được tin nhắn. Vui lòng thử lại.',
+        'error'
+      );
     } finally {
       setSending(false);
     }
@@ -707,7 +782,12 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
 
   const clearSearch = () => setSearchTerm('');
 
-  const runConversationAction = async ({ actionKey, action, successMessage, afterDelete = false }) => {
+  const runConversationAction = async ({
+    actionKey,
+    action,
+    successMessage,
+    afterDelete = false,
+  }) => {
     if (!activeConversation?.id || conversationActionLoading) return;
     setConversationActionLoading(actionKey);
     try {
@@ -724,7 +804,10 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
       await refreshConversations({ silent: true });
     } catch (error) {
       console.error(`Failed conversation action ${actionKey}:`, error);
-      showNotification(error.response?.data?.message || 'Không thể thực hiện thao tác. Vui lòng thử lại.', 'error');
+      showNotification(
+        error.response?.data?.message || 'Không thể thực hiện thao tác. Vui lòng thử lại.',
+        'error'
+      );
     } finally {
       setConversationActionLoading('');
     }
@@ -763,7 +846,9 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
 
       setMessages((prev) => {
         const existingIds = new Set(prev.map((item) => String(item.id)));
-        const uniqueOlderMessages = olderMessages.filter((item) => !existingIds.has(String(item.id)));
+        const uniqueOlderMessages = olderMessages.filter(
+          (item) => !existingIds.has(String(item.id))
+        );
         return [...uniqueOlderMessages, ...prev];
       });
     } catch (error) {
@@ -787,7 +872,12 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
   };
 
   const deleteCurrentConversation = () => {
-    if (!window.confirm('Xóa hội thoại khỏi hộp tin của bạn? Người còn lại vẫn có thể thấy lịch sử của họ.')) return;
+    if (
+      !window.confirm(
+        'Xóa hội thoại khỏi hộp tin của bạn? Người còn lại vẫn có thể thấy lịch sử của họ.'
+      )
+    )
+      return;
     runConversationAction({
       actionKey: 'delete',
       action: (id) => messageService.deleteConversation(id),
@@ -822,7 +912,8 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
       successMessage: 'Đã gửi lời mời phỏng vấn.',
     });
     setInterviewForm({ scheduled_at: '', location: '', note: '' });
-    if (activeConversation?.id) await loadConversation(activeConversation.id, { updateUrl: false, silent: true });
+    if (activeConversation?.id)
+      await loadConversation(activeConversation.id, { updateUrl: false, silent: true });
   };
 
   const sendJobInfo = async (event) => {
@@ -838,12 +929,15 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
       successMessage: 'Đã gửi thông tin công việc.',
     });
     setJobInfoForm({ title: '', url: '', note: '' });
-    if (activeConversation?.id) await loadConversation(activeConversation.id, { updateUrl: false, silent: true });
+    if (activeConversation?.id)
+      await loadConversation(activeConversation.id, { updateUrl: false, silent: true });
   };
 
   const isConversationClosed = activeConversation?.status === 'closed';
   const isConversationBlocked = Boolean(
-    activeConversation?.status === 'blocked' || activeConversation?.blocked_by_viewer || activeConversation?.blocked_by_counterpart
+    activeConversation?.status === 'blocked' ||
+    activeConversation?.blocked_by_viewer ||
+    activeConversation?.blocked_by_counterpart
   );
   const composerDisabled = isConversationClosed || isConversationBlocked;
   const canSend = Boolean(
@@ -855,7 +949,10 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
   );
   const totalMessageCount = Number(activeConversation?.message_count || 0);
   const canLoadOlderMessages = Boolean(
-    activeConversation?.id && messages.length > 0 && !historyExhausted && totalMessageCount > messages.length
+    activeConversation?.id &&
+    messages.length > 0 &&
+    !historyExhausted &&
+    totalMessageCount > messages.length
   );
   const hasConversations = conversations.length > 0 || activeConversation;
   const currentStatus = getStatusMeta(activeConversation?.application_status);
@@ -886,8 +983,8 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#dcfce7_0,#f8fafc_34%,#f8fafc_100%)] pb-14">
-      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
+    <div className="min-h-screen bg-transparent pb-14">
+      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-transparent">
         <div
           className="pointer-events-none absolute inset-0 opacity-50"
           style={{
@@ -1003,13 +1100,19 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
             </div>
 
             <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)_300px]">
-              <aside className={cn('overflow-hidden rounded-2xl border border-slate-200/80 bg-white/95 shadow-xl shadow-slate-200/70 ring-1 ring-white/70', mobilePanel !== 'inbox' && 'hidden lg:block')}>
+              <aside
+                className={cn(
+                  'overflow-hidden rounded-2xl border border-slate-200/80 bg-white/95 shadow-xl shadow-slate-200/70 ring-1 ring-white/70',
+                  mobilePanel !== 'inbox' && 'hidden lg:block'
+                )}
+              >
                 <div className="border-b border-slate-200/80 bg-slate-50/70 p-4 backdrop-blur">
                   <div className="flex items-center justify-between">
                     <div>
                       <h2 className="text-base font-bold text-slate-950">{copy.listTitle}</h2>
                       <p className="text-xs text-slate-500">
-                        {filteredConversations.length} {showArchived ? 'hội thoại đã lưu trữ' : 'hội thoại'}
+                        {filteredConversations.length}{' '}
+                        {showArchived ? 'hội thoại đã lưu trữ' : 'hội thoại'}
                       </p>
                     </div>
                     <button
@@ -1018,7 +1121,9 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
                       className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:border-emerald-200 hover:text-emerald-700"
                       aria-label="Làm mới"
                     >
-                      <RefreshCw className={cn('h-4 w-4', (refreshing || listRefreshing) && 'animate-spin')} />
+                      <RefreshCw
+                        className={cn('h-4 w-4', (refreshing || listRefreshing) && 'animate-spin')}
+                      />
                     </button>
                   </div>
                   <div className="relative mt-3">
@@ -1049,7 +1154,9 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
                       >
                         <option value="all">Tất cả vị trí tuyển dụng</option>
                         {jobOptions.map((job) => (
-                          <option key={job.id} value={job.id}>{job.title}</option>
+                          <option key={job.id} value={job.id}>
+                            {job.title}
+                          </option>
                         ))}
                       </select>
                     )}
@@ -1094,7 +1201,9 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
                           <div className="flex items-start gap-2.5">
                             <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-900 to-slate-700 text-xs font-bold text-white shadow-sm">
                               {getConversationAvatar(conversation, normalizedRole)}
-                              {unread > 0 && <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-500" />}
+                              {unread > 0 && (
+                                <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-500" />
+                              )}
                             </div>
                             <div className="min-w-0 flex-1">
                               <div className="flex items-start justify-between gap-1">
@@ -1114,7 +1223,12 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
                                 {conversation.last_message_preview || 'Chưa có tin nhắn.'}
                               </p>
                               <div className="mt-2 flex items-center justify-between gap-2">
-                                <span className={cn('rounded-md px-1.5 py-0.5 text-[10px] font-bold ring-1 ring-inset', status.className)}>
+                                <span
+                                  className={cn(
+                                    'rounded-md px-1.5 py-0.5 text-[10px] font-bold ring-1 ring-inset',
+                                    status.className
+                                  )}
+                                >
                                   {status.label}
                                 </span>
                                 <span className="shrink-0 text-[10px] font-medium text-slate-400">
@@ -1132,7 +1246,12 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
                 </div>
               </aside>
 
-              <section className={cn('flex min-h-[700px] flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white/95 shadow-xl shadow-slate-200/70 ring-1 ring-white/70', mobilePanel !== 'messages' && 'hidden lg:block')}>
+              <section
+                className={cn(
+                  'flex min-h-[700px] flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white/95 shadow-xl shadow-slate-200/70 ring-1 ring-white/70',
+                  mobilePanel !== 'messages' && 'hidden lg:block'
+                )}
+              >
                 {activeConversation ? (
                   <>
                     <div className="sticky top-0 z-10 border-b border-slate-200/80 bg-white/95 px-4 py-3 backdrop-blur">
@@ -1164,7 +1283,12 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
                             <ShieldCheck className="h-3.5 w-3.5" />
                             Bảo mật
                           </span>
-                          <span className={cn('rounded-full px-3 py-1.5 text-xs font-bold ring-1 ring-inset', currentStatus.className)}>
+                          <span
+                            className={cn(
+                              'rounded-full px-3 py-1.5 text-xs font-bold ring-1 ring-inset',
+                              currentStatus.className
+                            )}
+                          >
                             {currentStatus.label}
                           </span>
                         </div>
@@ -1232,17 +1356,28 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
                                 disabled={historyLoading}
                                 className="inline-flex h-9 items-center gap-2 rounded-lg border border-emerald-200 bg-white px-4 text-xs font-bold text-emerald-700 shadow-sm transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-60"
                               >
-                                {historyLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+                                {historyLoading ? (
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                  <RefreshCw className="h-3.5 w-3.5" />
+                                )}
                                 Xem lại lịch sử trò chuyện
                               </button>
                             </div>
                           )}
                           {messageTimeline.map((message, index) => {
                             const isMine = Number(message.sender_id) === Number(user?.id);
-                            const isSystem = message.sender_role === 'system' || message.message_type === 'system';
-                            const isSpecial = ['interview_invite', 'job_info'].includes(message.message_type);
+                            const isSystem =
+                              message.sender_role === 'system' || message.message_type === 'system';
+                            const isSpecial = ['interview_invite', 'job_info'].includes(
+                              message.message_type
+                            );
                             const attachment = getAttachmentMeta(message);
-                            const hasAttachment = Boolean(attachment.url || attachment.name !== 'Tệp đính kèm' || message.message_type === 'file');
+                            const hasAttachment = Boolean(
+                              attachment.url ||
+                              attachment.name !== 'Tệp đính kèm' ||
+                              message.message_type === 'file'
+                            );
                             const statusMeta = getMessageStatusMeta(message.status);
                             const StatusIcon = statusMeta.icon;
                             return (
@@ -1261,7 +1396,12 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
                                     </div>
                                   </div>
                                 ) : (
-                                  <div className={cn('group flex items-end gap-2', isMine ? 'justify-end' : 'justify-start')}>
+                                  <div
+                                    className={cn(
+                                      'group flex items-end gap-2',
+                                      isMine ? 'justify-end' : 'justify-start'
+                                    )}
+                                  >
                                     {!isMine && (
                                       <div className="mb-5 hidden h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-slate-900 to-slate-700 text-[10px] font-bold text-white shadow-sm sm:flex">
                                         {getConversationAvatar(activeConversation, normalizedRole)}
@@ -1274,14 +1414,27 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
                                           isMine
                                             ? 'rounded-br-md border-emerald-500/20 bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-emerald-900/10'
                                             : 'rounded-bl-md border-slate-200/90 bg-white/95 text-slate-700 shadow-slate-200/70',
-                                          isSpecial && !isMine && 'border-emerald-100 bg-emerald-50/90',
+                                          isSpecial &&
+                                            !isMine &&
+                                            'border-emerald-100 bg-emerald-50/90',
                                           isSpecial && isMine && 'from-emerald-700 to-teal-700'
                                         )}
                                       >
                                         {isSpecial && (
-                                          <div className={cn('flex items-center gap-2 text-xs font-black uppercase tracking-wide', isMine ? 'text-emerald-50' : 'text-emerald-700')}>
-                                            {message.message_type === 'interview_invite' ? <CalendarClock className="h-4 w-4" /> : <Briefcase className="h-4 w-4" />}
-                                            {message.message_type === 'interview_invite' ? 'Lời mời phỏng vấn' : 'Thông tin công việc'}
+                                          <div
+                                            className={cn(
+                                              'flex items-center gap-2 text-xs font-black uppercase tracking-wide',
+                                              isMine ? 'text-emerald-50' : 'text-emerald-700'
+                                            )}
+                                          >
+                                            {message.message_type === 'interview_invite' ? (
+                                              <CalendarClock className="h-4 w-4" />
+                                            ) : (
+                                              <Briefcase className="h-4 w-4" />
+                                            )}
+                                            {message.message_type === 'interview_invite'
+                                              ? 'Lời mời phỏng vấn'
+                                              : 'Thông tin công việc'}
                                           </div>
                                         )}
                                         {message.body && <div>{message.body}</div>}
@@ -1297,16 +1450,32 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
                                                 : 'bg-slate-50 text-slate-700 ring-slate-200 hover:bg-slate-100'
                                             )}
                                           >
-                                            <span className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-lg', isMine ? 'bg-white/15' : 'bg-white')}>
+                                            <span
+                                              className={cn(
+                                                'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg',
+                                                isMine ? 'bg-white/15' : 'bg-white'
+                                              )}
+                                            >
                                               <FileText className="h-5 w-5" />
                                             </span>
                                             <span className="min-w-0 flex-1">
-                                              <span className="block truncate text-sm font-bold">{attachment.name}</span>
-                                              <span className={cn('text-xs font-semibold', isMine ? 'text-emerald-50/80' : 'text-slate-400')}>
-                                                {[formatFileSize(attachment.size), attachment.mime].filter(Boolean).join(' · ') || 'Tệp CV/hồ sơ dự án'}
+                                              <span className="block truncate text-sm font-bold">
+                                                {attachment.name}
+                                              </span>
+                                              <span
+                                                className={cn(
+                                                  'text-xs font-semibold',
+                                                  isMine ? 'text-emerald-50/80' : 'text-slate-400'
+                                                )}
+                                              >
+                                                {[formatFileSize(attachment.size), attachment.mime]
+                                                  .filter(Boolean)
+                                                  .join(' · ') || 'Tệp CV/hồ sơ dự án'}
                                               </span>
                                             </span>
-                                            {attachment.url && <Download className="h-4 w-4 shrink-0" />}
+                                            {attachment.url && (
+                                              <Download className="h-4 w-4 shrink-0" />
+                                            )}
                                           </a>
                                         )}
                                       </div>
@@ -1325,8 +1494,14 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
                                           </span>
                                         ) : (
                                           isMine && (
-                                            <span className={cn('inline-flex items-center gap-1', statusMeta.className)}>
-                                              <StatusIcon className="h-3.5 w-3.5" /> {statusMeta.label}
+                                            <span
+                                              className={cn(
+                                                'inline-flex items-center gap-1',
+                                                statusMeta.className
+                                              )}
+                                            >
+                                              <StatusIcon className="h-3.5 w-3.5" />{' '}
+                                              {statusMeta.label}
                                             </span>
                                           )
                                         )}
@@ -1342,44 +1517,64 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
                       )}
                     </div>
 
-                    <form onSubmit={handleSend} className="border-t border-slate-200/80 bg-white/95 p-4 shadow-[0_-16px_36px_-28px_rgba(15,23,42,0.55)] backdrop-blur">
+                    <form
+                      onSubmit={handleSend}
+                      className="border-t border-slate-200/80 bg-gradient-to-b from-white/95 to-slate-50/95 p-4 shadow-[0_-18px_44px_-30px_rgba(15,23,42,0.45)] backdrop-blur sm:p-5"
+                    >
                       {isConversationClosed && (
-                        <div className="mb-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-500">
-                          Hội thoại đã đóng. Bạn vẫn có thể xem lịch sử trao đổi nhưng không nên gửi thêm tin mới.
+                        <div className="mb-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-500 shadow-sm">
+                          Hội thoại đã đóng. Bạn vẫn có thể xem lịch sử trao đổi nhưng không nên gửi
+                          thêm tin mới.
                         </div>
                       )}
                       {selectedFile && (
-                        <div className="mb-3 flex items-center gap-3 rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
-                          <Paperclip className="h-4 w-4 shrink-0" />
+                        <div className="mb-3 flex items-center gap-3 rounded-2xl border border-emerald-100 bg-gradient-to-r from-emerald-50 to-teal-50 px-3 py-3 text-xs text-emerald-800 shadow-sm shadow-emerald-900/5">
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-emerald-600 shadow-sm ring-1 ring-inset ring-emerald-100">
+                            <Paperclip className="h-4 w-4" />
+                          </span>
                           <div className="min-w-0 flex-1">
-                            <p className="truncate font-bold">{selectedFile.name}</p>
-                            <p className="font-semibold opacity-80">{formatFileSize(selectedFile.size)} · Sẽ gửi dưới dạng CV/hồ sơ dự án</p>
+                            <p className="truncate font-black text-emerald-950">
+                              {selectedFile.name}
+                            </p>
+                            <p className="mt-0.5 font-semibold text-emerald-700/80">
+                              {formatFileSize(selectedFile.size)} · Sẽ gửi dưới dạng CV/hồ sơ dự án
+                            </p>
                           </div>
                           <button
                             type="button"
                             onClick={removeSelectedFile}
-                            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white text-emerald-700 ring-1 ring-inset ring-emerald-100 hover:bg-emerald-100"
+                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white text-emerald-700 shadow-sm ring-1 ring-inset ring-emerald-100 transition hover:bg-emerald-100"
                             aria-label="Gỡ tệp"
                           >
                             <X className="h-3.5 w-3.5" />
                           </button>
                         </div>
                       )}
-                      <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
+                      <div className="mb-3 flex items-center gap-2 overflow-x-auto pb-1">
+                        <span className="hidden shrink-0 items-center gap-1.5 rounded-full bg-slate-900 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.12em] text-white shadow-sm sm:inline-flex">
+                          <Sparkles className="h-3 w-3 text-emerald-300" />
+                          Gợi ý
+                        </span>
                         {copy.quickReplies.map((reply) => (
                           <button
                             key={reply}
                             type="button"
                             onClick={() => applyQuickReply(reply)}
                             disabled={composerDisabled}
-                            className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-600 shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-600 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
                           >
-                            <Sparkles className="h-3 w-3" />
                             {reply.length > 52 ? `${reply.slice(0, 52)}...` : reply}
                           </button>
                         ))}
                       </div>
-                      <div className="flex items-end gap-2 rounded-2xl border border-slate-200 bg-slate-50/80 p-2 shadow-inner shadow-slate-200/60">
+                      <div
+                        className={cn(
+                          'rounded-[1.35rem] border bg-white p-2 shadow-lg shadow-slate-900/5 transition focus-within:-translate-y-0.5 focus-within:shadow-xl focus-within:shadow-emerald-900/10',
+                          characterCount > MAX_MESSAGE_LENGTH
+                            ? 'border-rose-300 focus-within:border-rose-400 focus-within:ring-4 focus-within:ring-rose-500/10'
+                            : 'border-slate-200 focus-within:border-emerald-300 focus-within:ring-4 focus-within:ring-emerald-500/10'
+                        )}
+                      >
                         <input
                           ref={fileInputRef}
                           type="file"
@@ -1387,46 +1582,64 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
                           onChange={handleFileSelect}
                           className="hidden"
                         />
-                        <button
-                          type="button"
-                          onClick={() => fileInputRef.current?.click()}
-                          disabled={composerDisabled || sending}
-                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-40"
-                          aria-label="Đính kèm CV hoặc hồ sơ dự án"
-                        >
-                          <Paperclip className="h-4 w-4" />
-                        </button>
-                        <div className="min-w-0 flex-1">
-                          <textarea
-                            ref={textareaRef}
-                            value={input}
-                            onChange={(event) => setInput(event.target.value)}
-                            onKeyDown={handleComposerKeyDown}
-                            placeholder={copy.messagePlaceholder}
-                            rows={2}
-                            disabled={composerDisabled}
-                            className={cn(
-                              'min-h-[56px] w-full resize-none rounded-xl border bg-white px-4 py-3 text-sm font-medium text-slate-900 shadow-sm outline-none transition focus:bg-white focus:ring-4 disabled:cursor-not-allowed disabled:opacity-60',
-                              characterCount > MAX_MESSAGE_LENGTH
-                                ? 'border-rose-300 focus:border-rose-400 focus:ring-rose-500/10'
-                                : 'border-slate-200 focus:border-emerald-300 focus:ring-emerald-500/10'
-                            )}
-                          />
-                          <div className="mt-1 flex items-center justify-between gap-2 text-[11px] font-semibold text-slate-400">
-                            <span>Enter để gửi, Shift + Enter để xuống dòng · File tối đa 5MB</span>
-                            <span className={cn(characterCount > MAX_MESSAGE_LENGTH && 'text-rose-600')}>
-                              {characterCount.toLocaleString('vi-VN')}/{MAX_MESSAGE_LENGTH.toLocaleString('vi-VN')}
+                        <textarea
+                          ref={textareaRef}
+                          value={input}
+                          onChange={(event) => setInput(event.target.value)}
+                          onKeyDown={handleComposerKeyDown}
+                          placeholder={copy.messagePlaceholder}
+                          rows={3}
+                          disabled={composerDisabled}
+                          className="max-h-40 min-h-[92px] w-full resize-none rounded-2xl border-0 bg-transparent px-4 py-3 text-sm font-semibold leading-6 text-slate-900 outline-none placeholder:text-slate-400 disabled:cursor-not-allowed disabled:opacity-60"
+                        />
+                        <div className="mt-1 flex flex-col gap-3 border-t border-slate-100 px-2 pt-3 sm:flex-row sm:items-center sm:justify-between">
+                          <div className="flex min-w-0 flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-500">
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-2.5 py-1 ring-1 ring-inset ring-slate-200">
+                              <Sparkles className="h-3.5 w-3.5 text-emerald-500" />
+                              Enter gửi · Shift + Enter xuống dòng
+                            </span>
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-2.5 py-1 ring-1 ring-inset ring-slate-200">
+                              <Paperclip className="h-3.5 w-3.5 text-slate-400" />
+                              Tệp tối đa 5MB
                             </span>
                           </div>
+                          <div className="flex shrink-0 items-center justify-between gap-2 sm:justify-end">
+                            <span
+                              className={cn(
+                                'min-w-[76px] text-right text-[11px] font-black text-slate-400',
+                                characterCount > MAX_MESSAGE_LENGTH && 'text-rose-600'
+                              )}
+                            >
+                              {characterCount.toLocaleString('vi-VN')}/
+                              {MAX_MESSAGE_LENGTH.toLocaleString('vi-VN')}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => fileInputRef.current?.click()}
+                              disabled={composerDisabled || sending}
+                              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-600 shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-40"
+                              aria-label="Đính kèm CV hoặc hồ sơ dự án"
+                            >
+                              <Paperclip className="h-4 w-4" />
+                              <span className="hidden md:inline">Đính kèm</span>
+                            </button>
+                            <button
+                              type="submit"
+                              disabled={!canSend}
+                              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 px-4 text-sm font-black text-white shadow-lg shadow-emerald-600/25 transition hover:-translate-y-0.5 hover:from-emerald-700 hover:to-teal-700 hover:shadow-xl hover:shadow-emerald-700/25 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none disabled:hover:translate-y-0"
+                              aria-label="Gửi tin nhắn"
+                            >
+                              {sending ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Send className="h-4 w-4" />
+                              )}
+                              <span className="hidden sm:inline">
+                                {sending ? 'Đang gửi' : 'Gửi'}
+                              </span>
+                            </button>
+                          </div>
                         </div>
-                        <button
-                          type="submit"
-                          disabled={!canSend}
-                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-600/20 transition hover:from-emerald-700 hover:to-teal-700 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
-                          aria-label="Gửi tin nhắn"
-                        >
-                          {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                        </button>
                       </div>
                     </form>
                   </>
@@ -1434,7 +1647,9 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
                   <div className="flex min-h-[700px] items-center justify-center bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.10),transparent_42%)] p-8 text-center">
                     <div>
                       <MessageSquare className="mx-auto h-10 w-10 text-slate-300" />
-                      <h2 className="mt-4 text-base font-bold text-slate-950">Chọn một hội thoại</h2>
+                      <h2 className="mt-4 text-base font-bold text-slate-950">
+                        Chọn một hội thoại
+                      </h2>
                       <p className="mt-2 text-sm text-slate-500">
                         Chọn hội thoại bên trái để xem tin nhắn và ngữ cảnh hồ sơ.
                       </p>
@@ -1457,7 +1672,12 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
                   icon={Briefcase}
                   action={
                     activeConversation ? (
-                      <span className={cn('rounded-md px-2 py-1 text-[10px] font-bold ring-1 ring-inset', currentStatus.className)}>
+                      <span
+                        className={cn(
+                          'rounded-md px-2 py-1 text-[10px] font-bold ring-1 ring-inset',
+                          currentStatus.className
+                        )}
+                      >
                         {currentStatus.label}
                       </span>
                     ) : null
@@ -1466,18 +1686,37 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
                   {activeConversation ? (
                     <div className="mt-3 space-y-2">
                       {[
-                        { label: 'Công việc', value: activeConversation.job_title || 'Đang cập nhật', helper: formatJobType(activeConversation.job_type) },
-                        { label: copy.detailOwnerLabel, value: getConversationName(activeConversation, normalizedRole), helper: copy.ownerHelper },
+                        {
+                          label: 'Công việc',
+                          value: activeConversation.job_title || 'Đang cập nhật',
+                          helper: formatJobType(activeConversation.job_type),
+                        },
+                        {
+                          label: copy.detailOwnerLabel,
+                          value: getConversationName(activeConversation, normalizedRole),
+                          helper: copy.ownerHelper,
+                        },
                       ].map((item) => (
-                        <div key={item.label} className="rounded-lg bg-slate-50 p-3 ring-1 ring-inset ring-slate-100">
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400">{item.label}</p>
+                        <div
+                          key={item.label}
+                          className="rounded-lg bg-slate-50 p-3 ring-1 ring-inset ring-slate-100"
+                        >
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400">
+                            {item.label}
+                          </p>
                           <p className="mt-1 text-sm font-bold text-slate-900">{item.value}</p>
-                          {item.helper && <p className="mt-0.5 text-xs font-medium text-slate-500">{item.helper}</p>}
+                          {item.helper && (
+                            <p className="mt-0.5 text-xs font-medium text-slate-500">
+                              {item.helper}
+                            </p>
+                          )}
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="mt-3 text-sm leading-6 text-slate-500">Chưa chọn hội thoại để hiển thị ngữ cảnh.</p>
+                    <p className="mt-3 text-sm leading-6 text-slate-500">
+                      Chưa chọn hội thoại để hiển thị ngữ cảnh.
+                    </p>
                   )}
                 </SidebarCard>
 
@@ -1490,7 +1729,11 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
                         disabled={Boolean(conversationActionLoading)}
                         className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white text-xs font-bold text-slate-700 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        {conversationActionLoading === 'archive' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Archive className="h-3.5 w-3.5" />}
+                        {conversationActionLoading === 'archive' ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Archive className="h-3.5 w-3.5" />
+                        )}
                         {activeConversation.is_archived ? 'Bỏ lưu trữ' : 'Lưu trữ'}
                       </button>
                       <button
@@ -1499,7 +1742,11 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
                         disabled={Boolean(conversationActionLoading)}
                         className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-amber-200 bg-amber-50 text-xs font-bold text-amber-700 transition hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        {conversationActionLoading === 'block' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Ban className="h-3.5 w-3.5" />}
+                        {conversationActionLoading === 'block' ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Ban className="h-3.5 w-3.5" />
+                        )}
                         {activeConversation.blocked_by_viewer ? 'Bỏ chặn' : 'Chặn'}
                       </button>
                       <button
@@ -1508,35 +1755,53 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
                         disabled={Boolean(conversationActionLoading)}
                         className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-rose-200 bg-rose-50 text-xs font-bold text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        {conversationActionLoading === 'delete' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                        {conversationActionLoading === 'delete' ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-3.5 w-3.5" />
+                        )}
                         Xóa khỏi hộp tin
                       </button>
                     </div>
                   ) : (
-                    <p className="mt-3 text-sm leading-6 text-slate-500">Chọn hội thoại để thao tác.</p>
+                    <p className="mt-3 text-sm leading-6 text-slate-500">
+                      Chọn hội thoại để thao tác.
+                    </p>
                   )}
                 </SidebarCard>
 
                 {normalizedRole === 'recruiter' && activeConversation && (
                   <SidebarCard title="Công cụ nhà tuyển dụng" icon={CalendarClock}>
                     <div className="mt-3 space-y-3">
-                      <form onSubmit={sendInterviewInvite} className="rounded-lg bg-emerald-50 p-3 ring-1 ring-inset ring-emerald-100">
+                      <form
+                        onSubmit={sendInterviewInvite}
+                        className="rounded-lg bg-emerald-50 p-3 ring-1 ring-inset ring-emerald-100"
+                      >
                         <p className="text-xs font-black text-emerald-800">Gửi lời mời phỏng vấn</p>
                         <input
                           type="datetime-local"
                           value={interviewForm.scheduled_at}
-                          onChange={(event) => setInterviewForm((prev) => ({ ...prev, scheduled_at: event.target.value }))}
+                          onChange={(event) =>
+                            setInterviewForm((prev) => ({
+                              ...prev,
+                              scheduled_at: event.target.value,
+                            }))
+                          }
                           className="mt-2 h-9 w-full rounded-md border border-emerald-100 bg-white px-2 text-xs font-semibold text-slate-700 outline-none focus:border-emerald-300"
                         />
                         <input
                           value={interviewForm.location}
-                          onChange={(event) => setInterviewForm((prev) => ({ ...prev, location: event.target.value }))}
+                          onChange={(event) =>
+                            setInterviewForm((prev) => ({ ...prev, location: event.target.value }))
+                          }
                           placeholder="Địa điểm/link phỏng vấn"
                           className="mt-2 h-9 w-full rounded-md border border-emerald-100 bg-white px-2 text-xs font-semibold text-slate-700 outline-none focus:border-emerald-300"
                         />
                         <textarea
                           value={interviewForm.note}
-                          onChange={(event) => setInterviewForm((prev) => ({ ...prev, note: event.target.value }))}
+                          onChange={(event) =>
+                            setInterviewForm((prev) => ({ ...prev, note: event.target.value }))
+                          }
                           rows={2}
                           placeholder="Ghi chú thêm"
                           className="mt-2 w-full resize-none rounded-md border border-emerald-100 bg-white px-2 py-2 text-xs font-medium text-slate-700 outline-none focus:border-emerald-300"
@@ -1546,28 +1811,41 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
                           disabled={conversationActionLoading === 'interview' || composerDisabled}
                           className="mt-2 inline-flex h-9 w-full items-center justify-center gap-2 rounded-md bg-emerald-600 text-xs font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
                         >
-                          {conversationActionLoading === 'interview' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                          {conversationActionLoading === 'interview' ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Send className="h-3.5 w-3.5" />
+                          )}
                           Gửi lời mời
                         </button>
                       </form>
 
-                      <form onSubmit={sendJobInfo} className="rounded-lg bg-slate-50 p-3 ring-1 ring-inset ring-slate-100">
+                      <form
+                        onSubmit={sendJobInfo}
+                        className="rounded-lg bg-slate-50 p-3 ring-1 ring-inset ring-slate-100"
+                      >
                         <p className="text-xs font-black text-slate-800">Gửi thông tin công việc</p>
                         <input
                           value={jobInfoForm.title}
-                          onChange={(event) => setJobInfoForm((prev) => ({ ...prev, title: event.target.value }))}
+                          onChange={(event) =>
+                            setJobInfoForm((prev) => ({ ...prev, title: event.target.value }))
+                          }
                           placeholder={activeConversation.job_title || 'Tên vị trí'}
                           className="mt-2 h-9 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-semibold text-slate-700 outline-none focus:border-emerald-300"
                         />
                         <input
                           value={jobInfoForm.url}
-                          onChange={(event) => setJobInfoForm((prev) => ({ ...prev, url: event.target.value }))}
+                          onChange={(event) =>
+                            setJobInfoForm((prev) => ({ ...prev, url: event.target.value }))
+                          }
                           placeholder="Link mô tả công việc"
                           className="mt-2 h-9 w-full rounded-md border border-slate-200 bg-white px-2 text-xs font-semibold text-slate-700 outline-none focus:border-emerald-300"
                         />
                         <textarea
                           value={jobInfoForm.note}
-                          onChange={(event) => setJobInfoForm((prev) => ({ ...prev, note: event.target.value }))}
+                          onChange={(event) =>
+                            setJobInfoForm((prev) => ({ ...prev, note: event.target.value }))
+                          }
                           rows={2}
                           placeholder="Điểm cần lưu ý"
                           className="mt-2 w-full resize-none rounded-md border border-slate-200 bg-white px-2 py-2 text-xs font-medium text-slate-700 outline-none focus:border-emerald-300"
@@ -1577,7 +1855,11 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
                           disabled={conversationActionLoading === 'job-info' || composerDisabled}
                           className="mt-2 inline-flex h-9 w-full items-center justify-center gap-2 rounded-md bg-slate-900 text-xs font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
                         >
-                          {conversationActionLoading === 'job-info' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Info className="h-3.5 w-3.5" />}
+                          {conversationActionLoading === 'job-info' ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Info className="h-3.5 w-3.5" />
+                          )}
                           Gửi thông tin
                         </button>
                       </form>
@@ -1592,7 +1874,9 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
                         {getCurrentUserName(user).charAt(0).toUpperCase() || 'U'}
                       </div>
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-bold text-slate-900">{getCurrentUserName(user)}</p>
+                        <p className="truncate text-sm font-bold text-slate-900">
+                          {getCurrentUserName(user)}
+                        </p>
                         <p className="truncate text-xs text-slate-500">{user?.email}</p>
                         <p className="mt-1 inline-flex rounded-md bg-slate-50 px-2 py-0.5 text-[10px] font-bold uppercase text-slate-500 ring-1 ring-inset ring-slate-100">
                           {normalizedRole}
@@ -1601,7 +1885,6 @@ const RecruitmentMessagesPage = ({ role = 'candidate' }) => {
                     </div>
                   </SidebarCard>
                 )}
-
               </aside>
             </div>
           </>
@@ -1649,7 +1932,7 @@ EmptyConversationState.propTypes = {
 };
 
 RecruitmentMessagesPage.propTypes = {
-  role: PropTypes.oneOf(['candidate', 'recruiter', 'employer']),
+  role: PropTypes.oneOf(['candidate', 'recruiter']),
 };
 
 export default RecruitmentMessagesPage;

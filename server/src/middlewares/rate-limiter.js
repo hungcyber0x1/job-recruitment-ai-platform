@@ -131,6 +131,21 @@ const generalLimiter = rateLimit({
 });
 
 /**
+ * Newsletter limiter - chống spam đăng ký email công khai.
+ */
+const newsletterLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: isDevelopment ? 200 : 5,
+  message: {
+    success: false,
+    message: 'Bạn đăng ký bản tin quá nhiều lần. Vui lòng thử lại sau 1 giờ.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: shouldSkipRateLimit,
+});
+
+/**
  * Auth limiter - chan brute-force login/register
  */
 const authLimiter = rateLimit({
@@ -197,6 +212,7 @@ module.exports = {
   aiLimiter,
   messageLimiter,
   publicToolsLimiter,
+  newsletterLimiter,
   checkUserQuota,
   incrementUserQuota,
   createQuotaHandler,

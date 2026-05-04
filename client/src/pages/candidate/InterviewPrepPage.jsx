@@ -20,6 +20,7 @@ import {
   Edit2,
   X,
 } from 'lucide-react';
+import StatCard from '@/components/common/StatCard';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -100,23 +101,6 @@ function getTypeConfig(type) {
   return TYPE_CONFIG[type] || TYPE_CONFIG.general;
 }
 
-const StatCard = ({ icon: Icon, label, value, helper, tone }) => (
-  <Card className="rounded-lg border-slate-200 bg-white shadow-sm">
-    <CardContent className="p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="text-3xl font-bold leading-none text-slate-950">{value}</div>
-          <div className="mt-1 text-sm font-bold text-slate-700">{label}</div>
-          <div className="mt-0.5 text-xs font-medium text-slate-500">{helper}</div>
-        </div>
-        <div className={cn('flex h-10 w-10 items-center justify-center rounded-lg ring-1 ring-inset', tone)}>
-          <Icon size={18} />
-        </div>
-      </div>
-    </CardContent>
-  </Card>
-);
-
 const NoteSkeleton = () => (
   <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
     <div className="p-5">
@@ -148,11 +132,20 @@ const EmptyNotes = ({ searching, onCreate, onReset }) => (
       </p>
       <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
         {searching ? (
-          <Button type="button" variant="outline" onClick={onReset} className="rounded-lg px-5 font-bold">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onReset}
+            className="rounded-lg px-5 font-bold"
+          >
             Xóa tìm kiếm
           </Button>
         ) : (
-          <Button type="button" onClick={onCreate} className="rounded-lg bg-emerald-600 px-5 font-bold text-white hover:bg-emerald-700">
+          <Button
+            type="button"
+            onClick={onCreate}
+            className="rounded-lg bg-emerald-600 px-5 font-bold text-white hover:bg-emerald-700"
+          >
             <Plus className="mr-2 h-4 w-4" />
             Thêm ghi chú đầu tiên
           </Button>
@@ -171,8 +164,17 @@ const NoteCard = ({ note, onEdit, onDelete, deleting }) => {
       <div className={cn('absolute inset-y-0 left-0 w-1', config.accent)} />
       <div className="p-5 pl-6">
         <div className="flex items-start justify-between gap-4">
-          <button type="button" onClick={() => onEdit(note)} className="flex min-w-0 flex-1 gap-4 text-left">
-            <div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset', config.iconBox)}>
+          <button
+            type="button"
+            onClick={() => onEdit(note)}
+            className="flex min-w-0 flex-1 gap-4 text-left"
+          >
+            <div
+              className={cn(
+                'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset',
+                config.iconBox
+              )}
+            >
               <TypeIcon className="h-4 w-4" />
             </div>
             <div className="min-w-0">
@@ -180,7 +182,12 @@ const NoteCard = ({ note, onEdit, onDelete, deleting }) => {
                 <h3 className="line-clamp-1 text-base font-bold text-slate-950 group-hover:text-emerald-700">
                   {note.title || 'Ghi chú chưa có tiêu đề'}
                 </h3>
-                <span className={cn('inline-flex items-center rounded-md px-2.5 py-1 text-xs font-bold ring-1 ring-inset', config.badge)}>
+                <span
+                  className={cn(
+                    'inline-flex items-center rounded-md px-2.5 py-1 text-xs font-bold ring-1 ring-inset',
+                    config.badge
+                  )}
+                >
                   {config.label}
                 </span>
                 {note.pinned && (
@@ -199,7 +206,9 @@ const NoteCard = ({ note, onEdit, onDelete, deleting }) => {
               )}
 
               {note.content && (
-                <p className="mt-3 line-clamp-3 text-sm font-medium leading-relaxed text-slate-600">{note.content}</p>
+                <p className="mt-3 line-clamp-3 text-sm font-medium leading-relaxed text-slate-600">
+                  {note.content}
+                </p>
               )}
 
               <p className="mt-3 text-xs font-medium text-slate-400">
@@ -224,7 +233,11 @@ const NoteCard = ({ note, onEdit, onDelete, deleting }) => {
               className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-60"
               aria-label="Xóa ghi chú"
             >
-              {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+              {deleting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
             </button>
           </div>
         </div>
@@ -242,7 +255,12 @@ const QuestionCategory = ({ type, questions }) => {
       <div className={cn('h-1', config.accent)} />
       <CardContent className="p-5">
         <div className="flex items-start gap-3">
-          <div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset', config.iconBox)}>
+          <div
+            className={cn(
+              'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset',
+              config.iconBox
+            )}
+          >
             <TypeIcon className="h-4 w-4" />
           </div>
           <div>
@@ -253,7 +271,10 @@ const QuestionCategory = ({ type, questions }) => {
 
         <ol className="mt-5 space-y-3">
           {questions.map((question, index) => (
-            <li key={question} className="flex gap-3 text-sm font-medium leading-relaxed text-slate-600">
+            <li
+              key={question}
+              className="flex gap-3 text-sm font-medium leading-relaxed text-slate-600"
+            >
               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-slate-100 text-xs font-bold text-slate-500">
                 {index + 1}
               </span>
@@ -282,7 +303,9 @@ const PrepTips = () => (
         </div>
         <div>
           <h3 className="text-base font-bold text-slate-950">Mẹo chuẩn bị phỏng vấn</h3>
-          <p className="mt-0.5 text-xs font-medium text-slate-500">Các nguyên tắc nhỏ nhưng tạo khác biệt lớn.</p>
+          <p className="mt-0.5 text-xs font-medium text-slate-500">
+            Các nguyên tắc nhỏ nhưng tạo khác biệt lớn.
+          </p>
         </div>
       </div>
       <ul className="mt-5 space-y-3">
@@ -303,7 +326,12 @@ const InterviewPrepPage = () => {
   const [loading, setLoading] = useState(true);
   const [showNoteDialog, setShowNoteDialog] = useState(false);
   const [editingNote, setEditingNote] = useState(null);
-  const [noteForm, setNoteForm] = useState({ title: '', content: '', company: '', type: 'general' });
+  const [noteForm, setNoteForm] = useState({
+    title: '',
+    content: '',
+    company: '',
+    type: 'general',
+  });
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -351,7 +379,9 @@ const InterviewPrepPage = () => {
     try {
       if (editingNote) {
         await interviewPrepService.updateNote(editingNote.id, noteForm);
-        setNotes((prev) => prev.map((note) => note.id === editingNote.id ? { ...note, ...noteForm } : note));
+        setNotes((prev) =>
+          prev.map((note) => (note.id === editingNote.id ? { ...note, ...noteForm } : note))
+        );
         showNotification('Đã cập nhật ghi chú.', 'success');
       } else {
         const res = await interviewPrepService.saveNote(noteForm);
@@ -383,9 +413,10 @@ const InterviewPrepPage = () => {
   const filteredNotes = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
     if (!query) return notes;
-    return notes.filter((note) =>
-      (note.title || '').toLowerCase().includes(query) ||
-      (note.company || '').toLowerCase().includes(query)
+    return notes.filter(
+      (note) =>
+        (note.title || '').toLowerCase().includes(query) ||
+        (note.company || '').toLowerCase().includes(query)
     );
   }, [notes, searchTerm]);
 
@@ -402,12 +433,13 @@ const InterviewPrepPage = () => {
   const isSearching = Boolean(searchTerm.trim());
 
   return (
-    <div className="min-h-screen bg-slate-50/40 pb-16">
-      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
+    <div className="min-h-screen bg-transparent pb-16">
+      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-transparent">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
           style={{
-            backgroundImage: 'linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px)',
+            backgroundImage:
+              'linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px)',
             backgroundSize: '32px 32px',
           }}
         />
@@ -426,12 +458,16 @@ const InterviewPrepPage = () => {
                   Trung tâm luyện phỏng vấn
                 </h1>
                 <p className="mt-1 max-w-2xl text-sm font-medium text-slate-600">
-                  Ghi chú nghiên cứu công ty, câu hỏi đã luyện tập và chiến lược cho từng buổi phỏng vấn.
+                  Ghi chú nghiên cứu công ty, câu hỏi đã luyện tập và chiến lược cho từng buổi phỏng
+                  vấn.
                 </p>
               </div>
             </div>
 
-            <Button onClick={openCreateNote} className="h-11 rounded-lg bg-emerald-600 px-5 font-bold text-white shadow-sm shadow-emerald-900/10 hover:bg-emerald-700">
+            <Button
+              onClick={openCreateNote}
+              className="h-11 rounded-lg bg-emerald-600 px-5 font-bold text-white shadow-sm shadow-emerald-900/10 hover:bg-emerald-700"
+            >
               <Plus className="mr-2 h-4 w-4" />
               Thêm ghi chú
             </Button>
@@ -499,7 +535,10 @@ const InterviewPrepPage = () => {
                 <div className="text-sm font-medium text-slate-500">
                   Hiển thị <span className="font-bold text-slate-800">{filteredNotes.length}</span>
                   {filteredNotes.length !== notes.length && (
-                    <> trong <span className="font-bold text-slate-800">{notes.length}</span> ghi chú</>
+                    <>
+                      {' '}
+                      trong <span className="font-bold text-slate-800">{notes.length}</span> ghi chú
+                    </>
                   )}
                 </div>
               </div>
@@ -508,7 +547,9 @@ const InterviewPrepPage = () => {
 
           {loading ? (
             <div className="space-y-4">
-              {[1, 2, 3].map((item) => <NoteSkeleton key={item} />)}
+              {[1, 2, 3].map((item) => (
+                <NoteSkeleton key={item} />
+              ))}
             </div>
           ) : filteredNotes.length === 0 ? (
             <EmptyNotes
@@ -535,7 +576,9 @@ const InterviewPrepPage = () => {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-bold text-slate-950">Câu hỏi phỏng vấn mẫu</h2>
-              <p className="mt-0.5 text-sm font-medium text-slate-500">Chọn nhóm câu hỏi để luyện tập.</p>
+              <p className="mt-0.5 text-sm font-medium text-slate-500">
+                Chọn nhóm câu hỏi để luyện tập.
+              </p>
             </div>
             <Lightbulb className="h-5 w-5 text-amber-500" />
           </div>
@@ -562,7 +605,9 @@ const InterviewPrepPage = () => {
               <Input
                 placeholder="VD: Research trước phỏng vấn FPT Software"
                 value={noteForm.title}
-                onChange={(event) => setNoteForm((prev) => ({ ...prev, title: event.target.value }))}
+                onChange={(event) =>
+                  setNoteForm((prev) => ({ ...prev, title: event.target.value }))
+                }
                 className="rounded-lg"
               />
             </div>
@@ -571,7 +616,9 @@ const InterviewPrepPage = () => {
               <Input
                 placeholder="VD: FPT Software"
                 value={noteForm.company}
-                onChange={(event) => setNoteForm((prev) => ({ ...prev, company: event.target.value }))}
+                onChange={(event) =>
+                  setNoteForm((prev) => ({ ...prev, company: event.target.value }))
+                }
                 className="rounded-lg"
               />
             </div>
@@ -601,13 +648,19 @@ const InterviewPrepPage = () => {
                 placeholder="Ghi chú nghiên cứu, câu hỏi dự định hỏi, điểm cần chú ý..."
                 rows={6}
                 value={noteForm.content}
-                onChange={(event) => setNoteForm((prev) => ({ ...prev, content: event.target.value }))}
+                onChange={(event) =>
+                  setNoteForm((prev) => ({ ...prev, content: event.target.value }))
+                }
                 className="rounded-lg"
               />
             </div>
           </div>
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" onClick={() => setShowNoteDialog(false)} className="rounded-lg font-bold">
+            <Button
+              variant="outline"
+              onClick={() => setShowNoteDialog(false)}
+              className="rounded-lg font-bold"
+            >
               Hủy
             </Button>
             <Button

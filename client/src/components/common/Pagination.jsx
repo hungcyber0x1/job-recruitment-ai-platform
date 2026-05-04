@@ -31,7 +31,10 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 
       {pages.map((page, index) =>
         page === '...' ? (
-          <span key={index} className="inline-flex h-10 w-10 items-center justify-center text-muted-foreground">
+          <span
+            key={index}
+            className="inline-flex h-10 w-10 items-center justify-center text-muted-foreground"
+          >
             <MoreHorizontal size={16} />
           </span>
         ) : (

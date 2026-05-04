@@ -34,7 +34,11 @@ class UserController {
     }
     const avatarUrl = `/uploads/avatars/${req.file.filename}`;
     const user = await UserService.updateUserAvatar(req.user.id, avatarUrl);
-    return ApiResponse.success(res, { avatar_url: user.avatar_url }, { message: 'Avatar uploaded successfully' });
+    return ApiResponse.success(
+      res,
+      { avatar_url: user.avatar_url },
+      { message: 'Avatar uploaded successfully' }
+    );
   });
 }
 

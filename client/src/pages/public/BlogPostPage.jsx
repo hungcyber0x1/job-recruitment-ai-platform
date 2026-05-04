@@ -2,123 +2,38 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Share2, Printer, Clock } from 'lucide-react';
 import { blogService, unwrapBlogListResponse, unwrapBlogDetailResponse } from '@/services';
-import { buildOfflinePostDetail } from '@/data';
 import { sanitizeHtml } from '@/utils';
 import { motion, useScroll, useSpring } from 'framer-motion';
 import { BlogPostSkeleton } from '@/components/common/Skeleton';
+
+const EDITORIAL_AUTHOR_NAME = 'Ban biên tập HireBOT';
+const EDITORIAL_AUTHOR_ROLE = 'Đội ngũ nội dung & phân tích tuyển dụng HireBOT';
 
 function defaultAvatar(name) {
   return `https://ui-avatars.com/api/?name=${encodeURIComponent((name || 'HireBOT').trim())}&background=0D8ABC&color=fff`;
 }
 
-const ARTICLE_IMAGE_FALLBACK =
-  'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&q=80&w=1200';
+function resolvePostAuthor(post) {
+  const rawName = String(post?.author || '').trim();
+  const isAdminSystemName = /^(system admin|admin hirebot)$/i.test(rawName);
+  const name =
+    post?.authorType === 'admin' && (!rawName || isAdminSystemName)
+      ? EDITORIAL_AUTHOR_NAME
+      : rawName || (post?.authorType === 'admin' ? EDITORIAL_AUTHOR_NAME : 'HireBOT');
+  const role =
+    post?.authorRole ||
+    (post?.authorType === 'recruiter' && post?.companyName
+      ? `${post.companyName} · Nhà tuyển dụng`
+      : post?.authorType === 'admin'
+        ? EDITORIAL_AUTHOR_ROLE
+        : 'Đóng góp nội dung');
 
-const FULL_CONTENT_POST_1 = `
-<p>Trí tuệ nhân tạo (AI) đang định hình lại ngành công nghiệp phần mềm với tốc độ chóng mặt. Đối với các lập trình viên, năm 2026 không chỉ là năm của mã nguồn, mà còn là năm của sự cộng tác giữa con người và máy móc.</p>
-
-<h2>1. Kỹ thuật ra lệnh cho trí tuệ nhân tạo</h2>
-<p>Không chỉ là đặt câu hỏi cho trợ lý AI. Kỹ thuật ra lệnh là nghệ thuật tối ưu hóa đầu vào để nhận được kết quả đầu ra chính xác nhất từ các mô hình ngôn ngữ lớn. Hiểu cách mô hình xử lý ngữ cảnh sẽ giúp bạn gỡ lỗi nhanh hơn rất nhiều.</p>
-
-<h2>2. Công cụ lập trình có AI hỗ trợ</h2>
-<p>Làm quen với GitHub Copilot, Cursor hay Tabnine không còn là lựa chọn mà là bắt buộc. Những công cụ này không thay thế bạn, nhưng lập trình viên sử dụng chúng sẽ có lợi thế rõ rệt so với người không sử dụng.</p>
-
-<h2>3. Hiểu biết dữ liệu</h2>
-<p>Trí tuệ nhân tạo cần dữ liệu để vận hành. Hiểu cách dữ liệu được thu thập, xử lý và biểu diễn dưới dạng vector sẽ giúp bạn xây dựng các ứng dụng hỏi đáp tăng cường truy xuất hiệu quả hơn.</p>
-
-<div class="article-callout">
-  <p><strong>Mẹo chuyên gia</strong></p>
-  <p>Đừng chỉ học cách sử dụng API. Hãy học cách tinh chỉnh một mô hình nhỏ cho tác vụ cụ thể của bạn.</p>
-</div>
-
-<p>Tương lai thuộc về những ai dám nắm bắt công nghệ mới. Hãy bắt đầu lộ trình học tập của bạn ngay hôm nay.</p>
-`;
-
-const FALLBACK_BY_SLUG = {
-  'top-5-ky-nang-ai-cho-developer-nam-2026': {
-    title: 'Top 5 kỹ năng trí tuệ nhân tạo cần thiết cho lập trình viên năm 2026',
-    excerpt: 'Trí tuệ nhân tạo đang định hình lại ngành phần mềm.',
-    content: FULL_CONTENT_POST_1,
-    image:
-      'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=1200',
-    author: 'Minh Anh',
-    date: '28 tháng 12, 2026',
-    category: 'Công nghệ',
-    avatar: 'https://ui-avatars.com/api/?name=Minh+Anh&background=0D8ABC&color=fff',
-    publishedAt: null,
-    viewCount: 0,
-  },
-  'viet-cv-chuan-ats-bi-quyet-vuot-qua-vong-loc-ho-so-tu-dong': {
-    title: 'Viết CV chuẩn ATS: Bí quyết vượt qua vòng lọc hồ sơ tự động',
-    excerpt: 'Hệ thống ATS lọc hồ sơ theo từ khóa và cấu trúc.',
-    content:
-      '<p>Hệ thống lọc hồ sơ tự động lọc hồ sơ theo từ khóa và cấu trúc. Bài viết đầy đủ sẽ hiển thị khi bạn đăng nội dung qua trang quản trị.</p><p class="text-muted-foreground text-base font-article">Gợi ý: dùng tiêu đề rõ ràng, tránh bảng phức tạp, khớp từ khóa với mô tả công việc.</p>',
-    image:
-      'https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&q=80&w=1200',
-    author: 'Sarah Nguyen',
-    date: '25 tháng 12, 2026',
-    category: 'Mẹo nghề nghiệp',
-    avatar: 'https://ui-avatars.com/api/?name=Sarah+Nguyen&background=0D8ABC&color=fff',
-    publishedAt: null,
-    viewCount: 0,
-  },
-  'xu-huong-tuyen-dung-nganh-it-viet-nam-q1-2026': {
-    title: 'Xu hướng tuyển dụng ngành IT tại Việt Nam Q1/2026',
-    excerpt: 'Báo cáo ngắn về nhu cầu nhân lực.',
-    content:
-      '<p>Thị trường công nghệ thông tin Việt Nam tiếp tục tăng nhu cầu về điện toán đám mây, bảo mật và trí tuệ nhân tạo. Chi tiết báo cáo sẽ được cập nhật khi có bài đăng chính thức trên hệ thống.</p>',
-    image:
-      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1200',
-    author: 'Tuan Hung',
-    date: '20 tháng 12, 2026',
-    category: 'Góc nhìn thị trường',
-    avatar: 'https://ui-avatars.com/api/?name=Tuan+Hung&background=0D8ABC&color=fff',
-    publishedAt: null,
-    viewCount: 0,
-  },
-  'phong-van-hanh-vi-star-method': {
-    title: 'Phỏng vấn hành vi: Phương pháp STAR',
-    excerpt: 'Khung STAR cho câu trả lời có cấu trúc.',
-    content:
-      '<p><strong>T</strong>ình huống — <strong>N</strong>hiệm vụ — <strong>H</strong>ành động — <strong>K</strong>ết quả: trình bày tình huống cụ thể, vai trò của bạn, hành động và kết quả đo lường được.</p><p class="text-muted-foreground text-base font-article">Nội dung mở rộng có thể thêm trong trang quản lý blog.</p>',
-    image:
-      'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1200',
-    author: 'Le Huong',
-    date: '15 tháng 12, 2026',
-    category: 'Phỏng vấn',
-    avatar: 'https://ui-avatars.com/api/?name=Le+Huong&background=0D8ABC&color=fff',
-    publishedAt: null,
-    viewCount: 0,
-  },
-  'remote-work-vs-office-gen-z': {
-    title: 'Làm việc từ xa hay tại văn phòng: Lựa chọn nào cho Gen Z?',
-    excerpt: 'So sánh mô hình làm việc.',
-    content:
-      '<p>Làm việc từ xa mang lại linh hoạt; văn phòng hỗ trợ gắn kết đội nhóm. Cân bằng phụ thuộc vai trò và văn hóa công ty.</p>',
-    image:
-      'https://images.unsplash.com/photo-1593642532400-2682810df593?auto=format&fit=crop&q=80&w=1200',
-    author: 'Duc Long',
-    date: '10 tháng 12, 2026',
-    category: 'Văn hóa làm việc',
-    avatar: 'https://ui-avatars.com/api/?name=Duc+Long&background=0D8ABC&color=fff',
-    publishedAt: null,
-    viewCount: 0,
-  },
-  'lo-trinh-tro-thanh-ai-engineer-cho-nguoi-moi-bat-dau': {
-    title: 'Lộ trình trở thành kỹ sư trí tuệ nhân tạo cho người mới bắt đầu',
-    excerpt: 'Nền tảng và thứ tự học gợi ý.',
-    content:
-      '<p>Nền tảng: Python, toán (đại số, xác suất), sau đó ML cổ điển, deep learning và triển khai mô hình.</p><p class="text-muted-foreground text-base font-article">Cập nhật lộ trình chi tiết qua bài viết trên HireBOT.</p>',
-    image:
-      'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&q=80&w=1200',
-    author: 'Đội ngũ chuyên gia AI',
-    date: '5 tháng 12, 2026',
-    category: 'Giáo dục',
-    avatar: 'https://ui-avatars.com/api/?name=AI+Expert&background=0D8ABC&color=fff',
-    publishedAt: null,
-    viewCount: 0,
-  },
-};
+  return {
+    name,
+    role,
+    avatar: post?.avatar || defaultAvatar(name),
+  };
+}
 
 function readingMinutesFromHtml(html) {
   const text = (html || '').replace(/<[^>]+>/g, ' ');
@@ -137,7 +52,7 @@ const BlogPostPage = () => {
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
     damping: 30,
-    restDelta: 0.001
+    restDelta: 0.001,
   });
 
   const slug = useMemo(() => decodeURIComponent(slugParam || ''), [slugParam]);
@@ -178,36 +93,20 @@ const BlogPostPage = () => {
         return;
       }
       setStatus('loading');
+      setPost(null);
       try {
         const res = await blogService.getBySlug(slug);
         const data = unwrapBlogDetailResponse(res);
-        if (!cancelled && data) {
+        if (!cancelled) {
           setPost(data);
           setStatus('ready');
-          return;
         }
       } catch {
-        /* API lỗi / 404 — thử fallback */
+        if (!cancelled) {
+          setPost(null);
+          setStatus('notfound');
+        }
       }
-      if (cancelled) return;
-      const rich = FALLBACK_BY_SLUG[slug];
-      if (rich) {
-        setPost({
-          ...rich,
-          slug,
-          avatar: rich.avatar || defaultAvatar(rich.author),
-        });
-        setStatus('ready');
-        return;
-      }
-      const offline = buildOfflinePostDetail(slug);
-      if (offline) {
-        setPost(offline);
-        setStatus('ready');
-        return;
-      }
-      setPost(null);
-      setStatus('notfound');
     })();
     return () => {
       cancelled = true;
@@ -256,10 +155,10 @@ const BlogPostPage = () => {
       <div className="min-h-screen bg-emerald-50/30 pt-28 pb-20 dark:bg-slate-950">
         <div className="container mx-auto max-w-3xl px-4 text-center sm:px-6">
           <p className="mb-6 text-base font-medium text-muted-foreground">
-            Không tìm thấy bài viết.
+            Không tìm thấy bài viết từ cơ sở dữ liệu hoặc API blog hiện không trả dữ liệu hợp lệ.
           </p>
           <Link
-            to="/public/blog"
+            to="/blog"
             className="text-base font-bold text-primary underline-offset-4 hover:underline"
           >
             ← Quay lại mục Blog
@@ -271,12 +170,7 @@ const BlogPostPage = () => {
 
   const datetimeAttr = post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined;
 
-  const roleLine =
-    post.authorType === 'employer' && post.companyName
-      ? `${post.companyName} · Nhà tuyển dụng`
-      : post.authorType === 'admin'
-        ? 'Ban biên tập HireBOT'
-        : 'Đóng góp nội dung';
+  const authorMeta = resolvePostAuthor(post);
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-20 pt-24 print:bg-white print:pt-8 dark:bg-slate-950">
@@ -333,22 +227,37 @@ const BlogPostPage = () => {
                 </p>
               ) : null}
 
+              {Array.isArray(post.tags) && post.tags.length > 0 ? (
+                <div className="mt-6 flex flex-wrap gap-2">
+                  {post.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full border border-primary/15 bg-primary/5 px-3 py-1 text-sm font-bold text-primary"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+
               <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6">
                 <div className="flex min-w-0 items-center gap-4">
                   <img
-                    src={post.avatar || defaultAvatar(post.author)}
+                    src={authorMeta.avatar}
                     alt=""
                     width={48}
                     height={48}
                     className="h-12 w-12 shrink-0 rounded-full object-cover ring-1 ring-border"
                     onError={(e) => {
-                      e.currentTarget.src = defaultAvatar(post.author);
+                      e.currentTarget.src = defaultAvatar(authorMeta.name);
                     }}
                   />
                   <div className="min-w-0">
-                    <p className="font-sans text-base font-bold text-foreground">{post.author}</p>
+                    <p className="font-sans text-base font-bold text-foreground">
+                      {authorMeta.name}
+                    </p>
                     <p className="font-sans text-base font-medium text-muted-foreground">
-                      {roleLine}
+                      {authorMeta.role}
                     </p>
                   </div>
                 </div>
@@ -389,10 +298,7 @@ const BlogPostPage = () => {
                     decoding="async"
                     fetchPriority="high"
                     onError={(e) => {
-                      const el = e.currentTarget;
-                      if (el.dataset.fallbackApplied) return;
-                      el.dataset.fallbackApplied = '1';
-                      el.src = ARTICLE_IMAGE_FALLBACK;
+                      e.currentTarget.remove();
                     }}
                   />
                 </div>
@@ -410,9 +316,7 @@ const BlogPostPage = () => {
             {related.length > 0 ? (
               <section className="mt-16 border-t border-border/40 pt-12 print:hidden">
                 <div className="flex items-center justify-between mb-8">
-                  <h2 className="font-serif text-2xl font-bold text-foreground">
-                    Cùng chuyên mục
-                  </h2>
+                  <h2 className="font-serif text-2xl font-bold text-foreground">Cùng chuyên mục</h2>
                   <div className="h-0.5 w-16 bg-primary/20 rounded-full" />
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -428,7 +332,9 @@ const BlogPostPage = () => {
                       <h3 className="font-serif text-lg font-bold leading-snug text-foreground group-hover:text-primary transition-colors">
                         {r.title}
                       </h3>
-                      <span className="text-xs font-bold text-muted-foreground/50 mt-4 block uppercase tracking-normal">{r.date}</span>
+                      <span className="text-xs font-bold text-muted-foreground/50 mt-4 block uppercase tracking-normal">
+                        {r.date}
+                      </span>
                     </Link>
                   ))}
                 </div>

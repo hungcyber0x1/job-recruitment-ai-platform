@@ -33,7 +33,8 @@ const ExperienceItemCard = ({ item, onEdit, onDelete }) => (
             )}
             {item.start_date && (
               <span className="text-xs text-slate-400">
-                {item.start_date}{item.end_date ? ` — ${item.end_date}` : item.is_current ? ' — Hiện tại' : ''}
+                {item.start_date}
+                {item.end_date ? ` — ${item.end_date}` : item.is_current ? ' — Hiện tại' : ''}
               </span>
             )}
             {item.is_current && (
@@ -143,9 +144,7 @@ const ExperienceSection = ({ experience = [], onAdd, onUpdate, onDelete, loading
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-base font-semibold text-slate-800">Kinh nghiệm làm việc</h3>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            {experience.length} mục
-          </p>
+          <p className="text-sm text-muted-foreground mt-0.5">{experience.length} mục</p>
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -155,14 +154,23 @@ const ExperienceSection = ({ experience = [], onAdd, onUpdate, onDelete, loading
             onClick={() => setExpanded(!expanded)}
             className="h-8 text-xs text-muted-foreground"
           >
-            {expanded ? <ChevronUp className="h-3 w-3 mr-1" /> : <ChevronDown className="h-3 w-3 mr-1" />}
+            {expanded ? (
+              <ChevronUp className="h-3 w-3 mr-1" />
+            ) : (
+              <ChevronDown className="h-3 w-3 mr-1" />
+            )}
             {expanded ? 'Thu gọn' : 'Mở rộng'}
           </Button>
           <Button
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => { setShowForm(!showForm); setEditingId(null); setForm(emptyExperienceItem()); setError(''); }}
+            onClick={() => {
+              setShowForm(!showForm);
+              setEditingId(null);
+              setForm(emptyExperienceItem());
+              setError('');
+            }}
             className="h-8 gap-1 rounded-lg border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100 hover:text-violet-800 text-xs font-semibold"
           >
             <Plus className="h-3 w-3" />
@@ -179,7 +187,7 @@ const ExperienceSection = ({ experience = [], onAdd, onUpdate, onDelete, loading
               <Label className="text-xs font-semibold text-slate-600">Công ty *</Label>
               <Input
                 value={form.company}
-                onChange={(e) => setForm(f => ({ ...f, company: e.target.value }))}
+                onChange={(e) => setForm((f) => ({ ...f, company: e.target.value }))}
                 placeholder="VD: FPT Software, Viettel..."
                 className="h-12 rounded-lg text-sm"
                 autoFocus
@@ -189,7 +197,7 @@ const ExperienceSection = ({ experience = [], onAdd, onUpdate, onDelete, loading
               <Label className="text-xs font-semibold text-slate-600">Vị trí *</Label>
               <Input
                 value={form.title}
-                onChange={(e) => setForm(f => ({ ...f, title: e.target.value }))}
+                onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
                 placeholder="VD: Lập trình viên Full-stack"
                 className="h-12 rounded-lg text-sm"
               />
@@ -199,7 +207,7 @@ const ExperienceSection = ({ experience = [], onAdd, onUpdate, onDelete, loading
               <Input
                 type="month"
                 value={form.start_date}
-                onChange={(e) => setForm(f => ({ ...f, start_date: e.target.value }))}
+                onChange={(e) => setForm((f) => ({ ...f, start_date: e.target.value }))}
                 className="h-12 rounded-lg text-sm"
               />
             </div>
@@ -208,7 +216,7 @@ const ExperienceSection = ({ experience = [], onAdd, onUpdate, onDelete, loading
               <Input
                 type="month"
                 value={form.end_date}
-                onChange={(e) => setForm(f => ({ ...f, end_date: e.target.value }))}
+                onChange={(e) => setForm((f) => ({ ...f, end_date: e.target.value }))}
                 disabled={form.is_current}
                 className={cn('h-12 rounded-lg text-sm', form.is_current && 'opacity-50')}
               />
@@ -219,9 +227,18 @@ const ExperienceSection = ({ experience = [], onAdd, onUpdate, onDelete, loading
             <Checkbox
               id="exp-current"
               checked={form.is_current}
-              onCheckedChange={(checked) => setForm(f => ({ ...f, is_current: !!checked, end_date: checked ? '' : f.end_date }))}
+              onCheckedChange={(checked) =>
+                setForm((f) => ({
+                  ...f,
+                  is_current: !!checked,
+                  end_date: checked ? '' : f.end_date,
+                }))
+              }
             />
-            <label htmlFor="exp-current" className="text-sm text-slate-700 cursor-pointer select-none font-medium">
+            <label
+              htmlFor="exp-current"
+              className="text-sm text-slate-700 cursor-pointer select-none font-medium"
+            >
               Tôi đang làm việc ở đây
             </label>
           </div>
@@ -230,7 +247,7 @@ const ExperienceSection = ({ experience = [], onAdd, onUpdate, onDelete, loading
             <Label className="text-xs font-semibold text-slate-600">Mô tả công việc</Label>
             <Textarea
               value={form.description}
-              onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))}
+              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
               placeholder="Mô tả ngắn gọn trách nhiệm và thành tích..."
               rows={3}
               className="resize-y rounded-lg text-sm"
@@ -254,7 +271,13 @@ const ExperienceSection = ({ experience = [], onAdd, onUpdate, onDelete, loading
               )}
               {editingId ? 'Cập nhật' : 'Thêm mới'}
             </Button>
-            <Button type="button" variant="ghost" size="sm" onClick={handleCancel} className="h-8 text-xs">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleCancel}
+              className="h-8 text-xs"
+            >
               Hủy
             </Button>
           </div>
@@ -262,8 +285,8 @@ const ExperienceSection = ({ experience = [], onAdd, onUpdate, onDelete, loading
       )}
 
       {/* List */}
-      {expanded && (
-        experience.length > 0 ? (
+      {expanded &&
+        (experience.length > 0 ? (
           <div className="space-y-3">
             {experience.map((item) => (
               <ExperienceItemCard
@@ -274,13 +297,16 @@ const ExperienceSection = ({ experience = [], onAdd, onUpdate, onDelete, loading
               />
             ))}
           </div>
-        ) : !showForm && (
-          <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 py-8 text-center">
-            <p className="text-sm text-muted-foreground">Chưa có thông tin kinh nghiệm</p>
-            <p className="text-xs text-muted-foreground mt-1">Nhấn "Thêm kinh nghiệm" để bắt đầu</p>
-          </div>
-        )
-      )}
+        ) : (
+          !showForm && (
+            <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 py-8 text-center">
+              <p className="text-sm text-muted-foreground">Chưa có thông tin kinh nghiệm</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Nhấn "Thêm kinh nghiệm" để bắt đầu
+              </p>
+            </div>
+          )
+        ))}
     </div>
   );
 };

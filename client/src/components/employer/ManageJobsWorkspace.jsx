@@ -21,13 +21,7 @@ import Badge from '../common/Badge';
 import Button from '../common/Button';
 import EmptyState from '../common/EmptyState';
 import EmployerStatCard from './EmployerStatCard';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { cn } from '../../utils/cn';
 
 const TONE_STYLES = {
@@ -115,7 +109,9 @@ const QuickActionItem = ({ icon: Icon, title, to, tone, className }) => {
       )}
     >
       <Link to={to}>
-        <ActionIcon className={cn('mr-2 h-4 w-4', isPrimary ? 'text-white' : getQuickActionIconClass(tone))} />
+        <ActionIcon
+          className={cn('mr-2 h-4 w-4', isPrimary ? 'text-white' : getQuickActionIconClass(tone))}
+        />
         {title}
       </Link>
     </Button>
@@ -180,7 +176,11 @@ const JobCard = ({
                 )}
               >
                 {job.company_logo ? (
-                  <img src={job.company_logo} alt={job.company_name || ''} className="h-full w-full object-cover" />
+                  <img
+                    src={job.company_logo}
+                    alt={job.company_name || ''}
+                    className="h-full w-full object-cover"
+                  />
                 ) : (
                   <Briefcase className="h-6 w-6" />
                 )}
@@ -192,7 +192,12 @@ const JobCard = ({
                     {job.title || 'Vị trí tuyển dụng'}
                   </h3>
 
-                  <Badge className={cn('rounded-full border px-3 py-1 text-[11px] font-semibold shadow-sm', statusMeta.badgeClass)}>
+                  <Badge
+                    className={cn(
+                      'rounded-full border px-3 py-1 text-[11px] font-semibold shadow-sm',
+                      statusMeta.badgeClass
+                    )}
+                  >
                     <span className={cn('h-1.5 w-1.5 rounded-full', statusMeta.dotClass)} />
                     {statusMeta.label}
                   </Badge>
@@ -200,7 +205,6 @@ const JobCard = ({
                   <Badge className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-semibold text-slate-600">
                     {typeLabel}
                   </Badge>
-
                 </div>
 
                 <div className="mt-2 flex flex-wrap gap-2 text-xs font-medium text-slate-500">
@@ -215,7 +219,12 @@ const JobCard = ({
                     Đăng {formatRelativeAge(job.created_at)}
                   </span>
                   {job.deadline && (
-                    <span className={cn('inline-flex items-center gap-1 rounded-md px-2.5 py-1 ring-1 ring-inset', deadlineMeta.className)}>
+                    <span
+                      className={cn(
+                        'inline-flex items-center gap-1 rounded-md px-2.5 py-1 ring-1 ring-inset',
+                        deadlineMeta.className
+                      )}
+                    >
                       <Clock3 className="h-3 w-3" />
                       {formatShortDate(job.deadline)}
                     </span>
@@ -275,12 +284,6 @@ const JobCard = ({
                   {formatCompactNumber(applicants)} hồ sơ
                 </span>
               )}
-              {false && views > 0 && applicants > 0 && (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600">
-                  <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
-                  {applyRate}% chuyển đổi
-                </span>
-              )}
               {applicants === 0 && job.status === 'published' && (
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
                   <AlertTriangle className="h-3.5 w-3.5" />
@@ -305,7 +308,13 @@ const JobCard = ({
 
 const STATUS_TABS_CONFIG = [
   { key: 'published', label: 'Đang đăng', countKey: 'published', icon: Briefcase, tone: 'emerald' },
-  { key: 'pending_review', label: 'Chờ duyệt', countKey: 'pendingReview', icon: Clock3, tone: 'blue' },
+  {
+    key: 'pending_review',
+    label: 'Chờ duyệt',
+    countKey: 'pendingReview',
+    icon: Clock3,
+    tone: 'blue',
+  },
   { key: 'closed', label: 'Đã đóng', countKey: 'closed', icon: MapPin, tone: 'slate' },
   { key: 'draft', label: 'Bản nháp', countKey: 'draft', icon: Edit, tone: 'amber' },
 ];
@@ -332,7 +341,6 @@ const ManageJobsWorkspace = ({
   activeFilterCount,
   overviewCards,
   quickActions,
-  attentionCount = 0,
   visibleApplicants = 0,
   visibleViews = 0,
   setActiveTab,
@@ -347,7 +355,9 @@ const ManageJobsWorkspace = ({
   formatShortDate,
 }) => {
   const maxPages = Math.max(totalPages, 1);
-  const resolvedStatusTabs = (Array.isArray(statusTabs) && statusTabs.length ? statusTabs : STATUS_TABS_CONFIG)
+  const resolvedStatusTabs = (
+    Array.isArray(statusTabs) && statusTabs.length ? statusTabs : STATUS_TABS_CONFIG
+  )
     .map((rawTab) => {
       const tab = rawTab || {};
       const fallback = STATUS_TABS_CONFIG.find((item) => item.key === tab.key) || {};
@@ -368,9 +378,9 @@ const ManageJobsWorkspace = ({
   }));
 
   return (
-    <div className="min-h-screen bg-slate-50/40 pb-16">
+    <div className="min-h-screen bg-transparent pb-16">
       {/* ── Compact Header ── */}
-      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
+      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-transparent">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
           style={{
@@ -395,24 +405,11 @@ const ManageJobsWorkspace = ({
                   Trung tâm điều phối tuyển dụng
                 </h1>
                 <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 sm:text-[15px]">
-                  Theo dõi trạng thái live, hiệu suất hồ sơ và các tín hiệu vận hành trong một không gian rõ ràng.
+                  Theo dõi trạng thái live, hiệu suất hồ sơ và các tín hiệu vận hành trong một không
+                  gian rõ ràng.
                 </p>
               </div>
             </div>
-
-            {/* Summary pills — top-right */}
-            {false && !loading && jobsCount > 0 && (
-              <div className="grid grid-cols-2 gap-2 rounded-lg border border-white/80 bg-white/85 p-2 shadow-sm sm:min-w-[300px]">
-                <div className="rounded-md bg-slate-50 px-3 py-2">
-                  <div className="text-xs font-semibold text-slate-500">Đang mở</div>
-                  <div className="mt-1 text-xl font-bold text-slate-950">{formatCompactNumber(tabCounts.published || 0)}</div>
-                </div>
-                <div className="rounded-md bg-emerald-50 px-3 py-2">
-                  <div className="text-xs font-semibold text-emerald-700">Cần xử lý</div>
-                  <div className="mt-1 text-xl font-bold text-emerald-700">{formatCompactNumber(attentionCount)}</div>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Stats row */}
@@ -485,7 +482,10 @@ const ManageJobsWorkspace = ({
 
                 <Select
                   value={filterType}
-                  onValueChange={(v) => { setFilterType(v); setCurrentPage(1); }}
+                  onValueChange={(v) => {
+                    setFilterType(v);
+                    setCurrentPage(1);
+                  }}
                 >
                   <SelectTrigger className="h-12 w-full rounded-lg border-slate-200 bg-white text-sm font-medium text-slate-700 md:w-[180px]">
                     <SelectValue placeholder="Loại hình" />
@@ -501,7 +501,10 @@ const ManageJobsWorkspace = ({
 
                 <Select
                   value={filterLocation}
-                  onValueChange={(v) => { setFilterLocation(v); setCurrentPage(1); }}
+                  onValueChange={(v) => {
+                    setFilterLocation(v);
+                    setCurrentPage(1);
+                  }}
                 >
                   <SelectTrigger className="h-12 w-full rounded-lg border-slate-200 bg-white text-sm font-medium text-slate-700 md:w-[180px]">
                     <SelectValue placeholder="Địa điểm" />
@@ -534,14 +537,13 @@ const ManageJobsWorkspace = ({
                   {activeTabLabel}
                 </span>
                 <span>
-                  <strong className="text-slate-700">{formatCompactNumber(visibleApplicants)}</strong> hồ sơ ·{' '}
-                  <strong className="text-slate-700">{formatCompactNumber(visibleViews)}</strong> lượt xem
+                  <strong className="text-slate-700">
+                    {formatCompactNumber(visibleApplicants)}
+                  </strong>{' '}
+                  hồ sơ ·{' '}
+                  <strong className="text-slate-700">{formatCompactNumber(visibleViews)}</strong>{' '}
+                  lượt xem
                 </span>
-                {false && visibleApplyRate > 0 && (
-                  <Badge className="rounded-full border border-emerald-200 bg-white px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
-                    {visibleApplyRate}% tỷ lệ ứng tuyển
-                  </Badge>
-                )}
                 {activeFilterCount > 0 && (
                   <Badge className="rounded-full border border-slate-200 bg-white px-2.5 py-0.5 text-xs font-semibold text-slate-600">
                     {activeFilterCount} bộ lọc
@@ -581,13 +583,18 @@ const ManageJobsWorkspace = ({
               {loading ? (
                 <div className="space-y-3">
                   {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="h-32 animate-pulse rounded-lg border border-slate-200 bg-slate-50" />
+                    <div
+                      key={i}
+                      className="h-32 animate-pulse rounded-lg border border-slate-200 bg-slate-50"
+                    />
                   ))}
                 </div>
               ) : filteredJobsCount === 0 ? (
                 <EmptyState
                   variant="robotSearch"
-                  title={jobsCount === 0 ? 'Chưa có tin tuyển dụng nào' : 'Không tìm thấy tin phù hợp'}
+                  title={
+                    jobsCount === 0 ? 'Chưa có tin tuyển dụng nào' : 'Không tìm thấy tin tuyển dụng'
+                  }
                   description={
                     jobsCount === 0
                       ? 'Bắt đầu bằng một tin tuyển dụng mới để mở quy trình ứng viên đầu tiên.'
@@ -597,7 +604,11 @@ const ManageJobsWorkspace = ({
                   action={
                     <div className="flex flex-wrap items-center justify-center gap-3">
                       {hasActiveFilters ? (
-                        <Button variant="outline" onClick={resetFilters} className="h-10 rounded-lg border-slate-200 px-4 text-sm font-semibold">
+                        <Button
+                          variant="outline"
+                          onClick={resetFilters}
+                          className="h-10 rounded-lg border-slate-200 px-4 text-sm font-semibold"
+                        >
                           Xóa bộ lọc
                         </Button>
                       ) : null}
@@ -668,7 +679,6 @@ const ManageJobsWorkspace = ({
               )}
             </div>
           </section>
-
         </div>
       </main>
     </div>

@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Card from '../common/Card';
+import StatCard from '../common/StatCard';
 import Button from '../common/Button';
 import Badge from '../common/Badge';
 import Statistics from './Statistics';
@@ -25,43 +26,35 @@ const EmployerDashboard = ({ stats, activeJobs }) => {
           {
             label: 'Tin tuyển dụng',
             val: stats?.totalJobs || 0,
-            icon: <Briefcase size={20} />,
-            color: 'bg-emerald-50 text-emerald-600',
+            icon: Briefcase,
+            type: 'success',
           },
           {
             label: 'Tổng ứng viên',
             val: stats?.totalApplicants || 0,
-            icon: <Users size={20} />,
-            color: 'bg-violet-50 text-violet-600',
+            icon: Users,
+            type: 'neutral',
           },
           {
             label: 'Lượt xem tin',
             val: stats?.totalViews || '0',
-            icon: <Eye size={20} />,
-            color: 'bg-primary-50 text-primary-600',
+            icon: Eye,
+            type: 'primary',
           },
           {
             label: 'Đã tuyển dụng',
             val: stats?.hired || 0,
-            icon: <UserCheck size={20} />,
-            color: 'bg-green-50 text-green-600',
+            icon: UserCheck,
+            type: 'success',
           },
-        ].map((stat, i) => (
-          <Card
-            key={i}
-            hover
-            className="p-8 border-none shadow-xl shadow-slate-100/50 flex flex-col items-center text-center"
-          >
-            <div
-              className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${stat.color}`}
-            >
-              {stat.icon}
-            </div>
-            <p className="text-3xl font-black text-slate-900 mb-1">{stat.val}</p>
-            <p className="text-base font-black text-slate-400 uppercase tracking-widest leading-none">
-              {stat.label}
-            </p>
-          </Card>
+        ].map((stat) => (
+          <StatCard
+            key={stat.label}
+            title={stat.label}
+            value={stat.val}
+            icon={stat.icon}
+            type={stat.type}
+          />
         ))}
       </div>
 

@@ -19,11 +19,11 @@ import {
   Building2,
   Download,
   FileText,
+  GripVertical,
   Loader2,
   Plus,
   Search,
   SlidersHorizontal,
-  Star,
   Target,
   Users,
   Workflow,
@@ -63,8 +63,8 @@ const KANBAN_COLUMNS = [
   },
   {
     id: APPLICATION_STATUS.SHORTLISTED,
-    label: 'Phù hợp SB',
-    subtitle: 'Ứng viên tiềm năng',
+    label: 'Sơ tuyển',
+    subtitle: 'Đã qua bước xem xét',
     accent: 'bg-violet-400',
     pipelineGroup: 'active',
   },
@@ -149,7 +149,11 @@ const COLUMN_GROUP_META = {
 
 const CLOSED_STATUSES = new Set([APPLICATION_STATUS.REJECTED, APPLICATION_STATUS.WITHDRAWN]);
 
-const LOCKED_STATUSES = new Set([APPLICATION_STATUS.HIRED, APPLICATION_STATUS.REJECTED, APPLICATION_STATUS.WITHDRAWN]);
+const LOCKED_STATUSES = new Set([
+  APPLICATION_STATUS.HIRED,
+  APPLICATION_STATUS.REJECTED,
+  APPLICATION_STATUS.WITHDRAWN,
+]);
 
 const QUICK_ACTION_PRIORITY = [
   APPLICATION_STATUS.SHORTLISTED,
@@ -161,14 +165,16 @@ const QUICK_ACTION_PRIORITY = [
 
 const QUICK_ACTION_META = {
   [APPLICATION_STATUS.SHORTLISTED]: {
-    icon: Star,
-    label: 'Rút gọn',
-    className: 'border-violet-200 bg-violet-50 text-violet-700 hover:border-violet-300 hover:bg-violet-100',
+    icon: FileText,
+    label: 'Sơ tuyển',
+    className:
+      'border-violet-200 bg-violet-50 text-violet-700 hover:border-violet-300 hover:bg-violet-100',
   },
   [APPLICATION_STATUS.INTERVIEW_SCHEDULED]: {
     icon: Users,
     label: 'Lịch PV',
-    className: 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-100',
+    className:
+      'border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-100',
   },
   [APPLICATION_STATUS.INTERVIEWED]: {
     icon: Workflow,
@@ -178,12 +184,14 @@ const QUICK_ACTION_META = {
   [APPLICATION_STATUS.OFFERED]: {
     icon: Briefcase,
     label: 'Tạo đề nghị',
-    className: 'border-amber-200 bg-amber-50 text-amber-700 hover:border-amber-300 hover:bg-amber-100',
+    className:
+      'border-amber-200 bg-amber-50 text-amber-700 hover:border-amber-300 hover:bg-amber-100',
   },
   [APPLICATION_STATUS.HIRED]: {
     icon: Target,
     label: 'Đã tuyển',
-    className: 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-100',
+    className:
+      'border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-100',
   },
 };
 
@@ -232,7 +240,10 @@ const parseSkills = (app) => {
       .filter(Boolean);
   }
   if (typeof app.skills_csv === 'string') {
-    return app.skills_csv.split(',').map((s) => s.trim()).filter(Boolean);
+    return app.skills_csv
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
   }
   if (typeof app.matched_skills === 'string') {
     try {
@@ -255,9 +266,12 @@ const getCandidateName = (app) =>
 const getQuickActionStatuses = (status) => {
   const normalizedStatus = normalizeApplicationStatus(status);
   const nextStatuses = getNextApplicationStatuses(normalizedStatus).filter(
-    (candidateStatus) => candidateStatus !== normalizedStatus && !CLOSED_STATUSES.has(candidateStatus)
+    (candidateStatus) =>
+      candidateStatus !== normalizedStatus && !CLOSED_STATUSES.has(candidateStatus)
   );
-  return QUICK_ACTION_PRIORITY.filter((candidateStatus) => nextStatuses.includes(candidateStatus)).slice(0, 2);
+  return QUICK_ACTION_PRIORITY.filter((candidateStatus) =>
+    nextStatuses.includes(candidateStatus)
+  ).slice(0, 2);
 };
 
 const getColumnDropState = (activeApp, targetStatus) => {
@@ -295,9 +309,10 @@ const normalizeApplication = (app, job = {}) => {
     jobTitle: job.title || job.job_title || app.job_title || 'Chưa rõ vị trí',
     jobId: job.id,
     role: job.title || job.job_title || app.job_title || 'Chưa rõ vị trí',
-    appliedDate: (app.applied_at || app.created_at)
-      ? new Date(app.applied_at || app.created_at).toLocaleDateString('vi-VN')
-      : '',
+    appliedDate:
+      app.applied_at || app.created_at
+        ? new Date(app.applied_at || app.created_at).toLocaleDateString('vi-VN')
+        : '',
     name: getCandidateName(app),
     skills: parseSkills(app),
     statusNote: rawStatus !== status ? `Chuẩn hóa từ ${rawStatus}` : app.statusNote,
@@ -366,7 +381,9 @@ const QuickActionItem = ({ icon: Icon, title, to, onClick, tone }) => {
     return (
       <Button asChild variant="outline" className={className}>
         <Link to={to}>
-          <ActionIcon className={cn('mr-2 h-4 w-4', isPrimary ? 'text-white' : getQuickActionIconClass(tone))} />
+          <ActionIcon
+            className={cn('mr-2 h-4 w-4', isPrimary ? 'text-white' : getQuickActionIconClass(tone))}
+          />
           {title}
         </Link>
       </Button>
@@ -375,7 +392,9 @@ const QuickActionItem = ({ icon: Icon, title, to, onClick, tone }) => {
 
   return (
     <Button type="button" variant="outline" onClick={onClick} className={className}>
-      <ActionIcon className={cn('mr-2 h-4 w-4', isPrimary ? 'text-white' : getQuickActionIconClass(tone))} />
+      <ActionIcon
+        className={cn('mr-2 h-4 w-4', isPrimary ? 'text-white' : getQuickActionIconClass(tone))}
+      />
       {title}
     </Button>
   );
@@ -384,57 +403,165 @@ const QuickActionItem = ({ icon: Icon, title, to, onClick, tone }) => {
 // ─────────────────────────────────────────────
 // Applicant Card
 // ─────────────────────────────────────────────
-function ApplicantCard({ app, onStatusChange, isDragging, onBookmark, isBusy }) {
+function ApplicantCard({
+  app,
+  onStatusChange,
+  isDragging,
+  onBookmark,
+  isBusy,
+  dragHandleProps = {},
+  compact = false,
+}) {
   const quickActions = getQuickActionStatuses(app.status);
   const canReject = canTransitionApplicationStatus(app.status, APPLICATION_STATUS.REJECTED);
   const isDraggable = !isBusy && !LOCKED_STATUSES.has(app.status);
+  const moveOptions = ALL_PIPELINE_COLUMNS.filter(
+    (column) => column.id !== app.status && canTransitionApplicationStatus(app.status, column.id)
+  );
+  const canMoveBySelect = !isBusy && !LOCKED_STATUSES.has(app.status) && moveOptions.length > 0;
   const stopPointer = (event) => event.stopPropagation();
+  const handleSelectStatus = (event) => {
+    const nextStatus = event.target.value;
+    event.target.value = '';
+    if (!nextStatus) return;
+
+    if (nextStatus === APPLICATION_STATUS.REJECTED) {
+      const reason = window.prompt(
+        `Từ chối ứng viên "${app.name}"?\n\nNhập lý do từ chối (không bắt buộc, nhấn OK để xác nhận):`
+      );
+      if (reason !== null) {
+        onStatusChange(app.id, APPLICATION_STATUS.REJECTED, reason || 'Không đạt yêu cầu');
+      }
+      return;
+    }
+
+    onStatusChange(app.id, nextStatus);
+  };
 
   return (
     <article
       className={cn(
-        'select-none rounded-lg border bg-white p-4 shadow-sm transition-all',
+        'w-full select-none overflow-hidden border bg-white shadow-[0_12px_30px_rgba(15,23,42,0.06)] ring-1 ring-slate-900/[0.02] transition-all',
+        compact ? 'rounded-2xl p-3' : 'rounded-[1.2rem] p-4',
         isDragging
           ? 'scale-[1.02] rotate-1 border-emerald-400/60 bg-emerald-50/70 shadow-[0_18px_50px_rgba(16,185,129,0.12)]'
-          : cn('border-slate-200', isDraggable ? 'cursor-grab hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-100/40 active:cursor-grabbing' : 'cursor-default'),
+          : cn(
+              'border-slate-200',
+              isDraggable
+                ? 'hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-100/40'
+                : 'cursor-default'
+            ),
         isBusy ? 'opacity-75' : ''
       )}
     >
-      <div className="flex items-start gap-3">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-600 to-teal-700 text-base font-bold text-white uppercase shadow-sm shadow-emerald-900/10">
+      <div className={cn('flex items-start', compact ? 'gap-2.5' : 'gap-3')}>
+        <div
+          className={cn(
+            'flex shrink-0 items-center justify-center bg-gradient-to-br from-emerald-600 to-teal-700 font-bold text-white uppercase shadow-sm shadow-emerald-900/10 ring-white',
+            compact
+              ? 'h-10 w-10 rounded-lg text-sm ring-1'
+              : 'h-12 w-12 rounded-xl text-base ring-2'
+          )}
+        >
           {app.name?.charAt(0) ?? '?'}
         </div>
 
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-start justify-between gap-2">
-            <div className="min-w-0">
-              <p className="truncate text-base font-bold text-slate-900">{app.name || 'Ứng viên'}</p>
-              <p className="truncate text-sm font-medium text-slate-500">{app.role || app.jobTitle || 'Đang chờ gắn vị trí'}</p>
+          <div className={cn('flex items-start justify-between gap-2', !compact && 'flex-wrap')}>
+            <div className="min-w-0 flex-1">
+              <p
+                className={cn(
+                  'truncate font-bold text-slate-900',
+                  compact ? 'text-sm leading-5' : 'text-base'
+                )}
+              >
+                {app.name || 'Ứng viên'}
+              </p>
+              <p
+                className={cn(
+                  'truncate font-medium text-slate-500',
+                  compact ? 'text-xs leading-4' : 'text-sm'
+                )}
+              >
+                {app.role || app.jobTitle || 'Đang chờ gắn vị trí'}
+              </p>
             </div>
+            <div className="flex shrink-0 items-center gap-1.5">
+              {!compact ? (
+                <span
+                  className={cn(
+                    'inline-flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-bold',
+                    getApplicantStatusBadgeClass(app.status)
+                  )}
+                >
+                  <Briefcase className="h-3 w-3" />
+                  {getStatusLabel(app.status)}
+                </span>
+              ) : null}
+              <button
+                type="button"
+                {...(isDraggable ? dragHandleProps : {})}
+                className={cn(
+                  'inline-flex items-center justify-center border transition-all',
+                  compact ? 'h-7 w-7 rounded-md' : 'h-8 w-8 rounded-lg',
+                  isDraggable
+                    ? 'cursor-grab border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 active:cursor-grabbing'
+                    : 'cursor-not-allowed border-slate-200 bg-slate-50 text-slate-300'
+                )}
+                title={
+                  isDraggable
+                    ? 'Giữ và kéo từ tay nắm này để đổi cột'
+                    : 'Hồ sơ đã chốt không thể kéo'
+                }
+                aria-label={
+                  isDraggable ? `Kéo ${app.name || 'ứng viên'}` : 'Không thể kéo hồ sơ này'
+                }
+              >
+                <GripVertical className={cn(compact ? 'h-3.5 w-3.5' : 'h-4 w-4')} />
+              </button>
+            </div>
+          </div>
+
+          {compact ? (
             <span
               className={cn(
-                'inline-flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-bold',
+                'mt-2 inline-flex max-w-full items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-bold',
                 getApplicantStatusBadgeClass(app.status)
               )}
             >
-              <Briefcase className="h-3 w-3" />
-              Đang xử lý
+              <Briefcase className="h-3 w-3 shrink-0" />
+              <span className="truncate">{getStatusLabel(app.status)}</span>
             </span>
-          </div>
+          ) : null}
         </div>
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-2">
-        <span className="inline-flex items-center gap-1 rounded-md bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-200">
-          <Briefcase className="h-3 w-3" />
-          {app.jobTitle || 'Vị trí chưa rõ'}
+      <div className={cn('mt-3 flex flex-wrap gap-2', compact && 'gap-1.5')}>
+        <span
+          className={cn(
+            'inline-flex max-w-full min-w-0 items-center gap-1 rounded-md bg-slate-50 font-medium text-slate-600 ring-1 ring-inset ring-slate-200',
+            compact ? 'px-2 py-0.5 text-[11px]' : 'px-2.5 py-1 text-xs'
+          )}
+        >
+          <Briefcase className="h-3 w-3 shrink-0" />
+          <span className="truncate">{app.jobTitle || 'Vị trí chưa rõ'}</span>
         </span>
-        <span className="inline-flex items-center gap-1 rounded-md bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-200">
-          <FileText className="h-3 w-3" />
-          {app.appliedDate || 'Vừa nộp'}
+        <span
+          className={cn(
+            'inline-flex max-w-full min-w-0 items-center gap-1 rounded-md bg-slate-50 font-medium text-slate-600 ring-1 ring-inset ring-slate-200',
+            compact ? 'px-2 py-0.5 text-[11px]' : 'px-2.5 py-1 text-xs'
+          )}
+        >
+          <FileText className="h-3 w-3 shrink-0" />
+          <span className="truncate">{app.appliedDate || 'Vừa nộp'}</span>
         </span>
         {app.email ? (
-          <span className="inline-flex max-w-full items-center gap-1 rounded-md bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-200">
+          <span
+            className={cn(
+              'inline-flex max-w-full min-w-0 items-center gap-1 rounded-md bg-slate-50 font-medium text-slate-600 ring-1 ring-inset ring-slate-200',
+              compact ? 'px-2 py-0.5 text-[11px]' : 'px-2.5 py-1 text-xs'
+            )}
+          >
             <span className="truncate">{app.email}</span>
           </span>
         ) : null}
@@ -442,8 +569,14 @@ function ApplicantCard({ app, onStatusChange, isDragging, onBookmark, isBusy }) 
 
       {app.skills?.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5">
-          {app.skills.slice(0, 3).map((skill) => (
-            <span key={skill} className="rounded-md border border-slate-100 bg-slate-50 px-2 py-0.5 text-xs font-medium text-slate-600">
+          {app.skills.slice(0, compact ? 2 : 3).map((skill) => (
+            <span
+              key={skill}
+              className={cn(
+                'max-w-full truncate rounded-md border border-slate-100 bg-slate-50 px-2 py-0.5 font-medium text-slate-600',
+                compact ? 'text-[11px]' : 'text-xs'
+              )}
+            >
               {skill}
             </span>
           ))}
@@ -456,9 +589,9 @@ function ApplicantCard({ app, onStatusChange, isDragging, onBookmark, isBusy }) 
         </div>
       ) : null}
 
-      <div className="mt-3 border-t border-slate-100 pt-3">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex flex-1 flex-wrap gap-1.5">
+      <div className={cn('mt-3 border-t border-slate-100 pt-3', compact && 'pt-2')}>
+        <div className={cn('flex gap-2', compact ? 'flex-col' : 'items-start justify-between')}>
+          <div className={cn('flex flex-1 flex-wrap gap-1.5', compact && 'w-full')}>
             {quickActions.map((targetStatus) => {
               const actionMeta = QUICK_ACTION_META[targetStatus];
               if (!actionMeta) return null;
@@ -469,7 +602,10 @@ function ApplicantCard({ app, onStatusChange, isDragging, onBookmark, isBusy }) 
                   type="button"
                   disabled={isBusy}
                   className={cn(
-                    'inline-flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-50',
+                    'inline-flex items-center border font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-50',
+                    compact
+                      ? 'h-7 gap-1 rounded-md px-2 text-[11px]'
+                      : 'h-8 gap-1.5 rounded-lg px-2.5 text-xs',
                     actionMeta.className
                   )}
                   title={actionMeta.label}
@@ -488,14 +624,23 @@ function ApplicantCard({ app, onStatusChange, isDragging, onBookmark, isBusy }) 
               <button
                 type="button"
                 disabled={isBusy}
-                className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-2.5 text-xs font-semibold text-red-600 transition-all hover:border-red-300 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+                className={cn(
+                  'inline-flex items-center border border-red-200 bg-red-50 font-semibold text-red-600 transition-all hover:border-red-300 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50',
+                  compact
+                    ? 'h-7 gap-1 rounded-md px-2 text-[11px]'
+                    : 'h-8 gap-1.5 rounded-lg px-2.5 text-xs'
+                )}
                 onClick={(event) => {
                   event.stopPropagation();
                   const reason = window.prompt(
                     `Từ chối ứng viên "${app.name}"?\n\nNhập lý do từ chối (không bắt buộc, nhấn OK để xác nhận):`
                   );
                   if (reason !== null) {
-                    onStatusChange(app.id, APPLICATION_STATUS.REJECTED, reason || 'Không đạt yêu cầu');
+                    onStatusChange(
+                      app.id,
+                      APPLICATION_STATUS.REJECTED,
+                      reason || 'Không đạt yêu cầu'
+                    );
                   }
                 }}
                 onPointerDown={stopPointer}
@@ -504,6 +649,25 @@ function ApplicantCard({ app, onStatusChange, isDragging, onBookmark, isBusy }) 
                 Từ chối
               </button>
             )}
+            {canMoveBySelect ? (
+              <select
+                value=""
+                onChange={handleSelectStatus}
+                onPointerDown={stopPointer}
+                className={cn(
+                  'h-8 rounded-lg border border-slate-200 bg-white font-semibold text-slate-600 outline-none transition-colors hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 focus:border-emerald-300 focus:ring-2 focus:ring-emerald-500/10',
+                  compact ? 'max-w-full flex-1 px-2 text-[11px]' : 'max-w-[170px] px-2.5 text-xs'
+                )}
+                title="Chuyển trạng thái không cần kéo thả"
+              >
+                <option value="">Chuyển trạng thái</option>
+                {moveOptions.map((column) => (
+                  <option key={column.id} value={column.id}>
+                    {column.label}
+                  </option>
+                ))}
+              </select>
+            ) : null}
             {isBusy ? (
               <span className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 text-xs font-semibold text-slate-500">
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -512,7 +676,7 @@ function ApplicantCard({ app, onStatusChange, isDragging, onBookmark, isBusy }) 
             ) : null}
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className={cn('flex items-center gap-1', compact && 'w-full justify-end')}>
             <Link
               to={`/employer/applications/${app.id}`}
               className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 transition-all hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
@@ -526,7 +690,10 @@ function ApplicantCard({ app, onStatusChange, isDragging, onBookmark, isBusy }) 
               disabled={isBusy}
               className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 transition-all hover:border-amber-200 hover:bg-amber-50 hover:text-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
               title="Lưu hồ sơ"
-              onClick={(event) => { event.stopPropagation(); onBookmark?.(app.id); }}
+              onClick={(event) => {
+                event.stopPropagation();
+                onBookmark?.(app.id);
+              }}
               onPointerDown={stopPointer}
             >
               <Bookmark size={13} />
@@ -541,25 +708,22 @@ function ApplicantCard({ app, onStatusChange, isDragging, onBookmark, isBusy }) 
 // ─────────────────────────────────────────────
 // Sortable wrapper
 // ─────────────────────────────────────────────
-function SortableApplicantCard({ app, onStatusChange, onBookmark, isBusy }) {
+function SortableApplicantCard({ app, onStatusChange, onBookmark, isBusy, compact = false }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: app.id,
     disabled: isBusy || LOCKED_STATUSES.has(app.status),
   });
 
   return (
-    <div
-      ref={setNodeRef}
-      style={{ transform: CSS.Transform.toString(transform), transition }}
-      {...attributes}
-      {...listeners}
-    >
+    <div ref={setNodeRef} style={{ transform: CSS.Transform.toString(transform), transition }}>
       <ApplicantCard
         app={app}
         onStatusChange={onStatusChange}
         isDragging={isDragging}
         onBookmark={onBookmark}
         isBusy={isBusy}
+        dragHandleProps={{ ...attributes, ...listeners }}
+        compact={compact}
       />
     </div>
   );
@@ -579,12 +743,14 @@ function KanbanColumn({
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
   const groupMeta = getColumnGroupMeta(column);
-  const dragStyles = dragState ? DRAG_STATE_STYLES[dragState.state] || DRAG_STATE_STYLES.current : null;
+  const dragStyles = dragState
+    ? DRAG_STATE_STYLES[dragState.state] || DRAG_STATE_STYLES.current
+    : null;
   const isBlockedColumn = isDragActive && dragState?.state === 'blocked';
 
   return (
-    <div className="flex min-w-[268px] max-w-[288px] flex-col">
-      <div className="mb-2 rounded-xl border border-slate-200/90 bg-white/95 p-3 shadow-sm">
+    <div className="flex w-[304px] min-w-[304px] flex-col">
+      <div className="mb-2 rounded-2xl border border-slate-200/90 bg-white/95 p-3 shadow-sm shadow-slate-950/[0.03]">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className={cn('h-2.5 w-2.5 rounded-full', column.accent)} />
@@ -599,7 +765,7 @@ function KanbanColumn({
       <div
         ref={setNodeRef}
         className={cn(
-          'flex-1 rounded-xl border p-2.5 shadow-sm transition-colors',
+          'flex-1 rounded-[1.5rem] border p-3 shadow-sm shadow-slate-950/[0.03] transition-colors',
           groupMeta.laneClass,
           isOver && dragState?.state === 'allowed' && 'border-emerald-300 bg-emerald-50/60',
           isBlockedColumn && 'opacity-70'
@@ -608,9 +774,13 @@ function KanbanColumn({
         <SortableContext items={apps.map((app) => app.id)} strategy={verticalListSortingStrategy}>
           <div className="min-h-[120px] space-y-2">
             {isDragActive && dragState ? (
-              <div className={cn('rounded-lg border px-3 py-2 text-xs shadow-sm', dragStyles?.panel)}>
+              <div
+                className={cn('rounded-lg border px-3 py-2 text-xs shadow-sm', dragStyles?.panel)}
+              >
                 <p className="font-semibold">{dragState.label}</p>
-                {dragState.helper ? <p className="mt-1 leading-4 opacity-80">{dragState.helper}</p> : null}
+                {dragState.helper ? (
+                  <p className="mt-1 leading-4 opacity-80">{dragState.helper}</p>
+                ) : null}
               </div>
             ) : null}
 
@@ -621,11 +791,17 @@ function KanbanColumn({
                 onStatusChange={onStatusChange}
                 onBookmark={onBookmark}
                 isBusy={transitioningIds.has(String(app.id))}
+                compact
               />
             ))}
 
             {apps.length === 0 && (
-              <div className={cn('flex min-h-[80px] flex-col items-center justify-center rounded-lg border-2 border-dashed p-4 text-center', groupMeta.emptyClass)}>
+              <div
+                className={cn(
+                  'flex min-h-[80px] flex-col items-center justify-center rounded-lg border-2 border-dashed p-4 text-center',
+                  groupMeta.emptyClass
+                )}
+              >
                 <p className="text-xs font-semibold">
                   {isDragActive && dragState ? dragState.label : 'Kéo thả vào đây'}
                 </p>
@@ -651,7 +827,9 @@ const ApplicantsPage = () => {
   const [loadIssue, setLoadIssue] = useState(null);
   const [selectedJob, setSelectedJob] = useState(() => searchParams.get('jobId') || 'all');
   const [searchQuery, setSearchQuery] = useState(() => searchParams.get('search') || '');
-  const [activeStatusFilter, setActiveStatusFilter] = useState(() => searchParams.get('status') || 'all');
+  const [activeStatusFilter, setActiveStatusFilter] = useState(
+    () => searchParams.get('status') || 'all'
+  );
   const [activeId, setActiveId] = useState(null);
   const [transitioningIds, setTransitioningIds] = useState(() => new Set());
   const [pendingStage, setPendingStage] = useState(null);
@@ -665,7 +843,7 @@ const ApplicantsPage = () => {
     return [...KANBAN_COLUMNS, REJECTED_COLUMN, WITHDRAWN_COLUMN];
   }, [activeStatusFilter, showRejected]);
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
   // ── Data loading ──────────────────────────────────────────────────────────
   const loadApplicants = useCallback(async () => {
@@ -675,9 +853,14 @@ const ApplicantsPage = () => {
       const jobsRes = await jobService.getMyJobs();
       const myJobs = Array.isArray(jobsRes.data?.data) ? jobsRes.data.data : [];
       setJobs(myJobs);
-      if (!myJobs.length) { setApplicants([]); return; }
+      if (!myJobs.length) {
+        setApplicants([]);
+        return;
+      }
 
-      const appResponses = await Promise.allSettled(myJobs.map((job) => applicationService.getJobApplications(job.id)));
+      const appResponses = await Promise.allSettled(
+        myJobs.map((job) => applicationService.getJobApplications(job.id))
+      );
       const failedJobs = [];
       const allApps = appResponses.flatMap((response, index) => {
         const job = myJobs[index];
@@ -709,18 +892,23 @@ const ApplicantsPage = () => {
     } catch (error) {
       console.error('Failed to fetch applicants', error);
       const status = error?.response?.status;
+      const serverMsg = error?.response?.data?.message;
       setApplicants([]);
       setLoadIssue({
         tone: 'error',
-        message: status === 401 ? 'Phiên đăng nhập đã hết hạn.' : 'Không tải được danh sách ứng viên.',
-        detail: status === 401 ? 'Vui lòng đăng nhập lại.' : error?.response?.data?.message || '',
+        message:
+          serverMsg ||
+          (status === 401 ? 'Phiên đăng nhập đã hết hạn.' : 'Không tải được danh sách ứng viên.'),
+        detail: status === 401 ? 'Vui lòng đăng nhập lại.' : serverMsg || '',
       });
     } finally {
       setLoading(false);
     }
   }, [showNotification]);
 
-  useEffect(() => { loadApplicants(); }, [loadApplicants]);
+  useEffect(() => {
+    loadApplicants();
+  }, [loadApplicants]);
 
   useEffect(() => {
     const nextParams = new URLSearchParams();
@@ -747,17 +935,21 @@ const ApplicantsPage = () => {
     [searchParams, setSearchParams]
   );
 
-  const baseFiltered = useMemo(() => applicants.filter((app) => {
-    if (selectedJob !== 'all' && String(app.jobId) !== String(selectedJob)) return false;
-    if (!searchQuery) return true;
-    const q = searchQuery.trim().toLowerCase();
-    return (
-      app.name?.toLowerCase().includes(q) ||
-      app.email?.toLowerCase().includes(q) ||
-      app.jobTitle?.toLowerCase().includes(q) ||
-      app.skills?.some((s) => s.toLowerCase().includes(q))
-    );
-  }), [applicants, searchQuery, selectedJob]);
+  const baseFiltered = useMemo(
+    () =>
+      applicants.filter((app) => {
+        if (selectedJob !== 'all' && String(app.jobId) !== String(selectedJob)) return false;
+        if (!searchQuery) return true;
+        const q = searchQuery.trim().toLowerCase();
+        return (
+          app.name?.toLowerCase().includes(q) ||
+          app.email?.toLowerCase().includes(q) ||
+          app.jobTitle?.toLowerCase().includes(q) ||
+          app.skills?.some((s) => s.toLowerCase().includes(q))
+        );
+      }),
+    [applicants, searchQuery, selectedJob]
+  );
 
   const filtered = useMemo(
     () =>
@@ -785,11 +977,11 @@ const ApplicantsPage = () => {
   );
 
   const pipelineTabs = useMemo(() => {
-    const tabColumns = showRejected || CLOSED_STATUSES.has(activeStatusFilter) ? ALL_PIPELINE_COLUMNS : KANBAN_COLUMNS;
-    return [
-      { id: 'all', label: 'Tất cả', accent: 'bg-slate-900' },
-      ...tabColumns,
-    ];
+    const tabColumns =
+      showRejected || CLOSED_STATUSES.has(activeStatusFilter)
+        ? ALL_PIPELINE_COLUMNS
+        : KANBAN_COLUMNS;
+    return [{ id: 'all', label: 'Tất cả', accent: 'bg-slate-900' }, ...tabColumns];
   }, [activeStatusFilter, showRejected]);
 
   // ── Metrics ───────────────────────────────────────────────────────────────
@@ -812,12 +1004,16 @@ const ApplicantsPage = () => {
   const isListView = viewMode === 'list';
   const displayedApplicantCount = isListView ? visibleApplicants.length : filtered.length;
   const hasActiveFilters =
-    Boolean(searchQuery.trim()) || selectedJob !== 'all' || activeStatusFilter !== 'all' || showRejected;
+    Boolean(searchQuery.trim()) ||
+    selectedJob !== 'all' ||
+    activeStatusFilter !== 'all' ||
+    showRejected;
   const activeFilterBadges = [
     searchQuery.trim() ? `Từ khóa: ${searchQuery.trim()}` : null,
     selectedJob !== 'all' ? selectedJobLabel : null,
     activeStatusFilter !== 'all'
-      ? pipelineTabs.find((tab) => tab.id === activeStatusFilter)?.label || getStatusLabel(activeStatusFilter)
+      ? pipelineTabs.find((tab) => tab.id === activeStatusFilter)?.label ||
+        getStatusLabel(activeStatusFilter)
       : null,
     showRejected ? 'Bao gồm hồ sơ đã đóng' : null,
   ].filter(Boolean);
@@ -848,7 +1044,8 @@ const ApplicantsPage = () => {
       icon: Target,
       label: 'Kết quả',
       value: formatCompactNumber(totalSuccess),
-      helper: totalSuccess > 0 ? 'Đã gửi đề nghị hoặc tuyển thành công' : 'Chưa có kết quả cuối cùng',
+      helper:
+        totalSuccess > 0 ? 'Đã gửi đề nghị hoặc tuyển thành công' : 'Chưa có kết quả cuối cùng',
       tone: 'violet',
     },
   ];
@@ -859,61 +1056,73 @@ const ApplicantsPage = () => {
     [transitioningIds]
   );
 
-  const commitStatusChange = useCallback(async (appId, newStatus, metadata = {}) => {
-    const key = String(appId);
-    if (transitioningIds.has(key)) return false;
-    setTransitioningIds((prev) => new Set(prev).add(key));
-    try {
-      await applicationService.updateStatus(appId, newStatus, metadata);
-      await loadApplicants();
-      const labels = {
-        interview_scheduled: 'Đã sắp lịch phỏng vấn!',
-        offered: 'Đã gửi đề nghị tuyển dụng cho ứng viên!',
-        hired: 'Ứng viên đã được tuyển!',
-        rejected: 'Đã từ chối ứng viên.',
-        shortlisted: 'Đã thêm vào danh sách rút gọn.',
-        interviewed: 'Đã chuyển sang trạng thái đã phỏng vấn.',
-      };
-      showNotification(labels[newStatus] || 'Đã cập nhật trạng thái.', 'success');
-      return true;
-    } catch (error) {
-      showNotification(error?.response?.data?.message || 'Không thể cập nhật trạng thái.', 'error');
-      return false;
-    } finally {
-      setTransitioningIds((prev) => {
-        const next = new Set(prev);
-        next.delete(key);
-        return next;
-      });
-    }
-  }, [loadApplicants, showNotification, transitioningIds]);
+  const commitStatusChange = useCallback(
+    async (appId, newStatus, metadata = {}) => {
+      const key = String(appId);
+      if (transitioningIds.has(key)) return false;
+      setTransitioningIds((prev) => new Set(prev).add(key));
+      try {
+        await applicationService.updateStatus(appId, newStatus, metadata);
+        await loadApplicants();
+        const labels = {
+          interview_scheduled: 'Đã sắp lịch phỏng vấn!',
+          offered: 'Đã gửi đề nghị tuyển dụng cho ứng viên!',
+          hired: 'Ứng viên đã được tuyển!',
+          rejected: 'Đã từ chối ứng viên.',
+          shortlisted: 'Đã thêm vào danh sách rút gọn.',
+          interviewed: 'Đã chuyển sang trạng thái đã phỏng vấn.',
+        };
+        showNotification(labels[newStatus] || 'Đã cập nhật trạng thái.', 'success');
+        return true;
+      } catch (error) {
+        showNotification(
+          error?.response?.data?.message || 'Không thể cập nhật trạng thái.',
+          'error'
+        );
+        return false;
+      } finally {
+        setTransitioningIds((prev) => {
+          const next = new Set(prev);
+          next.delete(key);
+          return next;
+        });
+      }
+    },
+    [loadApplicants, showNotification, transitioningIds]
+  );
 
-  const handleStatusChange = useCallback(async (appId, newStatus, notes = null) => {
-    const currentApp = applicants.find((app) => String(app.id) === String(appId));
-    if (!currentApp || currentApp.status === newStatus) return;
-    if (isTransitioning(appId)) return;
-    if (LOCKED_STATUSES.has(currentApp.status)) {
-      showNotification('Hồ sơ đã chốt không thể kéo sang trạng thái khác trên Kanban.', 'error');
-      return;
-    }
-    if (!canTransitionApplicationStatus(currentApp.status, newStatus)) {
-      showNotification(`Không thể chuyển từ "${getStatusLabel(currentApp.status)}" sang "${getStatusLabel(newStatus)}".`, 'error');
-      return;
-    }
-    if (newStatus === 'interview_scheduled') {
-      pendingStageRef.current = { appId, targetStatus: newStatus };
-      setPendingStage({ appId, targetStatus: newStatus });
-      setDialogType('interview');
-      return;
-    }
-    if (newStatus === 'offered') {
-      pendingStageRef.current = { appId, targetStatus: newStatus };
-      setPendingStage({ appId, targetStatus: newStatus });
-      setDialogType('offer');
-      return;
-    }
-    await commitStatusChange(appId, newStatus, notes ? { notes } : {});
-  }, [applicants, commitStatusChange, isTransitioning, showNotification]);
+  const handleStatusChange = useCallback(
+    async (appId, newStatus, notes = null) => {
+      const currentApp = applicants.find((app) => String(app.id) === String(appId));
+      if (!currentApp || currentApp.status === newStatus) return;
+      if (isTransitioning(appId)) return;
+      if (LOCKED_STATUSES.has(currentApp.status)) {
+        showNotification('Hồ sơ đã chốt không thể kéo sang trạng thái khác trên Kanban.', 'error');
+        return;
+      }
+      if (!canTransitionApplicationStatus(currentApp.status, newStatus)) {
+        showNotification(
+          `Không thể chuyển từ "${getStatusLabel(currentApp.status)}" sang "${getStatusLabel(newStatus)}".`,
+          'error'
+        );
+        return;
+      }
+      if (newStatus === 'interview_scheduled') {
+        pendingStageRef.current = { appId, targetStatus: newStatus };
+        setPendingStage({ appId, targetStatus: newStatus });
+        setDialogType('interview');
+        return;
+      }
+      if (newStatus === 'offered') {
+        pendingStageRef.current = { appId, targetStatus: newStatus };
+        setPendingStage({ appId, targetStatus: newStatus });
+        setDialogType('offer');
+        return;
+      }
+      await commitStatusChange(appId, newStatus, notes ? { notes } : {});
+    },
+    [applicants, commitStatusChange, isTransitioning, showNotification]
+  );
 
   async function handleDialogConfirm(metadata) {
     if (!pendingStageRef.current) return;
@@ -925,7 +1134,9 @@ const ApplicantsPage = () => {
     if (!succeeded) {
       pendingStageRef.current = { appId, targetStatus };
       setPendingStage({ appId, targetStatus });
-      setDialogType(targetStatus === APPLICATION_STATUS.INTERVIEW_SCHEDULED ? 'interview' : 'offer');
+      setDialogType(
+        targetStatus === APPLICATION_STATUS.INTERVIEW_SCHEDULED ? 'interview' : 'offer'
+      );
     }
   }
 
@@ -936,7 +1147,10 @@ const ApplicantsPage = () => {
   }
 
   const handleDragEnd = async ({ active, over }) => {
-    if (!over) { setActiveId(null); return; }
+    if (!over) {
+      setActiveId(null);
+      return;
+    }
     const draggedApp = applicants.find((app) => String(app.id) === String(active.id));
     if (!draggedApp || isTransitioning(active.id) || LOCKED_STATUSES.has(draggedApp.status)) {
       setActiveId(null);
@@ -983,7 +1197,9 @@ const ApplicantsPage = () => {
     ]);
     const csvContent =
       'data:text/csv;charset=utf-8,\ufeff' +
-      [headers.map(escapeCsv).join(','), ...rows.map((row) => row.map(escapeCsv).join(','))].join('\n');
+      [headers.map(escapeCsv).join(','), ...rows.map((row) => row.map(escapeCsv).join(','))].join(
+        '\n'
+      );
     const link = document.createElement('a');
     link.setAttribute('href', encodeURI(csvContent));
     link.setAttribute('download', `candidates_export_${new Date().getTime()}.csv`);
@@ -992,10 +1208,13 @@ const ApplicantsPage = () => {
     showNotification('Đã xuất danh sách ứng viên thành công!', 'success');
   };
 
-  const jobOptions = useMemo(() => [
-    { value: 'all', label: 'Tất cả vị trí' },
-    ...jobs.map((j) => ({ value: String(j.id), label: j.title || `Vị trí #${j.id}` })),
-  ], [jobs]);
+  const jobOptions = useMemo(
+    () => [
+      { value: 'all', label: 'Tất cả vị trí' },
+      ...jobs.map((j) => ({ value: String(j.id), label: j.title || `Vị trí #${j.id}` })),
+    ],
+    [jobs]
+  );
 
   const quickActions = [
     {
@@ -1021,9 +1240,9 @@ const ApplicantsPage = () => {
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <>
-      <div className="min-h-screen bg-slate-50/40 pb-16 animate-fade-in">
+      <div className="min-h-screen bg-transparent pb-16 animate-fade-in">
         {/* ── Header đồng bộ trang quản lý việc ── */}
-        <div className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
+        <div className="relative overflow-hidden border-b border-emerald-100/70 bg-transparent">
           <div
             className="pointer-events-none absolute inset-0 opacity-40"
             style={{
@@ -1047,7 +1266,8 @@ const ApplicantsPage = () => {
                     Trung tâm quy trình tuyển dụng
                   </h1>
                   <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 sm:text-[15px]">
-                    Theo dõi ứng viên theo từng giai đoạn, lọc nhanh theo vị trí và xử lý hồ sơ trong một không gian đồng bộ với trang quản lý việc.
+                    Theo dõi ứng viên theo từng giai đoạn, lọc nhanh theo vị trí và xử lý hồ sơ
+                    trong một không gian đồng bộ với trang quản lý việc.
                   </p>
                 </div>
               </div>
@@ -1140,7 +1360,9 @@ const ApplicantsPage = () => {
                       className="h-12 rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 outline-none transition-colors focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10"
                     >
                       {jobOptions.map((opt) => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
                       ))}
                     </select>
 
@@ -1178,10 +1400,16 @@ const ApplicantsPage = () => {
                 <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
                   <span className="inline-flex items-center gap-1">
                     <SlidersHorizontal className="h-3.5 w-3.5 text-emerald-500" />
-                    Hiển thị <strong className="text-slate-700">{displayedApplicantCount}</strong> hồ sơ
+                    Hiển thị <strong className="text-slate-700">
+                      {displayedApplicantCount}
+                    </strong>{' '}
+                    hồ sơ
                   </span>
                   <span>
-                    <strong className="text-slate-700">{formatCompactNumber(baseFiltered.length)}</strong> hồ sơ trong tập lọc vị trí/từ khóa
+                    <strong className="text-slate-700">
+                      {formatCompactNumber(baseFiltered.length)}
+                    </strong>{' '}
+                    hồ sơ trong tập lọc vị trí/từ khóa
                   </span>
                   {activeFilterCount > 0 && (
                     <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-2.5 py-0.5 text-xs font-semibold text-slate-600">
@@ -1189,7 +1417,10 @@ const ApplicantsPage = () => {
                     </span>
                   )}
                   {activeFilterBadges.map((badge) => (
-                    <span key={badge} className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs font-semibold text-slate-600">
+                    <span
+                      key={badge}
+                      className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs font-semibold text-slate-600"
+                    >
                       {badge}
                     </span>
                   ))}
@@ -1208,18 +1439,27 @@ const ApplicantsPage = () => {
 
               {/* Kanban board */}
               {loadIssue ? (
-                <div className={cn('rounded-lg border px-4 py-3 shadow-sm', loadIssue.tone === 'error' ? 'border-rose-200 bg-rose-50/90 text-rose-700' : 'border-amber-200 bg-amber-50/90 text-amber-700')}>
+                <div
+                  className={cn(
+                    'rounded-lg border px-4 py-3 shadow-sm',
+                    loadIssue.tone === 'error'
+                      ? 'border-rose-200 bg-rose-50/90 text-rose-700'
+                      : 'border-amber-200 bg-amber-50/90 text-amber-700'
+                  )}
+                >
                   <div className="flex items-start gap-3">
                     <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                     <div>
                       <p className="text-sm font-semibold">{loadIssue.message}</p>
-                      {loadIssue.detail ? <p className="mt-1 text-xs leading-4 opacity-80">{loadIssue.detail}</p> : null}
+                      {loadIssue.detail ? (
+                        <p className="mt-1 text-xs leading-4 opacity-80">{loadIssue.detail}</p>
+                      ) : null}
                     </div>
                   </div>
                 </div>
               ) : null}
 
-              <Card className="overflow-hidden rounded-lg border-slate-200 bg-white shadow-sm">
+              <Card className="overflow-hidden rounded-[1.5rem] border-slate-200 bg-white shadow-sm shadow-slate-950/[0.03]">
                 <div className="border-b border-slate-100 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] px-4 py-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -1236,7 +1476,7 @@ const ApplicantsPage = () => {
                         ? 'Mở hồ sơ, lưu kho ứng viên hoặc chuyển nhanh trạng thái.'
                         : activeApp
                           ? `Đang kéo: ${activeApp.name || 'Ứng viên này'}`
-                          : 'Kéo thả để cập nhật trạng thái'}
+                          : 'Kéo bằng tay nắm trên thẻ hoặc dùng menu Chuyển trạng thái.'}
                     </span>
                   </div>
                 </div>
@@ -1244,7 +1484,10 @@ const ApplicantsPage = () => {
                 {loading ? (
                   <div className="flex gap-4 overflow-x-auto px-4 py-5">
                     {Array.from({ length: 4 }).map((_, i) => (
-                      <div key={i} className="h-64 min-w-[260px] animate-pulse rounded-lg bg-slate-100" />
+                      <div
+                        key={i}
+                        className="h-64 min-w-[260px] animate-pulse rounded-lg bg-slate-100"
+                      />
                     ))}
                   </div>
                 ) : isListView ? (
@@ -1253,7 +1496,7 @@ const ApplicantsPage = () => {
                       <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50/70 px-6 py-12 text-center">
                         <Users className="mx-auto h-10 w-10 text-slate-300" />
                         <p className="mt-4 text-base font-semibold text-slate-700">
-                          Chưa có hồ sơ phù hợp với bộ lọc hiện tại
+                          Chưa có hồ sơ trong bộ lọc hiện tại
                         </p>
                         <p className="mt-2 text-sm text-slate-500">
                           Thử đổi vị trí, từ khóa hoặc bật lại hồ sơ đã đóng để xem thêm ứng viên.
@@ -1282,8 +1525,11 @@ const ApplicantsPage = () => {
                     onDragEnd={handleDragEnd}
                     onDragCancel={() => setActiveId(null)}
                   >
-                    <div className="overflow-x-auto px-4 py-4">
-                      <div className="flex min-w-max gap-4" style={{ minHeight: '420px' }}>
+                    <div className="overflow-x-auto px-4 py-4 [scrollbar-gutter:stable]">
+                      <div
+                        className="flex w-max min-w-full gap-4 pb-2"
+                        style={{ minHeight: '420px' }}
+                      >
                         {columns.map((column) => (
                           <KanbanColumn
                             key={column.id}
@@ -1302,10 +1548,11 @@ const ApplicantsPage = () => {
                       {activeApp ? (
                         <ApplicantCard
                           app={activeApp}
-                          onStatusChange={() => { }}
+                          onStatusChange={() => {}}
                           isDragging
                           onBookmark={handleBookmark}
                           isBusy={false}
+                          compact
                         />
                       ) : null}
                     </DragOverlay>
@@ -1313,35 +1560,38 @@ const ApplicantsPage = () => {
                 )}
               </Card>
             </section>
-
           </div>
         </main>
       </div>
 
       {/* ── Dialogs ── */}
-      {dialogType === 'interview' && pendingStage && (() => {
-        const app = applicants.find((a) => a.id === pendingStage.appId);
-        return (
-          <InterviewScheduleDialog
-            applicantName={app?.name || 'Ứng viên'}
-            jobTitle={app?.jobTitle || app?.role || ''}
-            onConfirm={handleDialogConfirm}
-            onCancel={handleDialogCancel}
-          />
-        );
-      })()}
+      {dialogType === 'interview' &&
+        pendingStage &&
+        (() => {
+          const app = applicants.find((a) => a.id === pendingStage.appId);
+          return (
+            <InterviewScheduleDialog
+              applicantName={app?.name || 'Ứng viên'}
+              jobTitle={app?.jobTitle || app?.role || ''}
+              onConfirm={handleDialogConfirm}
+              onCancel={handleDialogCancel}
+            />
+          );
+        })()}
 
-      {dialogType === 'offer' && pendingStage && (() => {
-        const app = applicants.find((a) => a.id === pendingStage.appId);
-        return (
-          <OfferDialog
-            applicantName={app?.name || 'Ứng viên'}
-            jobTitle={app?.jobTitle || app?.role || ''}
-            onConfirm={handleDialogConfirm}
-            onCancel={handleDialogCancel}
-          />
-        );
-      })()}
+      {dialogType === 'offer' &&
+        pendingStage &&
+        (() => {
+          const app = applicants.find((a) => a.id === pendingStage.appId);
+          return (
+            <OfferDialog
+              applicantName={app?.name || 'Ứng viên'}
+              jobTitle={app?.jobTitle || app?.role || ''}
+              onConfirm={handleDialogConfirm}
+              onCancel={handleDialogCancel}
+            />
+          );
+        })()}
     </>
   );
 };

@@ -18,7 +18,7 @@ import { buildRegisterPayload } from '@/utils';
 import { getDashboardPath, getSafePostAuthRedirect } from '@/utils/rolePaths';
 
 const RegisterPage = () => {
-  const [role, setRole] = useState(null); // 'candidate' or 'employer'
+  const [role, setRole] = useState(null); // 'candidate' or 'recruiter'
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -36,7 +36,7 @@ const RegisterPage = () => {
   // Initialize role from ?role= query param
   useEffect(() => {
     const r = searchParams.get('role');
-    if (r === 'candidate' || r === 'employer') {
+    if (r === 'candidate' || r === 'recruiter') {
       setRole(r);
     }
   }, [searchParams]);
@@ -66,7 +66,7 @@ const RegisterPage = () => {
       // res = { success: true, data: { ...user, token, requires_approval }, meta: { message } }
       // Use extractAuthResponse to get normalized role + status + requiresApproval
       const { requiresApproval, role: normalizedRole } =
-        (res?.data && typeof res.data === 'object')
+        res?.data && typeof res.data === 'object'
           ? {
               requiresApproval: Boolean(res.data.requires_approval),
               role: res.data.role,
@@ -84,8 +84,8 @@ const RegisterPage = () => {
       } else {
         showNotification(`Đăng ký tài khoản ${roleLabel} thành công!`, 'success');
         const next = searchParams.get('next');
-        const target = getSafePostAuthRedirect(next, normalizedRole)
-          || getDashboardPath(normalizedRole);
+        const target =
+          getSafePostAuthRedirect(next, normalizedRole) || getDashboardPath(normalizedRole);
         navigate(target, { replace: true });
       }
     } catch (err) {
@@ -207,10 +207,10 @@ const RegisterPage = () => {
                   Quay lại chọn vai trò
                 </button>
                 <h2 className="text-2xl font-bold tracking-normal text-foreground sm:text-3xl">
-                  Đăng ký {role === 'employer' ? 'nhà tuyển dụng' : 'ứng viên'}
+                  Đăng ký {role === 'recruiter' ? 'nhà tuyển dụng' : 'ứng viên'}
                 </h2>
                 <p className="mt-2 text-base text-muted-foreground">
-                  {role === 'employer'
+                  {role === 'recruiter'
                     ? 'Tạo tài khoản để đăng tin và quản lý ứng viên.'
                     : 'Tạo tài khoản để nhận gợi ý việc làm phù hợp.'}
                 </p>
@@ -244,7 +244,7 @@ const RegisterPage = () => {
 
               <button
                 type="button"
-                onClick={() => handleRoleSelect('employer')}
+                onClick={() => handleRoleSelect('recruiter')}
                 className="group flex items-center gap-5 rounded-xl border border-border/90 bg-slate-50/50 p-5 text-left transition-all hover:border-primary/40 hover:bg-primary/[0.04] sm:gap-6 sm:p-6"
               >
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform group-hover:scale-[1.03] sm:h-14 sm:w-14 sm:rounded-xl">
@@ -306,7 +306,7 @@ const RegisterPage = () => {
                   </div>
                 </div>
 
-                {role === 'employer' && (
+                {role === 'recruiter' && (
                   <div className="space-y-2.5">
                     <label
                       htmlFor="reg-company"
@@ -320,7 +320,7 @@ const RegisterPage = () => {
                       placeholder="Tên doanh nghiệp của bạn"
                       value={formData.company_name}
                       onChange={handleChange}
-                      required={role === 'employer'}
+                      required={role === 'recruiter'}
                       autoComplete="organization"
                       className="h-12 rounded-xl border-border/90 bg-slate-50/40 transition-colors focus-visible:border-primary/45 focus-visible:ring-primary/15"
                     />

@@ -9,6 +9,7 @@ const JobRepository = require('../models/Job');
 const CompanyRepository = require('../models/Company');
 const SystemSettingsRepository = require('../models/SystemSettings');
 const { isDeadlineDateBeforeToday } = require('../utils/deadline');
+const { USER_STATUS } = require('../utils/constants');
 const logger = require('../utils/logger');
 const AIService = require('./ai');
 const AppError = require('../utils/errorHandler');
@@ -93,7 +94,7 @@ class JobService {
       category_id: jobData.category_id,
       location: jobData.location,
       address: jobData.address,
-      job_type: normalizeJobType(jobData.job_type || jobData.type),
+      job_type: normalizeJobType(hasOwn(jobData, 'job_type') ? jobData.job_type : jobData.type),
       status: jobData.status,
       education_required: jobData.education_required,
       deadline: jobData.deadline,
@@ -162,7 +163,16 @@ class JobService {
     }
 
     const company = await CompanyRepository.findById(companyId);
-    if (!company || !company.is_verified) {
+    const ownerStatus = String(company?.owner_status || '')
+      .trim()
+      .toLowerCase();
+    const companyBlocked =
+      !company ||
+      !company.is_verified ||
+      company.flagged ||
+      [USER_STATUS.BANNED, USER_STATUS.SUSPENDED, 'locked'].includes(ownerStatus);
+
+    if (companyBlocked) {
       return { ...jobData, status: 'pending_review' };
     }
 
@@ -173,9 +183,14 @@ class JobService {
     return await JobRepository.findWithDetails(filters);
   }
 
+  async getRecentInterestedJobs(filters) {
+    return await JobRepository.findRecentInterested(filters);
+  }
+
   async getJobById(id, options = {}) {
     const includeDeleted = options.allowDeleted === true;
-    const job = await JobRepository.findByIdWithDetails(id, { includeDeleted });
+    const publicOnly = options.publicOnly === true;
+    const job = await JobRepository.findByIdWithDetails(id, { includeDeleted, publicOnly });
     if (!job) {
       throw new AppError('Job not found', 404);
     }
@@ -238,7 +253,11 @@ class JobService {
       }
     }
 
-    const moderatedJobData = await this.enforcePublishRules(targetCompanyId, options.recruiterId, jobData);
+    const moderatedJobData = await this.enforcePublishRules(
+      targetCompanyId,
+      options.recruiterId,
+      jobData
+    );
     const definedJobData = this.normalizeJobData(moderatedJobData, true);
     if (options.companyId != null && options.companyId !== currentJob.company_id) {
       definedJobData.company_id = options.companyId;

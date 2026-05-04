@@ -1,21 +1,14 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import {
-  Building2,
-  MapPin,
-  Clock,
-  DollarSign,
-  ChevronRight,
-  Bookmark,
-  Users
-} from 'lucide-react';
+import { Building2, MapPin, Clock, DollarSign, ChevronRight, Bookmark, Users } from 'lucide-react';
 import { cn } from '@/utils';
 import { getJobSalaryCardLabel, hasConcreteJobSalary } from '@/utils/jobSalary';
 
 const RecommendedJobCard = ({ job, isApplied, isSaved, onSave, onApply }) => {
   const getJobTitle = (job) => job.title || job.job_title || 'Vị trí chưa xác định';
-  const getCompanyName = (job) => job.company_name || (job.company && job.company.name) || 'Công ty ẩn danh';
+  const getCompanyName = (job) =>
+    job.company_name || (job.company && job.company.name) || 'Công ty ẩn danh';
   const getLocation = (job) => job.location || job.work_location || 'Toàn quốc';
   const salaryDisplay = getJobSalaryCardLabel(job);
   const hasConcreteSalary = hasConcreteJobSalary(job);
@@ -29,7 +22,11 @@ const RecommendedJobCard = ({ job, isApplied, isSaved, onSave, onApply }) => {
           <div className="flex items-start gap-4 sm:gap-6">
             <div className="h-16 w-16 shrink-0 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center overflow-hidden transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-sm">
               {job.company_logo ? (
-                <img src={job.company_logo} alt={getCompanyName(job)} className="h-full w-full object-cover" />
+                <img
+                  src={job.company_logo}
+                  alt={getCompanyName(job)}
+                  className="h-full w-full object-cover"
+                />
               ) : (
                 <Building2 className="h-8 w-8 text-slate-200" />
               )}
@@ -43,7 +40,9 @@ const RecommendedJobCard = ({ job, isApplied, isSaved, onSave, onApply }) => {
               </div>
 
               <div className="flex items-center gap-2 text-sm font-bold text-slate-500">
-                <span className="hover:text-primary transition-colors cursor-pointer">{getCompanyName(job)}</span>
+                <span className="hover:text-primary transition-colors cursor-pointer">
+                  {getCompanyName(job)}
+                </span>
                 <span className="h-1 w-1 rounded-full bg-slate-300" />
                 <span className="flex items-center gap-1">
                   <MapPin size={14} className="text-slate-300" />
@@ -60,7 +59,10 @@ const RecommendedJobCard = ({ job, isApplied, isSaved, onSave, onApply }) => {
                       : 'border-slate-100 bg-slate-50 font-semibold text-slate-600'
                   )}
                 >
-                  <DollarSign size={14} className={hasConcreteSalary ? 'text-emerald-500' : 'text-slate-400'} />
+                  <DollarSign
+                    size={14}
+                    className={hasConcreteSalary ? 'text-emerald-500' : 'text-slate-400'}
+                  />
                   {salaryDisplay}
                 </div>
                 {vacanciesLabel && (
@@ -83,12 +85,14 @@ const RecommendedJobCard = ({ job, isApplied, isSaved, onSave, onApply }) => {
                 variant="ghost"
                 size="icon"
                 className={cn(
-                  "h-11 w-11 rounded-xl transition-all duration-300",
-                  isSaved ? "bg-amber-50 text-amber-500 hover:bg-amber-100" : "bg-slate-50 text-slate-400 hover:bg-slate-100"
+                  'h-11 w-11 rounded-xl transition-all duration-300',
+                  isSaved
+                    ? 'bg-amber-50 text-amber-500 hover:bg-amber-100'
+                    : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
                 )}
                 onClick={onSave}
               >
-                <Bookmark size={20} fill={isSaved ? "currentColor" : "none"} />
+                <Bookmark size={20} fill={isSaved ? 'currentColor' : 'none'} />
               </Button>
               <Button
                 className="h-11 rounded-xl bg-slate-900 px-6 text-xs font-bold uppercase tracking-wider text-white hover:bg-slate-800 shadow-lg shadow-slate-900/10 group/btn"
@@ -96,7 +100,10 @@ const RecommendedJobCard = ({ job, isApplied, isSaved, onSave, onApply }) => {
                 disabled={isApplied}
               >
                 {isApplied ? 'Đã nộp' : 'Chi tiết'}
-                <ChevronRight size={16} className="ml-1 group-hover/btn:translate-x-1 transition-transform" />
+                <ChevronRight
+                  size={16}
+                  className="ml-1 group-hover/btn:translate-x-1 transition-transform"
+                />
               </Button>
             </div>
           </div>

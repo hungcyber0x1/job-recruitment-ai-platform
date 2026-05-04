@@ -7,14 +7,14 @@ const path = require('path');
 const cors = require('cors');
 const morgan = require('morgan');
 const helmet = require('helmet');
-const routes = require('./src/routes/index');
-const authRoutes = require('./src/routes/auth');
-const errorMiddleware = require('./src/middlewares/error');
-const { generalLimiter } = require('./src/middlewares/rate-limiter');
-const { auditMiddleware } = require('./src/middlewares/audit');
-const { requestIdMiddleware } = require('./src/middlewares/request-id');
-const { getAllowedOrigins } = require('./src/utils/allowedOrigins');
-const { uploadsRoot, clientDistRoot } = require('./src/config/paths');
+const routes = require('./routes/index');
+const authRoutes = require('./routes/auth');
+const errorMiddleware = require('./middlewares/error');
+const { generalLimiter } = require('./middlewares/rate-limiter');
+const { auditMiddleware } = require('./middlewares/audit');
+const { requestIdMiddleware } = require('./middlewares/request-id');
+const { getAllowedOrigins } = require('./utils/allowedOrigins');
+const { uploadsRoot, clientDistRoot } = require('./config/paths');
 
 const app = express();
 const clientIndexPath = path.join(clientDistRoot, 'index.html');
@@ -24,7 +24,7 @@ app.use(requestIdMiddleware);
 
 morgan.token('req-id', (req) => req.id || '-');
 
-require('./src/config/swagger')(app);
+require('./config/swagger')(app);
 
 const allowedOrigins = getAllowedOrigins();
 

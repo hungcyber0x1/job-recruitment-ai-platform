@@ -15,13 +15,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { cn } from '@/utils';
 
-const CandidatePageHeader = ({
-  title,
-  icon: Icon,
-  description,
-  actions,
-  className,
-}) => {
+const CandidatePageHeader = ({ title, icon: Icon, description, actions, className }) => {
   return (
     <div className={cn('ds-page-header', className)}>
       <div className="ds-page-header-main">
@@ -34,12 +28,7 @@ const CandidatePageHeader = ({
           {title}
         </h1>
 
-      {description && (
-        <p className="ds-page-description">
-          {description}
-        </p>
-      )}
-
+        {description && <p className="ds-page-description">{description}</p>}
       </div>
 
       {actions && <div className="ds-page-actions">{actions}</div>}

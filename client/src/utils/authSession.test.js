@@ -15,12 +15,12 @@ describe('shouldPersistAuthSession', () => {
     ).toBe(true);
   });
 
-  it('does not persist pending employer sessions after registration', () => {
+  it('does not persist pending recruiter sessions after registration', () => {
     expect(
       shouldPersistAuthSession(
         {
           token: 'jwt-token',
-          data: { role: 'employer', status: 'pending' },
+          data: { role: 'recruiter', status: 'pending' },
         },
         'register'
       )
@@ -45,7 +45,7 @@ describe('shouldPersistAuthSession', () => {
         {
           token: 'jwt-token',
           requires_approval: true,
-          data: { role: 'employer', status: 'pending' },
+          data: { role: 'recruiter', status: 'pending' },
         },
         'register'
       )
@@ -68,11 +68,11 @@ describe('shouldPersistAuthSession', () => {
     ).toBe(false);
   });
 
-  it('extracts auth data from nested legacy auth responses', () => {
+  it('extracts auth data from nested auth responses', () => {
     expect(
       extractAuthResponse({
         data: {
-          role: 'employer',
+          role: 'recruiter',
           status: 'pending',
           token: 'jwt-token',
           requires_approval: true,

@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const jwtConfig = require('../config/jwt.config');
 const UserRepository = require('../models/User');
 const AppError = require('../utils/errorHandler');
+const logger = require('../utils/logger');
 const { USER_STATUS } = require('../utils/constants');
 const {
   getAdminPreset,
@@ -14,8 +15,9 @@ const {
 } = require('../utils/company-access');
 
 function normalizeRole(role) {
-  const normalizedRole = String(role ?? '').trim().toLowerCase();
-  return normalizedRole === 'employer' ? 'recruiter' : normalizedRole;
+  return String(role ?? '')
+    .trim()
+    .toLowerCase();
 }
 
 /**
@@ -37,14 +39,25 @@ const protect = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, jwtConfig.secret);
+    logger.info(`[protect] decoded token: id=${decoded.id}, email=${decoded.email}`);
     const user = await UserRepository.findById(decoded.id);
+    logger.info(
+      `[protect] findById(${decoded.id}) returned:`,
+      user ? `${user.email} (${user.role}) status=${user.status}` : 'NULL'
+    );
+
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'No user found with this id' });
+    }
 
     if (!user) {
       return res.status(401).json({ success: false, message: 'No user found with this id' });
     }
 
     // Derive effective status từ cột status (không dùng is_active)
-    const rawStatus = String(user.status || '').trim().toLowerCase();
+    const rawStatus = String(user.status || '')
+      .trim()
+      .toLowerCase();
     const effectiveStatus = rawStatus || USER_STATUS.ACTIVE;
 
     if (effectiveStatus === USER_STATUS.SUSPENDED || effectiveStatus === USER_STATUS.BANNED) {
@@ -103,7 +116,7 @@ const requireAdminPermission = (permission) => (req, res, next) => {
   if (!hasAdminPermission(req.user, permission)) {
     return res.status(403).json({
       success: false,
-      message: 'Super Admin permission required for this action',
+      message: 'Admin permission required for this action',
       requiredPermission: permission,
     });
   }
@@ -113,7 +126,7 @@ const requireAdminPermission = (permission) => (req, res, next) => {
 
 /**
  * Kiểm tra role
- * Alias: isCandidate, isEmployer, isAdmin
+ * Alias: isCandidate, isRecruiter, isAdmin
  */
 const authorize = (...roles) => {
   const normalizedRoles = roles.map((role) => normalizeRole(role));
@@ -134,6 +147,13 @@ const authorize = (...roles) => {
     const currentRole = normalizeRole(req.user.role);
 
     if (!normalizedRoles.includes(currentRole)) {
+      console.error(
+        `[authorize] ❌ 403 — userRole="${req.user.role}", currentRole="${currentRole}", expected=${JSON.stringify(normalizedRoles)}, path=${req.path}, userId=${req.user?.id}`
+      );
+      logger.error(
+        `403 - Role "${currentRole}" not in ${JSON.stringify(normalizedRoles)} - ${req.originalUrl} - ${req.method} - ${req.ip}`,
+        { path: req.path, userId: req.user?.id, userRole: req.user.role }
+      );
       return res.status(403).json({
         success: false,
         message: `User role "${req.user.role}" (normalized: "${currentRole}") is not authorized to access this route. Expected one of: ${normalizedRoles.join(', ')}`,
@@ -144,17 +164,16 @@ const authorize = (...roles) => {
         },
       });
     }
+    console.log(`[authorize] ✅ userId=${req.user.id} role="${currentRole}" path=${req.path}`);
     next();
   };
 };
 
-// ─── Aliases (để tương thích với các route dùng tên khác nhau) ───────────────
+// ─── Aliases ────────────────────────────────────────────────────────────────
 const authenticate = protect;
 const isCandidate = authorize('candidate');
 const isRecruiter = authorize('recruiter');
 const isAdmin = authorize('admin');
-// Legacy alias for backward compatibility
-const isEmployer = isRecruiter;
 
 module.exports = {
   protect,
@@ -164,5 +183,4 @@ module.exports = {
   isCandidate,
   isRecruiter,
   isAdmin,
-  isEmployer,
 };

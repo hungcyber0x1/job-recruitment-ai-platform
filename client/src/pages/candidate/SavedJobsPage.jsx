@@ -15,6 +15,7 @@ import {
   X,
 } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
+import StatCard from '@/components/common/StatCard';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/common';
@@ -29,21 +30,39 @@ import { cn } from '../../utils/cn';
 import { isHandledAuthError } from '../../utils/authErrors';
 import { getJobSalaryCardLabel, hasConcreteJobSalary } from '../../utils/jobSalary';
 
-const AVATAR_PALETTE = ['0d9488', '0f766e', '115e59', '047857', '059669', '134e4a', '0e7490', '155e75'];
+const AVATAR_PALETTE = [
+  '0d9488',
+  '0f766e',
+  '115e59',
+  '047857',
+  '059669',
+  '134e4a',
+  '0e7490',
+  '155e75',
+];
 
 const TYPE_LABELS = {
   'full-time': 'Toàn thời gian',
   'part-time': 'Bán thời gian',
-  'contract': 'Hợp đồng',
-  'internship': 'Thực tập',
-  'freelance': 'Tự do',
+  contract: 'Hợp đồng',
+  internship: 'Thực tập',
+  freelance: 'Tự do',
 };
 
 const WORK_MODE_CONFIG = {
   remote: {
     label: 'Từ xa',
     icon: () => (
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width="11"
+        height="11"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <circle cx="12" cy="12" r="10" />
         <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
         <path d="M2 12h20" />
@@ -55,7 +74,16 @@ const WORK_MODE_CONFIG = {
   hybrid: {
     label: 'Kết hợp',
     icon: () => (
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width="11"
+        height="11"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
         <polyline points="9 22 9 12 15 12 15 22" />
       </svg>
@@ -114,17 +142,55 @@ function getCompanyLogoSrc(job) {
 
 function getDeadlineConfig(deadline, daysLeft, openForApplications = true) {
   if (!openForApplications) {
-    return { bg: 'bg-slate-50', border: 'border-slate-200', text: 'text-slate-500', icon: 'text-slate-400', label: 'Ngừng tuyển', dot: 'bg-slate-400' };
+    return {
+      bg: 'bg-slate-50',
+      border: 'border-slate-200',
+      text: 'text-slate-500',
+      icon: 'text-slate-400',
+      label: 'Ngừng tuyển',
+      dot: 'bg-slate-400',
+    };
   }
 
   const passed = isJobApplicationDeadlinePassed(deadline);
-  if (passed || daysLeft === 0) {
-    return { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-600', icon: 'text-red-500', label: 'Hết hạn', dot: 'bg-red-500' };
+  if (passed) {
+    return {
+      bg: 'bg-red-50',
+      border: 'border-red-200',
+      text: 'text-red-600',
+      icon: 'text-red-500',
+      label: 'Hết hạn',
+      dot: 'bg-red-500',
+    };
+  }
+  if (daysLeft === 0) {
+    return {
+      bg: 'bg-amber-50',
+      border: 'border-amber-200',
+      text: 'text-amber-600',
+      icon: 'text-amber-500',
+      label: 'Hạn hôm nay',
+      dot: 'bg-amber-500',
+    };
   }
   if (daysLeft !== null && daysLeft <= 3) {
-    return { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-600', icon: 'text-amber-500', label: `${daysLeft} ngày nữa`, dot: 'bg-amber-500' };
+    return {
+      bg: 'bg-amber-50',
+      border: 'border-amber-200',
+      text: 'text-amber-600',
+      icon: 'text-amber-500',
+      label: `${daysLeft} ngày nữa`,
+      dot: 'bg-amber-500',
+    };
   }
-  return { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-600', icon: 'text-emerald-500', label: daysLeft !== null ? `${daysLeft} ngày nữa` : 'Không giới hạn', dot: 'bg-emerald-500' };
+  return {
+    bg: 'bg-emerald-50',
+    border: 'border-emerald-200',
+    text: 'text-emerald-600',
+    icon: 'text-emerald-500',
+    label: daysLeft !== null ? `${daysLeft} ngày nữa` : 'Không giới hạn',
+    dot: 'bg-emerald-500',
+  };
 }
 
 function formatJobType(type) {
@@ -134,7 +200,9 @@ function formatJobType(type) {
 }
 
 function getSavedJobStatus(job) {
-  return String(job?.status || job?.job_status || job?.job?.status || '').trim().toLowerCase();
+  return String(job?.status || job?.job_status || job?.job?.status || '')
+    .trim()
+    .toLowerCase();
 }
 
 function isSavedJobOpenForApplications(job) {
@@ -163,27 +231,17 @@ const WorkModeBadge = ({ mode }) => {
   const config = WORK_MODE_CONFIG[mode];
   const Icon = config.icon;
   return (
-    <span className={cn('inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[11px] font-semibold ring-1', config.className)}>
+    <span
+      className={cn(
+        'inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[11px] font-semibold ring-1',
+        config.className
+      )}
+    >
       <Icon />
       {config.label}
     </span>
   );
 };
-
-const StatCard = ({ label, value, helper, icon: Icon, tone }) => (
-  <div className="rounded-lg border bg-white p-4 shadow-sm">
-    <div className="flex items-start justify-between gap-3">
-      <div>
-        <div className="text-3xl font-bold leading-none text-slate-950">{value ?? '—'}</div>
-        <div className="mt-1 text-sm font-bold text-slate-700">{label}</div>
-        {helper && <div className="mt-0.5 text-xs font-medium text-slate-500">{helper}</div>}
-      </div>
-      <div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1', tone)}>
-        <Icon size={18} />
-      </div>
-    </div>
-  </div>
-);
 
 const SidebarCard = ({ title, icon: Icon, children, className }) => (
   <Card className={cn('overflow-hidden rounded-lg border-slate-200 bg-white shadow-sm', className)}>
@@ -237,7 +295,11 @@ const SavedJobCard = ({ job, onUnsave }) => {
         <div className="flex items-start gap-3">
           {/* Logo */}
           <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-slate-50 shadow-sm">
-            <img src={getCompanyLogoSrc(job)} alt={job.company_name || 'Công ty'} className="h-full w-full object-cover" />
+            <img
+              src={getCompanyLogoSrc(job)}
+              alt={job.company_name || 'Công ty'}
+              className="h-full w-full object-cover"
+            />
           </div>
 
           {/* Info */}
@@ -268,7 +330,14 @@ const SavedJobCard = ({ job, onUnsave }) => {
                       {typeDisplay}
                     </span>
                   )}
-                  <span className={cn('inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-bold ring-1 ring-inset', deadlineCfg.bg, deadlineCfg.border, deadlineCfg.text)}>
+                  <span
+                    className={cn(
+                      'inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-bold ring-1 ring-inset',
+                      deadlineCfg.bg,
+                      deadlineCfg.border,
+                      deadlineCfg.text
+                    )}
+                  >
                     <span className={cn('h-1 w-1 rounded-full', deadlineCfg.dot)} />
                     {deadlineCfg.label}
                   </span>
@@ -289,7 +358,13 @@ const SavedJobCard = ({ job, onUnsave }) => {
                     unsaving && 'opacity-60 cursor-not-allowed'
                   )}
                 >
-                  {unsaving ? <Loader2 size={10} className="animate-spin" /> : justUnsaved ? <Check size={10} /> : <Bookmark size={10} className="fill-current" />}
+                  {unsaving ? (
+                    <Loader2 size={10} className="animate-spin" />
+                  ) : justUnsaved ? (
+                    <Check size={10} />
+                  ) : (
+                    <Bookmark size={10} className="fill-current" />
+                  )}
                   {justUnsaved ? 'Đã bỏ' : 'Bỏ lưu'}
                 </button>
               </div>
@@ -300,7 +375,14 @@ const SavedJobCard = ({ job, onUnsave }) => {
         {/* Footer row */}
         <div className="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
           <div className="flex items-center gap-2">
-            <span className={cn('inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-bold ring-1 ring-inset', hasConcreteSalary ? 'bg-emerald-50 text-emerald-700 ring-emerald-100' : 'bg-slate-50 text-slate-500 ring-slate-100')}>
+            <span
+              className={cn(
+                'inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-bold ring-1 ring-inset',
+                hasConcreteSalary
+                  ? 'bg-emerald-50 text-emerald-700 ring-emerald-100'
+                  : 'bg-slate-50 text-slate-500 ring-slate-100'
+              )}
+            >
               {getJobSalaryCardLabel(job)}
             </span>
             {job.vacancies && (
@@ -315,7 +397,16 @@ const SavedJobCard = ({ job, onUnsave }) => {
             className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-emerald-600 px-4 text-xs font-bold text-white shadow-sm transition-colors hover:bg-emerald-700"
           >
             Chi tiết
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
           </Link>
@@ -334,39 +425,42 @@ const SavedJobsPage = () => {
   const [sortBy, setSortBy] = useState('newest');
   const { showNotification } = useNotification();
 
-  const fetchSavedJobs = useCallback(async ({ silent = false } = {}) => {
-    setLoading(true);
-    setLoadError(null);
-    try {
-      const response = await candidateService.getSavedJobs();
-      setSavedJobs(response.data?.data || []);
-    } catch (error) {
-      if (isHandledAuthError(error)) {
-        setSavedJobs([]);
-        return;
-      }
+  const fetchSavedJobs = useCallback(
+    async ({ silent = false } = {}) => {
+      setLoading(true);
+      setLoadError(null);
+      try {
+        const response = await candidateService.getSavedJobs();
+        setSavedJobs(response.data?.data || []);
+      } catch (error) {
+        if (isHandledAuthError(error)) {
+          setSavedJobs([]);
+          return;
+        }
 
-      const transientNetworkError = isTransientNetworkError(error);
-      setLoadError(
-        transientNetworkError
-          ? 'Máy chủ phát triển đang quá tải kết nối. Vui lòng thử tải lại sau vài giây.'
-          : 'Không thể tải danh sách việc đã lưu.'
-      );
-      setSavedJobs([]);
-      console.warn('SavedJobsPage fetch error:', error?.message || error);
-
-      if (!silent) {
-        showNotification(
+        const transientNetworkError = isTransientNetworkError(error);
+        setLoadError(
           transientNetworkError
-            ? 'Kết nối tạm thời bị gián đoạn, vui lòng thử lại.'
-            : 'Không thể tải danh sách việc đã lưu',
-          'error'
+            ? 'Máy chủ phát triển đang quá tải kết nối. Vui lòng thử tải lại sau vài giây.'
+            : 'Không thể tải danh sách việc đã lưu.'
         );
+        setSavedJobs([]);
+        console.warn('SavedJobsPage fetch error:', error?.message || error);
+
+        if (!silent) {
+          showNotification(
+            transientNetworkError
+              ? 'Kết nối tạm thời bị gián đoạn, vui lòng thử lại.'
+              : 'Không thể tải danh sách việc đã lưu',
+            'error'
+          );
+        }
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
-    }
-  }, [showNotification]);
+    },
+    [showNotification]
+  );
 
   useEffect(() => {
     fetchSavedJobs({ silent: true });
@@ -403,8 +497,10 @@ const SavedJobsPage = () => {
 
     result.sort((a, b) => {
       switch (sortBy) {
-        case 'oldest': return new Date(a.created_at || 0) - new Date(b.created_at || 0);
-        case 'salary_high': return (getJobSalarySortValue(b, 'max') || 0) - (getJobSalarySortValue(a, 'max') || 0);
+        case 'oldest':
+          return new Date(a.created_at || 0) - new Date(b.created_at || 0);
+        case 'salary_high':
+          return (getJobSalarySortValue(b, 'max') || 0) - (getJobSalarySortValue(a, 'max') || 0);
         case 'salary_low': {
           const salaryA = getJobSalarySortValue(a, 'min');
           const salaryB = getJobSalarySortValue(b, 'min');
@@ -418,7 +514,8 @@ const SavedJobsPage = () => {
           const dlB = calendarDaysLeftUntilDeadline(b.deadline) ?? Infinity;
           return dlA - dlB;
         }
-        default: return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+        default:
+          return new Date(b.created_at || 0) - new Date(a.created_at || 0);
       }
     });
 
@@ -460,9 +557,9 @@ const SavedJobsPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50/40 pb-16">
+    <div className="min-h-screen bg-transparent pb-16">
       {/* Header */}
-      <div className="border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
+      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-transparent">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
           style={{
@@ -491,7 +588,6 @@ const SavedJobsPage = () => {
                 </p>
               </div>
             </div>
-
           </div>
 
           {/* Stats row */}
@@ -557,7 +653,12 @@ const SavedJobsPage = () => {
                       >
                         {tab.label}
                         {count > 0 && (
-                          <span className={cn('inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold', isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500')}>
+                          <span
+                            className={cn(
+                              'inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold',
+                              isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                            )}
+                          >
                             {count}
                           </span>
                         )}
@@ -578,7 +679,13 @@ const SavedJobsPage = () => {
                       </option>
                     ))}
                   </select>
-                  <svg className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <svg
+                    className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
                     <path d="M6 9l6 6 6-6" />
                   </svg>
                 </div>
@@ -589,12 +696,28 @@ const SavedJobsPage = () => {
               <div className="mt-2 flex items-center gap-2">
                 <span className="text-sm font-medium text-slate-500">
                   <b className="text-slate-800">{processedJobs.length}</b> kết quả
-                  {searchQuery && <> cho "<b className="text-emerald-700">{searchQuery}</b>"</>}
-                  {activeFilter !== 'all' && <> trong tab <b className="text-emerald-700">{FILTER_TABS.find(t => t.value === activeFilter)?.label}</b></>}
+                  {searchQuery && (
+                    <>
+                      {' '}
+                      cho "<b className="text-emerald-700">{searchQuery}</b>"
+                    </>
+                  )}
+                  {activeFilter !== 'all' && (
+                    <>
+                      {' '}
+                      trong tab{' '}
+                      <b className="text-emerald-700">
+                        {FILTER_TABS.find((t) => t.value === activeFilter)?.label}
+                      </b>
+                    </>
+                  )}
                 </span>
                 <button
                   type="button"
-                  onClick={() => { setSearchQuery(''); setActiveFilter('all'); }}
+                  onClick={() => {
+                    setSearchQuery('');
+                    setActiveFilter('all');
+                  }}
                   className="inline-flex h-7 items-center justify-center rounded-md border border-slate-200 bg-white px-2 text-xs font-bold text-slate-500 transition-colors hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
                 >
                   Xóa bộ lọc
@@ -611,14 +734,19 @@ const SavedJobsPage = () => {
             {loading ? (
               <div className="space-y-3">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="h-28 animate-pulse rounded-lg border border-slate-200 bg-white" />
+                  <div
+                    key={i}
+                    className="h-28 animate-pulse rounded-lg border border-slate-200 bg-white"
+                  />
                 ))}
               </div>
             ) : loadError ? (
               <div className="rounded-lg border border-dashed border-amber-200 bg-amber-50/70 px-6 py-12 text-center shadow-sm">
                 <Bookmark className="mx-auto h-9 w-9 text-amber-500" />
                 <p className="mt-4 text-base font-bold text-amber-900">Chưa tải được việc đã lưu</p>
-                <p className="mx-auto mt-2 max-w-lg text-sm font-medium text-amber-700">{loadError}</p>
+                <p className="mx-auto mt-2 max-w-lg text-sm font-medium text-amber-700">
+                  {loadError}
+                </p>
                 <Button
                   onClick={() => fetchSavedJobs()}
                   className="mt-5 rounded-lg bg-amber-600 font-semibold text-white shadow-sm hover:bg-amber-700"
@@ -633,7 +761,10 @@ const SavedJobsPage = () => {
                   title="Chưa có việc đã lưu"
                   description="Lưu các vị trí bạn quan tâm để so sánh và ứng tuyển khi sẵn sàng."
                   action={
-                    <Button asChild className="rounded-lg bg-emerald-600 text-white shadow-sm hover:bg-emerald-700">
+                    <Button
+                      asChild
+                      className="rounded-lg bg-emerald-600 text-white shadow-sm hover:bg-emerald-700"
+                    >
                       <Link to="/candidate/jobs">Khám phá việc làm</Link>
                     </Button>
                   }
@@ -643,12 +774,13 @@ const SavedJobsPage = () => {
               <div className="rounded-lg border border-dashed border-slate-300 bg-white px-6 py-14 text-center shadow-sm">
                 <Search className="mx-auto h-8 w-8 text-slate-300" />
                 <p className="mt-4 text-base font-bold text-slate-800">Không tìm thấy kết quả</p>
-                <p className="mt-2 text-sm text-slate-500">
-                  Thử thay đổi từ khóa hoặc bộ lọc.
-                </p>
+                <p className="mt-2 text-sm text-slate-500">Thử thay đổi từ khóa hoặc bộ lọc.</p>
                 <Button
                   variant="outline"
-                  onClick={() => { setSearchQuery(''); setActiveFilter('all'); }}
+                  onClick={() => {
+                    setSearchQuery('');
+                    setActiveFilter('all');
+                  }}
                   className="mt-4 rounded-lg border-slate-300 font-semibold text-slate-600 hover:bg-slate-50"
                 >
                   Xóa bộ lọc
@@ -670,18 +802,35 @@ const SavedJobsPage = () => {
             <SidebarCard title="Tổng quan" icon={Star}>
               <div className="mt-4 space-y-3">
                 {[
-                  { label: 'Đã lưu', value: savedJobs.length, tone: 'bg-emerald-50 text-emerald-700 border-emerald-100' },
-                  { label: 'Còn tuyển', value: activeCount, tone: 'bg-sky-50 text-sky-700 border-sky-100' },
-                  { label: 'Sắp hết hạn', value: expiringCount, tone: 'bg-amber-50 text-amber-700 border-amber-100' },
+                  {
+                    label: 'Đã lưu',
+                    value: savedJobs.length,
+                    tone: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+                  },
+                  {
+                    label: 'Còn tuyển',
+                    value: activeCount,
+                    tone: 'bg-sky-50 text-sky-700 border-sky-100',
+                  },
+                  {
+                    label: 'Sắp hết hạn',
+                    value: expiringCount,
+                    tone: 'bg-amber-50 text-amber-700 border-amber-100',
+                  },
                 ].map((item) => (
-                  <div key={item.label} className={cn('flex items-center justify-between rounded-lg border px-3 py-2.5', item.tone)}>
+                  <div
+                    key={item.label}
+                    className={cn(
+                      'flex items-center justify-between rounded-lg border px-3 py-2.5',
+                      item.tone
+                    )}
+                  >
                     <span className="text-sm font-semibold">{item.label}</span>
                     <span className="text-xl font-bold">{item.value}</span>
                   </div>
                 ))}
               </div>
             </SidebarCard>
-
           </aside>
         </div>
       </main>

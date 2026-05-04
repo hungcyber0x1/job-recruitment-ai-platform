@@ -70,7 +70,15 @@ class UserService {
   }
 
   async updateUser(userId, updateData) {
-    const allowedFields = ['first_name', 'last_name', 'phone', 'address', 'avatar_url', 'gender', 'region'];
+    const allowedFields = [
+      'first_name',
+      'last_name',
+      'phone',
+      'address',
+      'avatar_url',
+      'gender',
+      'region',
+    ];
     const safeData = {};
     for (const field of allowedFields) {
       if (updateData[field] !== undefined) {
@@ -92,7 +100,10 @@ class UserService {
   }
 
   async updateUserAvatar(userId, avatarUrl) {
-    await UserRepository.update(userId, { avatar_url: avatarUrl });
+    const updated = await UserRepository.updateAvatar(userId, avatarUrl);
+    if (!updated) {
+      throw new AppError('User not found', 404);
+    }
     const updatedUser = await UserRepository.findById(userId);
     return toUserContract(updatedUser);
   }

@@ -2,9 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import {
   Activity,
-  BookOpen,
   Briefcase,
-  Building,
   Building2,
   FileSearch,
   FileText,
@@ -13,8 +11,6 @@ import {
   MessageSquare,
   Search,
   Settings,
-  ShieldAlert,
-  ShieldCheck,
   Sparkles,
   Target,
   UserCircle2,
@@ -31,7 +27,7 @@ const navigationByRole = {
     {
       title: 'Tổng quan cá nhân',
       items: [
-        { path: '/candidate/dashboard', label: 'Dashboard', icon: <LayoutDashboard size={18} /> },
+        { path: '/candidate/dashboard', label: 'Tổng quan', icon: <LayoutDashboard size={18} /> },
       ],
     },
     {
@@ -53,16 +49,14 @@ const navigationByRole = {
     },
     {
       title: 'AI và định hướng',
-      items: [
-        { path: '/candidate/chat', label: 'Chatbot AI', icon: <Sparkles size={18} /> },
-      ],
+      items: [{ path: '/candidate/chat', label: 'Chatbot AI', icon: <Sparkles size={18} /> }],
     },
   ],
-  employer: [
+  recruiter: [
     {
       title: 'Tổng quan',
       items: [
-        { path: '/employer/dashboard', label: 'Dashboard', icon: <LayoutDashboard size={18} /> },
+        { path: '/employer/dashboard', label: 'Tổng quan', icon: <LayoutDashboard size={18} /> },
       ],
     },
     {
@@ -108,38 +102,28 @@ const navigationByRole = {
   ],
   admin: [
     {
-      title: 'Tổng quan',
+      title: 'TỔNG QUAN',
       items: [
-        { path: '/admin/dashboard', label: 'Dashboard', icon: <LayoutDashboard size={18} /> },
+        { path: '/admin/dashboard', label: 'Tổng quan', icon: <LayoutDashboard size={18} /> },
       ],
     },
     {
-      title: 'Quản trị dữ liệu',
+      title: 'QUẢN LÝ TUYỂN DỤNG',
+      items: [
+        { path: '/admin/companies', label: 'Doanh nghiệp', icon: <Building2 size={18} /> },
+        { path: '/admin/jobs', label: 'Tin tuyển dụng', icon: <Briefcase size={18} /> },
+        { path: '/admin/applications', label: 'Ứng viên', icon: <FileText size={18} /> },
+      ],
+    },
+    {
+      title: 'BÁO CÁO',
+      items: [{ path: '/admin/analytics', label: 'Thống kê', icon: <Activity size={18} /> }],
+    },
+    {
+      title: 'HỆ THỐNG',
       items: [
         { path: '/admin/users', label: 'Người dùng', icon: <Users size={18} /> },
-        { path: '/admin/companies', label: 'Doanh nghiệp', icon: <Building size={18} /> },
-        { path: '/admin/applications', label: 'Đơn ứng tuyển', icon: <FileText size={18} /> },
-        { path: '/admin/blog', label: 'Blog', icon: <BookOpen size={18} /> },
-      ],
-    },
-    {
-      title: 'Moderation và AI',
-      items: [
-        { path: '/admin/jobs', label: 'Việc làm (admin)', icon: <Briefcase size={18} /> },
-        { path: '/admin/moderation', label: 'Kiểm duyệt', icon: <ShieldAlert size={18} /> },
-        { path: '/admin/categories', label: 'Danh mục / Kỹ năng', icon: <Building2 size={18} /> },
-        { path: '/admin/chatbot', label: 'Chatbot AI', icon: <Sparkles size={18} /> },
-        { path: '/admin/analytics', label: 'Phân tích', icon: <Activity size={18} /> },
-      ],
-    },
-    {
-      title: 'Hỗ trợ và cấu hình',
-      items: [
-        { path: '/admin/support', label: 'Hỗ trợ', icon: <Users size={18} /> },
-        { path: '/admin/logs', label: 'Logs và audit', icon: <FileSearch size={18} /> },
-        { path: '/admin/service-health', label: 'Service health', icon: <ShieldCheck size={18} /> },
-        { path: '/admin/feature-flags', label: 'Feature Flags', icon: <Sparkles size={18} /> },
-        { path: '/admin/settings', label: 'Cài đặt hệ thống', icon: <Settings size={18} /> },
+        { path: '/admin/settings', label: 'Cài đặt', icon: <Settings size={18} /> },
       ],
     },
   ],

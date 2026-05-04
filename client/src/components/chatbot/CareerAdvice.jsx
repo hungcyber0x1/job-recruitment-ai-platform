@@ -58,7 +58,8 @@ const CareerAdvice = () => {
         <div className="relative z-10 text-center">
           <h4 className="text-xl font-bold mb-4">Mở khóa huấn luyện viên AI chuyên sâu</h4>
           <p className="text-slate-400 text-base font-medium mb-8">
-            Nhận thêm phân tích hồ sơ, gợi ý kỹ năng và nhắc việc chuẩn bị ứng tuyển sát mục tiêu hơn.
+            Nhận thêm phân tích hồ sơ, gợi ý kỹ năng và nhắc việc chuẩn bị ứng tuyển sát mục tiêu
+            hơn.
           </p>
           <Button variant="primary" className="w-full bg-emerald-600 border-none font-bold">
             Nâng cấp gói cao cấp

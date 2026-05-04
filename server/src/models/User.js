@@ -47,19 +47,17 @@ const USER_EFFECTIVE_STATUS_SQL = `
   END
 `;
 
-const COMPANY_PROFILE_TABLES = ['company_profiles', 'employers'];
+const COMPANY_PROFILE_TABLE = 'company_profiles';
 const PINNED_ADMIN_ORDER_SQL = `
   CASE
-    WHEN LOWER(u.email) IN ('superadmin@hireai.vn', 'superadmin@hirebot.vn') THEN 0
-    WHEN LOWER(u.email) IN ('admin@hireai.vn', 'admin@hirebot.vn') THEN 1
-    WHEN u.role = 'admin' THEN 2
-    ELSE 3
+    WHEN u.role = 'admin' THEN 0
+    ELSE 1
   END
 `;
 
 function mergeEmployerRow(row) {
   if (!row) return row;
-  if (row.role === 'recruiter' || row.role === 'employer') {
+  if (row.role === 'recruiter') {
     const logo = row._employer_logo;
     const cur = row.avatar_url;
     if (logo && (!cur || String(cur).trim() === '')) {
@@ -92,7 +90,9 @@ function getRegionFilterValues(region) {
 function getEffectiveStatusValue(row) {
   if (!row) return null;
 
-  const rawStatus = String(row.status ?? '').trim().toLowerCase();
+  const rawStatus = String(row.status ?? '')
+    .trim()
+    .toLowerCase();
 
   if (rawStatus) {
     return rawStatus;
@@ -108,35 +108,118 @@ function normalizeUserStatus(row) {
   return row;
 }
 
+function normalizePasswordHash(row) {
+  if (!row) return row;
+  const password = row.password || row.password_hash || null;
+  row.password = password;
+  row.password_hash = password;
+  return row;
+}
+
+function normalizeAuthUserRow(row) {
+  return normalizeUserStatus(normalizePasswordHash(mergeEmployerRow(row)));
+}
+
+function isStatusAllowedByColumn(columnType, status) {
+  if (!columnType) return true;
+  return String(columnType).includes(`'${String(status).replace(/'/g, "''")}'`);
+}
+
 class UserRepository extends BaseRepository {
   constructor() {
     super('users');
   }
 
-  async queryUserWithCompanyProfile(whereClause, params = []) {
-    let lastError;
+  async getColumnMap(executor = this.pool, tableName = TABLE_NAME) {
+    const [rows] = await executor.query(
+      `SELECT COLUMN_NAME, COLUMN_TYPE
+         FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = ?`,
+      [tableName]
+    );
 
-    for (const companyTable of COMPANY_PROFILE_TABLES) {
-      try {
-        return await this.pool.query(
-          `SELECT u.*,
-                  cp.company_logo AS _employer_logo,
-                  cp.company_name AS _employer_company_name
-             FROM users u
-             LEFT JOIN ${companyTable} cp ON cp.user_id = u.id
-            ${whereClause}
-            LIMIT 1`,
-          params
-        );
-      } catch (error) {
-        if (error?.code !== 'ER_NO_SUCH_TABLE') {
-          throw error;
-        }
-        lastError = error;
-      }
+    return new Map(rows.map((row) => [row.COLUMN_NAME, row.COLUMN_TYPE]));
+  }
+
+  normalizeStatusForSchema(columns, status) {
+    const normalizedStatus = String(status || USER_STATUS.ACTIVE)
+      .trim()
+      .toLowerCase();
+    const statusColumnType = columns.get('status');
+
+    if (isStatusAllowedByColumn(statusColumnType, normalizedStatus)) {
+      return normalizedStatus;
     }
 
-    throw lastError;
+    if (
+      normalizedStatus === USER_STATUS.PENDING_VERIFICATION &&
+      isStatusAllowedByColumn(statusColumnType, 'pending')
+    ) {
+      return 'pending';
+    }
+
+    return USER_STATUS.ACTIVE;
+  }
+
+  async createAuthUser(connection, data = {}) {
+    const columns = await this.getColumnMap(connection);
+    const fields = [];
+    const params = [];
+    const addField = (field, value) => {
+      if (!columns.has(field)) return;
+      fields.push(field);
+      params.push(value);
+    };
+
+    addField('email', data.email);
+
+    if (columns.has('password')) {
+      addField('password', data.passwordHash);
+    }
+    if (columns.has('password_hash')) {
+      addField('password_hash', data.passwordHash);
+    }
+
+    if (!columns.has('password') && !columns.has('password_hash')) {
+      throw new Error('Users table must contain password or password_hash column');
+    }
+
+    addField('role', data.role);
+    addField('first_name', data.firstName);
+    addField('last_name', data.lastName);
+    addField('full_name', [data.firstName, data.lastName].filter(Boolean).join(' ').trim());
+
+    const status = this.normalizeStatusForSchema(columns, data.status);
+    addField('status', status);
+
+    if (columns.has('is_active')) {
+      addField(
+        'is_active',
+        [USER_STATUS.ACTIVE, USER_STATUS.PENDING_VERIFICATION, 'pending'].includes(status) ? 1 : 0
+      );
+    }
+
+    const placeholders = fields.map(() => '?').join(', ');
+    const [result] = await connection.query(
+      `INSERT INTO ${TABLE_NAME} (${fields.join(', ')}) VALUES (${placeholders})`,
+      params
+    );
+
+    return { insertId: result.insertId, status };
+  }
+
+  async queryUserWithCompanyProfile(whereClause, params = []) {
+    return await this.pool.query(
+      `SELECT u.*,
+              cp.company_logo AS _employer_logo,
+              cp.company_name AS _employer_company_name
+         FROM users u
+         LEFT JOIN ${COMPANY_PROFILE_TABLE} cp ON cp.user_id = u.id
+        ${whereClause}
+        LIMIT 1`,
+      params
+    );
   }
 
   async findById(id) {
@@ -144,7 +227,7 @@ class UserRepository extends BaseRepository {
       'WHERE u.id = ? AND u.deleted_at IS NULL',
       [id]
     );
-    return normalizeUserStatus(mergeEmployerRow(rows[0]));
+    return normalizeAuthUserRow(rows[0]);
   }
 
   async findByEmail(email) {
@@ -152,7 +235,7 @@ class UserRepository extends BaseRepository {
       'WHERE u.email = ? AND u.deleted_at IS NULL',
       [email]
     );
-    return normalizeUserStatus(mergeEmployerRow(rows[0]));
+    return normalizeAuthUserRow(rows[0]);
   }
 
   async findByOAuthProvider(provider, providerId) {
@@ -160,7 +243,7 @@ class UserRepository extends BaseRepository {
       'WHERE u.oauth_provider = ? AND u.oauth_provider_id = ? AND u.deleted_at IS NULL',
       [provider, providerId]
     );
-    return normalizeUserStatus(mergeEmployerRow(rows[0]));
+    return normalizeAuthUserRow(rows[0]);
   }
 
   async linkOAuth(userId, provider, providerId, avatarUrl) {
@@ -207,12 +290,16 @@ class UserRepository extends BaseRepository {
   }
 
   async findAllWithFilters(filters = {}) {
-    let whereClause = filters.status === 'deleted' ? ' WHERE u.deleted_at IS NOT NULL' : ' WHERE u.deleted_at IS NULL';
+    let whereClause =
+      filters.status === 'deleted'
+        ? ' WHERE u.deleted_at IS NOT NULL'
+        : ' WHERE u.deleted_at IS NULL';
     let joinClause = '';
     const params = [];
 
     if (filters.search) {
-      whereClause += ' AND (u.first_name LIKE ? OR u.last_name LIKE ? OR u.email LIKE ? OR u.internal_notes LIKE ?)';
+      whereClause +=
+        ' AND (u.first_name LIKE ? OR u.last_name LIKE ? OR u.email LIKE ? OR u.internal_notes LIKE ?)';
       const term = `%${filters.search}%`;
       params.push(term, term, term, term);
     }
@@ -249,8 +336,7 @@ class UserRepository extends BaseRepository {
     }
 
     if (filters.isVerified !== undefined) {
-      whereClause +=
-        ' AND u.id IN (SELECT user_id FROM employers WHERE is_verified = ?)';
+      whereClause += ' AND u.id IN (SELECT user_id FROM company_profiles WHERE is_verified = ?)';
       params.push(filters.isVerified ? 1 : 0);
     }
 
@@ -282,7 +368,7 @@ class UserRepository extends BaseRepository {
     const allowedSortFields = ['created_at', 'full_name', 'email', 'role', 'status'];
     const sortBy = allowedSortFields.includes(filters.sortBy) ? filters.sortBy : 'created_at';
     const order = filters.order === 'ASC' ? 'ASC' : 'DESC';
-    
+
     if (sortBy === 'full_name') {
       query += ` ORDER BY ${PINNED_ADMIN_ORDER_SQL} ASC, u.first_name ${order}, u.last_name ${order}, u.id ASC`;
     } else {
@@ -309,8 +395,7 @@ class UserRepository extends BaseRepository {
     return { data, total };
   }
 
-
-  async updateStatus(id, status, options = {}) {
+  async updateStatus(id, status, _options = {}) {
     const [result] = await this.pool.query(
       `UPDATE users
           SET status = ?,
@@ -330,16 +415,21 @@ class UserRepository extends BaseRepository {
       const normalizedStatus = String(payload.status).trim().toLowerCase();
       payload.status = normalizedStatus;
     }
-    
+
     // Allowable fields for general user profile update.
     // IMPORTANT: 'permissions', 'role', 'status', 'locked_at', 'locked_by', 'internal_notes',
     // 'email_verified_at', 'email', and 'avatar_url' are excluded to prevent
     // privilege escalation, role changes, and unauthorized modifications.
     // Admin-only endpoints use updateByAdmin() for these sensitive fields.
     const allowedFields = [
-      'first_name', 'last_name', 'phone', 'address',
-      'gender', 'region',
-      'email_notifications', 'push_notifications',
+      'first_name',
+      'last_name',
+      'phone',
+      'address',
+      'gender',
+      'region',
+      'email_notifications',
+      'push_notifications',
     ];
 
     Object.entries(payload).forEach(([key, value]) => {
@@ -366,6 +456,17 @@ class UserRepository extends BaseRepository {
     return result.affectedRows > 0;
   }
 
+  async updateAvatar(id, avatarUrl) {
+    const [result] = await this.pool.query(
+      `UPDATE users
+          SET avatar_url = ?,
+              updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND deleted_at IS NULL`,
+      [avatarUrl, id]
+    );
+    return result.affectedRows > 0;
+  }
+
   /**
    * Admin-only update: allows all fields including sensitive ones like permissions, role, status.
    * This method should ONLY be called from admin-service-level code, never from direct API routes.
@@ -388,20 +489,29 @@ class UserRepository extends BaseRepository {
     }
 
     const allowedFields = [
-      'email', 'first_name', 'last_name', 'phone', 'address',
-      'avatar_url', 'role', 'status', 'internal_notes',
-      'gender', 'region', 'email_verified_at',
-      'email_notifications', 'push_notifications', 'locked_at', 'locked_by',
+      'email',
+      'first_name',
+      'last_name',
+      'phone',
+      'address',
+      'avatar_url',
+      'role',
+      'status',
+      'internal_notes',
+      'gender',
+      'region',
+      'email_verified_at',
+      'email_notifications',
+      'push_notifications',
+      'locked_at',
+      'locked_by',
       'permissions',
     ];
 
     Object.entries(payload).forEach(([key, value]) => {
       if (allowedFields.includes(key)) {
         fields.push(`${key} = ?`);
-        const sanitizedValue =
-          value === '' && ['gender', 'region'].includes(key)
-            ? null
-            : value;
+        const sanitizedValue = value === '' && ['gender', 'region'].includes(key) ? null : value;
         params.push(sanitizedValue);
       }
     });
@@ -425,18 +535,12 @@ class UserRepository extends BaseRepository {
   }
 
   async hardDelete(id) {
-    const [result] = await this.pool.query(
-      'DELETE FROM users WHERE id = ?',
-      [id]
-    );
+    const [result] = await this.pool.query('DELETE FROM users WHERE id = ?', [id]);
     return result.affectedRows > 0;
   }
 
   async restore(id) {
-    const [result] = await this.pool.query(
-      'UPDATE users SET deleted_at = NULL WHERE id = ?',
-      [id]
-    );
+    const [result] = await this.pool.query('UPDATE users SET deleted_at = NULL WHERE id = ?', [id]);
     return result.affectedRows > 0;
   }
 
@@ -463,10 +567,9 @@ class UserRepository extends BaseRepository {
 
   async bulkRestore(ids) {
     if (!Array.isArray(ids) || ids.length === 0) return 0;
-    const [result] = await this.pool.query(
-      'UPDATE users SET deleted_at = NULL WHERE id IN (?)',
-      [ids]
-    );
+    const [result] = await this.pool.query('UPDATE users SET deleted_at = NULL WHERE id IN (?)', [
+      ids,
+    ]);
     return result.affectedRows;
   }
 
@@ -480,15 +583,19 @@ class UserRepository extends BaseRepository {
   }
 
   async countWithFilters(filters = {}) {
-    let query = filters.status === 'deleted' ? 'SELECT COUNT(*) as total FROM users u WHERE u.deleted_at IS NOT NULL' : 'SELECT COUNT(*) as total FROM users u WHERE u.deleted_at IS NULL';
+    let query =
+      filters.status === 'deleted'
+        ? 'SELECT COUNT(*) as total FROM users u WHERE u.deleted_at IS NOT NULL'
+        : 'SELECT COUNT(*) as total FROM users u WHERE u.deleted_at IS NULL';
     const params = [];
 
     if (filters.search) {
-      query += ' AND (u.first_name LIKE ? OR u.last_name LIKE ? OR u.email LIKE ? OR u.internal_notes LIKE ?)';
+      query +=
+        ' AND (u.first_name LIKE ? OR u.last_name LIKE ? OR u.email LIKE ? OR u.internal_notes LIKE ?)';
       const term = `%${filters.search}%`;
       params.push(term, term, term, term);
     }
-    
+
     if (filters.role) {
       query += ' AND u.role = ?';
       params.push(filters.role);
@@ -532,10 +639,52 @@ class UserRepository extends BaseRepository {
   }
 
   async updatePassword(id, passwordHash) {
+    const columns = await this.getColumnMap();
+    const fields = [];
+    const params = [];
+
+    if (columns.has('password')) {
+      fields.push('password = ?');
+      params.push(passwordHash);
+    }
+    if (columns.has('password_hash')) {
+      fields.push('password_hash = ?');
+      params.push(passwordHash);
+    }
+    if (columns.has('password_updated_at')) {
+      fields.push('password_updated_at = CURRENT_TIMESTAMP');
+    }
+    if (columns.has('password_changed_at')) {
+      fields.push('password_changed_at = CURRENT_TIMESTAMP');
+    }
+
+    if (fields.length === 0) return false;
+
+    params.push(id);
     const [result] = await this.pool.query(
-      'UPDATE users SET password = ?, password_updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-      [passwordHash, id]
+      `UPDATE users SET ${fields.join(', ')} WHERE id = ?`,
+      params
     );
+
+    return result.affectedRows > 0;
+  }
+
+  async recordSuccessfulLogin(id) {
+    const columns = await this.getColumnMap();
+    const fields = [];
+
+    if (columns.has('last_login_at')) {
+      fields.push('last_login_at = CURRENT_TIMESTAMP');
+    }
+    if (columns.has('failed_login_attempts')) {
+      fields.push('failed_login_attempts = 0');
+    }
+
+    if (fields.length === 0) return false;
+
+    const [result] = await this.pool.query(`UPDATE users SET ${fields.join(', ')} WHERE id = ?`, [
+      id,
+    ]);
 
     return result.affectedRows > 0;
   }

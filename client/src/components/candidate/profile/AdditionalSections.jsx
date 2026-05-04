@@ -1,10 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { motion } from 'framer-motion';
-import {
-  FileText,
-  Download,
-} from 'lucide-react';
+import { FileText, Download } from 'lucide-react';
 
 /**
  * @agent frontend-specialist
@@ -55,9 +52,7 @@ export const CVSection = ({ cvUrl }) => {
         </div>
       ) : (
         <div className="text-center p-8 border border-dashed border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800/50">
-          <p className="text-slate-500 dark:text-slate-400 text-base mb-4">
-            Chưa có CV điện tử
-          </p>
+          <p className="text-slate-500 dark:text-slate-400 text-base mb-4">Chưa có CV điện tử</p>
           <a
             href="/candidate/resume"
             className="inline-flex px-5 py-2.5 bg-primary text-white font-medium text-sm rounded-lg hover:bg-primary/90 transition-colors"

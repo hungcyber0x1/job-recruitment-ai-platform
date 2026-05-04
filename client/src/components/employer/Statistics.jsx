@@ -36,19 +36,8 @@ const Statistics = () => {
             </linearGradient>
           </defs>
           <CartesianGrid stroke="#E2E8F0" strokeDasharray="0" vertical={false} />
-          <XAxis
-            dataKey="name"
-            axisLine={false}
-            tickLine={false}
-            tick={CHART_TICK_STYLE}
-            dy={15}
-          />
-          <YAxis
-            yAxisId="left"
-            axisLine={false}
-            tickLine={false}
-            tick={CHART_TICK_STYLE}
-          />
+          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={CHART_TICK_STYLE} dy={15} />
+          <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={CHART_TICK_STYLE} />
           <YAxis
             yAxisId="right"
             orientation="right"

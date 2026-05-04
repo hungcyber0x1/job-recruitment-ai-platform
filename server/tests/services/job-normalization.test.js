@@ -46,4 +46,10 @@ describe('JobService.normalizeJobData', () => {
     expect(created.job_type).toBe('full_time');
     expect(updated.job_type).toBe('remote');
   });
+
+  it('keeps an explicit empty job_type on update instead of falling back to legacy type', () => {
+    const updated = JobService.normalizeJobData({ job_type: '', type: 'full-time' }, true);
+
+    expect(updated).toHaveProperty('job_type', '');
+  });
 });

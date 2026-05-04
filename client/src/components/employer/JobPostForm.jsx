@@ -170,7 +170,9 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
           </div>
           <button
             type="button"
-            onClick={() => setFormData((prev) => ({ ...prev, salary_negotiable: !prev.salary_negotiable }))}
+            onClick={() =>
+              setFormData((prev) => ({ ...prev, salary_negotiable: !prev.salary_negotiable }))
+            }
             className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 ${
               formData.salary_negotiable ? 'bg-emerald-500' : 'bg-gray-300'
             }`}
@@ -246,18 +248,20 @@ const JobPostForm = ({ initialData, categories, onSubmit, onCancel }) => {
               className="absolute -right-4 -top-4 opacity-10 group-hover:rotate-12 transition-transform duration-500"
               size={120}
             />
-            <h4 className="text-xl font-bold mb-4">AI Optimizer</h4>
+            <h4 className="text-xl font-bold mb-4">Gợi ý nội dung</h4>
             <p className="mb-8 text-base font-medium leading-relaxed text-white/70">
-              Hệ thống AI của chúng tôi sẽ phân tích các từ khóa trong mô tả của bạn để đảm bảo tin
-              tuyển dụng tiếp cận đúng đối tượng ứng viên nhất.
+              Rà soát mô tả, yêu cầu và quyền lợi để tin tuyển dụng rõ ràng, nhất quán và dễ đọc
+              hơn.
             </p>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between text-sm font-bold">
-                <span className="uppercase tracking-normal text-white/60">Độ phủ từ khóa</span>
-                <span className="text-accent">85%</span>
+            <div className="space-y-3 text-sm font-semibold text-white/80">
+              <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                Mô tả vai trò rõ ràng
               </div>
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/5">
-                <div className="h-full w-[85%] rounded-full bg-accent shadow-[0_0_15px_rgba(6,182,212,0.45)]"></div>
+              <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                Yêu cầu được trình bày cụ thể
+              </div>
+              <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                Quyền lợi nổi bật và dễ nắm bắt
               </div>
             </div>
           </Card>

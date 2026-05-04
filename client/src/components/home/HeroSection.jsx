@@ -48,8 +48,8 @@ const HeroSection = () => {
               transition={{ delay: 0.2 }}
               className="text-lg md:text-xl text-txt-muted font-medium leading-relaxed max-w-xl"
             >
-              Hãy để trí tuệ nhân tạo của HireBOT thay bạn tìm kiếm, sàng lọc và kết nối những cơ hội
-              nghề nghiệp phù hợp nhất với năng lực thực tế.
+              Hãy để trí tuệ nhân tạo của HireBOT thay bạn tìm kiếm, sàng lọc và kết nối những cơ
+              hội nghề nghiệp phù hợp nhất với năng lực thực tế.
             </motion.p>
 
             {/* Smart Search Bar - Theme #1 Style */}

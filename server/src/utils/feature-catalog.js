@@ -2,65 +2,67 @@ const DEFAULT_FEATURE_CATALOG = {
   roleGroups: [
     {
       id: 'admin',
-      eyebrow: 'Admin',
-      title: 'Platform governance and operational control',
+      eyebrow: 'Quản trị',
+      title: 'Quản trị nền tảng và kiểm soát vận hành',
       summary:
-        'Dashboard for users, jobs, applications, moderation, analytics, system health, and settings.',
+        'Dashboard cho người dùng, tin tuyển dụng, hồ sơ ứng tuyển, kiểm duyệt, phân tích, sức khỏe hệ thống và cấu hình.',
       items: [
-        'User, company, and application management',
-        'Job moderation, categories, skills, and chatbot governance',
-        'Analytics, support tickets, logs, service health, and system settings',
+        'Quản lý người dùng, doanh nghiệp và hồ sơ ứng tuyển',
+        'Kiểm duyệt tin tuyển dụng, danh mục, kỹ năng và chatbot',
+        'Phân tích dữ liệu, ticket hỗ trợ, nhật ký, sức khỏe dịch vụ và thiết lập hệ thống',
       ],
     },
     {
       id: 'employer',
-      eyebrow: 'Employer',
-      title: 'Recruitment execution and candidate coordination',
+      eyebrow: 'Nhà tuyển dụng',
+      title: 'Triển khai tuyển dụng và phối hợp ứng viên',
       summary:
-        'A recruiter workspace for job posting, pipeline review, communication, and employer branding.',
+        'Không gian làm việc cho nhà tuyển dụng: đăng tin, theo dõi pipeline, trao đổi và xây dựng thương hiệu tuyển dụng.',
       items: [
-        'Job posting, role editing, and hiring pipeline control',
-        'Candidate search, saved profiles, and direct messaging',
-        'Interview scheduling and company profile management',
+        'Đăng tin, chỉnh sửa vị trí và kiểm soát pipeline tuyển dụng',
+        'Tìm kiếm ứng viên, lưu hồ sơ tiềm năng và nhắn tin trực tiếp',
+        'Đặt lịch phỏng vấn và quản lý hồ sơ công ty',
       ],
     },
     {
       id: 'candidate',
-      eyebrow: 'Candidate',
-      title: 'Career discovery, readiness, and AI guidance',
+      eyebrow: 'Ứng viên',
+      title: 'Khám phá nghề nghiệp, chuẩn bị hồ sơ và tư vấn AI',
       summary:
-        'A candidate workspace focused on profile depth, applications, AI guidance, and growth planning.',
+        'Không gian ứng viên tập trung vào hoàn thiện hồ sơ, theo dõi ứng tuyển, nhận tư vấn AI và định hướng phát triển.',
       items: [
-        'Profile, resume, and settings management',
-        'Job discovery, saved jobs, and application tracking',
-        'Notifications, company discovery, and career guidance tools',
+        'Quản lý hồ sơ, CV và thiết lập tài khoản',
+        'Khám phá việc làm, lưu tin và theo dõi trạng thái ứng tuyển',
+        'Nhận thông báo, khám phá doanh nghiệp và sử dụng công cụ định hướng nghề nghiệp',
       ],
     },
   ],
   publicTools: [
     {
       id: 'ai-cv-scanner',
-      title: 'AI CV Scanner',
-      description: 'Check resume alignment against job descriptions and surface improvement gaps.',
+      title: 'Quét CV bằng AI',
+      description:
+        'Đối chiếu CV với mô tả công việc, nhận diện khoảng trống kỹ năng và gợi ý cải thiện.',
       path: '/ai-cv-scanner',
       settingKey: 'ai_resume_analysis',
       enabled: true,
     },
     {
       id: 'salary-predictor',
-      title: 'Salary Predictor',
-      description: 'Estimate compensation direction from skills, market signals, and role profile.',
+      title: 'Ước tính lương',
+      description:
+        'Ước tính xu hướng đãi ngộ dựa trên kỹ năng, tín hiệu thị trường và hồ sơ vị trí.',
       path: '/salary-predictor',
       enabled: true,
     },
   ],
   governanceSignals: [
-    'Role-based dashboards',
-    'Company verification',
-    'Moderation workflow',
-    'Service health monitoring',
-    'Feature flags and settings',
-    'AI guidance layer',
+    'Dashboard theo vai trò',
+    'Xác minh doanh nghiệp',
+    'Quy trình kiểm duyệt',
+    'Theo dõi sức khỏe dịch vụ',
+    'Feature flag và thiết lập hệ thống',
+    'Lớp tư vấn AI',
   ],
 };
 
@@ -84,15 +86,13 @@ const buildFeatureCatalog = ({ settingsMap = {}, payload = null } = {}) => {
     payload && typeof payload === 'object' ? payload : deepClone(DEFAULT_FEATURE_CATALOG);
 
   if (Array.isArray(base.publicTools)) {
-    base.publicTools = base.publicTools
-      .filter(isSupportedPublicTool)
-      .map((tool) => ({
-        ...tool,
-        enabled:
-          tool.settingKey && Object.prototype.hasOwnProperty.call(settingsMap, tool.settingKey)
-            ? toBoolean(settingsMap[tool.settingKey], tool.enabled !== false)
-            : tool.enabled !== false,
-      }));
+    base.publicTools = base.publicTools.filter(isSupportedPublicTool).map((tool) => ({
+      ...tool,
+      enabled:
+        tool.settingKey && Object.prototype.hasOwnProperty.call(settingsMap, tool.settingKey)
+          ? toBoolean(settingsMap[tool.settingKey], tool.enabled !== false)
+          : tool.enabled !== false,
+    }));
   }
 
   return base;

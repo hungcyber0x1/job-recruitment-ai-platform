@@ -29,7 +29,9 @@ const INTENT_PATTERNS = {
   [INTENT_CATEGORIES.JOB_SEARCH]: [
     /tìm việc|find job|kiếm việc|job search|tuyển dụng|recruit|ứng tuyển|apply/i,
     /việc làm|job opportunity|job vacancy|công việc|job position/i,
-    /job\s/i, /công ty\s/i, /job\s+description/i,
+    /job\s/i,
+    /công ty\s/i,
+    /job\s+description/i,
     /hiring|job opening|open position/i,
     /lương|salary|thu nhập|income/i,
     /job\s*match/i,
@@ -329,7 +331,8 @@ function getIntentSuggestedQuestions(intent, role) {
     ],
   };
 
-  const roleBasedDefault = roleDefaultQuestions[roleNormalized] || roleDefaultQuestions['candidate'];
+  const roleBasedDefault =
+    roleDefaultQuestions[roleNormalized] || roleDefaultQuestions['candidate'];
 
   const questions = {
     [INTENT_CATEGORIES.JOB_SEARCH]: [

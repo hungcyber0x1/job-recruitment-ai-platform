@@ -19,15 +19,11 @@ import {
 export const EMPLOYER_NAV_GROUPS = [
   {
     title: 'I. TONG QUAN',
-    items: [
-      { path: '/employer/dashboard', label: 'Dashboard', icon: Activity },
-    ],
+    items: [{ path: '/employer/dashboard', label: 'Tổng quan', icon: Activity }],
   },
   {
     title: 'II. HO SO',
-    items: [
-      { path: '/employer/company-profile', label: 'Ho so cong ty', icon: Building2 },
-    ],
+    items: [{ path: '/employer/company-profile', label: 'Ho so cong ty', icon: Building2 }],
   },
   {
     title: 'III. TUYEN DUNG',
@@ -39,7 +35,12 @@ export const EMPLOYER_NAV_GROUPS = [
   {
     title: 'IV. PIPELINE',
     items: [
-      { path: '/employer/applications', label: 'Kanban ung vien', icon: GitBranch, badgeKey: 'candidates' },
+      {
+        path: '/employer/applications',
+        label: 'Kanban ung vien',
+        icon: GitBranch,
+        badgeKey: 'candidates',
+      },
       { path: '/employer/interview-schedule', label: 'Lich phong van', icon: Calendar },
     ],
   },
@@ -58,9 +59,7 @@ export const EMPLOYER_NAV_GROUPS = [
   },
   {
     title: 'VII. BAO CAO',
-    items: [
-      { path: '/employer/reports', label: 'Bao cao tuyen dung', icon: BarChart3 },
-    ],
+    items: [{ path: '/employer/reports', label: 'Bao cao tuyen dung', icon: BarChart3 }],
   },
   {
     title: 'VIII. CAI DAT',
@@ -71,8 +70,7 @@ export const EMPLOYER_NAV_GROUPS = [
   },
 ];
 
-export const flattenEmployerNavItems = () =>
-  EMPLOYER_NAV_GROUPS.flatMap((group) => group.items);
+export const flattenEmployerNavItems = () => EMPLOYER_NAV_GROUPS.flatMap((group) => group.items);
 
 export const findEmployerNavItem = (path) => {
   for (const group of EMPLOYER_NAV_GROUPS) {

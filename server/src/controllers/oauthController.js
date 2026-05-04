@@ -42,7 +42,7 @@ exports.startOAuth = async (req, res) => {
   }
   try {
     let intent = req.query.intent === 'register' ? 'register' : 'login';
-    let role = req.query.role === 'employer' ? 'employer' : 'candidate';
+    let role = req.query.role === 'recruiter' ? 'recruiter' : 'candidate';
     let userId;
 
     const linkToken = req.query.link_token;

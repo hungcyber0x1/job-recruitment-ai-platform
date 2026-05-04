@@ -115,9 +115,20 @@
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     /* Font stack tối ưu cho tiếng Việt: Be Vietnam Pro → Roboto (hỗ trợ đầy đủ dấu tiếng Việt) → system fonts */
-    font-family: 'Be Vietnam Pro', 'Roboto', 'Nunito', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family:
+      'Be Vietnam Pro',
+      'Roboto',
+      'Nunito',
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      sans-serif;
     font-kerning: normal;
-    font-feature-settings: 'kern' 1, 'liga' 1;
+    font-feature-settings:
+      'kern' 1,
+      'liga' 1;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
   }
@@ -135,15 +146,75 @@
 
 body {
   @apply text-base text-foreground antialiased;
-  font-family: 'Be Vietnam Pro', 'Roboto', 'Nunito', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Be Vietnam Pro',
+    'Roboto',
+    'Nunito',
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-kerning: normal;
-  font-feature-settings: 'kern' 1, 'liga' 1;
+  font-feature-settings:
+    'kern' 1,
+    'liga' 1;
   text-rendering: optimizeLegibility;
   background-color: hsl(var(--background));
   background-image:
     radial-gradient(ellipse 80% 50% at 50% -20%, rgba(var(--primary-shadow), 0.05), transparent),
     radial-gradient(ellipse 50% 100% at 100% 50%, rgba(var(--primary-shadow), 0.03), transparent);
   background-attachment: fixed;
+}
+
+/* Shared account shell background used by Employer and Admin account areas. */
+.account-page-bg {
+  background-color: hsl(var(--background));
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(var(--primary-shadow), 0.05), transparent),
+    radial-gradient(ellipse 50% 100% at 100% 50%, rgba(var(--primary-shadow), 0.03), transparent);
+  background-attachment: fixed;
+}
+
+/* Shared role workspace background: keep Admin, Candidate and Employer areas 100% identical. */
+.role-admin-workspace-bg,
+.role-recruiter-workspace-bg {
+  background-color: #f8fafc;
+  background-image: linear-gradient(180deg, #ecfdf5 0%, #f8fafc 24rem, #f8fafc 100%);
+}
+
+/* Shared Admin / Employer / Candidate surfaces: one professional rounded layout system. */
+.role-rounded-workspace {
+  --role-surface-radius: 1.5rem;
+  --role-inner-radius: 1rem;
+}
+
+.role-rounded-workspace :is(.premium-card, .ds-card, .data-table-shell),
+.role-rounded-workspace
+  :is(section, article, aside, [data-slot='card'])[class*='border'][class*='bg-white'],
+.role-rounded-workspace div[class*='border'][class*='bg-white'][class*='shadow'] {
+  border-radius: var(--role-surface-radius);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 18px 45px -34px rgba(15, 23, 42, 0.45);
+}
+
+.role-rounded-workspace
+  :is(.rounded-lg, .rounded-xl)[class*='border'][class*='bg-white']:not(input):not(select):not(
+    textarea
+  ):not(button) {
+  border-radius: var(--role-surface-radius);
+}
+
+.role-rounded-workspace
+  :is(input, select, textarea, button, a[role='button'], [role='button']).rounded-lg {
+  border-radius: 0.875rem;
+}
+
+.role-rounded-workspace
+  :is(input, select, textarea, button, a[role='button'], [role='button']).rounded-xl {
+  border-radius: var(--role-inner-radius);
 }
 
 /* Role dashboards readability layer: Admin, Recruiter, Candidate. */
@@ -218,8 +289,8 @@ body {
   line-height: 1.625rem;
 }
 
-.candidate-applications-typography [class*="text-[10px]"],
-.candidate-applications-typography [class*="text-[11px]"] {
+.candidate-applications-typography [class*='text-[10px]'],
+.candidate-applications-typography [class*='text-[11px]'] {
   font-size: 0.8125rem !important;
   line-height: 1.25rem !important;
 }
@@ -281,7 +352,6 @@ body {
 }
 
 @media (min-width: 640px) {
-
   .candidate-applications-typography h1,
   .candidate-applications-typography h1[class] {
     font-size: 2.125rem !important;
@@ -411,7 +481,9 @@ h6 {
   @apply text-foreground tracking-normal;
   font-family: 'Be Vietnam Pro', 'Roboto', 'Nunito', system-ui, sans-serif;
   font-kerning: normal;
-  font-feature-settings: 'kern' 1, 'liga' 1;
+  font-feature-settings:
+    'kern' 1,
+    'liga' 1;
 }
 
 h1 {
@@ -819,12 +891,13 @@ h6 {
 }
 
 @layer utilities {
-
   /* Font tiếng Việt - đảm bảo hiển thị đúng dấu */
   .font-vietnam {
     font-family: 'Be Vietnam Pro', 'Roboto', 'Nunito', system-ui, sans-serif;
     font-kerning: normal;
-    font-feature-settings: 'kern' 1, 'liga' 1;
+    font-feature-settings:
+      'kern' 1,
+      'liga' 1;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -843,11 +916,13 @@ h6 {
   /* Marquee fade: mask thay vì overlay – không đè trắng lên chữ */
   .marquee-fade-edges {
     mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to right,
-        transparent 0%,
-        black 8%,
-        black 92%,
-        transparent 100%);
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 8%,
+      black 92%,
+      transparent 100%
+    );
     mask-size: 100% 100%;
   }
 
@@ -904,9 +979,11 @@ h6 {
 
   .app-shell {
     @apply bg-slate-50 text-slate-900;
-    background-image: radial-gradient(ellipse at top left,
-        rgba(16, 185, 129, 0.05),
-        transparent 50%);
+    background-image: radial-gradient(
+      ellipse at top left,
+      rgba(16, 185, 129, 0.05),
+      transparent 50%
+    );
   }
 
   .app-panel {
@@ -1229,9 +1306,11 @@ h6 {
 
   .landing-btn-primary {
     @apply inline-flex items-center justify-center gap-2.5 text-primary-foreground font-semibold rounded-xl transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98] landing-focus;
-    background: linear-gradient(180deg,
-        hsl(var(--landing-primary-top)) 0%,
-        hsl(var(--landing-primary-bottom)) 100%);
+    background: linear-gradient(
+      180deg,
+      hsl(var(--landing-primary-top)) 0%,
+      hsl(var(--landing-primary-bottom)) 100%
+    );
     box-shadow:
       0 8px 30px -5px rgba(var(--primary-shadow), 0.28),
       inset 0 1px 0 0 hsl(0 0% 100% / 0.12);
@@ -1306,37 +1385,43 @@ h6 {
    * Trái giữ #fff đặc cho chữ; giữa sụt alpha nhanh; phải hoàn toàn trong suốt.
    */
   .hero-gradient-overlay {
-    background: linear-gradient(90deg,
-        #ffffff 0%,
-        #ffffff 26%,
-        rgba(255, 255, 255, 0.42) 34%,
-        rgba(255, 255, 255, 0.06) 40%,
-        rgba(255, 255, 255, 0) 44%,
-        transparent 100%);
+    background: linear-gradient(
+      90deg,
+      #ffffff 0%,
+      #ffffff 26%,
+      rgba(255, 255, 255, 0.42) 34%,
+      rgba(255, 255, 255, 0.06) 40%,
+      rgba(255, 255, 255, 0) 44%,
+      transparent 100%
+    );
     pointer-events: none;
   }
 
   @media (min-width: 1024px) {
     .hero-gradient-overlay {
-      background: linear-gradient(90deg,
-          #ffffff 0%,
-          #ffffff 24%,
-          rgba(255, 255, 255, 0.38) 33%,
-          rgba(255, 255, 255, 0.04) 39%,
-          rgba(255, 255, 255, 0) 43%,
-          transparent 100%);
+      background: linear-gradient(
+        90deg,
+        #ffffff 0%,
+        #ffffff 24%,
+        rgba(255, 255, 255, 0.38) 33%,
+        rgba(255, 255, 255, 0.04) 39%,
+        rgba(255, 255, 255, 0) 43%,
+        transparent 100%
+      );
     }
   }
 
   @media (max-width: 1023px) {
     .hero-gradient-overlay {
-      background: linear-gradient(90deg,
-          #ffffff 0%,
-          #ffffff 32%,
-          rgba(255, 255, 255, 0.4) 42%,
-          rgba(255, 255, 255, 0.05) 48%,
-          rgba(255, 255, 255, 0) 52%,
-          transparent 100%);
+      background: linear-gradient(
+        90deg,
+        #ffffff 0%,
+        #ffffff 32%,
+        rgba(255, 255, 255, 0.4) 42%,
+        rgba(255, 255, 255, 0.05) 48%,
+        rgba(255, 255, 255, 0) 52%,
+        transparent 100%
+      );
     }
   }
 
@@ -1348,12 +1433,14 @@ h6 {
   /** Chân hero: tan vào #f9fafb (gradient only) */
   .hero-bottom-fade {
     height: min(42vh, 420px);
-    background: linear-gradient(to bottom,
-        rgba(249, 250, 251, 0) 0%,
-        rgba(249, 250, 251, 0.25) 28%,
-        rgba(249, 250, 251, 0.65) 58%,
-        rgba(249, 250, 251, 0.92) 82%,
-        #f9fafb 100%);
+    background: linear-gradient(
+      to bottom,
+      rgba(249, 250, 251, 0) 0%,
+      rgba(249, 250, 251, 0.25) 28%,
+      rgba(249, 250, 251, 0.65) 58%,
+      rgba(249, 250, 251, 0.92) 82%,
+      #f9fafb 100%
+    );
     mask-image: linear-gradient(to bottom, transparent 0%, black 22%, black 100%);
     -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 22%, black 100%);
   }
@@ -1370,7 +1457,6 @@ h6 {
   }
 
   @keyframes hero-network-drift-column {
-
     0%,
     100% {
       transform: rotateX(9deg) rotateY(-14deg) rotateZ(-2deg) translateZ(0);
@@ -1389,14 +1475,15 @@ h6 {
     right: -10%;
     height: 42%;
     z-index: 8;
-    background: radial-gradient(ellipse 75% 50% at 50% 0%,
-        rgba(0, 166, 133, 0.16),
-        transparent 72%);
+    background: radial-gradient(
+      ellipse 75% 50% at 50% 0%,
+      rgba(0, 166, 133, 0.16),
+      transparent 72%
+    );
     opacity: 0.9;
   }
 
   @keyframes hero-network-drift {
-
     0%,
     100% {
       transform: rotateX(12deg) rotateY(-18deg) rotateZ(-3deg) translateZ(0) translateY(0);
@@ -1422,10 +1509,12 @@ h6 {
   /* Glass + bóng khuếch tán — thẻ “bay” trên nền */
   .hero-card-float {
     @apply rounded-[14px] border border-white/80;
-    background: linear-gradient(155deg,
-        rgba(255, 255, 255, 0.92) 0%,
-        rgba(255, 255, 255, 0.78) 38%,
-        rgba(252, 254, 253, 0.85) 100%);
+    background: linear-gradient(
+      155deg,
+      rgba(255, 255, 255, 0.92) 0%,
+      rgba(255, 255, 255, 0.78) 38%,
+      rgba(252, 254, 253, 0.85) 100%
+    );
     backdrop-filter: blur(24px) saturate(1.2);
     -webkit-backdrop-filter: blur(24px) saturate(1.2);
     box-shadow:
@@ -1449,7 +1538,6 @@ h6 {
   }
 
   @keyframes hero-card-levitate-a {
-
     0%,
     100% {
       transform: rotateX(12deg) rotateY(-24deg) translateZ(80px) translateY(0);
@@ -1461,7 +1549,6 @@ h6 {
   }
 
   @keyframes hero-card-levitate-b {
-
     0%,
     100% {
       transform: rotateX(-6deg) rotateY(18deg) translateZ(60px) translateY(0);
@@ -1635,9 +1722,11 @@ button {
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: radial-gradient(400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-      rgba(var(--primary-shadow), 0.18),
-      transparent 40%);
+  background: radial-gradient(
+    400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(var(--primary-shadow), 0.18),
+    transparent 40%
+  );
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
@@ -1653,7 +1742,6 @@ button {
 }
 
 @media (prefers-reduced-motion: reduce) {
-
   *,
   *::before,
   *::after {
@@ -1687,7 +1775,6 @@ button {
 }
 
 @keyframes float-y {
-
   0%,
   100% {
     transform: translateY(0px);
@@ -1711,7 +1798,6 @@ button {
 }
 
 @keyframes scroll-bounce {
-
   0%,
   100% {
     transform: translateY(0);
@@ -1780,10 +1866,12 @@ button {
 .skeleton::after {
   content: '';
   @apply absolute inset-0 -translate-x-full;
-  background: linear-gradient(90deg,
-      transparent 0%,
-      hsl(var(--primary) / 0.05) 50%,
-      transparent 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    hsl(var(--primary) / 0.05) 50%,
+    transparent 100%
+  );
   animation: shimmer 2s infinite;
 }
 
@@ -1828,14 +1916,16 @@ button {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom,
-      rgba(248, 249, 250, 0.7) 0%,
-      rgba(255, 255, 255, 0.5) 100%);
+  background: linear-gradient(
+    to bottom,
+    rgba(248, 249, 250, 0.7) 0%,
+    rgba(255, 255, 255, 0.5) 100%
+  );
   pointer-events: none;
   z-index: 1;
 }
 
-.company-hero-bg>* {
+.company-hero-bg > * {
   position: relative;
   z-index: 10;
 }
@@ -1913,7 +2003,6 @@ button {
 }
 
 @keyframes blob-float {
-
   0%,
   100% {
     transform: translate(0, 0) scale(1);
@@ -1963,7 +2052,7 @@ button {
   @apply viet-text;
 }
 
-.article-body>p:first-of-type {
+.article-body > p:first-of-type {
   @apply text-xl md:text-2xl font-serif text-foreground/95 mb-8 leading-relaxed;
 }
 
@@ -2030,7 +2119,11 @@ button {
 
   .glass-premium {
     @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
   }
 
   .hero-highlight-text {
@@ -2055,7 +2148,11 @@ button {
     inset: 0;
     pointer-events: none;
     opacity: 0.4;
-    background-image: radial-gradient(circle at 1px 1px, hsl(217 91% 60% / 0.06) 1px, transparent 0);
+    background-image: radial-gradient(
+      circle at 1px 1px,
+      hsl(217 91% 60% / 0.06) 1px,
+      transparent 0
+    );
     background-size: 32px 32px;
   }
 
@@ -2121,7 +2218,11 @@ button {
     inset: 0;
     pointer-events: none;
     opacity: 0.25;
-    background-image: radial-gradient(circle at 1px 1px, hsl(217 91% 60% / 0.04) 1px, transparent 0);
+    background-image: radial-gradient(
+      circle at 1px 1px,
+      hsl(217 91% 60% / 0.04) 1px,
+      transparent 0
+    );
     background-size: 40px 40px;
   }
 

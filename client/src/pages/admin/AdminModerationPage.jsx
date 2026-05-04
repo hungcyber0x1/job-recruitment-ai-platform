@@ -40,8 +40,18 @@ const AdminModerationPage = () => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [queue, setQueue] = useState({ jobs: [], companies: [], blogs: [], applications: [] });
-  const [stats, setStats] = useState({ pendingJobs: 0, flaggedJobs: 0, unverifiedCompanies: 0, pendingBlogs: 0 });
-  const [rejectionModal, setRejectionModal] = useState({ isOpen: false, type: 'job', id: null, reason: '' });
+  const [stats, setStats] = useState({
+    pendingJobs: 0,
+    flaggedJobs: 0,
+    pendingCompanyApprovals: 0,
+    pendingBlogs: 0,
+  });
+  const [rejectionModal, setRejectionModal] = useState({
+    isOpen: false,
+    type: 'job',
+    id: null,
+    reason: '',
+  });
   const [processing, setProcessing] = useState(false);
   const [processingId, setProcessingId] = useState(null);
 
@@ -51,7 +61,7 @@ const AdminModerationPage = () => {
       const [statsRes, jobsRes, companiesRes, blogsRes, applicationsRes] = await Promise.all([
         adminService.getStats(),
         adminService.getJobs({ limit: 50, status: 'pending_review' }),
-        adminService.getCompanies({ limit: 50, is_verified: false }),
+        adminService.getCompanies({ limit: 50, moderation_status: 'pending' }),
         adminService.getBlogPosts({ limit: 50, status: 'pending' }),
         adminService.getApplications({ limit: 50, status: 'pending' }),
       ]);
@@ -61,7 +71,11 @@ const AdminModerationPage = () => {
         setStats({
           pendingJobs: Number(rawStats.moderation?.pendingJobs) || 0,
           flaggedJobs: Number(rawStats.moderation?.flaggedJobs) || 0,
-          unverifiedCompanies: Number(rawStats.moderation?.unverifiedCompanies) || 0,
+          pendingCompanyApprovals:
+            Number(
+              rawStats.moderation?.pendingCompanyApprovals ??
+                rawStats.moderation?.unverifiedCompanies
+            ) || 0,
           pendingBlogs: Number(rawStats.moderation?.pendingBlogs) || 0,
         });
       }
@@ -91,25 +105,30 @@ const AdminModerationPage = () => {
     }
   }, [showNotification]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
-  const handleApprove = useCallback(async (type, id) => {
-    const key = `${type}-${id}`;
-    try {
-      setProcessingId(key);
-      if (type === 'job') {
-        await adminService.updateJobStatus(id, 'published');
-      } else {
-        await adminService.updateBlogPostStatus(id, 'published');
+  const handleApprove = useCallback(
+    async (type, id) => {
+      const key = `${type}-${id}`;
+      try {
+        setProcessingId(key);
+        if (type === 'job') {
+          await adminService.updateJobStatus(id, 'published');
+        } else {
+          await adminService.updateBlogPostStatus(id, 'published');
+        }
+        showNotification('Đã duyệt thành công.', 'success');
+        fetchData();
+      } catch {
+        showNotification('Lỗi khi duyệt.', 'error');
+      } finally {
+        setProcessingId(null);
       }
-      showNotification('Đã duyệt thành công.', 'success');
-      fetchData();
-    } catch {
-      showNotification('Lỗi khi duyệt.', 'error');
-    } finally {
-      setProcessingId(null);
-    }
-  }, [fetchData, showNotification]);
+    },
+    [fetchData, showNotification]
+  );
 
   const handleOpenReject = useCallback((type, id) => {
     setRejectionModal({ isOpen: true, type, id, reason: '' });
@@ -128,7 +147,11 @@ const AdminModerationPage = () => {
       if (rejectionModal.type === 'job') {
         await adminService.updateJobStatus(rejectionModal.id, 'rejected', rejectionModal.reason);
       } else {
-        await adminService.updateBlogPostStatus(rejectionModal.id, 'rejected', rejectionModal.reason);
+        await adminService.updateBlogPostStatus(
+          rejectionModal.id,
+          'rejected',
+          rejectionModal.reason
+        );
       }
       showNotification('Đã từ chối.', 'success');
       setRejectionModal({ isOpen: false, type: 'job', id: null, reason: '' });
@@ -141,21 +164,24 @@ const AdminModerationPage = () => {
     }
   };
 
-  const handleCompanyVerify = useCallback(async (id, verify) => {
-    try {
-      setProcessingId(`company-${id}`);
-      await adminService.verifyCompany(id, verify);
-      showNotification(verify ? 'Đã xác minh doanh nghiệp.' : 'Đã hủy xác minh.', 'success');
-      fetchData();
-    } catch {
-      showNotification('Lỗi khi xử lý doanh nghiệp.', 'error');
-    } finally {
-      setProcessingId(null);
-    }
-  }, [fetchData, showNotification]);
+  const handleCompanyVerify = useCallback(
+    async (id, verify) => {
+      try {
+        setProcessingId(`company-${id}`);
+        await adminService.verifyCompany(id, verify);
+        showNotification(verify ? 'Đã xác minh doanh nghiệp.' : 'Đã hủy xác minh.', 'success');
+        fetchData();
+      } catch (error) {
+        showNotification(error.response?.data?.message || 'Lỗi khi xử lý doanh nghiệp.', 'error');
+      } finally {
+        setProcessingId(null);
+      }
+    },
+    [fetchData, showNotification]
+  );
 
   const buildItems = useCallback(() => {
-    const jobItems = queue.jobs.map(item => ({
+    const jobItems = queue.jobs.map((item) => ({
       ...item,
       type: 'jobs',
       badge: 'Chờ duyệt',
@@ -164,7 +190,7 @@ const AdminModerationPage = () => {
       actionUrl: `/admin/jobs/${item.id}`,
     }));
 
-    const companyItems = queue.companies.map(item => ({
+    const companyItems = queue.companies.map((item) => ({
       ...item,
       type: 'companies',
       badge: 'Chưa xác minh',
@@ -173,7 +199,7 @@ const AdminModerationPage = () => {
       actionUrl: `/admin/companies/${item.id}`,
     }));
 
-    const blogItems = queue.blogs.map(item => ({
+    const blogItems = queue.blogs.map((item) => ({
       ...item,
       type: 'blogs',
       badge: 'Bài viết mới',
@@ -182,7 +208,7 @@ const AdminModerationPage = () => {
       actionUrl: `/admin/blog`,
     }));
 
-    const applicationItems = queue.applications.map(item => ({
+    const applicationItems = queue.applications.map((item) => ({
       ...item,
       type: 'applications',
       badge: 'Sàng lọc AI',
@@ -191,10 +217,11 @@ const AdminModerationPage = () => {
       actionUrl: `/admin/applications/${item.id}`,
     }));
 
-    const merged = [...jobItems, ...companyItems, ...blogItems, ...applicationItems]
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    const merged = [...jobItems, ...companyItems, ...blogItems, ...applicationItems].sort(
+      (a, b) => new Date(b.created_at) - new Date(a.created_at)
+    );
 
-    return activeFilter === 'all' ? merged : merged.filter(i => i.type === activeFilter);
+    return activeFilter === 'all' ? merged : merged.filter((i) => i.type === activeFilter);
   }, [activeFilter, queue]);
 
   const items = buildItems();
@@ -206,28 +233,46 @@ const AdminModerationPage = () => {
       return (
         <div className="flex items-center gap-2">
           <Link to={item.actionUrl}>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg"
+            >
               <Eye size={14} />
             </Button>
           </Link>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg" disabled={isProcessing}>
-                {isProcessing ? <Loader2 size={14} className="animate-spin" /> : <MoreVertical size={14} />}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg"
+                disabled={isProcessing}
+              >
+                {isProcessing ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <MoreVertical size={14} />
+                )}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40 p-1 shadow-xl border-slate-200/60 rounded-xl">
+            <DropdownMenuContent
+              align="end"
+              className="w-40 p-1 shadow-xl border-slate-200/60 rounded-xl"
+            >
               <DropdownMenuItem
                 className="rounded-lg cursor-pointer font-bold text-emerald-600 hover:bg-emerald-50"
                 onClick={() => handleApprove(item.type, item.id)}
               >
-                <Check size={14} className="mr-2" />Duyệt
+                <Check size={14} className="mr-2" />
+                Duyệt
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="rounded-lg cursor-pointer font-bold text-red-500 hover:bg-red-50"
                 onClick={() => handleOpenReject(item.type, item.id)}
               >
-                <X size={14} className="mr-2" />Từ chối
+                <X size={14} className="mr-2" />
+                Từ chối
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -239,7 +284,11 @@ const AdminModerationPage = () => {
       return (
         <div className="flex items-center gap-2">
           <Link to={item.actionUrl}>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg"
+            >
               <Eye size={14} />
             </Button>
           </Link>
@@ -258,7 +307,11 @@ const AdminModerationPage = () => {
     // Applications - just view
     return (
       <Link to={item.actionUrl}>
-        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg"
+        >
           <Eye size={14} />
         </Button>
       </Link>
@@ -269,7 +322,9 @@ const AdminModerationPage = () => {
     return (
       <div className="p-32 text-center space-y-6">
         <Loader2 className="mx-auto h-16 w-16 animate-spin text-emerald-600" />
-        <p className="text-xs font-bold uppercase tracking-normal text-slate-400">Đang đồng bộ dữ liệu...</p>
+        <p className="text-xs font-bold uppercase tracking-normal text-slate-400">
+          Đang đồng bộ dữ liệu...
+        </p>
       </div>
     );
   }
@@ -279,9 +334,16 @@ const AdminModerationPage = () => {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="space-y-2">
           <h1 className="text-3xl font-bold text-slate-900">Hàng đợi Kiểm duyệt</h1>
-          <p className="text-sm text-slate-500">Xử lý nhanh các yêu cầu từ tin tuyển dụng, doanh nghiệp và hồ sơ.</p>
+          <p className="text-sm text-slate-500">
+            Xử lý nhanh các yêu cầu từ tin tuyển dụng, doanh nghiệp và hồ sơ.
+          </p>
         </div>
-        <Button onClick={fetchData} disabled={loading} variant="outline" className="h-12 rounded-xl">
+        <Button
+          onClick={fetchData}
+          disabled={loading}
+          variant="outline"
+          className="h-12 rounded-xl"
+        >
           {loading ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
           <span className="ml-2">Làm mới</span>
         </Button>
@@ -290,8 +352,7 @@ const AdminModerationPage = () => {
       <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <p className="text-xs font-bold uppercase tracking-normal text-slate-400">Internal queue</p>
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          Man nay la hang doi thao tac nhanh. Nguon quan ly chinh van nam o Jobs,
-          Companies va Blog.
+          Man nay la hang doi thao tac nhanh. Nguon quan ly chinh van nam o Jobs, Companies va Blog.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <Link
@@ -301,10 +362,10 @@ const AdminModerationPage = () => {
             Jobs cho duyet
           </Link>
           <Link
-            to="/admin/companies?verification=unverified"
+            to="/admin/companies?status=pending"
             className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50"
           >
-            Companies cho xac minh
+            Companies chờ xác minh
           </Link>
           <Link
             to="/admin/blog"
@@ -316,14 +377,34 @@ const AdminModerationPage = () => {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <PremiumStatCard title="Tin chờ duyệt" value={stats.pendingJobs} icon={Briefcase} variant="amber" />
-        <PremiumStatCard title="Tin bị gắn cờ" value={stats.flaggedJobs} icon={Flag} variant="red" />
-        <PremiumStatCard title="Công ty mới" value={stats.unverifiedCompanies} icon={Building2} variant="blue" />
-        <PremiumStatCard title="Bài viết mới" value={stats.pendingBlogs} icon={FileText} variant="slate" />
+        <PremiumStatCard
+          title="Tin chờ duyệt"
+          value={stats.pendingJobs}
+          icon={Briefcase}
+          variant="amber"
+        />
+        <PremiumStatCard
+          title="Tin bị gắn cờ"
+          value={stats.flaggedJobs}
+          icon={Flag}
+          variant="red"
+        />
+        <PremiumStatCard
+          title="Công ty chờ duyệt"
+          value={stats.pendingCompanyApprovals}
+          icon={Building2}
+          variant="blue"
+        />
+        <PremiumStatCard
+          title="Bài viết mới"
+          value={stats.pendingBlogs}
+          icon={FileText}
+          variant="slate"
+        />
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {FILTERS.map(f => (
+        {FILTERS.map((f) => (
           <button
             key={f.id}
             onClick={() => setActiveFilter(f.id)}
@@ -344,10 +425,18 @@ const AdminModerationPage = () => {
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50/50">
-                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-normal text-slate-400">Nội dung</th>
-                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-normal text-slate-400">Loại</th>
-                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-normal text-slate-400">Ngày tạo</th>
-                <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-normal text-slate-400">Thao tác</th>
+                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-normal text-slate-400">
+                  Nội dung
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-normal text-slate-400">
+                  Loại
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-normal text-slate-400">
+                  Ngày tạo
+                </th>
+                <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-normal text-slate-400">
+                  Thao tác
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -359,8 +448,11 @@ const AdminModerationPage = () => {
                   </td>
                 </tr>
               ) : (
-                items.map(item => (
-                  <tr key={`${item.type}-${item.id}`} className="hover:bg-slate-50/50 transition-colors">
+                items.map((item) => (
+                  <tr
+                    key={`${item.type}-${item.id}`}
+                    className="hover:bg-slate-50/50 transition-colors"
+                  >
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
                         <span className="font-bold text-slate-900 line-clamp-1">{item.title}</span>
@@ -368,7 +460,10 @@ const AdminModerationPage = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <Badge variant={item.color} className="text-xs font-bold uppercase tracking-normal">
+                      <Badge
+                        variant={item.color}
+                        className="text-xs font-bold uppercase tracking-normal"
+                      >
                         {item.badge}
                       </Badge>
                     </td>
@@ -377,9 +472,7 @@ const AdminModerationPage = () => {
                         {new Date(item.created_at).toLocaleDateString('vi-VN')}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      {getActionMenu(item)}
-                    </td>
+                    <td className="px-6 py-4 text-right">{getActionMenu(item)}</td>
                   </tr>
                 ))
               )}
@@ -390,12 +483,17 @@ const AdminModerationPage = () => {
 
       <Modal
         isOpen={rejectionModal.isOpen}
-        onClose={() => setRejectionModal(prev => ({ ...prev, isOpen: false }))}
+        onClose={() => setRejectionModal((prev) => ({ ...prev, isOpen: false }))}
         title={rejectionModal.type === 'job' ? 'Từ chối tin tuyển dụng' : 'Từ chối bài viết'}
         footer={
           <div className="flex gap-3 w-full">
-            <Button variant="outline" onClick={() => setRejectionModal(prev => ({ ...prev, isOpen: false }))}
-              className="flex-1 rounded-xl h-11 font-bold">Hủy bỏ</Button>
+            <Button
+              variant="outline"
+              onClick={() => setRejectionModal((prev) => ({ ...prev, isOpen: false }))}
+              className="flex-1 rounded-xl h-11 font-bold"
+            >
+              Hủy bỏ
+            </Button>
             <Button
               onClick={handleConfirmRejection}
               disabled={processing}
@@ -407,12 +505,14 @@ const AdminModerationPage = () => {
         }
       >
         <div className="py-4 space-y-4">
-          <p className="text-sm font-bold text-slate-500 uppercase tracking-normal">Lý do từ chối</p>
+          <p className="text-sm font-bold text-slate-500 uppercase tracking-normal">
+            Lý do từ chối
+          </p>
           <textarea
             className="w-full min-h-[100px] rounded-xl border-2 border-slate-100 bg-slate-50 p-4 text-slate-900 focus:border-red-500/30 focus:outline-none focus:ring-4 focus:ring-red-500/5 text-sm"
             placeholder={`Nhập lý do ${rejectionModal.type === 'job' ? 'tin' : 'bài'} không đạt yêu cầu...`}
             value={rejectionModal.reason}
-            onChange={(e) => setRejectionModal(prev => ({ ...prev, reason: e.target.value }))}
+            onChange={(e) => setRejectionModal((prev) => ({ ...prev, reason: e.target.value }))}
           />
         </div>
       </Modal>

@@ -77,6 +77,7 @@ const HomepageContentModel = {
           };
           break;
         case 'logos':
+        case 'partners':
           result[section.section_key] = {
             ...section,
             items: await this.getPartners(section.id),
@@ -139,7 +140,15 @@ const HomepageContentModel = {
     const [result] = await pool.query(
       `INSERT INTO homepage_sections (section_key, section_type, title, subtitle, is_active, display_order, metadata)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [section_key, section_type, title || null, subtitle || null, is_active ?? true, display_order ?? 0, metadata ? JSON.stringify(metadata) : null]
+      [
+        section_key,
+        section_type,
+        title || null,
+        subtitle || null,
+        is_active ?? true,
+        display_order ?? 0,
+        metadata ? JSON.stringify(metadata) : null,
+      ]
     );
     return result.insertId;
   },
@@ -161,7 +170,14 @@ const HomepageContentModel = {
    * Update stat item
    */
   async updateStat(statId, data) {
-    const allowedFields = ['icon', 'display_value', 'label', 'value_type', 'display_order', 'is_active'];
+    const allowedFields = [
+      'icon',
+      'display_value',
+      'label',
+      'value_type',
+      'display_order',
+      'is_active',
+    ];
     const updates = [];
     const values = [];
 
@@ -198,7 +214,15 @@ const HomepageContentModel = {
     const [result] = await pool.query(
       `INSERT INTO homepage_testimonials (section_id, author_name, author_role, author_avatar, content, rating, display_order)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [sectionId, author_name, author_role || null, author_avatar || null, content, rating || 5, display_order ?? 0]
+      [
+        sectionId,
+        author_name,
+        author_role || null,
+        author_avatar || null,
+        content,
+        rating || 5,
+        display_order ?? 0,
+      ]
     );
     return result.insertId;
   },
@@ -207,7 +231,15 @@ const HomepageContentModel = {
    * Update testimonial
    */
   async updateTestimonial(testimonialId, data) {
-    const allowedFields = ['author_name', 'author_role', 'author_avatar', 'content', 'rating', 'display_order', 'is_active'];
+    const allowedFields = [
+      'author_name',
+      'author_role',
+      'author_avatar',
+      'content',
+      'rating',
+      'display_order',
+      'is_active',
+    ];
     const updates = [];
     const values = [];
 
@@ -232,7 +264,9 @@ const HomepageContentModel = {
    * Delete testimonial
    */
   async deleteTestimonial(testimonialId) {
-    const [result] = await pool.query('DELETE FROM homepage_testimonials WHERE id = ?', [testimonialId]);
+    const [result] = await pool.query('DELETE FROM homepage_testimonials WHERE id = ?', [
+      testimonialId,
+    ]);
     return result.affectedRows > 0;
   },
 
@@ -253,7 +287,14 @@ const HomepageContentModel = {
    * Update partner
    */
   async updatePartner(partnerId, data) {
-    const allowedFields = ['name', 'logo_url', 'logo_svg', 'website_url', 'display_order', 'is_active'];
+    const allowedFields = [
+      'name',
+      'logo_url',
+      'logo_svg',
+      'website_url',
+      'display_order',
+      'is_active',
+    ];
     const updates = [];
     const values = [];
 

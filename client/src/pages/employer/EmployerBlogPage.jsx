@@ -383,7 +383,10 @@ export default function EmployerBlogPage() {
   }, [categoryFilter, filter, items, search]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
-  const pagedItems = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  const pagedItems = filtered.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   useEffect(() => {
     setCurrentPage(1);
@@ -427,7 +430,9 @@ export default function EmployerBlogPage() {
       icon: Globe2,
       label: 'Đã công khai',
       value: formatCompactNumber(stats.published),
-      helper: spotlight ? `Mới nhất: ${spotlight.title || 'bài viết chưa đặt tiêu đề'}` : 'Sẵn sàng xuất hiện khi có bài public',
+      helper: spotlight
+        ? `Mới nhất: ${spotlight.title || 'bài viết chưa đặt tiêu đề'}`
+        : 'Sẵn sàng xuất hiện khi có bài public',
       tone: 'emerald',
     },
     {
@@ -446,8 +451,8 @@ export default function EmployerBlogPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/40 pb-16">
-      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
+    <div className="min-h-screen bg-transparent pb-16">
+      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-transparent">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
           style={{
@@ -471,7 +476,8 @@ export default function EmployerBlogPage() {
                   Trung tâm nội dung tuyển dụng
                 </h1>
                 <p className="mt-2 max-w-[28ch] text-sm leading-6 text-slate-600 sm:max-w-3xl sm:text-[15px]">
-                  Quản lý bài viết, bản nháp và thông điệp thương hiệu trong cùng một nhịp bố cục với trung tâm quản lý việc.
+                  Quản lý bài viết, bản nháp và thông điệp thương hiệu trong cùng một nhịp bố cục
+                  với trung tâm quản lý việc.
                 </p>
               </div>
             </div>
@@ -486,7 +492,12 @@ export default function EmployerBlogPage() {
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
             <QuickActionItem icon={Plus} title="Viết bài mới" tone="emerald" onClick={openCreate} />
             <QuickActionItem icon={Globe2} title="Blog công khai" to="/blog" tone="sky" />
-            <QuickActionItem icon={BookOpen} title="Tin tuyển dụng" to="/employer/jobs" tone="slate" />
+            <QuickActionItem
+              icon={BookOpen}
+              title="Tin tuyển dụng"
+              to="/employer/jobs"
+              tone="slate"
+            />
           </div>
         </div>
       </div>
@@ -552,10 +563,12 @@ export default function EmployerBlogPage() {
 
             <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
               <span>
-                Hiển thị <strong className="text-slate-700">{filtered.length}</strong> bài · {activeTabLabel}
+                Hiển thị <strong className="text-slate-700">{filtered.length}</strong> bài ·{' '}
+                {activeTabLabel}
               </span>
               <span>
-                <strong className="text-slate-700">{formatCompactNumber(stats.published)}</strong> công khai ·{' '}
+                <strong className="text-slate-700">{formatCompactNumber(stats.published)}</strong>{' '}
+                công khai ·{' '}
                 <strong className="text-slate-700">{formatCompactNumber(stats.draft)}</strong> nháp
               </span>
               {activeFilterCount > 0 ? (
@@ -590,7 +603,10 @@ export default function EmployerBlogPage() {
             {loading ? (
               <div className="space-y-3">
                 {[1, 2, 3, 4].map((item) => (
-                  <div key={item} className="h-32 animate-pulse rounded-lg border border-slate-200 bg-slate-50" />
+                  <div
+                    key={item}
+                    className="h-32 animate-pulse rounded-lg border border-slate-200 bg-slate-50"
+                  />
                 ))}
               </div>
             ) : filtered.length === 0 ? (
@@ -599,7 +615,7 @@ export default function EmployerBlogPage() {
                   <BookOpen className="h-6 w-6" />
                 </div>
                 <h2 className="mt-4 !text-base font-bold text-slate-950">
-                  {items.length === 0 ? 'Chưa có bài viết nào' : 'Không tìm thấy bài phù hợp'}
+                  {items.length === 0 ? 'Chưa có bài viết nào' : 'Không tìm thấy bài viết'}
                 </h2>
                 <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
                   {items.length === 0
@@ -629,7 +645,12 @@ export default function EmployerBlogPage() {
               <>
                 <div className="space-y-3">
                   {pagedItems.map((row) => (
-                    <CompactPostCard key={row.id} row={row} onEdit={openEdit} onDelete={handleDelete} />
+                    <CompactPostCard
+                      key={row.id}
+                      row={row}
+                      onEdit={openEdit}
+                      onDelete={handleDelete}
+                    />
                   ))}
                 </div>
 

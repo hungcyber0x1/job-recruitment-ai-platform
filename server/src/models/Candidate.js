@@ -102,11 +102,20 @@ class CandidateRepository extends BaseRepository {
     };
   }
 
+  async _getEmployerCandidateQueryMeta() {
+    const candidateColumns = await this._getTableColumns(TABLE_NAME);
+    const skillColumns = await this._getTableColumns('skills');
+
+    return {
+      hasLastActiveAt: candidateColumns.has('last_active_at'),
+      hasSalaryCurrency: candidateColumns.has('salary_currency'),
+      hasSkillSlug: skillColumns.has('slug'),
+    };
+  }
+
   async filterSupportedFields(data = {}) {
     const columns = await this._getTableColumns(TABLE_NAME);
-    return Object.fromEntries(
-      Object.entries(data).filter(([key]) => columns.has(key))
-    );
+    return Object.fromEntries(Object.entries(data).filter(([key]) => columns.has(key)));
   }
 
   async _getCandidateSkillSelectClause() {
@@ -244,13 +253,18 @@ class CandidateRepository extends BaseRepository {
     return rows;
   }
 
-
   async saveJob(candidateId, jobId) {
+    const [candidateRows] = await this.pool.query(
+      'SELECT user_id FROM candidate_profiles WHERE id = ? LIMIT 1',
+      [candidateId]
+    );
+    const userId = candidateRows[0]?.user_id || null;
+
     const query = `
-      INSERT INTO saved_jobs (candidate_id, job_id) VALUES (?, ?)
-      ON DUPLICATE KEY UPDATE created_at = CURRENT_TIMESTAMP
+      INSERT INTO saved_jobs (user_id, candidate_id, job_id) VALUES (?, ?, ?)
+      ON DUPLICATE KEY UPDATE candidate_id = VALUES(candidate_id), created_at = CURRENT_TIMESTAMP
     `;
-    await this.pool.query(query, [candidateId, jobId]);
+    await this.pool.query(query, [userId, candidateId, jobId]);
     return true;
   }
 
@@ -382,7 +396,11 @@ class CandidateRepository extends BaseRepository {
     return rows.map((row) => this._normalizeCandidateSkill(row));
   }
 
-  async addSkill(candidateId, skillId, { proficiency_level = null, years_experience = null, is_primary = false } = {}) {
+  async addSkill(
+    candidateId,
+    skillId,
+    { proficiency_level = null, years_experience = null, is_primary = false } = {}
+  ) {
     const meta = await this._getCandidateSkillQueryMeta();
     if (!(await this._hasColumn('candidate_skills', 'candidate_id'))) {
       return null;
@@ -431,7 +449,11 @@ class CandidateRepository extends BaseRepository {
     return result.affectedRows > 0;
   }
 
-  async updateSkill(candidateId, skillId, { proficiency_level, years_experience, is_primary } = {}) {
+  async updateSkill(
+    candidateId,
+    skillId,
+    { proficiency_level, years_experience, is_primary } = {}
+  ) {
     const meta = await this._getCandidateSkillQueryMeta();
     if (!(await this._hasColumn('candidate_skills', 'candidate_id'))) {
       return;
@@ -501,10 +523,10 @@ class CandidateRepository extends BaseRepository {
       created_at: new Date().toISOString(),
     };
     existing.push(newItem);
-    await this.pool.query(
-      'UPDATE candidate_profiles SET education = ? WHERE id = ?',
-      [JSON.stringify(existing), candidateId]
-    );
+    await this.pool.query('UPDATE candidate_profiles SET education = ? WHERE id = ?', [
+      JSON.stringify(existing),
+      candidateId,
+    ]);
     return newItem;
   }
 
@@ -513,10 +535,10 @@ class CandidateRepository extends BaseRepository {
     const idx = existing.findIndex((e) => String(e.id) === String(eduId));
     if (idx === -1) return null;
     existing[idx] = { ...existing[idx], ...data, updated_at: new Date().toISOString() };
-    await this.pool.query(
-      'UPDATE candidate_profiles SET education = ? WHERE id = ?',
-      [JSON.stringify(existing), candidateId]
-    );
+    await this.pool.query('UPDATE candidate_profiles SET education = ? WHERE id = ?', [
+      JSON.stringify(existing),
+      candidateId,
+    ]);
     return existing[idx];
   }
 
@@ -524,10 +546,10 @@ class CandidateRepository extends BaseRepository {
     const existing = await this.getEducation(candidateId);
     const filtered = existing.filter((e) => String(e.id) !== String(eduId));
     if (filtered.length === existing.length) return false;
-    await this.pool.query(
-      'UPDATE candidate_profiles SET education = ? WHERE id = ?',
-      [JSON.stringify(filtered), candidateId]
-    );
+    await this.pool.query('UPDATE candidate_profiles SET education = ? WHERE id = ?', [
+      JSON.stringify(filtered),
+      candidateId,
+    ]);
     return true;
   }
 
@@ -555,10 +577,10 @@ class CandidateRepository extends BaseRepository {
       created_at: new Date().toISOString(),
     };
     existing.push(newItem);
-    await this.pool.query(
-      'UPDATE candidate_profiles SET experience = ? WHERE id = ?',
-      [JSON.stringify(existing), candidateId]
-    );
+    await this.pool.query('UPDATE candidate_profiles SET experience = ? WHERE id = ?', [
+      JSON.stringify(existing),
+      candidateId,
+    ]);
     return newItem;
   }
 
@@ -567,10 +589,10 @@ class CandidateRepository extends BaseRepository {
     const idx = existing.findIndex((e) => String(e.id) === String(expId));
     if (idx === -1) return null;
     existing[idx] = { ...existing[idx], ...data, updated_at: new Date().toISOString() };
-    await this.pool.query(
-      'UPDATE candidate_profiles SET experience = ? WHERE id = ?',
-      [JSON.stringify(existing), candidateId]
-    );
+    await this.pool.query('UPDATE candidate_profiles SET experience = ? WHERE id = ?', [
+      JSON.stringify(existing),
+      candidateId,
+    ]);
     return existing[idx];
   }
 
@@ -578,10 +600,10 @@ class CandidateRepository extends BaseRepository {
     const existing = await this.getExperience(candidateId);
     const filtered = existing.filter((e) => String(e.id) !== String(expId));
     if (filtered.length === existing.length) return false;
-    await this.pool.query(
-      'UPDATE candidate_profiles SET experience = ? WHERE id = ?',
-      [JSON.stringify(filtered), candidateId]
-    );
+    await this.pool.query('UPDATE candidate_profiles SET experience = ? WHERE id = ?', [
+      JSON.stringify(filtered),
+      candidateId,
+    ]);
     return true;
   }
 
@@ -593,10 +615,10 @@ class CandidateRepository extends BaseRepository {
   }
 
   async updateLanguages(candidateId, languages) {
-    await this.pool.query(
-      'UPDATE candidate_profiles SET languages = ? WHERE id = ?',
-      [JSON.stringify(languages), candidateId]
-    );
+    await this.pool.query('UPDATE candidate_profiles SET languages = ? WHERE id = ?', [
+      JSON.stringify(languages),
+      candidateId,
+    ]);
   }
 
   async getCertifications(candidateId) {
@@ -605,10 +627,10 @@ class CandidateRepository extends BaseRepository {
   }
 
   async updateCertifications(candidateId, certifications) {
-    await this.pool.query(
-      'UPDATE candidate_profiles SET certifications = ? WHERE id = ?',
-      [JSON.stringify(certifications), candidateId]
-    );
+    await this.pool.query('UPDATE candidate_profiles SET certifications = ? WHERE id = ?', [
+      JSON.stringify(certifications),
+      candidateId,
+    ]);
   }
 
   async getSocialLinks(candidateId) {
@@ -617,10 +639,10 @@ class CandidateRepository extends BaseRepository {
   }
 
   async updateSocialLinks(candidateId, socialLinks) {
-    await this.pool.query(
-      'UPDATE candidate_profiles SET social_links = ? WHERE id = ?',
-      [JSON.stringify(socialLinks), candidateId]
-    );
+    await this.pool.query('UPDATE candidate_profiles SET social_links = ? WHERE id = ?', [
+      JSON.stringify(socialLinks),
+      candidateId,
+    ]);
   }
 
   async updateLastActive(candidateId) {
@@ -628,10 +650,9 @@ class CandidateRepository extends BaseRepository {
       return;
     }
 
-    await this.pool.query(
-      'UPDATE candidate_profiles SET last_active_at = NOW() WHERE id = ?',
-      [candidateId]
-    );
+    await this.pool.query('UPDATE candidate_profiles SET last_active_at = NOW() WHERE id = ?', [
+      candidateId,
+    ]);
   }
 
   // ─── Phase 1.1: Dashboard Stats ────────────────────────────────────────────
@@ -641,10 +662,10 @@ class CandidateRepository extends BaseRepository {
 
     await this.pool.query(`
       CREATE TABLE IF NOT EXISTS employer_saved_candidates (
-        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        company_id INT UNSIGNED NOT NULL,
-        recruiter_id INT UNSIGNED NULL,
-        candidate_id INT UNSIGNED NOT NULL,
+        id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        company_id BIGINT UNSIGNED NOT NULL,
+        recruiter_id BIGINT UNSIGNED NULL,
+        candidate_id BIGINT UNSIGNED NOT NULL,
         folder VARCHAR(100) NOT NULL DEFAULT 'general',
         notes TEXT NULL,
         created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
@@ -698,7 +719,7 @@ class CandidateRepository extends BaseRepository {
     };
   }
 
-  _buildEmployerCandidateWhere(filters = {}) {
+  _buildEmployerCandidateWhere(filters = {}, meta = {}) {
     const where = [
       "u.role = 'candidate'",
       'u.deleted_at IS NULL',
@@ -730,7 +751,11 @@ class CandidateRepository extends BaseRepository {
       ? filters.skills.map((skill) => String(skill).trim()).filter(Boolean)
       : [];
     if (skills.length) {
-      const skillConditions = skills.map(() => 's_filter.name LIKE ? OR s_filter.slug LIKE ?');
+      const skillConditions = skills.map(() =>
+        meta.hasSkillSlug
+          ? '(s_filter.name LIKE ? OR s_filter.slug LIKE ?)'
+          : 's_filter.name LIKE ?'
+      );
       where.push(`EXISTS (
         SELECT 1
         FROM candidate_skills cs_filter
@@ -739,7 +764,8 @@ class CandidateRepository extends BaseRepository {
           AND (${skillConditions.join(' OR ')})
       )`);
       skills.forEach((skill) => {
-        params.push(`%${skill}%`, `%${skill}%`);
+        params.push(`%${skill}%`);
+        if (meta.hasSkillSlug) params.push(`%${skill}%`);
       });
     }
 
@@ -751,7 +777,9 @@ class CandidateRepository extends BaseRepository {
 
     switch (filters.level) {
       case 'intern':
-        where.push("(COALESCE(cp.experience_years, 0) <= 1 OR LOWER(cp.current_job_title) LIKE '%intern%' OR LOWER(cp.current_job_title) LIKE '%fresher%')");
+        where.push(
+          "(COALESCE(cp.experience_years, 0) <= 1 OR LOWER(cp.current_job_title) LIKE '%intern%' OR LOWER(cp.current_job_title) LIKE '%fresher%')"
+        );
         break;
       case 'junior':
         where.push('COALESCE(cp.experience_years, 0) BETWEEN 0 AND 2');
@@ -760,42 +788,50 @@ class CandidateRepository extends BaseRepository {
         where.push('COALESCE(cp.experience_years, 0) BETWEEN 2 AND 5');
         break;
       case 'senior':
-        where.push("(COALESCE(cp.experience_years, 0) >= 5 OR LOWER(cp.current_job_title) LIKE '%senior%')");
+        where.push(
+          "(COALESCE(cp.experience_years, 0) >= 5 OR LOWER(cp.current_job_title) LIKE '%senior%')"
+        );
         break;
       case 'lead':
-        where.push("(COALESCE(cp.experience_years, 0) >= 6 OR LOWER(cp.current_job_title) LIKE '%lead%' OR LOWER(cp.current_job_title) LIKE '%manager%')");
+        where.push(
+          "(COALESCE(cp.experience_years, 0) >= 6 OR LOWER(cp.current_job_title) LIKE '%lead%' OR LOWER(cp.current_job_title) LIKE '%manager%')"
+        );
         break;
       default:
         break;
     }
 
+    const salaryCurrencyExpression = meta.hasSalaryCurrency
+      ? "COALESCE(cp.salary_currency, 'VND')"
+      : "'VND'";
+
     switch (filters.salary) {
       case 'lt20m':
       case 'lt1000':
         where.push(`cp.expected_salary_max IS NOT NULL AND (
-          (cp.salary_currency = 'USD' AND cp.expected_salary_max < 1000)
-          OR (COALESCE(cp.salary_currency, 'VND') <> 'USD' AND cp.expected_salary_max < 20000000)
+          ${meta.hasSalaryCurrency ? "(cp.salary_currency = 'USD' AND cp.expected_salary_max < 1000) OR" : ''}
+          (${salaryCurrencyExpression} <> 'USD' AND cp.expected_salary_max < 20000000)
         )`);
         break;
       case '20m-40m':
       case '1000-2000':
         where.push(`cp.expected_salary_min IS NOT NULL AND cp.expected_salary_max IS NOT NULL AND (
-          (cp.salary_currency = 'USD' AND cp.expected_salary_min <= 2000 AND cp.expected_salary_max >= 1000)
-          OR (COALESCE(cp.salary_currency, 'VND') <> 'USD' AND cp.expected_salary_min <= 40000000 AND cp.expected_salary_max >= 20000000)
+          ${meta.hasSalaryCurrency ? "(cp.salary_currency = 'USD' AND cp.expected_salary_min <= 2000 AND cp.expected_salary_max >= 1000) OR" : ''}
+          (${salaryCurrencyExpression} <> 'USD' AND cp.expected_salary_min <= 40000000 AND cp.expected_salary_max >= 20000000)
         )`);
         break;
       case '40m-80m':
       case '2000-4000':
         where.push(`cp.expected_salary_min IS NOT NULL AND cp.expected_salary_max IS NOT NULL AND (
-          (cp.salary_currency = 'USD' AND cp.expected_salary_min <= 4000 AND cp.expected_salary_max >= 2000)
-          OR (COALESCE(cp.salary_currency, 'VND') <> 'USD' AND cp.expected_salary_min <= 80000000 AND cp.expected_salary_max >= 40000000)
+          ${meta.hasSalaryCurrency ? "(cp.salary_currency = 'USD' AND cp.expected_salary_min <= 4000 AND cp.expected_salary_max >= 2000) OR" : ''}
+          (${salaryCurrencyExpression} <> 'USD' AND cp.expected_salary_min <= 80000000 AND cp.expected_salary_max >= 40000000)
         )`);
         break;
       case 'gt80m':
       case 'gt4000':
         where.push(`cp.expected_salary_min IS NOT NULL AND (
-          (cp.salary_currency = 'USD' AND cp.expected_salary_min > 4000)
-          OR (COALESCE(cp.salary_currency, 'VND') <> 'USD' AND cp.expected_salary_min > 80000000)
+          ${meta.hasSalaryCurrency ? "(cp.salary_currency = 'USD' AND cp.expected_salary_min > 4000) OR" : ''}
+          (${salaryCurrencyExpression} <> 'USD' AND cp.expected_salary_min > 80000000)
         )`);
         break;
       default:
@@ -808,7 +844,10 @@ class CandidateRepository extends BaseRepository {
     };
   }
 
-  _getEmployerCandidateSelect() {
+  _getEmployerCandidateSelect(meta = {}) {
+    const salaryCurrencySelect = meta.hasSalaryCurrency ? 'cp.salary_currency' : "'VND'";
+    const lastActiveSelect = meta.hasLastActiveAt ? 'cp.last_active_at' : 'NULL';
+
     return `
       SELECT
         cp.id,
@@ -825,8 +864,8 @@ class CandidateRepository extends BaseRepository {
         cp.job_search_status,
         cp.expected_salary_min,
         cp.expected_salary_max,
-        cp.salary_currency,
-        cp.last_active_at,
+        ${salaryCurrencySelect} AS salary_currency,
+        ${lastActiveSelect} AS last_active_at,
         cp.created_at,
         cp.updated_at,
         (
@@ -888,7 +927,8 @@ class CandidateRepository extends BaseRepository {
     const limit = Math.min(Math.max(Number.parseInt(filters.limit, 10) || 12, 1), 50);
     const page = Math.max(Number.parseInt(filters.page, 10) || 1, 1);
     const offset = (page - 1) * limit;
-    const { clause, params } = this._buildEmployerCandidateWhere(filters);
+    const meta = await this._getEmployerCandidateQueryMeta();
+    const { clause, params } = this._buildEmployerCandidateWhere(filters, meta);
     const selectParams = [companyId, companyId, companyId, companyId, companyId];
 
     const [countRows] = await this.pool.query(
@@ -899,16 +939,19 @@ class CandidateRepository extends BaseRepository {
       params
     );
 
+    const recencyOrder = meta.hasLastActiveAt
+      ? 'COALESCE(cp.last_active_at, cp.updated_at, cp.created_at)'
+      : 'COALESCE(cp.updated_at, cp.created_at)';
     const orderMap = {
       experience: 'COALESCE(cp.experience_years, 0) DESC, cp.updated_at DESC',
-      recent: 'COALESCE(cp.last_active_at, cp.updated_at, cp.created_at) DESC',
+      recent: `${recencyOrder} DESC`,
       salary: 'COALESCE(cp.expected_salary_min, 999999999) ASC, cp.updated_at DESC',
     };
     const requestedSort = filters.sort === 'match' ? 'recent' : filters.sort;
     const orderBy = orderMap[requestedSort] || orderMap.recent;
 
     const [rows] = await this.pool.query(
-      `${this._getEmployerCandidateSelect()}
+      `${this._getEmployerCandidateSelect(meta)}
        ${clause}
        ORDER BY ${orderBy}
        LIMIT ? OFFSET ?`,
@@ -968,6 +1011,7 @@ class CandidateRepository extends BaseRepository {
     const limit = Math.min(Math.max(Number.parseInt(filters.limit, 10) || 12, 1), 50);
     const page = Math.max(Number.parseInt(filters.page, 10) || 1, 1);
     const offset = (page - 1) * limit;
+    const meta = await this._getEmployerCandidateQueryMeta();
     const where = [
       'esc.company_id = ?',
       "u.role = 'candidate'",
@@ -1020,7 +1064,7 @@ class CandidateRepository extends BaseRepository {
     const selectParams = [companyId, companyId, companyId, companyId, companyId];
 
     const [rows] = await this.pool.query(
-      `${this._getEmployerCandidateSelect()}
+      `${this._getEmployerCandidateSelect(meta)}
        JOIN employer_saved_candidates esc ON esc.candidate_id = cp.id AND esc.company_id = ?
        ${whereClause}
        ORDER BY ${orderBy}
@@ -1036,7 +1080,13 @@ class CandidateRepository extends BaseRepository {
     };
   }
 
-  async saveCandidateForEmployer({ companyId, recruiterId, candidateId, folder = 'general', notes = null }) {
+  async saveCandidateForEmployer({
+    companyId,
+    recruiterId,
+    candidateId,
+    folder = 'general',
+    notes = null,
+  }) {
     await this.ensureEmployerSavedCandidatesTable();
 
     const [candidateRows] = await this.pool.query(
@@ -1054,7 +1104,10 @@ class CandidateRepository extends BaseRepository {
 
     if (!candidateRows.length) return null;
 
-    const normalizedFolder = String(folder || 'general').trim().slice(0, 100) || 'general';
+    const normalizedFolder =
+      String(folder || 'general')
+        .trim()
+        .slice(0, 100) || 'general';
     await this.pool.query(
       `INSERT INTO employer_saved_candidates (company_id, recruiter_id, candidate_id, folder, notes)
        VALUES (?, ?, ?, ?, ?)
@@ -1076,7 +1129,11 @@ class CandidateRepository extends BaseRepository {
     const params = [];
     if (folder !== undefined) {
       fields.push('folder = ?');
-      params.push(String(folder || 'general').trim().slice(0, 100) || 'general');
+      params.push(
+        String(folder || 'general')
+          .trim()
+          .slice(0, 100) || 'general'
+      );
     }
     if (notes !== undefined) {
       fields.push('notes = ?');
@@ -1177,7 +1234,8 @@ class CandidateRepository extends BaseRepository {
     const responses = Number(stats.responses || 0);
     const recruiterInterest = Number(stats.recruiter_interest || 0);
     const skillCount = Number(skillRows[0]?.total || 0);
-    const responseRate = totalApplications > 0 ? Math.round((responses / totalApplications) * 100) : 0;
+    const responseRate =
+      totalApplications > 0 ? Math.round((responses / totalApplications) * 100) : 0;
 
     const hasStructuredValue = (value) => {
       if (Array.isArray(value)) return value.length > 0;

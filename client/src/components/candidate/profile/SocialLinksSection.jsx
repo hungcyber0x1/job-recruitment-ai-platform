@@ -17,11 +17,13 @@ const SocialLinksSection = ({ social_links = {}, onSave, loading }) => {
   const [saved, setSaved] = useState(false);
 
   const isEmpty = !form.linkedin && !form.github && !form.portfolio;
-  const hasChanges = JSON.stringify(form) !== JSON.stringify({
-    linkedin: social_links.linkedin || '',
-    github: social_links.github || '',
-    portfolio: social_links.portfolio || '',
-  });
+  const hasChanges =
+    JSON.stringify(form) !==
+    JSON.stringify({
+      linkedin: social_links.linkedin || '',
+      github: social_links.github || '',
+      portfolio: social_links.portfolio || '',
+    });
 
   const handleSave = async () => {
     setSaving(true);
@@ -40,9 +42,7 @@ const SocialLinksSection = ({ social_links = {}, onSave, loading }) => {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-base font-semibold text-slate-800">Liên kết mạng xã hội</h3>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            LinkedIn, GitHub và hồ sơ dự án
-          </p>
+          <p className="text-sm text-muted-foreground mt-0.5">LinkedIn, GitHub và hồ sơ dự án</p>
         </div>
         <Button
           type="button"
@@ -133,7 +133,10 @@ const SocialLinksSection = ({ social_links = {}, onSave, loading }) => {
               <Input
                 type="url"
                 value={form.linkedin}
-                onChange={(e) => { setForm(f => ({ ...f, linkedin: e.target.value })); setSaved(false); }}
+                onChange={(e) => {
+                  setForm((f) => ({ ...f, linkedin: e.target.value }));
+                  setSaved(false);
+                }}
                 placeholder="https://linkedin.com/in/nguyen-van-a"
                 className="h-12 rounded-lg text-sm"
               />
@@ -146,7 +149,10 @@ const SocialLinksSection = ({ social_links = {}, onSave, loading }) => {
               <Input
                 type="url"
                 value={form.github}
-                onChange={(e) => { setForm(f => ({ ...f, github: e.target.value })); setSaved(false); }}
+                onChange={(e) => {
+                  setForm((f) => ({ ...f, github: e.target.value }));
+                  setSaved(false);
+                }}
                 placeholder="https://github.com/nguyenvana"
                 className="h-12 rounded-lg text-sm"
               />
@@ -159,7 +165,10 @@ const SocialLinksSection = ({ social_links = {}, onSave, loading }) => {
               <Input
                 type="url"
                 value={form.portfolio}
-                onChange={(e) => { setForm(f => ({ ...f, portfolio: e.target.value })); setSaved(false); }}
+                onChange={(e) => {
+                  setForm((f) => ({ ...f, portfolio: e.target.value }));
+                  setSaved(false);
+                }}
                 placeholder="https://hoso.nguyenvana.dev"
                 className="h-12 rounded-lg text-sm"
               />

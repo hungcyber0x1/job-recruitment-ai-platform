@@ -10,11 +10,7 @@
 import React, { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { motion } from 'framer-motion';
-import {
-  Sparkles,
-  ChevronRight,
-  RotateCcw,
-} from 'lucide-react';
+import { Sparkles, ChevronRight, RotateCcw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -25,8 +21,13 @@ const SORT_OPTIONS = [
   { key: 'recent', label: 'Mới nhất' },
 ];
 
-
-const RecommendedJobs = ({ jobs = [], loading = false, onRefresh, showHeader = true, maxDisplay = 4 }) => {
+const RecommendedJobs = ({
+  jobs = [],
+  loading = false,
+  onRefresh,
+  showHeader = true,
+  maxDisplay = 4,
+}) => {
   const [sortBy, setSortBy] = useState('recent');
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -51,11 +52,9 @@ const RecommendedJobs = ({ jobs = [], loading = false, onRefresh, showHeader = t
   const displayedJobs = isExpanded ? filteredJobs : filteredJobs.slice(0, maxDisplay);
   const hasMore = filteredJobs.length > maxDisplay;
 
-
   const handleSortChange = (key) => {
     setSortBy(key);
   };
-
 
   if (loading) {
     return (
@@ -71,7 +70,7 @@ const RecommendedJobs = ({ jobs = [], loading = false, onRefresh, showHeader = t
           </div>
         )}
         <div className="grid gap-4 md:grid-cols-2">
-          {[1, 2, 3, 4].map(i => (
+          {[1, 2, 3, 4].map((i) => (
             <div key={i} className="animate-pulse rounded-2xl border border-slate-200 bg-white p-5">
               <div className="flex gap-4">
                 <div className="h-14 w-14 rounded-xl bg-slate-200" />
@@ -176,7 +175,7 @@ const RecommendedJobs = ({ jobs = [], loading = false, onRefresh, showHeader = t
       <div className="flex flex-wrap items-center gap-2">
         {/* Sort Pills */}
         <div className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white p-1">
-          {SORT_OPTIONS.map(option => {
+          {SORT_OPTIONS.map((option) => {
             const isActive = sortBy === option.key;
             return (
               <button
@@ -199,11 +198,7 @@ const RecommendedJobs = ({ jobs = [], loading = false, onRefresh, showHeader = t
       {/* Jobs Grid */}
       <div className="grid gap-4 md:grid-cols-2">
         {displayedJobs.map((job, index) => (
-          <RecommendedJobCard
-            key={job.id}
-            job={job}
-            index={index}
-          />
+          <RecommendedJobCard key={job.id} job={job} index={index} />
         ))}
       </div>
 

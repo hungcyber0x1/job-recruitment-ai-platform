@@ -64,7 +64,10 @@ const IdentityFormFields = ({
           Giới tính
         </Label>
         <p className="text-sm text-muted-foreground">Thông tin cơ bản</p>
-        <Select value={formData.gender || ''} onValueChange={(value) => handleSelectChange('gender', value)}>
+        <Select
+          value={formData.gender || ''}
+          onValueChange={(value) => handleSelectChange('gender', value)}
+        >
           <SelectTrigger className={cn(fieldClass)}>
             <SelectValue placeholder="Chọn giới tính" />
           </SelectTrigger>

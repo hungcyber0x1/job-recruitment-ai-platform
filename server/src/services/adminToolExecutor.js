@@ -170,9 +170,9 @@ async function handleDashboardStats(_args) {
     StatsRepository.getWeeklyActivity(),
     StatsRepository.getUserDistribution(),
     pool.query('SELECT COUNT(*) as total FROM applications'),
-    pool.query("SELECT COUNT(*) as total FROM users WHERE deleted_at IS NULL"),
-    pool.query("SELECT COUNT(*) as total FROM jobs WHERE deleted_at IS NULL"),
-    pool.query("SELECT COUNT(*) as total FROM company_profiles WHERE deleted_at IS NULL"),
+    pool.query('SELECT COUNT(*) as total FROM users WHERE deleted_at IS NULL'),
+    pool.query('SELECT COUNT(*) as total FROM jobs WHERE deleted_at IS NULL'),
+    pool.query('SELECT COUNT(*) as total FROM company_profiles WHERE deleted_at IS NULL'),
   ]);
 
   return {
@@ -229,11 +229,18 @@ async function handleChartStats(_args) {
 }
 
 async function handlePlatformHealth(_args) {
-  const [[[{ total: totalUsers }]], [[{ total: pendingJobs }]], [[{ total: flaggedJobs }]], [[{ total: activeToday }]]] = await Promise.all([
-    pool.query("SELECT COUNT(*) as total FROM users WHERE status = ?", ['active']),
-    pool.query("SELECT COUNT(*) as total FROM jobs WHERE status = ?", ['pending_review']),
+  const [
+    [[{ total: totalUsers }]],
+    [[{ total: pendingJobs }]],
+    [[{ total: flaggedJobs }]],
+    [[{ total: activeToday }]],
+  ] = await Promise.all([
+    pool.query('SELECT COUNT(*) as total FROM users WHERE status = ?', ['active']),
+    pool.query('SELECT COUNT(*) as total FROM jobs WHERE status = ?', ['pending_review']),
     pool.query('SELECT COUNT(*) as total FROM jobs WHERE flagged = ?', [1]),
-    pool.query("SELECT COUNT(DISTINCT user_id) as total FROM activity_logs WHERE DATE(created_at) = CURDATE()"),
+    pool.query(
+      'SELECT COUNT(DISTINCT user_id) as total FROM activity_logs WHERE DATE(created_at) = CURDATE()'
+    ),
   ]);
 
   return {
@@ -250,10 +257,24 @@ async function handlePlatformHealth(_args) {
 
 async function handleListUsers(args) {
   const { search, role, status, page = 1, limit = 20 } = args;
-  const { data, total } = await UserRepository.findAllWithFilters({ search, role, status, sortBy: 'created_at', order: 'desc', limit: parseInt(limit, 10), offset: (parseInt(page, 10) - 1) * parseInt(limit, 10) });
+  const { data, total } = await UserRepository.findAllWithFilters({
+    search,
+    role,
+    status,
+    sortBy: 'created_at',
+    order: 'desc',
+    limit: parseInt(limit, 10),
+    offset: (parseInt(page, 10) - 1) * parseInt(limit, 10),
+  });
   return {
     success: true,
-    data: { total, page: parseInt(page, 10), limit: parseInt(limit, 10), items: (data || []).map(summarizeUser), hasMore: total > parseInt(limit, 10) },
+    data: {
+      total,
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+      items: (data || []).map(summarizeUser),
+      hasMore: total > parseInt(limit, 10),
+    },
   };
 }
 
@@ -270,7 +291,15 @@ async function handleGetUserActivity(args) {
     limit: parseInt(limit, 10),
     offset: (parseInt(page, 10) - 1) * parseInt(limit, 10),
   });
-  return { success: true, data: { total, page: parseInt(page, 10), items: (data || []).slice(0, 20).map(summarizeActivity), hasMore: total > 20 } };
+  return {
+    success: true,
+    data: {
+      total,
+      page: parseInt(page, 10),
+      items: (data || []).slice(0, 20).map(summarizeActivity),
+      hasMore: total > 20,
+    },
+  };
 }
 
 async function handleUpdateUserStatus(args, context) {
@@ -279,7 +308,10 @@ async function handleUpdateUserStatus(args, context) {
   if (!user_id) return { success: false, error: 'user_id is required' };
   if (!status) return { success: false, error: 'status is required' };
   const result = await AdminService.updateUserStatus(adminId, user_id, status, ip, userAgent);
-  return { success: true, data: { message: `User ${user_id} status updated to ${status}`, reason: reason || null } };
+  return {
+    success: true,
+    data: { message: `User ${user_id} status updated to ${status}`, reason: reason || null },
+  };
 }
 
 async function handleLockUser(args, context) {
@@ -287,7 +319,10 @@ async function handleLockUser(args, context) {
   const { adminId, ip, userAgent } = context;
   if (!user_id) return { success: false, error: 'user_id is required' };
   await AdminService.lockUser(adminId, user_id, ip, userAgent);
-  return { success: true, data: { message: `User ${user_id} has been locked`, reason: reason || null } };
+  return {
+    success: true,
+    data: { message: `User ${user_id} has been locked`, reason: reason || null },
+  };
 }
 
 async function handleUnlockUser(args, context) {
@@ -311,7 +346,13 @@ async function handleListJobs(args) {
   });
   return {
     success: true,
-    data: { total, page: parseInt(page, 10), limit: parseInt(limit, 10), items: (data || []).map(summarizeJob), hasMore: total > parseInt(limit, 10) },
+    data: {
+      total,
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+      items: (data || []).map(summarizeJob),
+      hasMore: total > parseInt(limit, 10),
+    },
   };
 }
 
@@ -327,15 +368,28 @@ async function handleUpdateJobStatus(args, context) {
   if (!job_id) return { success: false, error: 'job_id is required' };
   if (!status) return { success: false, error: 'status is required' };
   await AdminService.updateJobStatus(adminId, job_id, status, reason || null, ip, userAgent);
-  return { success: true, data: { message: `Job ${job_id} status updated to ${status}`, reason: reason || null } };
+  return {
+    success: true,
+    data: { message: `Job ${job_id} status updated to ${status}`, reason: reason || null },
+  };
 }
 
 async function handleFlagJob(args, context) {
   const { job_id, flagged, reason } = args;
   const { adminId, ip, userAgent } = context;
   if (!job_id) return { success: false, error: 'job_id is required' };
-  await AdminService.updateJobFlag(adminId, job_id, flagged !== false, reason || null, ip, userAgent);
-  return { success: true, data: { message: `Job ${job_id} ${flagged === false ? 'unflagged' : 'flagged'}` } };
+  await AdminService.updateJobFlag(
+    adminId,
+    job_id,
+    flagged !== false,
+    reason || null,
+    ip,
+    userAgent
+  );
+  return {
+    success: true,
+    data: { message: `Job ${job_id} ${flagged === false ? 'unflagged' : 'flagged'}` },
+  };
 }
 
 async function handleListApplications(args) {
@@ -348,7 +402,13 @@ async function handleListApplications(args) {
   });
   return {
     success: true,
-    data: { total, page: parseInt(page, 10), limit: parseInt(limit, 10), items: (data || []).map(summarizeApplication), hasMore: total > parseInt(limit, 10) },
+    data: {
+      total,
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+      items: (data || []).map(summarizeApplication),
+      hasMore: total > parseInt(limit, 10),
+    },
   };
 }
 
@@ -371,7 +431,13 @@ async function handleListCompanies(args) {
   });
   return {
     success: true,
-    data: { total, page: parseInt(page, 10), limit: parseInt(limit, 10), items: (data || []).map(summarizeCompany), hasMore: total > parseInt(limit, 10) },
+    data: {
+      total,
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+      items: (data || []).map(summarizeCompany),
+      hasMore: total > parseInt(limit, 10),
+    },
   };
 }
 
@@ -379,16 +445,36 @@ async function handleVerifyCompany(args, context) {
   const { company_id, verified, reason } = args;
   const { adminId, ip, userAgent } = context;
   if (!company_id) return { success: false, error: 'company_id is required' };
-  await AdminService.verifyCompany(adminId, company_id, verified !== false, reason || null, ip, userAgent);
-  return { success: true, data: { message: `Company ${company_id} ${verified === false ? 'unverified' : 'verified'}` } };
+  await AdminService.verifyCompany(
+    adminId,
+    company_id,
+    verified !== false,
+    reason || null,
+    ip,
+    userAgent
+  );
+  return {
+    success: true,
+    data: { message: `Company ${company_id} ${verified === false ? 'unverified' : 'verified'}` },
+  };
 }
 
 async function handleFlagCompany(args, context) {
   const { company_id, flagged, reason } = args;
   const { adminId, ip, userAgent } = context;
   if (!company_id) return { success: false, error: 'company_id is required' };
-  await AdminService.updateCompanyFlag(adminId, company_id, flagged !== false, reason || null, ip, userAgent);
-  return { success: true, data: { message: `Company ${company_id} ${flagged === false ? 'unflagged' : 'flagged'}` } };
+  await AdminService.updateCompanyFlag(
+    adminId,
+    company_id,
+    flagged !== false,
+    reason || null,
+    ip,
+    userAgent
+  );
+  return {
+    success: true,
+    data: { message: `Company ${company_id} ${flagged === false ? 'unflagged' : 'flagged'}` },
+  };
 }
 
 async function handleGetActivityLogs(args) {
@@ -401,7 +487,12 @@ async function handleGetActivityLogs(args) {
   });
   return {
     success: true,
-    data: { total, page: parseInt(page, 10), items: (data || []).slice(0, 30).map(summarizeActivity), hasMore: total > 30 },
+    data: {
+      total,
+      page: parseInt(page, 10),
+      items: (data || []).slice(0, 30).map(summarizeActivity),
+      hasMore: total > 30,
+    },
   };
 }
 
@@ -425,7 +516,12 @@ async function handleListTickets(args) {
   });
   return {
     success: true,
-    data: { total, page: parseInt(page, 10), items: (data || []).map(summarizeTicket), hasMore: total > parseInt(limit, 10) },
+    data: {
+      total,
+      page: parseInt(page, 10),
+      items: (data || []).map(summarizeTicket),
+      hasMore: total > parseInt(limit, 10),
+    },
   };
 }
 
@@ -459,14 +555,16 @@ async function handleUpdateChatbotConfig(args, context) {
   const { config_key, config_value } = args;
   if (!config_key) return { success: false, error: 'config_key is required' };
   if (config_value === undefined) return { success: false, error: 'config_value is required' };
-  await AdminChatbotService.updateConfigurations(adminId, ip, userAgent, { [config_key]: config_value });
+  await AdminChatbotService.updateConfigurations(adminId, ip, userAgent, {
+    [config_key]: config_value,
+  });
   return { success: true, data: { message: `Config ${config_key} updated to ${config_value}` } };
 }
 
 async function handleGetSystemSettings(_args) {
   const settings = await SystemSettingsRepository.findAll();
   const grouped = {};
-  for (const s of (settings || [])) {
+  for (const s of settings || []) {
     const category = s.setting_key.split('_')[0] || 'general';
     if (!grouped[category]) grouped[category] = [];
     grouped[category].push({ key: s.setting_key, value: s.setting_value, type: s.type });
@@ -483,13 +581,26 @@ async function handleListBlogPosts(args) {
   });
   return {
     success: true,
-    data: { total, page: parseInt(page, 10), items: (data || []).map(summarizeBlog), hasMore: total > parseInt(limit, 10) },
+    data: {
+      total,
+      page: parseInt(page, 10),
+      items: (data || []).map(summarizeBlog),
+      hasMore: total > parseInt(limit, 10),
+    },
   };
 }
 
 async function handleListCategories(_args) {
-  const categories = await CategoryRepository.findAll ? CategoryRepository.findAll() : [];
-  return { success: true, data: (categories || []).map(c => ({ id: c.id, name: c.name, slug: c.slug, count: c.job_count || 0 })) };
+  const categories = (await CategoryRepository.findAll) ? CategoryRepository.findAll() : [];
+  return {
+    success: true,
+    data: (categories || []).map((c) => ({
+      id: c.id,
+      name: c.name,
+      slug: c.slug,
+      count: c.job_count || 0,
+    })),
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -585,10 +696,13 @@ function summarizeBlog(b) {
 
 function formatError(error) {
   const msg = error.message || String(error);
-  if (msg.includes('not found') || msg.includes('Not found') || msg.includes('NOT_FOUND')) return `Không tìm thấy: ${msg}`;
-  if (msg.includes('unauthorized') || msg.includes('Unauthorized') || msg.includes('FORBIDDEN')) return 'Bạn không có quyền thực hiện thao tác này.';
+  if (msg.includes('not found') || msg.includes('Not found') || msg.includes('NOT_FOUND'))
+    return `Không tìm thấy: ${msg}`;
+  if (msg.includes('unauthorized') || msg.includes('Unauthorized') || msg.includes('FORBIDDEN'))
+    return 'Bạn không có quyền thực hiện thao tác này.';
   if (msg.includes('duplicate') || msg.includes('Duplicate')) return `Trùng lặp: ${msg}`;
-  if (msg.includes('validation') || msg.includes('Validation')) return `Dữ liệu không hợp lệ: ${msg}`;
+  if (msg.includes('validation') || msg.includes('Validation'))
+    return `Dữ liệu không hợp lệ: ${msg}`;
   return msg;
 }
 

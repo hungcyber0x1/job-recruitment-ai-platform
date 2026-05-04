@@ -1,12 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+
 import StatCard from './StatCard';
 
 const PremiumStatCard = ({
   title,
   value,
   icon: Icon,
-  variant = 'emerald',
+  variant = 'neutral',
   color,
   trend,
   trendLabel,
@@ -19,26 +20,26 @@ const PremiumStatCard = ({
     title={title}
     value={value}
     icon={Icon}
-    variant={color || variant}
+    type={color || variant}
     trend={trend}
     trendLabel={trendLabel}
     badge={badge}
-    description={description}
+    subtitle={description}
     className={className}
     onClick={onClick}
   />
 );
 
 PremiumStatCard.propTypes = {
-  title: PropTypes.string.isRequired,
-  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  title: PropTypes.node.isRequired,
+  value: PropTypes.node.isRequired,
   icon: PropTypes.elementType.isRequired,
   variant: PropTypes.string,
   color: PropTypes.string,
-  trend: PropTypes.oneOf(['up', 'down', 'neutral']),
-  trendLabel: PropTypes.string,
-  badge: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  description: PropTypes.string,
+  trend: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  trendLabel: PropTypes.node,
+  badge: PropTypes.node,
+  description: PropTypes.node,
   className: PropTypes.string,
   onClick: PropTypes.func,
 };

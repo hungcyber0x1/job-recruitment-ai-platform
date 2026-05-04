@@ -12,10 +12,26 @@ const focusAreas = [
 ];
 
 const prioritySteps = [
-  { period: 'Tuần này', milestone: 'Hoàn thiện 1 API Node.js có xác thực và ghi log', status: 'current' },
-  { period: '2 tuần tới', milestone: 'Bổ sung 1 tình huống thiết kế hệ thống vào hồ sơ dự án', status: 'upcoming' },
-  { period: 'Tháng này', milestone: 'Rà soát CV để nhấn mạnh tác động và vai trò làm chủ kết quả', status: 'upcoming' },
-  { period: 'Liên tục', milestone: 'Luyện phỏng vấn hành vi theo STAR sau mỗi vòng ứng tuyển', status: 'completed' },
+  {
+    period: 'Tuần này',
+    milestone: 'Hoàn thiện 1 API Node.js có xác thực và ghi log',
+    status: 'current',
+  },
+  {
+    period: '2 tuần tới',
+    milestone: 'Bổ sung 1 tình huống thiết kế hệ thống vào hồ sơ dự án',
+    status: 'upcoming',
+  },
+  {
+    period: 'Tháng này',
+    milestone: 'Rà soát CV để nhấn mạnh tác động và vai trò làm chủ kết quả',
+    status: 'upcoming',
+  },
+  {
+    period: 'Liên tục',
+    milestone: 'Luyện phỏng vấn hành vi theo STAR sau mỗi vòng ứng tuyển',
+    status: 'completed',
+  },
 ];
 
 const getBarColor = (status) => {
@@ -67,7 +83,7 @@ const AIInsightDashboard = () => {
             Hiểu rõ bản thân <span className="landing-heading-muted">phát triển nhanh hơn</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed font-medium">
-            Bảng điều khiển cá nhân với ưu tiên kỹ năng, bước tiếp theo và gợi ý học tập được cập nhật
+            Tổng quan cá nhân với ưu tiên kỹ năng, bước tiếp theo và gợi ý học tập được cập nhật
             liên tục
           </p>
         </motion.div>
@@ -143,8 +159,8 @@ const AIInsightDashboard = () => {
               </p>
               <p className="text-muted-foreground text-base leading-relaxed">
                 Tập trung vào <span className="text-foreground font-bold">Node.js</span> và
-                <span className="text-foreground font-bold"> thiết kế hệ thống</span> để nâng tổng điểm
-                lên <span className="text-primary font-bold">85%+</span>
+                <span className="text-foreground font-bold"> thiết kế hệ thống</span> để nâng tổng
+                điểm lên <span className="text-primary font-bold">85%+</span>
               </p>
             </div>
           </motion.div>
@@ -221,7 +237,11 @@ const AIInsightDashboard = () => {
               </p>
               {[
                 { title: 'Node.js - Hướng dẫn toàn diện', provider: 'Udemy', duration: '40 giờ' },
-                { title: 'Phỏng vấn thiết kế hệ thống', provider: 'ByteByteGo', duration: '24 giờ' },
+                {
+                  title: 'Phỏng vấn thiết kế hệ thống',
+                  provider: 'ByteByteGo',
+                  duration: '24 giờ',
+                },
               ].map((course) => (
                 <div
                   key={course.title}

@@ -33,7 +33,7 @@ class NotificationService {
       category: 'application_submitted',
       title: 'Đã nộp đơn ứng tuyển',
       message: `Bạn đã ứng tuyển vị trí "${job.title}" tại ${job.company_name || 'công ty'}.`,
-      data: { application_id: applicationId, job_id: jobId }
+      data: { application_id: applicationId, job_id: jobId },
     });
   }
 
@@ -52,11 +52,12 @@ class NotificationService {
       offered: 'Nhận được đề nghị',
       hired: 'Đã được tuyển',
       rejected: 'Bị từ chối',
-      withdrawn: 'Đã rút đơn'
+      withdrawn: 'Đã rút đơn',
     };
 
     const title = `Trạng thái: ${statusLabels[newStatus] || newStatus}`;
-    const message = notes || 
+    const message =
+      notes ||
       `Hồ sơ ứng tuyển của bạn đã được cập nhật sang "${statusLabels[newStatus] || newStatus}".`;
 
     await NotificationRepository.create({
@@ -65,11 +66,11 @@ class NotificationService {
       category: 'application_status_change',
       title,
       message,
-      data: { 
-        application_id: applicationId, 
-        old_status: oldStatus, 
-        new_status: newStatus 
-      }
+      data: {
+        application_id: applicationId,
+        old_status: oldStatus,
+        new_status: newStatus,
+      },
     });
   }
 
@@ -81,7 +82,7 @@ class NotificationService {
     if (!application) return;
 
     const { date, time, location, type } = interviewDetails;
-    
+
     let message = `Lịch phỏng vấn đã được sắp xếp.`;
     if (date) message += `\n📅 Ngày: ${date}`;
     if (time) message += `\n🕐 Giờ: ${time}`;
@@ -94,7 +95,7 @@ class NotificationService {
       category: 'interview_scheduled',
       title: 'Lịch phỏng vấn mới',
       message,
-      data: { application_id: applicationId, interview: interviewDetails }
+      data: { application_id: applicationId, interview: interviewDetails },
     });
   }
 
@@ -105,7 +106,8 @@ class NotificationService {
     const application = await ApplicationRepository.findById(applicationId);
     if (!application) return;
 
-    const message = `Chúc mừng! Bạn nhận được đề nghị tuyển dụng cho vị trí "${application.job_title}".\n` +
+    const message =
+      `Chúc mừng! Bạn nhận được đề nghị tuyển dụng cho vị trí "${application.job_title}".\n` +
       `Hãy xem chi tiết và phản hồi nhà tuyển dụng.`;
 
     await NotificationRepository.create({
@@ -114,7 +116,7 @@ class NotificationService {
       category: 'offer_received',
       title: 'Bạn nhận được đề nghị tuyển dụng!',
       message,
-      data: { application_id: applicationId, offer: offerDetails }
+      data: { application_id: applicationId, offer: offerDetails },
     });
   }
 
@@ -135,9 +137,10 @@ class NotificationService {
       type: 'application',
       category: 'new_applicant',
       title: 'Ứng viên mới ứng tuyển',
-      message: `${candidate_name || 'Một ứng viên'} vừa ứng tuyển vào vị trí "${job_title}".\n` +
+      message:
+        `${candidate_name || 'Một ứng viên'} vừa ứng tuyển vào vị trí "${job_title}".\n` +
         `Ngày nộp: ${application_date || 'Hôm nay'}`,
-      data: { application_id: applicationId }
+      data: { application_id: applicationId },
     });
   }
 
@@ -148,9 +151,10 @@ class NotificationService {
     const job = await JobRepository.findById(jobId);
     if (!job) return;
 
-    const message = daysRemaining === 0
-      ? `Tin tuyển dụng "${job.title}" sẽ hết hạn hôm nay. Hãy gia hạn nếu bạn vẫn đang tuyển.`
-      : `Tin tuyển dụng "${job.title}" sẽ hết hạn sau ${daysRemaining} ngày.`;
+    const message =
+      daysRemaining === 0
+        ? `Tin tuyển dụng "${job.title}" sẽ hết hạn hôm nay. Hãy gia hạn nếu bạn vẫn đang tuyển.`
+        : `Tin tuyển dụng "${job.title}" sẽ hết hạn sau ${daysRemaining} ngày.`;
 
     await NotificationRepository.create({
       user_id: recruiterId,
@@ -158,7 +162,7 @@ class NotificationService {
       category: 'job_expiring',
       title: 'Tin tuyển dụng sắp hết hạn',
       message,
-      data: { job_id: jobId, days_remaining: daysRemaining }
+      data: { job_id: jobId, days_remaining: daysRemaining },
     });
   }
 
@@ -171,8 +175,10 @@ class NotificationService {
 
     const { date, time, candidate_name } = interviewDetails;
 
-    const message = `Nhắc nhở: Lịch phỏng vấn với ${candidate_name || 'ứng viên'} vào ${date || 'sắp tới'}` +
-      (time ? ` lúc ${time}` : '') + '.';
+    const message =
+      `Nhắc nhở: Lịch phỏng vấn với ${candidate_name || 'ứng viên'} vào ${date || 'sắp tới'}` +
+      (time ? ` lúc ${time}` : '') +
+      '.';
 
     await NotificationRepository.create({
       user_id: recruiterId,
@@ -180,7 +186,7 @@ class NotificationService {
       category: 'interview_reminder',
       title: 'Nhắc nhở lịch phỏng vấn',
       message,
-      data: { application_id: applicationId, interview: interviewDetails }
+      data: { application_id: applicationId, interview: interviewDetails },
     });
   }
 
@@ -202,7 +208,7 @@ class NotificationService {
       category: accepted ? 'offer_accepted' : 'offer_declined',
       title,
       message,
-      data: { application_id: applicationId }
+      data: { application_id: applicationId },
     });
   }
 
@@ -223,7 +229,7 @@ class NotificationService {
       category: 'recruitment_message',
       title,
       message: message || `Bạn có tin nhắn mới từ ${senderName}.`,
-      data
+      data,
     });
   }
 
@@ -237,13 +243,13 @@ class NotificationService {
    * Thông báo khi có công ty chờ duyệt
    */
   async notifyPendingCompany(adminIds, companyId, companyName) {
-    const notifications = adminIds.map(adminId => ({
+    const notifications = adminIds.map((adminId) => ({
       user_id: adminId,
       type: 'moderation',
       category: 'pending_company',
       title: 'Công ty chờ duyệt',
       message: `Công ty "${companyName}" vừa đăng ký và đang chờ xác minh.`,
-      data: { company_id: companyId }
+      data: { company_id: companyId },
     }));
 
     await NotificationRepository.createBatch(notifications);
@@ -253,13 +259,13 @@ class NotificationService {
    * Thông báo khi có tin tuyển dụng chờ duyệt
    */
   async notifyPendingJob(adminIds, jobId, jobTitle, companyName) {
-    const notifications = adminIds.map(adminId => ({
+    const notifications = adminIds.map((adminId) => ({
       user_id: adminId,
       type: 'moderation',
       category: 'pending_job',
       title: 'Tin tuyển dụng chờ duyệt',
       message: `Tin tuyển dụng "${jobTitle}" từ ${companyName || 'một công ty'} đang chờ kiểm duyệt.`,
-      data: { job_id: jobId }
+      data: { job_id: jobId },
     }));
 
     await NotificationRepository.createBatch(notifications);
@@ -269,13 +275,13 @@ class NotificationService {
    * Thông báo khi có báo cáo vi phạm mới
    */
   async notifyNewReport(adminIds, reportId, reportType, reporterInfo) {
-    const notifications = adminIds.map(adminId => ({
+    const notifications = adminIds.map((adminId) => ({
       user_id: adminId,
       type: 'report',
       category: 'new_report',
       title: 'Báo cáo vi phạm mới',
       message: `Có báo cáo vi phạm mới về "${reportType}" từ ${reporterInfo || 'người dùng'}.`,
-      data: { report_id: reportId, report_type: reportType }
+      data: { report_id: reportId, report_type: reportType },
     }));
 
     await NotificationRepository.createBatch(notifications);
@@ -285,13 +291,13 @@ class NotificationService {
    * Thông báo khi có vi phạm được phát hiện tự động
    */
   async notifyAutoDetectedViolation(adminIds, jobId, jobTitle, violations) {
-    const notifications = adminIds.map(adminId => ({
+    const notifications = adminIds.map((adminId) => ({
       user_id: adminId,
       type: 'moderation',
       category: 'auto_detected_violation',
       title: 'Phát hiện vi phạm tự động',
       message: `Tin tuyển dụng "${jobTitle}" có ${violations.length} vấn đề cần kiểm tra: ${violations.join(', ')}.`,
-      data: { job_id: jobId, violations }
+      data: { job_id: jobId, violations },
     }));
 
     await NotificationRepository.createBatch(notifications);
@@ -313,7 +319,7 @@ class NotificationService {
       category: 'general',
       title,
       message,
-      data
+      data,
     });
   }
 
@@ -321,13 +327,13 @@ class NotificationService {
    * Gửi thông báo hàng loạt cho nhiều users
    */
   async sendBulkNotification(userIds, title, message, data = null) {
-    const notifications = userIds.map(userId => ({
+    const notifications = userIds.map((userId) => ({
       user_id: userId,
       type: 'system',
       category: 'bulk',
       title,
       message,
-      data
+      data,
     }));
 
     return await NotificationRepository.createBatch(notifications);

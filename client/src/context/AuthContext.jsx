@@ -39,12 +39,16 @@ const toBool = (v, defaultVal) => {
   return defaultVal;
 };
 
-const PENDING_RECRUITER_APPROVAL_MESSAGE = 'Tai khoan nha tuyen dung dang cho quan tri vien phe duyet';
+const PENDING_RECRUITER_APPROVAL_MESSAGE =
+  'Tai khoan nha tuyen dung dang cho quan tri vien phe duyet';
 
 function isPendingRecruiterApproval(user) {
-  const role = String(user?.role ?? '').trim().toLowerCase();
-  const normalizedRole = role === 'employer' ? 'recruiter' : role;
-  const status = String(user?.status ?? '').trim().toLowerCase();
+  const normalizedRole = String(user?.role ?? '')
+    .trim()
+    .toLowerCase();
+  const status = String(user?.status ?? '')
+    .trim()
+    .toLowerCase();
   return normalizedRole === 'recruiter' && ['pending', 'pending_verification'].includes(status);
 }
 
@@ -179,47 +183,55 @@ export const AuthProvider = ({ children }) => {
     };
   }, [clearAuth]);
 
-  const login = useCallback(async (email, password) => {
-    const response = await authService.login({ email, password });
-    const body = response.data;
-    const { token, userData } = extractAuthResponse(body);
-
-    if (!token || !userData?.role) {
-      const msg = body?.message || 'Đăng nhập thất bại — phản hồi không hợp lệ';
-      throw new Error(msg);
-    }
-
-    if (!shouldPersistAuthSession(body)) {
+  const login = useCallback(
+    async (email, password) => {
       clearAuth();
-      throw new Error(body?.message || PENDING_RECRUITER_APPROVAL_MESSAGE);
-    }
+      const response = await authService.login({ email, password });
+      const body = response.data;
+      const { token, userData } = extractAuthResponse(body);
 
-    const sanitizedUser = sanitizeUser(userData);
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(sanitizedUser));
-    setUser(sanitizedUser);
-
-    return body;
-  }, [clearAuth]);
-
-  const register = useCallback(async (userData) => {
-    const response = await authService.register(userData);
-    const body = response.data;
-    const { token, userData: authUser } = extractAuthResponse(body);
-
-    if (body?.success && authUser?.role) {
-      if (shouldPersistAuthSession(body, 'register')) {
-        const sanitizedUser = sanitizeUser(authUser);
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(sanitizedUser));
-        setUser(sanitizedUser);
+      if (!token || !userData?.role) {
+        const msg = body?.message || 'Đăng nhập thất bại — phản hồi không hợp lệ';
+        throw new Error(msg);
       }
-      return body;
-    }
 
-    const msg = body?.message || 'Đăng ký không hoàn tất';
-    throw new Error(msg);
-  }, []);
+      if (!shouldPersistAuthSession(body)) {
+        clearAuth();
+        throw new Error(body?.message || PENDING_RECRUITER_APPROVAL_MESSAGE);
+      }
+
+      const sanitizedUser = sanitizeUser(userData);
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(sanitizedUser));
+      setUser(sanitizedUser);
+
+      return body;
+    },
+    [clearAuth]
+  );
+
+  const register = useCallback(
+    async (userData) => {
+      clearAuth();
+      const response = await authService.register(userData);
+      const body = response.data;
+      const { token, userData: authUser } = extractAuthResponse(body);
+
+      if (body?.success && authUser?.role) {
+        if (shouldPersistAuthSession(body, 'register')) {
+          const sanitizedUser = sanitizeUser(authUser);
+          localStorage.setItem('token', token);
+          localStorage.setItem('user', JSON.stringify(sanitizedUser));
+          setUser(sanitizedUser);
+        }
+        return body;
+      }
+
+      const msg = body?.message || 'Đăng ký không hoàn tất';
+      throw new Error(msg);
+    },
+    [clearAuth]
+  );
 
   const logout = useCallback(() => {
     localStorage.removeItem('token');

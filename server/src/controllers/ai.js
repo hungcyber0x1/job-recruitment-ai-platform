@@ -32,14 +32,19 @@ Yêu cầu bản JD bao gồm các phần sau (viết bằng tiếng Việt):
 
     try {
       const content = await aiService.generateContent(prompt);
-      
+
       res.status(200).json({
         success: true,
-        data: content
+        data: content,
       });
     } catch (error) {
       console.error('AI Controller Error:', error);
-      return next(new AppError('Không thể tạo mô tả công việc tự động ngay lúc này. Vui lòng thử lại sau.', 500));
+      return next(
+        new AppError(
+          'Không thể tạo mô tả công việc tự động ngay lúc này. Vui lòng thử lại sau.',
+          500
+        )
+      );
     }
   });
 }

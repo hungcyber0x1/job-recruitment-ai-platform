@@ -1,4 +1,4 @@
-﻿import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   AlertCircle,
   Calendar,
@@ -44,9 +44,18 @@ import InterviewScheduleDialog from '../../components/employer/InterviewSchedule
 
 const WEEKDAYS = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
 const MONTHS = [
-  'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4',
-  'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8',
-  'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12',
+  'Tháng 1',
+  'Tháng 2',
+  'Tháng 3',
+  'Tháng 4',
+  'Tháng 5',
+  'Tháng 6',
+  'Tháng 7',
+  'Tháng 8',
+  'Tháng 9',
+  'Tháng 10',
+  'Tháng 11',
+  'Tháng 12',
 ];
 
 const SCHEDULABLE_STATUSES = new Set([
@@ -134,11 +143,15 @@ const TONE_STYLES = {
 const toneStyle = (tone) => TONE_STYLES[tone] || TONE_STYLES.slate;
 
 const dateFormatter = new Intl.DateTimeFormat('vi-VN', {
-  weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric',
+  weekday: 'long',
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
 });
 
 const timeFormatter = new Intl.DateTimeFormat('vi-VN', {
-  hour: '2-digit', minute: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
 });
 
 const parseDateTime = (value) => {
@@ -165,19 +178,46 @@ const formatCompactNumber = (value) =>
 const getCandidateName = (application = {}, fallback = '') =>
   application.candidate_name ||
   [application.first_name, application.last_name].filter(Boolean).join(' ').trim() ||
-  application.email || fallback || 'Ứng viên';
+  application.email ||
+  fallback ||
+  'Ứng viên';
 
 const getCandidateInitials = (name = '') =>
-  name.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]).join('').toUpperCase() || 'UV';
+  name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0])
+    .join('')
+    .toUpperCase() || 'UV';
 
 const getInterviewTypeMeta = (type) => {
-  if (type === 'phone') return { label: 'Điện thoại', icon: Phone, badge: 'bg-amber-50 text-amber-700 ring-amber-200', locationFallback: 'Gọi điện trực tiếp' };
-  if (type === 'offline') return { label: 'Trực tiếp', icon: MapPin, badge: 'bg-blue-50 text-blue-700 ring-blue-200', locationFallback: 'Văn phòng công ty' };
-  return { label: 'Trực tuyến', icon: Video, badge: 'bg-violet-50 text-violet-700 ring-violet-200', locationFallback: 'Liên kết họp trực tuyến' };
+  if (type === 'phone')
+    return {
+      label: 'Điện thoại',
+      icon: Phone,
+      badge: 'bg-amber-50 text-amber-700 ring-amber-200',
+      locationFallback: 'Gọi điện trực tiếp',
+    };
+  if (type === 'offline')
+    return {
+      label: 'Trực tiếp',
+      icon: MapPin,
+      badge: 'bg-blue-50 text-blue-700 ring-blue-200',
+      locationFallback: 'Văn phòng công ty',
+    };
+  return {
+    label: 'Trực tuyến',
+    icon: Video,
+    badge: 'bg-violet-50 text-violet-700 ring-violet-200',
+    locationFallback: 'Liên kết họp trực tuyến',
+  };
 };
 
 const buildContext = ({ application, candidateName, jobTitle }) => {
-  const normalizedStatus = application?.status ? normalizeApplicationStatus(application.status) : null;
+  const normalizedStatus = application?.status
+    ? normalizeApplicationStatus(application.status)
+    : null;
   return {
     applicationId: application?.id || null,
     name: getCandidateName(application, candidateName),
@@ -198,15 +238,23 @@ const normalizeInterview = (interview) => {
     startAt,
     endAt,
     dateKey: startAt ? formatDateKey(startAt) : '',
-    timeRange: startAt && endAt ? `${timeFormatter.format(startAt)} - ${timeFormatter.format(endAt)}` : 'Chưa rõ giờ',
-    candidateName: interview.candidate_name || [interview.first_name, interview.last_name].filter(Boolean).join(' ').trim() || 'Ứng viên',
+    timeRange:
+      startAt && endAt
+        ? `${timeFormatter.format(startAt)} - ${timeFormatter.format(endAt)}`
+        : 'Chưa rõ giờ',
+    candidateName:
+      interview.candidate_name ||
+      [interview.first_name, interview.last_name].filter(Boolean).join(' ').trim() ||
+      'Ứng viên',
     jobTitle: interview.job_title || 'Chưa rõ vị trí',
     status: interview.status || 'scheduled',
   };
 };
 
 const normalizeScheduleCandidate = (application, job = {}) => {
-  const normalizedStatus = normalizeApplicationStatus(application?.status || APPLICATION_STATUS.SUBMITTED);
+  const normalizedStatus = normalizeApplicationStatus(
+    application?.status || APPLICATION_STATUS.SUBMITTED
+  );
   if (!SCHEDULABLE_STATUSES.has(normalizedStatus)) return null;
   const appliedAtSource = application?.applied_at || application?.created_at || null;
   const appliedAt = parseDateTime(appliedAtSource);
@@ -300,7 +348,13 @@ function QuickActionItem({ icon: Icon, title, to, tone = 'slate', onClick, disab
   }
 
   return (
-    <Button type="button" variant="outline" onClick={onClick} disabled={disabled} className={className}>
+    <Button
+      type="button"
+      variant="outline"
+      onClick={onClick}
+      disabled={disabled}
+      className={className}
+    >
       {content}
     </Button>
   );
@@ -314,11 +368,20 @@ function CompactInterviewCard({ item, updating, onUpdateStatus, applicationBaseP
   const isScheduled = item.status === 'scheduled';
 
   return (
-    <div className={cn('group relative overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-md')}>
+    <div
+      className={cn(
+        'group relative overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-md'
+      )}
+    >
       <div className={cn('absolute inset-y-0 left-0 w-1', cfg.accent)} />
       <div className="flex items-start gap-3 p-4 pl-5">
         {/* Avatar */}
-        <div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-black ring-1 ring-inset', cfg.iconBox)}>
+        <div
+          className={cn(
+            'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-black ring-1 ring-inset',
+            cfg.iconBox
+          )}
+        >
           {getCandidateInitials(item.candidateName)}
         </div>
 
@@ -326,11 +389,21 @@ function CompactInterviewCard({ item, updating, onUpdateStatus, applicationBaseP
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="truncate text-sm font-bold text-slate-950">{item.candidateName}</span>
-            <span className={cn('inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold ring-1 ring-inset', cfg.badge)}>
+            <span
+              className={cn(
+                'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold ring-1 ring-inset',
+                cfg.badge
+              )}
+            >
               <StatusIcon className="h-3 w-3" />
               {cfg.label}
             </span>
-            <span className={cn('inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold ring-1 ring-inset', typeMeta.badge)}>
+            <span
+              className={cn(
+                'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold ring-1 ring-inset',
+                typeMeta.badge
+              )}
+            >
               <TypeIcon className="h-3 w-3" />
               {typeMeta.label}
             </span>
@@ -355,14 +428,26 @@ function CompactInterviewCard({ item, updating, onUpdateStatus, applicationBaseP
 
         {/* Actions */}
         <div className="flex shrink-0 flex-col gap-1.5">
-          <Button size="sm" variant="outline" asChild className="h-8 rounded-md border-slate-200 px-2 text-xs font-bold">
+          <Button
+            size="sm"
+            variant="outline"
+            asChild
+            className="h-8 rounded-md border-slate-200 px-2 text-xs font-bold"
+          >
             <Link to={`${applicationBasePath}/${item.application_id}`}>
               <Eye className="h-3 w-3" />
             </Link>
           </Button>
           {!isAdmin && (
-            <Button size="sm" variant="outline" asChild className="h-8 rounded-md border-slate-200 px-2 text-xs font-bold">
-              <Link to={`/employer/messages?applicationId=${item.application_id}&candidateName=${encodeURIComponent(item.candidateName)}&jobTitle=${encodeURIComponent(item.jobTitle)}`}>
+            <Button
+              size="sm"
+              variant="outline"
+              asChild
+              className="h-8 rounded-md border-slate-200 px-2 text-xs font-bold"
+            >
+              <Link
+                to={`/employer/messages?applicationId=${item.application_id}&candidateName=${encodeURIComponent(item.candidateName)}&jobTitle=${encodeURIComponent(item.jobTitle)}`}
+              >
                 <MessageSquare className="h-3 w-3" />
               </Link>
             </Button>
@@ -370,15 +455,22 @@ function CompactInterviewCard({ item, updating, onUpdateStatus, applicationBaseP
           {isScheduled && (
             <>
               <Button
-                type="button" size="sm"
+                type="button"
+                size="sm"
                 disabled={updating}
                 onClick={() => onUpdateStatus(item.id, 'completed')}
                 className="h-8 rounded-md bg-emerald-600 px-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-60"
               >
-                {updating ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3" />}
+                {updating ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="h-3 w-3" />
+                )}
               </Button>
               <Button
-                type="button" size="sm" variant="outline"
+                type="button"
+                size="sm"
+                variant="outline"
                 disabled={updating}
                 onClick={() => onUpdateStatus(item.id, 'cancelled')}
                 className="h-8 rounded-md border-rose-200 px-2 text-xs font-bold text-rose-700 hover:bg-rose-50 disabled:opacity-60"
@@ -393,7 +485,15 @@ function CompactInterviewCard({ item, updating, onUpdateStatus, applicationBaseP
   );
 }
 
-function MiniCalendar({ visibleMonth, setVisibleMonth, selectedDate, setSelectedDate, interviewsByDate, todayKey, today }) {
+function MiniCalendar({
+  visibleMonth,
+  setVisibleMonth,
+  selectedDate,
+  setSelectedDate,
+  interviewsByDate,
+  todayKey,
+  today,
+}) {
   const calendarCells = useMemo(() => {
     const cells = [];
     const totalDays = getDaysInMonth(visibleMonth.year, visibleMonth.month);
@@ -412,24 +512,30 @@ function MiniCalendar({ visibleMonth, setVisibleMonth, selectedDate, setSelected
     <div className="space-y-3">
       {/* Month header */}
       <div className="flex items-center justify-between">
-        <span className="text-sm font-bold text-slate-950">{formatMonthLabel(visibleMonth.year, visibleMonth.month)}</span>
+        <span className="text-sm font-bold text-slate-950">
+          {formatMonthLabel(visibleMonth.year, visibleMonth.month)}
+        </span>
         <div className="flex gap-1">
           <button
             type="button"
-            onClick={() => setVisibleMonth(prev => {
-              const m = prev.month - 1;
-              return m < 0 ? { year: prev.year - 1, month: 11 } : { ...prev, month: m };
-            })}
+            onClick={() =>
+              setVisibleMonth((prev) => {
+                const m = prev.month - 1;
+                return m < 0 ? { year: prev.year - 1, month: 11 } : { ...prev, month: m };
+              })
+            }
             className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-700"
           >
             <ChevronLeft className="h-3 w-3" />
           </button>
           <button
             type="button"
-            onClick={() => setVisibleMonth(prev => {
-              const m = prev.month + 1;
-              return m > 11 ? { year: prev.year + 1, month: 0 } : { ...prev, month: m };
-            })}
+            onClick={() =>
+              setVisibleMonth((prev) => {
+                const m = prev.month + 1;
+                return m > 11 ? { year: prev.year + 1, month: 0 } : { ...prev, month: m };
+              })
+            }
             className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-700"
           >
             <ChevronRight className="h-3 w-3" />
@@ -439,8 +545,13 @@ function MiniCalendar({ visibleMonth, setVisibleMonth, selectedDate, setSelected
 
       {/* Weekday labels */}
       <div className="grid grid-cols-7">
-        {WEEKDAYS.map(d => (
-          <div key={d} className="py-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-400">{d}</div>
+        {WEEKDAYS.map((d) => (
+          <div
+            key={d}
+            className="py-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-400"
+          >
+            {d}
+          </div>
         ))}
       </div>
 
@@ -458,15 +569,17 @@ function MiniCalendar({ visibleMonth, setVisibleMonth, selectedDate, setSelected
                   ? 'bg-emerald-600 text-white'
                   : cell.date === todayKey
                     ? 'bg-slate-950 text-white'
-                    : 'text-slate-600 hover:bg-emerald-50',
+                    : 'text-slate-600 hover:bg-emerald-50'
               )}
             >
               {cell.day}
               {cell.events.length > 0 && (
-                <span className={cn(
-                  'absolute bottom-0.5 h-1 w-1 rounded-full',
-                  cell.date === selectedDate ? 'bg-white' : 'bg-emerald-500'
-                )} />
+                <span
+                  className={cn(
+                    'absolute bottom-0.5 h-1 w-1 rounded-full',
+                    cell.date === selectedDate ? 'bg-white' : 'bg-emerald-500'
+                  )}
+                />
               )}
             </button>
           ) : (
@@ -480,7 +593,10 @@ function MiniCalendar({ visibleMonth, setVisibleMonth, selectedDate, setSelected
         <span className="text-xs font-semibold text-slate-500">{monthCount} lịch tháng này</span>
         <button
           type="button"
-          onClick={() => { setVisibleMonth({ year: today.getFullYear(), month: today.getMonth() }); setSelectedDate(todayKey); }}
+          onClick={() => {
+            setVisibleMonth({ year: today.getFullYear(), month: today.getMonth() });
+            setSelectedDate(todayKey);
+          }}
           className="text-xs font-bold text-emerald-600 hover:text-emerald-700"
         >
           Về hôm nay
@@ -519,7 +635,10 @@ export default function InterviewSchedulePage() {
   const [scheduleCandidatesLoading, setScheduleCandidatesLoading] = useState(!isAdmin);
   const [scheduleCandidatesError, setScheduleCandidatesError] = useState('');
   const [error, setError] = useState('');
-  const [visibleMonth, setVisibleMonth] = useState({ year: today.getFullYear(), month: today.getMonth() });
+  const [visibleMonth, setVisibleMonth] = useState({
+    year: today.getFullYear(),
+    month: today.getMonth(),
+  });
   const [selectedDate, setSelectedDate] = useState(todayKey);
   const [searchQuery, setSearchQuery] = useState('');
   const [candidateQuery, setCandidateQuery] = useState('');
@@ -533,18 +652,28 @@ export default function InterviewSchedulePage() {
 
   const loadContext = useCallback(async () => {
     if (!applicationId) {
-      setContext(candidateName || jobTitle ? buildContext({ application: null, candidateName, jobTitle }) : null);
+      setContext(
+        candidateName || jobTitle
+          ? buildContext({ application: null, candidateName, jobTitle })
+          : null
+      );
       setContextLoading(false);
       return;
     }
     setContextLoading(true);
     try {
       const response = await applicationService.getApplication(applicationId);
-      setContext(buildContext({ application: response.data?.data || null, candidateName, jobTitle }));
+      setContext(
+        buildContext({ application: response.data?.data || null, candidateName, jobTitle })
+      );
     } catch (fetchError) {
       console.error('Failed to load application context:', fetchError);
       showNotification('Không tải được hồ sơ.', 'error');
-      setContext(candidateName || jobTitle ? buildContext({ application: null, candidateName, jobTitle }) : null);
+      setContext(
+        candidateName || jobTitle
+          ? buildContext({ application: null, candidateName, jobTitle })
+          : null
+      );
     } finally {
       setContextLoading(false);
     }
@@ -567,20 +696,34 @@ export default function InterviewSchedulePage() {
   }, []);
 
   const loadScheduleCandidates = useCallback(async () => {
-    if (isAdmin) { setScheduleCandidates([]); setScheduleCandidatesError(''); setScheduleCandidatesLoading(false); return; }
+    if (isAdmin) {
+      setScheduleCandidates([]);
+      setScheduleCandidatesError('');
+      setScheduleCandidatesLoading(false);
+      return;
+    }
     setScheduleCandidatesLoading(true);
     setScheduleCandidatesError('');
     try {
       const jobsResponse = await jobService.getMyJobs();
       const jobs = Array.isArray(jobsResponse.data?.data) ? jobsResponse.data.data : [];
-      if (!jobs.length) { setScheduleCandidates([]); return; }
-      const responses = await Promise.allSettled(jobs.map((job) => applicationService.getJobApplications(job.id)));
-      const candidates = responses.flatMap((response, index) => {
-        const job = jobs[index];
-        if (response.status !== 'fulfilled') return [];
-        const applications = Array.isArray(response.value.data?.data) ? response.value.data.data : [];
-        return applications.map((app) => normalizeScheduleCandidate(app, job)).filter(Boolean);
-      }).sort((a, b) => (b.appliedAt?.getTime?.() || 0) - (a.appliedAt?.getTime?.() || 0));
+      if (!jobs.length) {
+        setScheduleCandidates([]);
+        return;
+      }
+      const responses = await Promise.allSettled(
+        jobs.map((job) => applicationService.getJobApplications(job.id))
+      );
+      const candidates = responses
+        .flatMap((response, index) => {
+          const job = jobs[index];
+          if (response.status !== 'fulfilled') return [];
+          const applications = Array.isArray(response.value.data?.data)
+            ? response.value.data.data
+            : [];
+          return applications.map((app) => normalizeScheduleCandidate(app, job)).filter(Boolean);
+        })
+        .sort((a, b) => (b.appliedAt?.getTime?.() || 0) - (a.appliedAt?.getTime?.() || 0));
       setScheduleCandidates(candidates);
     } catch (fetchError) {
       console.error('Failed to load candidates:', fetchError);
@@ -590,19 +733,34 @@ export default function InterviewSchedulePage() {
     }
   }, [isAdmin]);
 
-  const handleSelectCandidate = useCallback((candidate) => {
-    if (!candidate?.id) return;
-    const nextParams = new URLSearchParams(searchParams);
-    nextParams.set('applicationId', String(candidate.id));
-    nextParams.set('candidateName', candidate.name || getCandidateName(candidate));
-    nextParams.set('jobTitle', candidate.jobTitle || candidate.job_title || '');
-    setSearchParams(nextParams, { replace: true });
-    setContext(buildContext({ application: candidate, candidateName: candidate.name, jobTitle: candidate.jobTitle || candidate.job_title }));
-  }, [searchParams, setSearchParams]);
+  const handleSelectCandidate = useCallback(
+    (candidate) => {
+      if (!candidate?.id) return;
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.set('applicationId', String(candidate.id));
+      nextParams.set('candidateName', candidate.name || getCandidateName(candidate));
+      nextParams.set('jobTitle', candidate.jobTitle || candidate.job_title || '');
+      setSearchParams(nextParams, { replace: true });
+      setContext(
+        buildContext({
+          application: candidate,
+          candidateName: candidate.name,
+          jobTitle: candidate.jobTitle || candidate.job_title,
+        })
+      );
+    },
+    [searchParams, setSearchParams]
+  );
 
-  useEffect(() => { loadContext(); }, [loadContext]);
-  useEffect(() => { loadInterviews(); }, [loadInterviews]);
-  useEffect(() => { loadScheduleCandidates(); }, [loadScheduleCandidates]);
+  useEffect(() => {
+    loadContext();
+  }, [loadContext]);
+  useEffect(() => {
+    loadInterviews();
+  }, [loadInterviews]);
+  useEffect(() => {
+    loadScheduleCandidates();
+  }, [loadScheduleCandidates]);
 
   // ── Derived Data ─────────────────────────────────────────────────────────────
 
@@ -610,9 +768,14 @@ export default function InterviewSchedulePage() {
     const now = new Date();
     return {
       total: interviews.length,
-      upcoming: interviews.filter((item) => item.status === 'scheduled' && item.startAt >= now).length,
-      today: interviews.filter((item) => item.status === 'scheduled' && item.dateKey === todayKey).length,
-      past: interviews.filter((item) => item.startAt < today || ['completed', 'cancelled', 'no_show'].includes(item.status)).length,
+      upcoming: interviews.filter((item) => item.status === 'scheduled' && item.startAt >= now)
+        .length,
+      today: interviews.filter((item) => item.status === 'scheduled' && item.dateKey === todayKey)
+        .length,
+      past: interviews.filter(
+        (item) =>
+          item.startAt < today || ['completed', 'cancelled', 'no_show'].includes(item.status)
+      ).length,
       completed: interviews.filter((item) => item.status === 'completed').length,
       cancelled: interviews.filter((item) => ['cancelled', 'no_show'].includes(item.status)).length,
     };
@@ -622,34 +785,45 @@ export default function InterviewSchedulePage() {
     const query = searchQuery.trim().toLowerCase();
     const now = new Date();
     return interviews.filter((item) => {
-      const matchesSearch = !query || item.candidateName.toLowerCase().includes(query) || item.jobTitle.toLowerCase().includes(query);
+      const matchesSearch =
+        !query ||
+        item.candidateName.toLowerCase().includes(query) ||
+        item.jobTitle.toLowerCase().includes(query);
       const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
       const matchesDate =
         dateFilter === 'all' ||
         (dateFilter === 'today' && item.dateKey === todayKey) ||
         (dateFilter === 'upcoming' && item.status === 'scheduled' && item.startAt >= now) ||
-        (dateFilter === 'past' && (item.startAt < today || ['completed', 'cancelled', 'no_show'].includes(item.status)));
+        (dateFilter === 'past' &&
+          (item.startAt < today || ['completed', 'cancelled', 'no_show'].includes(item.status)));
       return matchesSearch && matchesStatus && matchesDate;
     });
   }, [dateFilter, interviews, searchQuery, statusFilter, today, todayKey]);
 
   const interviewsByDate = useMemo(
-    () => filteredInterviews.reduce((acc, item) => {
-      acc[item.dateKey] = [...(acc[item.dateKey] || []), item];
-      return acc;
-    }, {}),
+    () =>
+      filteredInterviews.reduce((acc, item) => {
+        acc[item.dateKey] = [...(acc[item.dateKey] || []), item];
+        return acc;
+      }, {}),
     [filteredInterviews]
   );
 
   const selectedEvents = useMemo(
-    () => [...(interviewsByDate[selectedDate] || [])].sort((a, b) => a.startAt.getTime() - b.startAt.getTime()),
+    () =>
+      [...(interviewsByDate[selectedDate] || [])].sort(
+        (a, b) => a.startAt.getTime() - b.startAt.getTime()
+      ),
     [interviewsByDate, selectedDate]
   );
 
   const nextInterview = useMemo(() => {
     const now = new Date();
-    return [...interviews].filter((item) => item.status === 'scheduled' && item.startAt >= now)
-      .sort((a, b) => a.startAt.getTime() - b.startAt.getTime())[0] || null;
+    return (
+      [...interviews]
+        .filter((item) => item.status === 'scheduled' && item.startAt >= now)
+        .sort((a, b) => a.startAt.getTime() - b.startAt.getTime())[0] || null
+    );
   }, [interviews]);
 
   const visibleMonthCount = useMemo(
@@ -673,7 +847,8 @@ export default function InterviewSchedulePage() {
   );
 
   const activeDateLabel = DATE_TABS.find((tab) => tab.key === dateFilter)?.label || 'Tất cả';
-  const hasActiveFilters = Boolean(searchQuery.trim()) || statusFilter !== 'all' || dateFilter !== 'upcoming';
+  const hasActiveFilters =
+    Boolean(searchQuery.trim()) || statusFilter !== 'all' || dateFilter !== 'upcoming';
 
   const activeFilterBadges = useMemo(() => {
     const badges = [];
@@ -730,13 +905,21 @@ export default function InterviewSchedulePage() {
     if (!context?.applicationId) return;
     setSavingSchedule(true);
     try {
-      await applicationService.updateStatus(context.applicationId, APPLICATION_STATUS.INTERVIEW_SCHEDULED, metadata, 'Sắp lịch phỏng vấn');
+      await applicationService.updateStatus(
+        context.applicationId,
+        APPLICATION_STATUS.INTERVIEW_SCHEDULED,
+        metadata,
+        'Sắp lịch phỏng vấn'
+      );
       showNotification('Đã lưu lịch phỏng vấn.', 'success');
       setScheduleOpen(false);
       await Promise.all([loadContext(), loadInterviews()]);
     } catch (scheduleError) {
       console.error('Failed to save:', scheduleError);
-      showNotification(scheduleError?.response?.data?.message || 'Không lưu được lịch phỏng vấn.', 'error');
+      showNotification(
+        scheduleError?.response?.data?.message || 'Không lưu được lịch phỏng vấn.',
+        'error'
+      );
       throw scheduleError;
     } finally {
       setSavingSchedule(false);
@@ -747,11 +930,19 @@ export default function InterviewSchedulePage() {
     setUpdatingId(interviewId);
     try {
       await applicationService.updateInterviewStatus(interviewId, status);
-      showNotification(status === 'completed' ? 'Đã chuyển hồ sơ sang trạng thái đã phỏng vấn.' : 'Đã cập nhật lịch phỏng vấn.', 'success');
+      showNotification(
+        status === 'completed'
+          ? 'Đã chuyển hồ sơ sang trạng thái đã phỏng vấn.'
+          : 'Đã cập nhật lịch phỏng vấn.',
+        'success'
+      );
       await Promise.all([loadContext(), loadInterviews()]);
     } catch (updateError) {
       console.error('Failed to update:', updateError);
-      showNotification(updateError?.response?.data?.message || 'Không cập nhật được lịch phỏng vấn.', 'error');
+      showNotification(
+        updateError?.response?.data?.message || 'Không cập nhật được lịch phỏng vấn.',
+        'error'
+      );
     } finally {
       setUpdatingId(null);
     }
@@ -771,8 +962,8 @@ export default function InterviewSchedulePage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50/40 pb-16">
-      <div className="relative overflow-hidden border-b border-slate-200/80 bg-[linear-gradient(180deg,#ecfdf5_0%,#f8fafc_72%,#ffffff_100%)]">
+    <div className="min-h-screen bg-transparent pb-16">
+      <div className="relative overflow-hidden border-b border-slate-200/80 bg-transparent">
         <div className="pointer-events-none absolute inset-0 opacity-60 [background-image:linear-gradient(to_right,rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.05)_1px,transparent_1px)] [background-size:44px_44px]" />
         <div className="relative mx-auto max-w-7xl px-4 pb-6 pt-7 sm:px-6 lg:px-8">
           <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -811,7 +1002,12 @@ export default function InterviewSchedulePage() {
                 onClick={loadInterviews}
                 disabled={loading}
               />
-              <QuickActionItem icon={Eye} title="Pipeline ứng viên" to={contextListPath} tone="slate" />
+              <QuickActionItem
+                icon={Eye}
+                title="Pipeline ứng viên"
+                to={contextListPath}
+                tone="slate"
+              />
             </div>
           </div>
 
@@ -834,9 +1030,12 @@ export default function InterviewSchedulePage() {
         <section className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm shadow-slate-950/[0.03]">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="min-w-0">
-              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">Bộ lọc nhanh</p>
+              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">
+                Bộ lọc nhanh
+              </p>
               <p className="mt-1 text-sm font-semibold text-slate-600">
-                Đang xem {activeDateLabel.toLowerCase()} với {orderedFilteredInterviews.length} lịch phù hợp.
+                Đang xem {activeDateLabel.toLowerCase()} với {orderedFilteredInterviews.length} lịch
+                trong bộ lọc.
               </p>
             </div>
             <div className="flex gap-2 overflow-x-auto pb-1 lg:pb-0">
@@ -908,7 +1107,9 @@ export default function InterviewSchedulePage() {
           <section className="min-w-0 rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-950/[0.03]">
             <div className="flex flex-col gap-3 border-b border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
-                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">Danh sách lịch</p>
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">
+                  Danh sách lịch
+                </p>
                 <h2 className="mt-1 !text-lg !font-bold !leading-tight tracking-normal text-slate-950">
                   {activeDateLabel}
                 </h2>
@@ -923,7 +1124,10 @@ export default function InterviewSchedulePage() {
               {loading ? (
                 <div className="space-y-3">
                   {Array.from({ length: 4 }).map((_, index) => (
-                    <div key={index} className="flex items-start gap-3 rounded-lg border border-slate-200 bg-white p-4">
+                    <div
+                      key={index}
+                      className="flex items-start gap-3 rounded-lg border border-slate-200 bg-white p-4"
+                    >
                       <div className="h-10 w-10 animate-pulse rounded-lg bg-slate-100" />
                       <div className="flex-1 space-y-2">
                         <div className="h-4 w-1/3 animate-pulse rounded bg-slate-100" />
@@ -947,14 +1151,15 @@ export default function InterviewSchedulePage() {
                   ))}
                   {orderedFilteredInterviews.length > 20 && (
                     <p className="rounded-lg bg-slate-50 px-4 py-3 text-center text-xs font-semibold text-slate-500">
-                      Hiển thị 20/{orderedFilteredInterviews.length} lịch. Điều chỉnh bộ lọc để thu hẹp kết quả.
+                      Hiển thị 20/{orderedFilteredInterviews.length} lịch. Điều chỉnh bộ lọc để thu
+                      hẹp kết quả.
                     </p>
                   )}
                 </div>
               ) : (
                 <div className="flex min-h-[260px] flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50/70 px-6 text-center">
                   <Calendar className="h-10 w-10 text-slate-300" />
-                  <p className="mt-3 text-sm font-bold text-slate-700">Chưa có lịch phù hợp</p>
+                  <p className="mt-3 text-sm font-bold text-slate-700">Chưa có lịch trong bộ lọc</p>
                   <p className="mt-1 max-w-sm text-sm leading-6 text-slate-500">
                     Thử đổi tab thời gian, trạng thái hoặc chọn hồ sơ ứng viên để tạo lịch mới.
                   </p>
@@ -979,18 +1184,31 @@ export default function InterviewSchedulePage() {
             <SidebarCard title="Ngày đang chọn" icon={Clock}>
               <div className="space-y-3">
                 <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-                  <p className="text-sm font-bold text-slate-950">{formatDateLabel(selectedDate)}</p>
-                  <p className="mt-1 text-xs font-semibold text-slate-500">{selectedEvents.length} lịch trong ngày</p>
+                  <p className="text-sm font-bold text-slate-950">
+                    {formatDateLabel(selectedDate)}
+                  </p>
+                  <p className="mt-1 text-xs font-semibold text-slate-500">
+                    {selectedEvents.length} lịch trong ngày
+                  </p>
                 </div>
                 {selectedEvents.length ? (
                   <div className="space-y-2">
                     {selectedEvents.slice(0, 3).map((item) => (
-                      <div key={item.id} className="rounded-lg border border-slate-200 bg-white p-3">
+                      <div
+                        key={item.id}
+                        className="rounded-lg border border-slate-200 bg-white p-3"
+                      >
                         <div className="flex items-center justify-between gap-2">
-                          <p className="min-w-0 truncate text-xs font-bold text-slate-950">{item.candidateName}</p>
-                          <span className="shrink-0 text-xs font-bold text-emerald-700">{item.timeRange}</span>
+                          <p className="min-w-0 truncate text-xs font-bold text-slate-950">
+                            {item.candidateName}
+                          </p>
+                          <span className="shrink-0 text-xs font-bold text-emerald-700">
+                            {item.timeRange}
+                          </span>
                         </div>
-                        <p className="mt-1 truncate text-xs font-semibold text-slate-500">{item.jobTitle}</p>
+                        <p className="mt-1 truncate text-xs font-semibold text-slate-500">
+                          {item.jobTitle}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -1010,8 +1228,12 @@ export default function InterviewSchedulePage() {
                       {getCandidateInitials(nextInterview.candidateName)}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-slate-950">{nextInterview.candidateName}</p>
-                      <p className="mt-0.5 text-xs font-medium text-slate-500">{nextInterview.jobTitle}</p>
+                      <p className="text-sm font-bold text-slate-950">
+                        {nextInterview.candidateName}
+                      </p>
+                      <p className="mt-0.5 text-xs font-medium text-slate-500">
+                        {nextInterview.jobTitle}
+                      </p>
                     </div>
                   </div>
                   <div className="rounded-md border border-slate-100 bg-slate-50 px-3 py-2">
@@ -1043,31 +1265,53 @@ export default function InterviewSchedulePage() {
             <SidebarCard title="Hồ sơ đang chọn" icon={Eye}>
               <div className="space-y-3">
                 <div className="rounded-lg border border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] p-3">
-                  <p className="text-sm font-bold text-slate-950">{context?.name || 'Chưa chọn hồ sơ'}</p>
+                  <p className="text-sm font-bold text-slate-950">
+                    {context?.name || 'Chưa chọn hồ sơ'}
+                  </p>
                   <p className="mt-1 text-xs font-medium text-slate-500">
-                    {context?.applicationId ? `${context.role} · ${context.statusLabel}` : 'Chọn một hồ sơ để sắp lịch'}
+                    {context?.applicationId
+                      ? `${context.role} · ${context.statusLabel}`
+                      : 'Chọn một hồ sơ để sắp lịch'}
                   </p>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   {context?.applicationId ? (
                     <>
-                      <Button asChild variant="outline" size="sm" className="h-9 rounded-lg border-slate-200 text-xs font-bold">
+                      <Button
+                        asChild
+                        variant="outline"
+                        size="sm"
+                        className="h-9 rounded-lg border-slate-200 text-xs font-bold"
+                      >
                         <Link to={`${applicationBasePath}/${context.applicationId}`}>
-                          <Eye className="mr-1.5 h-3.5 w-3.5" />Hồ sơ
+                          <Eye className="mr-1.5 h-3.5 w-3.5" />
+                          Hồ sơ
                         </Link>
                       </Button>
                       {context.resumeUrl && (
-                        <Button asChild variant="outline" size="sm" className="h-9 rounded-lg border-slate-200 text-xs font-bold">
+                        <Button
+                          asChild
+                          variant="outline"
+                          size="sm"
+                          className="h-9 rounded-lg border-slate-200 text-xs font-bold"
+                        >
                           <a href={context.resumeUrl} target="_blank" rel="noreferrer">
-                            <FileText className="mr-1.5 h-3.5 w-3.5" />CV
+                            <FileText className="mr-1.5 h-3.5 w-3.5" />
+                            CV
                           </a>
                         </Button>
                       )}
                     </>
                   ) : (
-                    <Button asChild variant="outline" size="sm" className="col-span-2 h-9 rounded-lg border-amber-200 bg-amber-50 text-xs font-bold text-amber-700 hover:bg-amber-100 hover:text-amber-800">
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="sm"
+                      className="col-span-2 h-9 rounded-lg border-amber-200 bg-amber-50 text-xs font-bold text-amber-700 hover:bg-amber-100 hover:text-amber-800"
+                    >
                       <Link to={contextListPath}>
-                        <Calendar className="mr-1.5 h-3.5 w-3.5" />Chọn hồ sơ
+                        <Calendar className="mr-1.5 h-3.5 w-3.5" />
+                        Chọn hồ sơ
                       </Link>
                     </Button>
                   )}
@@ -1102,7 +1346,10 @@ export default function InterviewSchedulePage() {
                   {scheduleCandidatesLoading ? (
                     <div className="space-y-2">
                       {Array.from({ length: 3 }).map((_, index) => (
-                        <div key={index} className="flex items-start gap-3 rounded-lg border border-slate-200 bg-white p-3">
+                        <div
+                          key={index}
+                          className="flex items-start gap-3 rounded-lg border border-slate-200 bg-white p-3"
+                        >
                           <div className="h-9 w-9 animate-pulse rounded-lg bg-slate-100" />
                           <div className="flex-1 space-y-2">
                             <div className="h-3.5 w-1/2 animate-pulse rounded bg-slate-100" />
@@ -1114,7 +1361,9 @@ export default function InterviewSchedulePage() {
                   ) : scheduleCandidates.length === 0 ? (
                     <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 px-3 py-5 text-center">
                       <Calendar className="mx-auto h-7 w-7 text-slate-300" />
-                      <p className="mt-2 text-xs font-semibold text-slate-500">Chưa có hồ sơ phù hợp</p>
+                      <p className="mt-2 text-xs font-semibold text-slate-500">
+                        Chưa có hồ sơ trong lựa chọn
+                      </p>
                     </div>
                   ) : filteredScheduleCandidates.length === 0 ? (
                     <div className="rounded-lg bg-slate-50 px-3 py-4 text-center text-xs font-semibold text-slate-500">
@@ -1123,7 +1372,8 @@ export default function InterviewSchedulePage() {
                   ) : (
                     <div className="max-h-[360px] space-y-2 overflow-y-auto pr-1">
                       {filteredScheduleCandidates.slice(0, 8).map((candidate) => {
-                        const selected = String(candidate.id) === String(context?.applicationId || '');
+                        const selected =
+                          String(candidate.id) === String(context?.applicationId || '');
                         return (
                           <button
                             key={candidate.id}
@@ -1131,25 +1381,35 @@ export default function InterviewSchedulePage() {
                             onClick={() => handleSelectCandidate(candidate)}
                             className={cn(
                               'flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-all hover:-translate-y-0.5 hover:shadow-md',
-                              selected ? 'border-emerald-300 bg-emerald-50/70 ring-2 ring-emerald-200' : 'border-slate-200 hover:border-emerald-200'
+                              selected
+                                ? 'border-emerald-300 bg-emerald-50/70 ring-2 ring-emerald-200'
+                                : 'border-slate-200 hover:border-emerald-200'
                             )}
                           >
                             <div
                               className={cn(
                                 'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-black ring-1 ring-inset',
-                                selected ? 'bg-emerald-600 text-white ring-emerald-600' : 'bg-slate-100 text-slate-700 ring-slate-200'
+                                selected
+                                  ? 'bg-emerald-600 text-white ring-emerald-600'
+                                  : 'bg-slate-100 text-slate-700 ring-slate-200'
                               )}
                             >
                               {getCandidateInitials(candidate.name)}
                             </div>
                             <div className="min-w-0 flex-1">
-                              <p className="truncate text-xs font-bold text-slate-950">{candidate.name}</p>
-                              <p className="truncate text-xs font-medium text-slate-500">{candidate.jobTitle}</p>
+                              <p className="truncate text-xs font-bold text-slate-950">
+                                {candidate.name}
+                              </p>
+                              <p className="truncate text-xs font-medium text-slate-500">
+                                {candidate.jobTitle}
+                              </p>
                             </div>
                             <span
                               className={cn(
                                 'shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-bold ring-1 ring-inset',
-                                selected ? 'border-emerald-200 bg-emerald-100 text-emerald-700' : 'border-slate-200 bg-slate-50 text-slate-500'
+                                selected
+                                  ? 'border-emerald-200 bg-emerald-100 text-emerald-700'
+                                  : 'border-slate-200 bg-slate-50 text-slate-500'
                               )}
                             >
                               {selected ? 'Đang chọn' : candidate.statusLabel}

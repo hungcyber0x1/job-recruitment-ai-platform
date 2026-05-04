@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { Cell, Pie, PieChart, Tooltip } from 'recharts';
 
+import StatCard from '@/components/common/StatCard';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/utils';
 import { APPLICATION_STATUS, getAppStatusConfig } from '@/constants/status';
@@ -152,7 +153,9 @@ const normalizeSkillList = (skills = []) =>
     .filter(Boolean);
 
 const buildDashboardRecommendations = (jobs = [], savedJobIds = []) => {
-  const savedIdSet = new Set((Array.isArray(savedJobIds) ? savedJobIds : []).map((id) => String(id)));
+  const savedIdSet = new Set(
+    (Array.isArray(savedJobIds) ? savedJobIds : []).map((id) => String(id))
+  );
 
   return (Array.isArray(jobs) ? jobs : [])
     .map((job) => {
@@ -162,7 +165,8 @@ const buildDashboardRecommendations = (jobs = [], savedJobIds = []) => {
         title: job.title || job.job_title || 'Vị trí đang cập nhật',
         company_name: job.company_name || job.company?.name || 'Doanh nghiệp đang tuyển',
         company_logo: job.company_logo || job.company?.logo || job.company?.logo_url || '',
-        location: job.location || job.location_name || job.company_location || job.address || 'Linh hoạt',
+        location:
+          job.location || job.location_name || job.company_location || job.address || 'Linh hoạt',
         type: job.type || job.job_type || job.employment_type || '',
         salary_range: job.salary_range || job.salary_display || null,
         skills: normalizedSkills,
@@ -180,7 +184,16 @@ const buildDashboardRecommendations = (jobs = [], savedJobIds = []) => {
     .slice(0, 6);
 };
 
-const SectionCard = ({ title, subtitle, icon: Icon, action, children, className, eyebrow, compact = false }) => (
+const SectionCard = ({
+  title,
+  subtitle,
+  icon: Icon,
+  action,
+  children,
+  className,
+  eyebrow,
+  compact = false,
+}) => (
   <section
     className={cn(
       'rounded-[1.75rem] border border-white/70 bg-white/90 shadow-[0_18px_50px_rgba(15,23,42,0.08)] ring-1 ring-slate-900/5 backdrop-blur',
@@ -211,9 +224,21 @@ const SectionCard = ({ title, subtitle, icon: Icon, action, children, className,
               {eyebrow}
             </p>
           ) : null}
-          <h2 className={cn('font-black tracking-tight text-slate-950', compact ? 'text-sm' : 'text-base')}>{title}</h2>
+          <h2
+            className={cn(
+              'font-black tracking-tight text-slate-950',
+              compact ? 'text-sm' : 'text-base'
+            )}
+          >
+            {title}
+          </h2>
           {subtitle ? (
-            <p className={cn('mt-1 line-clamp-2 font-medium text-slate-500', compact ? 'text-xs leading-5' : 'text-sm leading-6')}>
+            <p
+              className={cn(
+                'mt-1 line-clamp-2 font-medium text-slate-500',
+                compact ? 'text-xs leading-5' : 'text-sm leading-6'
+              )}
+            >
               {subtitle}
             </p>
           ) : null}
@@ -225,39 +250,26 @@ const SectionCard = ({ title, subtitle, icon: Icon, action, children, className,
   </section>
 );
 
-const StatTile = ({ label, value, helper, icon: Icon, tone = 'emerald', loading = false, trend, className }) => {
-  const toneStyle = TONE[tone] || TONE.emerald;
-
-  return (
-    <div
-      className={cn(
-        'group relative overflow-hidden rounded-[1.5rem] border border-white/70 bg-white p-4 shadow-[0_14px_40px_rgba(15,23,42,0.08)] ring-1 ring-slate-900/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_22px_55px_rgba(15,23,42,0.12)]',
-        className
-      )}
-    >
-      <div className={cn('absolute inset-0 bg-gradient-to-br opacity-80', toneStyle.gradient)} />
-      <div className="absolute -right-6 -top-8 h-24 w-24 rounded-full bg-white/60 blur-2xl" />
-      <div className="relative flex items-start justify-between gap-4">
-        <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-slate-500">{label}</p>
-          <p className="mt-2 text-3xl font-black leading-none tracking-tight text-slate-950 tabular-nums">
-            {loading ? '—' : formatNumber(value)}
-          </p>
-          {helper ? <p className="mt-2 line-clamp-1 text-sm font-semibold text-slate-600">{helper}</p> : null}
-          {trend ? (
-            <div className={cn('mt-3 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-black ring-1 ring-inset', toneStyle.soft)}>
-              <TrendingUp className="h-3.5 w-3.5" />
-              {trend}
-            </div>
-          ) : null}
-        </div>
-        <div className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-lg', toneStyle.icon)}>
-          <Icon className="h-5 w-5" />
-        </div>
-      </div>
-    </div>
-  );
-};
+const StatTile = ({
+  label,
+  value,
+  helper,
+  icon: Icon,
+  tone = 'emerald',
+  loading = false,
+  trend,
+  className,
+}) => (
+  <StatCard
+    title={label}
+    value={loading ? '—' : formatNumber(value)}
+    subtitle={helper}
+    icon={Icon}
+    type={tone}
+    trend={trend}
+    className={className}
+  />
+);
 
 const ApplicationRow = ({ app }) => {
   const statusCfg = getAppStatusConfig(app.status);
@@ -269,7 +281,11 @@ const ApplicationRow = ({ app }) => {
       className="group flex items-center gap-3 rounded-2xl border border-slate-100 bg-white/80 p-3 transition-all hover:border-emerald-100 hover:bg-emerald-50/40 hover:shadow-sm"
     >
       {app.company_logo ? (
-        <img src={app.company_logo} alt={app.company_name} className="h-11 w-11 shrink-0 rounded-2xl object-cover ring-1 ring-slate-100" />
+        <img
+          src={app.company_logo}
+          alt={app.company_name}
+          className="h-11 w-11 shrink-0 rounded-2xl object-cover ring-1 ring-slate-100"
+        />
       ) : (
         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
           <Building2 className="h-5 w-5" />
@@ -286,7 +302,13 @@ const ApplicationRow = ({ app }) => {
           {formatShortDate(app.applied_at)}
         </p>
       </div>
-      <div className={cn('hidden items-center gap-1 rounded-xl px-2.5 py-1.5 text-xs font-black ring-1 ring-inset sm:inline-flex', statusCfg.bg, statusCfg.text)}>
+      <div
+        className={cn(
+          'hidden items-center gap-1 rounded-xl px-2.5 py-1.5 text-xs font-black ring-1 ring-inset sm:inline-flex',
+          statusCfg.bg,
+          statusCfg.text
+        )}
+      >
         <StatusIcon className="h-3.5 w-3.5" />
         {statusCfg.shortLabel || statusCfg.label}
       </div>
@@ -310,7 +332,11 @@ const JobRow = ({ job, onToggleSave }) => {
       className="group relative flex items-center gap-3 rounded-2xl border border-slate-100 bg-white/80 p-3 transition-all hover:border-emerald-100 hover:bg-emerald-50/40 hover:shadow-sm"
     >
       {job.company_logo ? (
-        <img src={job.company_logo} alt={job.company_name} className="h-12 w-12 shrink-0 rounded-2xl object-cover ring-1 ring-slate-100" />
+        <img
+          src={job.company_logo}
+          alt={job.company_name}
+          className="h-12 w-12 shrink-0 rounded-2xl object-cover ring-1 ring-slate-100"
+        />
       ) : (
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-sm font-black text-emerald-700 ring-1 ring-emerald-100">
           {job.company_name?.[0] || 'J'}
@@ -329,8 +355,14 @@ const JobRow = ({ job, onToggleSave }) => {
         </div>
         <p className="mt-0.5 truncate text-xs font-semibold text-slate-500">{job.company_name}</p>
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-slate-500">
-          <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{job.location}</span>
-          <span className="inline-flex items-center gap-1"><DollarSign className="h-3 w-3" />{salaryDisplay}</span>
+          <span className="inline-flex items-center gap-1">
+            <MapPin className="h-3 w-3" />
+            {job.location}
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <DollarSign className="h-3 w-3" />
+            {salaryDisplay}
+          </span>
         </div>
       </div>
       <button
@@ -361,11 +393,18 @@ const QuickAction = ({ to, icon: Icon, label, helper, tone = 'emerald' }) => {
     >
       <div className={cn('absolute inset-0 bg-gradient-to-br opacity-75', toneStyle.gradient)} />
       <div className="relative flex items-center gap-3">
-        <div className={cn('flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ring-1 ring-inset', toneStyle.soft)}>
+        <div
+          className={cn(
+            'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ring-1 ring-inset',
+            toneStyle.soft
+          )}
+        >
           <Icon className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-black text-slate-900 group-hover:text-emerald-700">{label}</p>
+          <p className="truncate text-sm font-black text-slate-900 group-hover:text-emerald-700">
+            {label}
+          </p>
           <p className="truncate text-xs font-semibold text-slate-500">{helper}</p>
         </div>
         <ArrowRight className="h-4 w-4 text-slate-300 transition-transform group-hover:translate-x-0.5 group-hover:text-emerald-600" />
@@ -403,7 +442,10 @@ const PipelinePieChart = ({ data, total, loading }) => {
         <div className="relative h-80 w-80 shrink-0 sm:h-96 sm:w-96 lg:h-[26rem] lg:w-[26rem]">
           {hasData ? (
             <>
-              <ChartSurface className="h-80 w-80 flex-none bg-transparent p-0 shadow-none ring-0 sm:h-96 sm:w-96 lg:h-[26rem] lg:w-[26rem]" minChartHeight={416}>
+              <ChartSurface
+                className="h-80 w-80 flex-none bg-transparent p-0 shadow-none ring-0 sm:h-96 sm:w-96 lg:h-[26rem] lg:w-[26rem]"
+                minChartHeight={416}
+              >
                 <PieChart>
                   <Tooltip
                     contentStyle={CHART_TOOLTIP_STYLE}
@@ -427,16 +469,24 @@ const PipelinePieChart = ({ data, total, loading }) => {
                 </PieChart>
               </ChartSurface>
               <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-                <span className="text-[11px] font-black uppercase tracking-[0.24em] text-slate-400">Tổng đơn</span>
-                <span className="mt-2 text-6xl font-black tracking-tight text-slate-950 tabular-nums">{formatNumber(total)}</span>
-                <span className="mt-3 rounded-full bg-emerald-50 px-4 py-2 text-[11px] font-black text-emerald-700 ring-1 ring-emerald-100">Quy trình</span>
+                <span className="text-[11px] font-black uppercase tracking-[0.24em] text-slate-400">
+                  Tổng đơn
+                </span>
+                <span className="mt-2 text-6xl font-black tracking-tight text-slate-950 tabular-nums">
+                  {formatNumber(total)}
+                </span>
+                <span className="mt-3 rounded-full bg-emerald-50 px-4 py-2 text-[11px] font-black text-emerald-700 ring-1 ring-emerald-100">
+                  Quy trình
+                </span>
               </div>
             </>
           ) : (
             <div className="flex h-full w-full flex-col items-center justify-center rounded-[1.75rem] border border-dashed border-slate-200 bg-white/80 text-center">
               <PieChartIcon />
               <p className="mt-3 text-sm font-black text-slate-700">Chưa có dữ liệu</p>
-              <p className="mt-1 text-xs font-semibold text-slate-500">Các trạng thái sẽ hiển thị khi có đơn ứng tuyển.</p>
+              <p className="mt-1 text-xs font-semibold text-slate-500">
+                Các trạng thái sẽ hiển thị khi có đơn ứng tuyển.
+              </p>
             </div>
           )}
         </div>
@@ -445,8 +495,12 @@ const PipelinePieChart = ({ data, total, loading }) => {
       <div className="rounded-[1.5rem] border border-slate-100 bg-white/80 p-4 shadow-sm ring-1 ring-slate-900/5">
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
-            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-emerald-600">Chú thích trạng thái</p>
-            <p className="mt-1 text-xs font-semibold text-slate-500">Số lượng và tỷ trọng theo từng giai đoạn.</p>
+            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-emerald-600">
+              Chú thích trạng thái
+            </p>
+            <p className="mt-1 text-xs font-semibold text-slate-500">
+              Số lượng và tỷ trọng theo từng giai đoạn.
+            </p>
           </div>
           <span className="rounded-full bg-slate-50 px-3 py-1 text-xs font-black text-slate-600 ring-1 ring-slate-100">
             {formatNumber(total)} đơn
@@ -458,10 +512,15 @@ const PipelinePieChart = ({ data, total, loading }) => {
             <div key={item.key} className="rounded-2xl border border-slate-100 bg-slate-50/70 p-3">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-2">
-                  <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: item.color }} />
+                  <span
+                    className="h-2.5 w-2.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: item.color }}
+                  />
                   <span className="truncate text-xs font-black text-slate-700">{item.label}</span>
                 </div>
-                <span className="text-xs font-black text-slate-950 tabular-nums">{formatNumber(item.value)}</span>
+                <span className="text-xs font-black text-slate-950 tabular-nums">
+                  {formatNumber(item.value)}
+                </span>
               </div>
               <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white">
                 <div
@@ -469,7 +528,9 @@ const PipelinePieChart = ({ data, total, loading }) => {
                   style={{ width: `${item.percent}%`, backgroundColor: item.color }}
                 />
               </div>
-              <p className="mt-1.5 text-[11px] font-bold text-slate-400">{item.percent}% tổng pipeline</p>
+              <p className="mt-1.5 text-[11px] font-bold text-slate-400">
+                {item.percent}% tổng pipeline
+              </p>
             </div>
           ))}
         </div>
@@ -504,7 +565,8 @@ const CandidateDashboard = () => {
         candidateService.getSavedJobs().catch(() => ({ data: { data: [] } })),
       ]);
 
-      const dashboardData = statsRes.status === 'fulfilled' ? statsRes.value.data?.data || null : null;
+      const dashboardData =
+        statsRes.status === 'fulfilled' ? statsRes.value.data?.data || null : null;
       const fallbackApplications =
         appsRes.status === 'fulfilled' && Array.isArray(appsRes.value.data?.data)
           ? appsRes.value.data.data
@@ -580,17 +642,19 @@ const CandidateDashboard = () => {
           isSaved ? prev.filter((id) => String(id) !== normalizedId) : [...prev, job.id]
         );
         setRecommendedJobs((prev) =>
-          prev.map((item) => (String(item.id) === normalizedId ? { ...item, is_saved: !isSaved } : item))
+          prev.map((item) =>
+            String(item.id) === normalizedId ? { ...item, is_saved: !isSaved } : item
+          )
         );
         setStats((prev) =>
           prev
             ? {
-              ...prev,
-              savedJobsCount: Math.max(0, Number(prev.savedJobsCount || 0) + (isSaved ? -1 : 1)),
-              savedJobIds: isSaved
-                ? (prev.savedJobIds || []).filter((id) => String(id) !== normalizedId)
-                : [...(prev.savedJobIds || []), job.id],
-            }
+                ...prev,
+                savedJobsCount: Math.max(0, Number(prev.savedJobsCount || 0) + (isSaved ? -1 : 1)),
+                savedJobIds: isSaved
+                  ? (prev.savedJobIds || []).filter((id) => String(id) !== normalizedId)
+                  : [...(prev.savedJobIds || []), job.id],
+              }
             : prev
         );
       } catch (error) {
@@ -611,12 +675,18 @@ const CandidateDashboard = () => {
 
     const applicationStats = stats?.applications || {};
     counts.submitted = Math.max(counts.submitted || 0, toNumber(applicationStats.submitted, 0));
-    counts.shortlisted = Math.max(counts.shortlisted || 0, toNumber(applicationStats.shortlisted, 0));
+    counts.shortlisted = Math.max(
+      counts.shortlisted || 0,
+      toNumber(applicationStats.shortlisted, 0)
+    );
     counts.interview_scheduled = Math.max(
       counts.interview_scheduled || 0,
       toNumber(applicationStats.interview_scheduled, 0)
     );
-    counts.interviewed = Math.max(counts.interviewed || 0, toNumber(applicationStats.interviewed, 0));
+    counts.interviewed = Math.max(
+      counts.interviewed || 0,
+      toNumber(applicationStats.interviewed, 0)
+    );
     counts.offered = Math.max(counts.offered || 0, toNumber(applicationStats.offered, 0));
     counts.hired = Math.max(counts.hired || 0, toNumber(applicationStats.hired, 0));
     counts.rejected = Math.max(counts.rejected || 0, toNumber(applicationStats.rejected, 0));
@@ -650,9 +720,27 @@ const CandidateDashboard = () => {
   });
 
   const aiTools = [
-    { label: 'CV Scanner', helper: 'Chấm điểm CV & keyword ATS', icon: BarChart3, to: '/ai-cv-scanner', tone: 'sky' },
-    { label: 'Dự đoán lương', helper: 'Ước tính thu nhập theo thị trường', icon: DollarSign, to: '/salary-predictor', tone: 'emerald' },
-    { label: 'Phỏng vấn', helper: 'Luyện câu hỏi theo vai trò', icon: BookOpen, to: '/candidate/interview-prep', tone: 'violet' },
+    {
+      label: 'CV Scanner',
+      helper: 'Chấm điểm CV & keyword ATS',
+      icon: BarChart3,
+      to: '/ai-cv-scanner',
+      tone: 'sky',
+    },
+    {
+      label: 'Dự đoán lương',
+      helper: 'Ước tính thu nhập theo thị trường',
+      icon: DollarSign,
+      to: '/salary-predictor',
+      tone: 'emerald',
+    },
+    {
+      label: 'Phỏng vấn',
+      helper: 'Luyện câu hỏi theo vai trò',
+      icon: BookOpen,
+      to: '/candidate/interview-prep',
+      tone: 'violet',
+    },
   ];
 
   const actionPlan = [
@@ -680,21 +768,31 @@ const CandidateDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50/40 pb-12">
-      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
+    <div className="min-h-screen bg-transparent pb-12">
+      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-transparent">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
           style={{
-            backgroundImage: 'linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px)',
+            backgroundImage:
+              'linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px)',
             backgroundSize: '32px 32px',
           }}
           aria-hidden
         />
         <div className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <section className="relative mb-6 overflow-hidden rounded-[2rem] border border-border/70 bg-card p-6 shadow-premium sm:p-8 lg:p-10">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_88%_18%,rgba(16,185,129,0.12),transparent_30%),radial-gradient(circle_at_8%_100%,rgba(16,185,129,0.08),transparent_28%)]" aria-hidden />
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(15,23,42,0.04)_1px,transparent_0)] bg-[length:28px_28px] opacity-60" aria-hidden />
-            <div className="pointer-events-none absolute left-8 top-0 h-px w-56 bg-gradient-to-r from-primary/50 to-transparent" aria-hidden />
+            <div
+              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_88%_18%,rgba(16,185,129,0.12),transparent_30%),radial-gradient(circle_at_8%_100%,rgba(16,185,129,0.08),transparent_28%)]"
+              aria-hidden
+            />
+            <div
+              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(15,23,42,0.04)_1px,transparent_0)] bg-[length:28px_28px] opacity-60"
+              aria-hidden
+            />
+            <div
+              className="pointer-events-none absolute left-8 top-0 h-px w-56 bg-gradient-to-r from-primary/50 to-transparent"
+              aria-hidden
+            />
 
             <div className="relative flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
               <div className="min-w-0 max-w-3xl">
@@ -711,18 +809,26 @@ const CandidateDashboard = () => {
                   Xin chào, <span className="text-primary">{firstName}</span>
                 </h1>
                 <p className="mt-4 max-w-2xl text-base font-medium leading-relaxed text-muted-foreground">
-                  Theo dõi toàn bộ hành trình tìm việc: đơn ứng tuyển, lịch phỏng vấn, pipeline trạng thái và các cơ hội phù hợp trong một không gian quản trị thống nhất.
+                  Theo dõi toàn bộ hành trình tìm việc: đơn ứng tuyển, lịch phỏng vấn, pipeline
+                  trạng thái và các cơ hội phù hợp trong một không gian quản trị thống nhất.
                 </p>
               </div>
 
               <div className="flex flex-col gap-3 sm:flex-row lg:shrink-0">
-                <Button asChild className="h-12 rounded-xl bg-primary px-6 text-base font-bold text-white shadow-md shadow-primary/20 hover:bg-primary/90">
+                <Button
+                  asChild
+                  className="h-12 rounded-xl bg-primary px-6 text-base font-bold text-white shadow-md shadow-primary/20 hover:bg-primary/90"
+                >
                   <Link to="/candidate/jobs">
                     <Zap className="h-4 w-4" />
                     Tìm việc ngay
                   </Link>
                 </Button>
-                <Button asChild variant="outline" className="h-12 rounded-xl border-border bg-white px-6 text-base font-bold text-foreground shadow-sm hover:border-primary/30 hover:bg-primary/5 hover:text-primary">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="h-12 rounded-xl border-border bg-white px-6 text-base font-bold text-foreground shadow-sm hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
+                >
                   <Link to="/candidate/profile/edit">
                     <FileText className="h-4 w-4" />
                     Nâng cấp hồ sơ
@@ -779,23 +885,34 @@ const CandidateDashboard = () => {
                 subtitle="Các vị trí nên xem trước dựa trên hồ sơ, tin mới và tín hiệu nổi bật."
                 eyebrow="Việc làm phù hợp"
                 action={
-                  <Link to="/candidate/jobs" className="inline-flex h-9 shrink-0 items-center gap-1 rounded-xl px-3 text-xs font-black text-emerald-700 hover:bg-emerald-50">
+                  <Link
+                    to="/candidate/jobs"
+                    className="inline-flex h-9 shrink-0 items-center gap-1 rounded-xl px-3 text-xs font-black text-emerald-700 hover:bg-emerald-50"
+                  >
                     Xem tất cả <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
                 }
               >
                 <div className="space-y-3">
                   {loading ? (
-                    [1, 2, 3, 4].map((item) => <div key={item} className="h-[76px] animate-pulse rounded-2xl bg-slate-100" />)
-                  ) : recommendedJobs.length > 0 ? (
-                    recommendedJobs.slice(0, 4).map((job) => (
-                      <JobRow key={job.id} job={job} onToggleSave={handleToggleRecommendedSave} />
+                    [1, 2, 3, 4].map((item) => (
+                      <div key={item} className="h-[76px] animate-pulse rounded-2xl bg-slate-100" />
                     ))
+                  ) : recommendedJobs.length > 0 ? (
+                    recommendedJobs
+                      .slice(0, 4)
+                      .map((job) => (
+                        <JobRow key={job.id} job={job} onToggleSave={handleToggleRecommendedSave} />
+                      ))
                   ) : (
                     <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 p-8 text-center">
                       <Briefcase className="mx-auto h-9 w-9 text-slate-300" />
-                      <p className="mt-3 text-sm font-black text-slate-700">Chưa có gợi ý việc làm</p>
-                      <p className="mt-1 text-xs font-semibold text-slate-500">Cập nhật hồ sơ để hệ thống gợi ý chính xác hơn.</p>
+                      <p className="mt-3 text-sm font-black text-slate-700">
+                        Chưa có gợi ý việc làm
+                      </p>
+                      <p className="mt-1 text-xs font-semibold text-slate-500">
+                        Cập nhật hồ sơ để hệ thống gợi ý chính xác hơn.
+                      </p>
                     </div>
                   )}
                 </div>
@@ -807,21 +924,28 @@ const CandidateDashboard = () => {
                 subtitle="Theo dõi nhanh trạng thái các đơn mới nhất và mở chi tiết khi cần."
                 eyebrow="Hoạt động gần đây"
                 action={
-                  <Link to="/candidate/applications" className="inline-flex h-9 shrink-0 items-center gap-1 rounded-xl px-3 text-xs font-black text-emerald-700 hover:bg-emerald-50">
+                  <Link
+                    to="/candidate/applications"
+                    className="inline-flex h-9 shrink-0 items-center gap-1 rounded-xl px-3 text-xs font-black text-emerald-700 hover:bg-emerald-50"
+                  >
                     Chi tiết <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
                 }
               >
                 <div className="space-y-3">
                   {loading ? (
-                    [1, 2, 3, 4].map((item) => <div key={item} className="h-[68px] animate-pulse rounded-2xl bg-slate-100" />)
+                    [1, 2, 3, 4].map((item) => (
+                      <div key={item} className="h-[68px] animate-pulse rounded-2xl bg-slate-100" />
+                    ))
                   ) : recentApps.length > 0 ? (
                     recentApps.slice(0, 4).map((app) => <ApplicationRow key={app.id} app={app} />)
                   ) : (
                     <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 p-8 text-center">
                       <FileText className="mx-auto h-9 w-9 text-slate-300" />
                       <p className="mt-3 text-sm font-black text-slate-700">Chưa có đơn nộp</p>
-                      <p className="mt-1 text-xs font-semibold text-slate-500">Bắt đầu ứng tuyển để theo dõi tại đây.</p>
+                      <p className="mt-1 text-xs font-semibold text-slate-500">
+                        Bắt đầu ứng tuyển để theo dõi tại đây.
+                      </p>
                     </div>
                   )}
                 </div>
@@ -843,12 +967,21 @@ const CandidateDashboard = () => {
                         to={action.to}
                         className="group flex items-start gap-3 rounded-2xl border border-slate-100 bg-white/80 p-4 transition-all hover:border-emerald-100 hover:bg-emerald-50/40"
                       >
-                        <div className={cn('flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ring-1 ring-inset', toneStyle.soft)}>
+                        <div
+                          className={cn(
+                            'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ring-1 ring-inset',
+                            toneStyle.soft
+                          )}
+                        >
                           <Icon className="h-5 w-5" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-black text-slate-900 group-hover:text-emerald-700">{action.title}</p>
-                          <p className="mt-1 text-xs font-semibold leading-5 text-slate-500">{action.helper}</p>
+                          <p className="text-sm font-black text-slate-900 group-hover:text-emerald-700">
+                            {action.title}
+                          </p>
+                          <p className="mt-1 text-xs font-semibold leading-5 text-slate-500">
+                            {action.helper}
+                          </p>
                         </div>
                         <ArrowRight className="mt-1 h-4 w-4 text-slate-300 transition-transform group-hover:translate-x-0.5 group-hover:text-emerald-600" />
                       </Link>
@@ -867,18 +1000,47 @@ const CandidateDashboard = () => {
                 className="min-w-0"
                 compact
               >
-                <PipelinePieChart data={pipelineChartData} total={pipelineTotal} loading={loading} />
+                <PipelinePieChart
+                  data={pipelineChartData}
+                  total={pipelineTotal}
+                  loading={loading}
+                />
               </SectionCard>
 
-              <SectionCard icon={Building2} title="Công ty theo dõi" subtitle="Cập nhật nhanh từ các công ty bạn quan tâm." eyebrow="Danh sách công ty theo dõi">
+              <SectionCard
+                icon={Building2}
+                title="Công ty đã lưu"
+                subtitle="Cập nhật nhanh từ các công ty bạn quan tâm và mở danh sách đầy đủ trong tài khoản ứng viên."
+                eyebrow="Danh sách công ty theo dõi"
+                action={
+                  <Link
+                    to="/candidate/saved-companies"
+                    className="inline-flex h-9 shrink-0 items-center gap-1 rounded-xl px-3 text-xs font-black text-emerald-700 hover:bg-emerald-50"
+                  >
+                    Xem tất cả <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                }
+              >
                 <FollowedCompaniesFeed />
               </SectionCard>
             </div>
 
-            <SectionCard icon={BarChart3} title="Công cụ hỗ trợ AI" subtitle="Phân tích CV, lương và chuẩn bị phỏng vấn trong vài bước." eyebrow="Bộ công cụ AI">
+            <SectionCard
+              icon={BarChart3}
+              title="Công cụ hỗ trợ AI"
+              subtitle="Phân tích CV, lương và chuẩn bị phỏng vấn trong vài bước."
+              eyebrow="Bộ công cụ AI"
+            >
               <div className="grid gap-3 sm:grid-cols-3">
                 {aiTools.map((tool) => (
-                  <QuickAction key={tool.to} to={tool.to} icon={tool.icon} label={tool.label} helper={tool.helper} tone={tool.tone} />
+                  <QuickAction
+                    key={tool.to}
+                    to={tool.to}
+                    icon={tool.icon}
+                    label={tool.label}
+                    helper={tool.helper}
+                    tone={tool.tone}
+                  />
                 ))}
               </div>
             </SectionCard>

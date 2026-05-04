@@ -27,9 +27,10 @@ class CompanyController {
     });
 
     return ApiResponse.success(res, companies, {
-      pagination: Number.isFinite(parsedLimit) && parsedLimit > 0
-        ? { page: parsedPage, limit: parsedLimit, total, pages: Math.ceil(total / parsedLimit) }
-        : { total }
+      pagination:
+        Number.isFinite(parsedLimit) && parsedLimit > 0
+          ? { page: parsedPage, limit: parsedLimit, total, pages: Math.ceil(total / parsedLimit) }
+          : { total },
     });
   });
 
@@ -54,30 +55,58 @@ class CompanyController {
   });
 
   getAllCompanies = catchAsync(async (req, res) => {
-    const { search, industry, is_verified, flagged, page = 1, limit = 10, include_deleted } = req.query;
+    const {
+      search,
+      industry,
+      is_verified,
+      flagged,
+      moderation_status,
+      status,
+      page = 1,
+      limit = 10,
+      include_deleted,
+    } = req.query;
     const parsedPage = parseInt(page, 10);
     const parsedLimit = parseInt(limit, 10);
     const offset = (parsedPage - 1) * parsedLimit;
+    const moderationStatus = moderation_status || status;
 
     const { data: companies, total } = await CompanyRepository.findAllWithFilters({
       search,
       industry,
       is_verified,
       flagged,
+      moderation_status: moderationStatus,
       include_deleted: include_deleted === 'true',
       limit: parsedLimit,
       offset,
     });
 
-    const [pendingCount, flaggedCount, grandTotal] = await Promise.all([
-      CompanyRepository.countByVerification(false),
-      CompanyRepository.countFlagged(),
-      CompanyRepository.countWithFilters({}),
-    ]);
+    const [grandTotal, approvedCount, pendingCount, rejectedCount, flaggedCount, lockedCount] =
+      await Promise.all([
+        CompanyRepository.countWithFilters({}),
+        CompanyRepository.countByModerationStatus('approved'),
+        CompanyRepository.countByModerationStatus('pending'),
+        CompanyRepository.countByModerationStatus('rejected'),
+        CompanyRepository.countByModerationStatus('flagged'),
+        CompanyRepository.countByModerationStatus('locked'),
+      ]);
 
     return ApiResponse.success(res, companies, {
-      pagination: { page: parsedPage, limit: parsedLimit, total, pages: Math.ceil(total / parsedLimit) },
-      stats: { total: grandTotal, pending: pendingCount, flagged: flaggedCount }
+      pagination: {
+        page: parsedPage,
+        limit: parsedLimit,
+        total,
+        pages: Math.ceil(total / parsedLimit),
+      },
+      stats: {
+        total: grandTotal,
+        approved: approvedCount,
+        pending: pendingCount,
+        rejected: rejectedCount,
+        flagged: flaggedCount,
+        locked: lockedCount,
+      },
     });
   });
 
@@ -98,8 +127,11 @@ class CompanyController {
       return ApiResponse.notFound(res, 'Company');
     }
 
+    const verified =
+      is_verified === true || is_verified === 1 || is_verified === '1' || is_verified === 'true';
+
     return ApiResponse.success(res, null, {
-      message: is_verified ? 'Company verified successfully' : 'Company verification updated'
+      message: verified ? 'Company verified successfully' : 'Company verification updated',
     });
   });
 
@@ -146,28 +178,28 @@ class CompanyController {
       return ApiResponse.notFound(res, 'Company');
     }
 
+    const isFlagged = flagged === true || flagged === 1 || flagged === '1' || flagged === 'true';
+
     return ApiResponse.success(res, null, {
-      message: flagged ? 'Company flagged successfully' : 'Company flag removed'
+      message: isFlagged ? 'Company flagged successfully' : 'Company flag removed',
     });
   });
 
   banCompany = catchAsync(async (req, res) => {
     const { id } = req.params;
-    await AdminService.banCompany(
-      req.user.id,
-      id,
-      req.ip,
-      req.headers['user-agent']
-    );
-    return ApiResponse.success(res, null, { message: 'Đã khóa công ty và tất cả tin tuyển dụng liên quan.' });
+    await AdminService.banCompany(req.user.id, id, req.ip, req.headers['user-agent']);
+    return ApiResponse.success(res, null, {
+      message: 'Đã khóa công ty và tất cả tin tuyển dụng liên quan.',
+    });
   });
 
   bulkUpdateStatus = catchAsync(async (req, res) => {
-    const { ids, status } = req.body;
+    const { ids, status, note } = req.body;
     const count = await AdminService.bulkUpdateCompaniesStatus(
       req.user.id,
       ids,
       status,
+      note,
       req.ip,
       req.headers['user-agent']
     );

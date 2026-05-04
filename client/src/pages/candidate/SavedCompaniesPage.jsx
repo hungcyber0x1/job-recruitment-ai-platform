@@ -14,6 +14,7 @@ import {
   X,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
+import StatCard from '@/components/common/StatCard';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/common';
@@ -138,32 +139,14 @@ function getSizeLabel(size) {
 
 function getIndustryTone(industry) {
   const found = INDUSTRY_TONES.find((tone) => tone.test.test(industry));
-  return found || {
-    badge: 'bg-slate-50 text-slate-700 ring-slate-200',
-    icon: 'bg-slate-50 text-slate-600 ring-slate-100',
-    accent: 'bg-slate-400',
-  };
+  return (
+    found || {
+      badge: 'bg-slate-50 text-slate-700 ring-slate-200',
+      icon: 'bg-slate-50 text-slate-600 ring-slate-100',
+      accent: 'bg-slate-400',
+    }
+  );
 }
-
-const StatCard = ({ icon: Icon, label, value, helper, tone, index }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 12 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: index * 0.06, duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-    className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
-  >
-    <div className="flex items-start justify-between gap-3">
-      <div>
-        <div className="text-3xl font-bold leading-none text-slate-950">{value}</div>
-        <div className="mt-1 text-sm font-bold text-slate-700">{label}</div>
-        <div className="mt-0.5 text-xs font-medium text-slate-500">{helper}</div>
-      </div>
-      <div className={cn('flex h-10 w-10 items-center justify-center rounded-lg ring-1 ring-inset', tone)}>
-        <Icon size={18} />
-      </div>
-    </div>
-  </motion.div>
-);
 
 const FilterTabs = ({ value, onChange, counts }) => (
   <div className="flex min-w-0 items-center gap-1 rounded-lg border border-slate-200 bg-white p-1 shadow-sm">
@@ -259,7 +242,12 @@ const CompanyCard = ({ company, onUnsave, index }) => {
           </div>
 
           <div className="mt-5 flex-1">
-            <span className={cn('inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-bold ring-1 ring-inset', tone.badge)}>
+            <span
+              className={cn(
+                'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-bold ring-1 ring-inset',
+                tone.badge
+              )}
+            >
               <Sparkles size={12} />
               {industry}
             </span>
@@ -287,7 +275,9 @@ const CompanyCard = ({ company, onUnsave, index }) => {
                   <Users size={14} />
                   Quy mô
                 </div>
-                <div className="mt-1 line-clamp-1 text-sm font-bold text-slate-700">{sizeLabel}</div>
+                <div className="mt-1 line-clamp-1 text-sm font-bold text-slate-700">
+                  {sizeLabel}
+                </div>
               </div>
             </div>
           </div>
@@ -344,7 +334,9 @@ const SavedCompaniesPage = () => {
   }, [showNotification]);
 
   const stats = useMemo(() => {
-    const knownIndustryNames = savedCompanies.map((company) => getCompanyIndustryRaw(company)).filter(Boolean);
+    const knownIndustryNames = savedCompanies
+      .map((company) => getCompanyIndustryRaw(company))
+      .filter(Boolean);
     const industries = new Set(knownIndustryNames);
     const openJobs = savedCompanies.reduce((sum, company) => sum + getCompanyOpenJobs(company), 0);
     const topIndustry = Object.entries(
@@ -365,9 +357,10 @@ const SavedCompaniesPage = () => {
 
   const filterCounts = useMemo(() => {
     return INDUSTRY_FILTERS.reduce((acc, tab) => {
-      acc[tab.value] = tab.value === 'all'
-        ? savedCompanies.length
-        : savedCompanies.filter((company) => tab.match(getCompanyIndustry(company))).length;
+      acc[tab.value] =
+        tab.value === 'all'
+          ? savedCompanies.length
+          : savedCompanies.filter((company) => tab.match(getCompanyIndustry(company))).length;
       return acc;
     }, {});
   }, [savedCompanies]);
@@ -383,7 +376,9 @@ const SavedCompaniesPage = () => {
           getCompanyIndustry(company),
           getCompanyLocation(company),
           getCompanyWebsite(company),
-        ].join(' ').toLowerCase();
+        ]
+          .join(' ')
+          .toLowerCase();
         return searchable.includes(query);
       });
     }
@@ -396,17 +391,20 @@ const SavedCompaniesPage = () => {
     return result;
   }, [savedCompanies, searchQuery, activeFilter]);
 
-  const handleUnsave = useCallback(async (companyId) => {
-    try {
-      await candidateService.unsaveCompany(companyId);
-      setSavedCompanies((prev) => prev.filter((company) => getCompanyId(company) !== companyId));
-      showNotification('Đã bỏ theo dõi công ty', 'info');
-    } catch (error) {
-      if (isHandledAuthError(error)) return;
-      console.error('Failed to unsave company:', error);
-      showNotification('Không thể bỏ theo dõi công ty', 'error');
-    }
-  }, [showNotification]);
+  const handleUnsave = useCallback(
+    async (companyId) => {
+      try {
+        await candidateService.unsaveCompany(companyId);
+        setSavedCompanies((prev) => prev.filter((company) => getCompanyId(company) !== companyId));
+        showNotification('Đã bỏ theo dõi công ty', 'info');
+      } catch (error) {
+        if (isHandledAuthError(error)) return;
+        console.error('Failed to unsave company:', error);
+        showNotification('Không thể bỏ theo dõi công ty', 'error');
+      }
+    },
+    [showNotification]
+  );
 
   const resetFilters = () => {
     setSearchQuery('');
@@ -417,12 +415,13 @@ const SavedCompaniesPage = () => {
   const hasActiveFilters = Boolean(searchQuery.trim()) || activeFilter !== 'all';
 
   return (
-    <div className="min-h-screen bg-slate-50/40 pb-16">
-      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
+    <div className="min-h-screen bg-transparent pb-16">
+      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-transparent">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
           style={{
-            backgroundImage: 'linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px)',
+            backgroundImage:
+              'linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px)',
             backgroundSize: '32px 32px',
           }}
         />
@@ -486,7 +485,12 @@ const SavedCompaniesPage = () => {
                 icon={Globe}
                 label="Lĩnh vực đã cập nhật"
                 value={stats.industries}
-                helper={stats.topIndustry || (stats.unknownIndustryCount > 0 ? `${stats.unknownIndustryCount} công ty chưa cập nhật` : 'Chưa có dữ liệu')}
+                helper={
+                  stats.topIndustry ||
+                  (stats.unknownIndustryCount > 0
+                    ? `${stats.unknownIndustryCount} công ty chưa cập nhật`
+                    : 'Chưa có dữ liệu')
+                }
                 tone="bg-violet-50 text-violet-600 ring-violet-100"
                 index={1}
               />
@@ -527,10 +531,19 @@ const SavedCompaniesPage = () => {
                 Hiển thị{' '}
                 <span className="font-bold text-slate-800">{filteredCompanies.length}</span>
                 {filteredCompanies.length !== savedCompanies.length && (
-                  <> trong <span className="font-bold text-slate-800">{savedCompanies.length}</span> công ty</>
+                  <>
+                    {' '}
+                    trong <span className="font-bold text-slate-800">
+                      {savedCompanies.length}
+                    </span>{' '}
+                    công ty
+                  </>
                 )}
                 {searchQuery && (
-                  <> cho "<span className="font-bold text-emerald-600">{searchQuery}</span>"</>
+                  <>
+                    {' '}
+                    cho "<span className="font-bold text-emerald-600">{searchQuery}</span>"
+                  </>
                 )}
               </p>
               {hasActiveFilters && (
@@ -578,7 +591,10 @@ const SavedCompaniesPage = () => {
                         Xóa bộ lọc
                       </Button>
                     ) : (
-                      <Button asChild className="rounded-lg bg-emerald-600 text-white shadow-sm shadow-emerald-900/10 transition-colors hover:bg-emerald-700">
+                      <Button
+                        asChild
+                        className="rounded-lg bg-emerald-600 text-white shadow-sm shadow-emerald-900/10 transition-colors hover:bg-emerald-700"
+                      >
                         <Link to="/companies">Khám phá công ty</Link>
                       </Button>
                     )
@@ -611,13 +627,19 @@ const SavedCompaniesPage = () => {
                 <Star className="h-5 w-5" />
               </div>
               <div>
-                <h2 className="text-xl font-bold tracking-normal text-white">Khám phá thêm doanh nghiệp phù hợp</h2>
+                <h2 className="text-xl font-bold tracking-normal text-white">
+                  Khám phá thêm doanh nghiệp phù hợp
+                </h2>
                 <p className="mt-1 max-w-2xl text-sm font-medium leading-relaxed text-slate-400">
-                  Mở rộng danh sách theo dõi để không bỏ lỡ các vị trí mới từ những công ty đang tuyển dụng.
+                  Mở rộng danh sách theo dõi để không bỏ lỡ các vị trí mới từ những công ty đang
+                  tuyển dụng.
                 </p>
               </div>
             </div>
-            <Button asChild className="h-11 rounded-lg bg-white px-5 font-bold text-slate-950 transition-colors hover:bg-emerald-100">
+            <Button
+              asChild
+              className="h-11 rounded-lg bg-white px-5 font-bold text-slate-950 transition-colors hover:bg-emerald-100"
+            >
               <Link to="/companies" className="inline-flex items-center gap-2">
                 Khám phá ngay
                 <ArrowRight size={16} />

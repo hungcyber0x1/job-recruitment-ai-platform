@@ -73,7 +73,9 @@ export const unwrapCategoryListResponse = (response) => {
 };
 
 export const getCategoryIconComponent = (category = {}) => {
-  const iconKey = String(category?.icon || '').trim().toLowerCase();
+  const iconKey = String(category?.icon || '')
+    .trim()
+    .toLowerCase();
   if (ICON_MAP[iconKey]) {
     return ICON_MAP[iconKey];
   }

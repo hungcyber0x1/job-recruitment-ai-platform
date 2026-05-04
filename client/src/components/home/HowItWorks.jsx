@@ -16,16 +16,15 @@ const steps = [
     number: '01',
     icon: Upload,
     title: 'Tạo hồ sơ & tải CV',
-    description:
-      'Hệ thống đọc và cấu trúc hóa kinh nghiệm, kỹ năng của bạn.',
+    description: 'Hệ thống đọc và cấu trúc hóa kinh nghiệm, kỹ năng của bạn.',
     color: 'from-primary/18 to-primary/5',
     iconColor: 'text-primary',
     iconBg: 'bg-primary/10 border-primary/20',
     targets: {
       guest: { href: buildCandidateRegisterPath(), actionLabel: 'Tạo hồ sơ ứng viên' },
       candidate: { href: CANDIDATE_RESUME_UPLOAD_PATH, actionLabel: 'Mở hồ sơ & tải CV' },
-      recruiter: { href: '/employer/dashboard', actionLabel: 'Về dashboard tuyển dụng' },
-      admin: { href: '/admin/dashboard', actionLabel: 'Về bảng điều khiển' },
+      recruiter: { href: '/employer/dashboard', actionLabel: 'Về tổng quan tuyển dụng' },
+      admin: { href: '/admin/dashboard', actionLabel: 'Về tổng quan' },
     },
   },
   {
@@ -41,7 +40,7 @@ const steps = [
     targets: {
       guest: { href: '/ai-cv-scanner', actionLabel: 'Chấm điểm CV' },
       candidate: { href: '/ai-cv-scanner', actionLabel: 'Phân tích CV' },
-      admin: { href: '/admin/ai-tools', actionLabel: 'Quản trị công cụ' },
+      admin: { href: '/admin/dashboard', actionLabel: 'Mở tổng quan' },
     },
   },
   {
@@ -66,7 +65,8 @@ const steps = [
     number: '04',
     icon: MessagesSquare,
     title: 'Ứng tuyển & phỏng vấn',
-    description: 'Ứng tuyển một chạm, theo dõi trạng thái và chuẩn bị phỏng vấn với gợi ý từ hệ thống.',
+    description:
+      'Ứng tuyển một chạm, theo dõi trạng thái và chuẩn bị phỏng vấn với gợi ý từ hệ thống.',
     color: 'from-emerald-600/12 to-primary/6',
     iconColor: 'text-emerald-800',
     iconBg: 'bg-primary/10 border-primary/25',

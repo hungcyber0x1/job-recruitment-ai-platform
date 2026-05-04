@@ -2,9 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   Check,
-  Eye,
   KeyRound,
-  LifeBuoy,
   Minus,
   Settings2,
   Shield,
@@ -13,6 +11,7 @@ import {
   Users,
 } from 'lucide-react';
 
+import StatCard from '@/components/common/StatCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ADMIN_PERMISSIONS, ADMIN_PRESETS } from '@/utils/adminPermissions';
@@ -20,7 +19,7 @@ import { ADMIN_PERMISSIONS, ADMIN_PRESETS } from '@/utils/adminPermissions';
 const permissionRows = [
   {
     id: ADMIN_PERMISSIONS.DASHBOARD,
-    name: 'Dashboard',
+    name: 'Tổng quan',
     description: 'Xem tổng quan vận hành và các chỉ số chính của toàn hệ thống.',
     group: 'Nền tảng',
     highLevel: false,
@@ -155,68 +154,22 @@ const permissionRows = [
 
 const rolePresets = [
   {
-    id: 'super_admin',
-    name: 'Super Admin',
-    description: 'Kiểm soát toàn quyền hệ thống và xử lý mọi thao tác cấp cao.',
-    userCount: 1,
-    permissions: ADMIN_PRESETS.super_admin,
-  },
-  {
     id: 'admin',
-    name: 'Admin vận hành',
-    description: 'Tập trung vào vận hành hằng ngày: tài khoản, doanh nghiệp, tuyển dụng và báo cáo.',
+    name: 'Admin',
+    description:
+      'Toàn quyền hệ thống: quản lý người dùng, doanh nghiệp, việc làm, nội dung, cấu hình và sao lưu.',
     userCount: 1,
     permissions: ADMIN_PRESETS.admin,
-  },
-  {
-    id: 'support',
-    name: 'Support',
-    description: 'Phù hợp cho đội hỗ trợ khách hàng khi cần tách tuyến phản hồi người dùng.',
-    userCount: 0,
-    permissions: [ADMIN_PERMISSIONS.USERS_READ, ADMIN_PERMISSIONS.SUPPORT_MANAGE],
-  },
-  {
-    id: 'moderator',
-    name: 'Moderator',
-    description: 'Phù hợp cho kiểm duyệt doanh nghiệp, việc làm và nội dung hệ thống.',
-    userCount: 0,
-    permissions: [
-      ADMIN_PERMISSIONS.COMPANIES_MANAGE,
-      ADMIN_PERMISSIONS.JOBS_MANAGE,
-      ADMIN_PERMISSIONS.CONTENT_MANAGE,
-      ADMIN_PERMISSIONS.ANALYTICS_READ,
-    ],
   },
 ];
 
 const ROLE_STYLES = {
-  super_admin: {
-    icon: ShieldAlert,
-    surfaceClass: 'border-amber-200/80 bg-[linear-gradient(145deg,#fffbeb_0%,#ffffff_62%)]',
-    iconClass: 'bg-amber-100 text-amber-700 ring-amber-200',
-    badgeClass: 'border-amber-200 bg-amber-50 text-amber-700',
-    progressClass: 'bg-amber-500',
-  },
   admin: {
     icon: Shield,
-    surfaceClass: 'border-emerald-200/80 bg-[linear-gradient(145deg,#ecfdf5_0%,#ffffff_62%)]',
-    iconClass: 'bg-emerald-100 text-emerald-700 ring-emerald-200',
-    badgeClass: 'border-emerald-200 bg-emerald-50 text-emerald-700',
-    progressClass: 'bg-emerald-500',
-  },
-  support: {
-    icon: LifeBuoy,
-    surfaceClass: 'border-sky-200/80 bg-[linear-gradient(145deg,#eff6ff_0%,#ffffff_62%)]',
-    iconClass: 'bg-sky-100 text-sky-700 ring-sky-200',
-    badgeClass: 'border-sky-200 bg-sky-50 text-sky-700',
-    progressClass: 'bg-sky-500',
-  },
-  moderator: {
-    icon: Eye,
-    surfaceClass: 'border-violet-200/80 bg-[linear-gradient(145deg,#f5f3ff_0%,#ffffff_62%)]',
-    iconClass: 'bg-violet-100 text-violet-700 ring-violet-200',
-    badgeClass: 'border-violet-200 bg-violet-50 text-violet-700',
-    progressClass: 'bg-violet-500',
+    surfaceClass: 'border-rose-200/80 bg-[linear-gradient(145deg,#fff1f2_0%,#ffffff_62%)]',
+    iconClass: 'bg-rose-100 text-rose-700 ring-rose-200',
+    badgeClass: 'border-rose-200 bg-rose-50 text-rose-700',
+    progressClass: 'bg-rose-500',
   },
 };
 
@@ -231,20 +184,22 @@ const GROUP_STYLES = {
 
 const governanceNotes = [
   {
-    title: 'Super Admin giữ quyền cấp cao',
-    description: 'Xóa tài khoản, cấp quyền admin, cấu hình hệ thống và sao lưu phải do Super Admin kiểm soát.',
+    title: 'Admin là vai trò quản trị duy nhất',
+    description: 'Mọi tài khoản có role admin đều hiển thị là Admin và có toàn quyền hệ thống.',
   },
   {
-    title: 'Admin vận hành tập trung nghiệp vụ',
-    description: 'Preset mặc định ưu tiên xử lý nghiệp vụ hằng ngày, tránh mở rộng sang thao tác phá hủy dữ liệu.',
+    title: 'Nhà tuyển dụng tập trung nghiệp vụ tuyển dụng',
+    description:
+      'Role recruiter quản lý công ty, tin tuyển dụng và ứng viên thuộc phạm vi của mình.',
   },
   {
-    title: 'Vai trò hẹp cho từng tuyến',
-    description: 'Support và Moderator nên giữ phạm vi hẹp để giảm rủi ro cấp dư quyền khi mở rộng đội ngũ.',
+    title: 'Ứng viên quản lý hồ sơ cá nhân',
+    description: 'Role candidate dùng để ứng tuyển, lưu việc làm và cập nhật hồ sơ cá nhân.',
   },
   {
     title: 'Ma trận dùng để đối chiếu nhanh',
-    description: 'Khi thêm admin mới, luôn đối chiếu preset với nhóm quyền thực tế cần cho vai trò đó.',
+    description:
+      'Các quyền bên dưới mô tả phạm vi toàn quyền của Admin sau khi hệ thống chuẩn hóa còn ba vai trò.',
   },
 ];
 
@@ -256,7 +211,15 @@ const permissionLabelMap = permissionRows.reduce((result, permission) => {
   return result;
 }, {});
 
-function SectionCard({ icon: Icon, title, description, action, className = '', children, ...props }) {
+function SectionCard({
+  icon: Icon,
+  title,
+  description,
+  action,
+  className = '',
+  children,
+  ...props
+}) {
   return (
     <section
       className={`rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition-all hover:border-emerald-200/70 hover:shadow-md sm:p-6 ${className}`}
@@ -322,31 +285,31 @@ const AdminPermissionsPage = () => {
   const adminPreset = rolePresets.find((role) => role.id === 'admin');
   const heroMetrics = [
     {
-      label: 'Preset vai trò',
-      value: formatNumber(rolePresets.length),
-      helper: 'Cấu hình quản trị chuẩn',
-      className: 'text-emerald-700 bg-emerald-50 ring-emerald-100',
+      label: 'Vai trò hệ thống',
+      value: '3',
+      helper: 'Admin · Recruiter · Candidate',
+      type: 'success',
       icon: Shield,
     },
     {
       label: 'Quyền nghiệp vụ',
       value: formatNumber(totalPermissions),
       helper: 'Điểm kiểm soát truy cập',
-      className: 'text-sky-700 bg-sky-50 ring-sky-100',
+      type: 'primary',
       icon: KeyRound,
     },
     {
       label: 'Quyền cấp cao',
       value: formatNumber(highLevelPermissions),
       helper: 'Cần kiểm soát chặt',
-      className: 'text-amber-700 bg-amber-50 ring-amber-100',
+      type: 'warning',
       icon: ShieldAlert,
     },
     {
-      label: 'Preset vận hành',
+      label: 'Preset Admin',
       value: `${getRolePermissionCount(adminPreset)}/${totalPermissions}`,
-      helper: 'Mức phủ của admin vận hành',
-      className: 'text-violet-700 bg-violet-50 ring-violet-100',
+      helper: 'Admin có toàn quyền',
+      type: 'neutral',
       icon: Settings2,
     },
   ];
@@ -382,39 +345,22 @@ const AdminPermissionsPage = () => {
                 Phân quyền & vai trò
               </h1>
               <p className="mt-4 max-w-3xl text-sm font-medium leading-7 text-slate-600 sm:text-base">
-                Chuẩn hóa quyền truy cập cho từng tuyến vận hành admin, giúp xử lý nghiệp vụ rõ
-                ràng hơn, tránh cấp dư quyền và vẫn giữ đồng nhất với logic kiểm soát hệ thống.
+                Chuẩn hóa quyền truy cập sau khi hợp nhất admin thành một vai trò duy nhất, đồng
+                nhất với ba role hệ thống: Admin, Nhà tuyển dụng và Ứng viên.
               </p>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              {heroMetrics.map((metric) => {
-                const Icon = metric.icon;
-
-                return (
-                  <div
-                    key={metric.label}
-                    className="rounded-lg border border-white/80 bg-white/85 p-4 shadow-sm backdrop-blur"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-normal text-slate-500">
-                          {metric.label}
-                        </p>
-                        <p className="mt-2 text-2xl font-bold tracking-normal text-slate-950">
-                          {metric.value}
-                        </p>
-                        <p className="mt-2 text-sm text-slate-500">{metric.helper}</p>
-                      </div>
-                      <div
-                        className={`flex h-10 w-10 items-center justify-center rounded-lg ring-1 ring-inset ${metric.className}`}
-                      >
-                        <Icon className="h-4 w-4" />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+              {heroMetrics.map((metric) => (
+                <StatCard
+                  key={metric.label}
+                  title={metric.label}
+                  value={metric.value}
+                  subtitle={metric.helper}
+                  icon={metric.icon}
+                  type={metric.type}
+                />
+              ))}
             </div>
 
             <div className="flex flex-wrap gap-3">
@@ -448,7 +394,7 @@ const AdminPermissionsPage = () => {
             <SectionCard
               icon={Shield}
               title="Preset vai trò"
-              description="Bốn cấu hình quyền chuẩn cho admin giúp mở rộng đội ngũ mà vẫn kiểm soát được phạm vi truy cập."
+              description="Hệ thống chỉ còn một preset Admin với toàn quyền quản trị, không tách loại admin phụ."
             >
               <div className="grid gap-4 md:grid-cols-2">
                 {rolePresets.map((role) => {
@@ -482,7 +428,9 @@ const AdminPermissionsPage = () => {
                         <Badge
                           className={`rounded-full border px-3 py-1 font-semibold ${style.badgeClass}`}
                         >
-                          {role.id === 'super_admin' ? 'Toàn quyền' : `${permissionCount} quyền`}
+                          {role.permissions.includes(ADMIN_PERMISSIONS.ALL)
+                            ? 'Toàn quyền'
+                            : `${permissionCount} quyền`}
                         </Badge>
                       </div>
 
@@ -546,10 +494,11 @@ const AdminPermissionsPage = () => {
               id="permission-matrix"
               icon={KeyRound}
               title="Ma trận quyền hạn"
-              description="So sánh nhanh phạm vi truy cập của từng preset để chọn đúng vai trò, đúng quyền và tránh cấp dư."
+              description="Đối chiếu nhanh phạm vi toàn quyền của Admin trong hệ thống ba vai trò."
               action={
                 <div className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-semibold text-slate-600">
-                  {formatNumber(totalPermissions)} quyền · {formatNumber(highLevelPermissions)} quyền cấp cao
+                  {formatNumber(totalPermissions)} quyền · {formatNumber(highLevelPermissions)}{' '}
+                  quyền cấp cao
                 </div>
               }
             >
@@ -595,7 +544,9 @@ const AdminPermissionsPage = () => {
                                 </Badge>
                               ) : null}
                             </div>
-                            <p className="mt-3 text-sm font-bold text-slate-950">{permission.name}</p>
+                            <p className="mt-3 text-sm font-bold text-slate-950">
+                              {permission.name}
+                            </p>
                             <p className="mt-1 text-sm leading-6 text-slate-500">
                               {permission.description}
                             </p>
@@ -633,90 +584,93 @@ const AdminPermissionsPage = () => {
 
           {showOverviewSidebar && (
             <div className="space-y-6 xl:sticky xl:top-24">
-            <SectionCard
-              icon={Users}
-              title="Tổng quan kiểm soát"
-              description="Nhìn nhanh mật độ quyền của từng preset và mức độ chạm tới quyền cấp cao."
-            >
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-                <div className="rounded-lg bg-slate-50 p-4 ring-1 ring-inset ring-slate-100">
-                  <p className="text-xs font-semibold uppercase tracking-normal text-slate-500">
-                    Vai trò chuẩn
-                  </p>
-                  <p className="mt-2 text-2xl font-bold text-slate-950">
-                    {formatNumber(rolePresets.length)}
-                  </p>
-                </div>
-                <div className="rounded-lg bg-slate-50 p-4 ring-1 ring-inset ring-slate-100">
-                  <p className="text-xs font-semibold uppercase tracking-normal text-slate-500">
-                    Quyền cấp cao
-                  </p>
-                  <p className="mt-2 text-2xl font-bold text-slate-950">
-                    {formatNumber(highLevelPermissions)}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-4 space-y-4">
-                {rolePresets.map((role) => {
-                  const style = ROLE_STYLES[role.id];
-                  const Icon = style.icon;
-                  const permissionCount = getRolePermissionCount(role);
-                  const highLevelCount = getRoleHighLevelCount(role);
-                  const coverage = Math.round((permissionCount / totalPermissions) * 100);
-
-                  return (
-                    <div key={role.id} className="rounded-lg border border-slate-200 bg-white p-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`flex h-9 w-9 items-center justify-center rounded-lg ring-1 ring-inset ${style.iconClass}`}
-                          >
-                            <Icon className="h-4 w-4" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-bold text-slate-900">{role.name}</p>
-                            <p className="text-xs text-slate-500">{coverage}% phạm vi hệ thống</p>
-                          </div>
-                        </div>
-                        <Badge
-                          className={`rounded-full border px-3 py-1 font-semibold ${style.badgeClass}`}
-                        >
-                          {permissionCount} quyền
-                        </Badge>
-                      </div>
-                      <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
-                        <div
-                          className={`h-full rounded-full ${style.progressClass}`}
-                          style={{ width: `${coverage}%` }}
-                        />
-                      </div>
-                      <p className="mt-3 text-xs font-medium text-slate-500">
-                        Quyền cấp cao: {formatNumber(highLevelCount)}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            </SectionCard>
-
-            <SectionCard
-              icon={Sparkles}
-              title="Nguyên tắc phân quyền"
-              description="Giữ đồng nhất hệ thống khi thêm tài khoản admin mới hoặc mở rộng đội vận hành."
-            >
-              <div className="space-y-3">
-                {governanceNotes.map((note) => (
-                  <div
-                    key={note.title}
-                    className="rounded-lg border border-emerald-100 bg-emerald-50/70 p-4"
-                  >
-                    <p className="text-sm font-bold text-emerald-800">{note.title}</p>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">{note.description}</p>
+              <SectionCard
+                icon={Users}
+                title="Tổng quan kiểm soát"
+                description="Nhìn nhanh phạm vi quyền của preset Admin và mức độ chạm tới quyền cấp cao."
+              >
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+                  <div className="rounded-lg bg-slate-50 p-4 ring-1 ring-inset ring-slate-100">
+                    <p className="text-xs font-semibold uppercase tracking-normal text-slate-500">
+                      Vai trò chuẩn
+                    </p>
+                    <p className="mt-2 text-2xl font-bold text-slate-950">
+                      {formatNumber(rolePresets.length)}
+                    </p>
                   </div>
-                ))}
-              </div>
-            </SectionCard>
+                  <div className="rounded-lg bg-slate-50 p-4 ring-1 ring-inset ring-slate-100">
+                    <p className="text-xs font-semibold uppercase tracking-normal text-slate-500">
+                      Quyền cấp cao
+                    </p>
+                    <p className="mt-2 text-2xl font-bold text-slate-950">
+                      {formatNumber(highLevelPermissions)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-4 space-y-4">
+                  {rolePresets.map((role) => {
+                    const style = ROLE_STYLES[role.id];
+                    const Icon = style.icon;
+                    const permissionCount = getRolePermissionCount(role);
+                    const highLevelCount = getRoleHighLevelCount(role);
+                    const coverage = Math.round((permissionCount / totalPermissions) * 100);
+
+                    return (
+                      <div
+                        key={role.id}
+                        className="rounded-lg border border-slate-200 bg-white p-4"
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`flex h-9 w-9 items-center justify-center rounded-lg ring-1 ring-inset ${style.iconClass}`}
+                            >
+                              <Icon className="h-4 w-4" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold text-slate-900">{role.name}</p>
+                              <p className="text-xs text-slate-500">{coverage}% phạm vi hệ thống</p>
+                            </div>
+                          </div>
+                          <Badge
+                            className={`rounded-full border px-3 py-1 font-semibold ${style.badgeClass}`}
+                          >
+                            {permissionCount} quyền
+                          </Badge>
+                        </div>
+                        <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
+                          <div
+                            className={`h-full rounded-full ${style.progressClass}`}
+                            style={{ width: `${coverage}%` }}
+                          />
+                        </div>
+                        <p className="mt-3 text-xs font-medium text-slate-500">
+                          Quyền cấp cao: {formatNumber(highLevelCount)}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </SectionCard>
+
+              <SectionCard
+                icon={Sparkles}
+                title="Nguyên tắc phân quyền"
+                description="Giữ đồng nhất hệ thống khi thêm tài khoản Admin, Nhà tuyển dụng hoặc Ứng viên."
+              >
+                <div className="space-y-3">
+                  {governanceNotes.map((note) => (
+                    <div
+                      key={note.title}
+                      className="rounded-lg border border-emerald-100 bg-emerald-50/70 p-4"
+                    >
+                      <p className="text-sm font-bold text-emerald-800">{note.title}</p>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">{note.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </SectionCard>
             </div>
           )}
         </section>

@@ -8,6 +8,10 @@ import {
   Mail,
   TrendingUp,
   Eye,
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
+  ShieldCheck,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -24,16 +28,46 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { blogService, unwrapBlogListResponse } from '@/services';
+import { blogService, unwrapBlogListResponse, unwrapBlogTaxonomyResponse } from '@/services';
 import useDebounce from '@/hooks/useDebounce';
-import { OFFLINE_BLOG_LIST } from '@/data';
+import useNewsletterSubscription from '@/hooks/useNewsletterSubscription';
 
-const BLOG_CARD_PLACEHOLDER_IMG =
-  'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&q=80&w=800';
+const ALL_CATEGORY = 'Tất cả';
+
+function getPostKey(post) {
+  return post?.slug || (post?.id != null ? String(post.id) : '');
+}
+
+function uniqueSortedValues(values) {
+  return [...new Set(values.map((value) => String(value || '').trim()).filter(Boolean))].sort(
+    (a, b) => a.localeCompare(b, 'vi')
+  );
+}
+
+const BlogImageFrame = ({ src, className, imageClassName, eager = false, children }) => (
+  <div className={className}>
+    {src ? (
+      <img
+        src={src}
+        alt=""
+        className={imageClassName}
+        loading={eager ? 'eager' : 'lazy'}
+        decoding="async"
+        fetchPriority={eager ? 'high' : undefined}
+        onError={(event) => {
+          event.currentTarget.remove();
+        }}
+      />
+    ) : null}
+    {children}
+  </div>
+);
 
 const BlogFilterSidebar = ({
   selectedCategory,
   setSelectedCategory,
+  selectedTag,
+  setSelectedTag,
   categoryOptions,
   popularTags,
 }) => {
@@ -49,10 +83,11 @@ const BlogFilterSidebar = ({
               <button
                 type="button"
                 onClick={() => setSelectedCategory(cat)}
-                className={`group relative w-full rounded-xl px-4 py-3 text-left text-sm font-bold transition-all duration-300 ${selectedCategory === cat
+                className={`group relative w-full rounded-xl px-4 py-3 text-left text-sm font-bold transition-all duration-300 ${
+                  selectedCategory === cat
                     ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20 translate-x-1'
                     : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
-                  }`}
+                }`}
               >
                 {cat}
                 {selectedCategory !== cat && (
@@ -70,16 +105,26 @@ const BlogFilterSidebar = ({
         <h3 className="mb-3 text-sm font-bold uppercase tracking-normal text-muted-foreground">
           Từ khóa
         </h3>
-        <div className="flex flex-wrap gap-2">
-          {popularTags.map((tag) => (
-            <span
-              key={tag}
-              className="cursor-default rounded-md border border-border/50 bg-slate-50 px-2 py-1 text-sm font-semibold text-slate-600"
-            >
-              #{tag}
-            </span>
-          ))}
-        </div>
+        {popularTags.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {popularTags.map((tag) => (
+              <button
+                type="button"
+                key={tag}
+                onClick={() => setSelectedTag(selectedTag === tag ? '' : tag)}
+                className={`rounded-md border px-2 py-1 text-sm font-semibold transition-colors ${
+                  selectedTag === tag
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'border-border/50 bg-slate-50 text-slate-600 hover:border-primary/30 hover:text-primary'
+                }`}
+              >
+                #{tag}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm font-medium text-muted-foreground">Chưa có tag công khai.</p>
+        )}
       </div>
     </div>
   );
@@ -88,14 +133,18 @@ const BlogFilterSidebar = ({
 const BlogPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearch = useDebounce(searchTerm, 380);
-  const [selectedCategory, setSelectedCategory] = useState('Tất cả');
+  const [selectedCategory, setSelectedCategory] = useState(ALL_CATEGORY);
+  const [selectedTag, setSelectedTag] = useState('');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [sortBy, setSortBy] = useState('newest');
   const [posts, setPosts] = useState([]);
+  const [featuredPosts, setFeaturedPosts] = useState([]);
   const [popularPosts, setPopularPosts] = useState([]);
   const [popularLoading, setPopularLoading] = useState(true);
-  const [categoryOptions, setCategoryOptions] = useState(['Tất cả']);
+  const [categoryOptions, setCategoryOptions] = useState([ALL_CATEGORY]);
+  const [tagOptions, setTagOptions] = useState([]);
   const [listSource, setListSource] = useState('loading');
+  const [listError, setListError] = useState('');
 
   const editionDate = useMemo(
     () =>
@@ -107,6 +156,40 @@ const BlogPage = () => {
       }),
     []
   );
+  const newsletterMetadata = useMemo(
+    () => ({ page: 'blog', placement: 'blog_listing_after_content' }),
+    []
+  );
+  const newsletter = useNewsletterSubscription({
+    source: 'blog_page',
+    topic: 'weekly_hiring_insights',
+    metadata: newsletterMetadata,
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await blogService.getPublicTaxonomy();
+        const taxonomy = unwrapBlogTaxonomyResponse(res);
+        if (!cancelled) {
+          setCategoryOptions([
+            ALL_CATEGORY,
+            ...uniqueSortedValues(taxonomy.categories.map((category) => category.name)),
+          ]);
+          setTagOptions(uniqueSortedValues(taxonomy.tags.map((tag) => tag.name)).slice(0, 24));
+        }
+      } catch {
+        if (!cancelled) {
+          setCategoryOptions([ALL_CATEGORY]);
+          setTagOptions([]);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -115,7 +198,7 @@ const BlogPage = () => {
         setPopularLoading(true);
         const res = await blogService.listPublic({ sort: 'popular' });
         const rows = unwrapBlogListResponse(res);
-        if (!cancelled) setPopularPosts(Array.isArray(rows) ? rows.slice(0, 8) : []);
+        if (!cancelled) setPopularPosts(rows.slice(0, 8));
       } catch {
         if (!cancelled) setPopularPosts([]);
       } finally {
@@ -131,63 +214,51 @@ const BlogPage = () => {
     let cancelled = false;
     (async () => {
       setListSource('loading');
+      setListError('');
       try {
-        const res = await blogService.listPublic({
+        const params = {
           search: debouncedSearch.trim() || undefined,
-          category: selectedCategory === 'Tất cả' ? undefined : selectedCategory,
+          category: selectedCategory === ALL_CATEGORY ? undefined : selectedCategory,
+          tag: selectedTag || undefined,
           sort: sortBy,
-        });
-        const rows = unwrapBlogListResponse(res);
+        };
+        const [listRes, featuredRes] = await Promise.all([
+          blogService.listPublic(params),
+          blogService.listPublic({ ...params, sort: 'featured', featured: true }),
+        ]);
+        const rows = unwrapBlogListResponse(listRes);
+        const featuredRows = unwrapBlogListResponse(featuredRes);
         if (!cancelled) {
-          setPosts(Array.isArray(rows) ? rows : []);
+          setPosts(rows);
+          setFeaturedPosts(featuredRows.slice(0, 1));
           setListSource('api');
-          setCategoryOptions((prev) => {
-            const discovered = [...new Set(rows.map((r) => r.category).filter(Boolean))];
-            const existing = prev.filter((c) => c !== 'Tất cả');
-            const merged = new Set([...existing, ...discovered]);
-            return ['Tất cả', ...[...merged].sort((a, b) => a.localeCompare(b, 'vi'))];
-          });
         }
       } catch {
         if (!cancelled) {
-          setPosts(
-            OFFLINE_BLOG_LIST.map((p) => ({
-              id: p.id,
-              slug: p.slug,
-              title: p.title,
-              excerpt: p.excerpt,
-              image: p.image,
-              author: p.author,
-              date: p.date,
-              category: p.category,
-              viewCount: p.viewCount,
-            }))
-          );
-          setListSource('fallback');
-          setCategoryOptions([
-            'Tất cả',
-            ...[...new Set(OFFLINE_BLOG_LIST.map((p) => p.category).filter(Boolean))].sort((a, b) =>
-              a.localeCompare(b, 'vi')
-            ),
-          ]);
+          setPosts([]);
+          setFeaturedPosts([]);
+          setListSource('error');
+          setListError('Không thể tải dữ liệu blog từ cơ sở dữ liệu qua API backend.');
         }
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [debouncedSearch, selectedCategory, sortBy]);
+  }, [debouncedSearch, selectedCategory, selectedTag, sortBy]);
 
-  const popularTags = useMemo(() => {
-    const skip = new Set(['Tất cả']);
-    return categoryOptions.filter((c) => !skip.has(c)).slice(0, 8);
-  }, [categoryOptions]);
+  const popularTags = useMemo(() => tagOptions.slice(0, 8), [tagOptions]);
 
-  const featured = posts[0];
+  const featured = featuredPosts[0] || null;
+  const listedPosts = useMemo(() => {
+    const featuredKey = getPostKey(featured);
+    if (!featuredKey) return posts;
+    return posts.filter((post) => getPostKey(post) !== featuredKey);
+  }, [featured, posts]);
   /** Bốn thẻ nhỏ ngay sau tin chính — nhiều bài hiển thị hơn */
-  const highlightCards = posts.slice(1, 5);
+  const highlightCards = listedPosts.slice(0, 4);
   /** Lưới dày: 3 cột desktop */
-  const moreGrid = posts.slice(5);
+  const moreGrid = listedPosts.slice(4);
 
   const sortOptions = [
     { value: 'newest', label: 'Mới nhất' },
@@ -225,7 +296,7 @@ const BlogPage = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
             className="mx-auto max-w-3xl text-center"
           >
             <div className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-primary/20 bg-primary/5 px-5 py-2 text-xs font-bold uppercase tracking-normal text-primary">
@@ -236,7 +307,8 @@ const BlogPage = () => {
               Góc nhìn <span className="text-primary">Tuyển dụng</span>
             </h1>
             <p className="mx-auto max-w-xl text-base font-bold leading-relaxed text-muted-foreground/80 md:text-xl">
-              Ghi nhận thị trường, phỏng vấn chuyên gia và phân tích dữ liệu tuyển dụng — cập nhật mới nhất.
+              Ghi nhận thị trường, phỏng vấn chuyên gia và phân tích dữ liệu tuyển dụng — cập nhật
+              mới nhất.
             </p>
           </motion.div>
         </div>
@@ -249,10 +321,10 @@ const BlogPage = () => {
               <BlogFilterSidebar
                 selectedCategory={selectedCategory}
                 setSelectedCategory={setSelectedCategory}
+                selectedTag={selectedTag}
+                setSelectedTag={setSelectedTag}
                 categoryOptions={categoryOptions}
-                popularTags={
-                  popularTags.length ? popularTags : ['Sự nghiệp', 'Trí tuệ nhân tạo', 'Lọc hồ sơ', 'Phỏng vấn']
-                }
+                popularTags={popularTags}
               />
 
               <div className="rounded-xl border border-border/60 bg-white p-5 shadow-sm">
@@ -303,8 +375,10 @@ const BlogPage = () => {
                 <BlogFilterSidebar
                   selectedCategory={selectedCategory}
                   setSelectedCategory={setSelectedCategory}
+                  selectedTag={selectedTag}
+                  setSelectedTag={setSelectedTag}
                   categoryOptions={categoryOptions}
-                  popularTags={popularTags.length ? popularTags : ['Sự nghiệp', 'Trí tuệ nhân tạo', 'Lọc hồ sơ']}
+                  popularTags={popularTags}
                 />
               </div>
             </SheetContent>
@@ -323,11 +397,14 @@ const BlogPage = () => {
                       · từ cơ sở dữ liệu
                     </span>
                   )}
-                  {listSource === 'fallback' && (
-                    <span className="ml-2 text-sm font-medium text-amber-700">
-                      · ngoại tuyến (mẫu)
-                    </span>
+                  {listSource === 'error' && (
+                    <span className="ml-2 text-sm font-semibold text-red-700">· lỗi API</span>
                   )}
+                  {selectedTag ? (
+                    <span className="ml-2 text-sm font-semibold text-primary">
+                      · #{selectedTag}
+                    </span>
+                  ) : null}
                 </p>
                 <div className="relative min-w-0 max-w-md flex-1">
                   <Search
@@ -382,25 +459,35 @@ const BlogPage = () => {
                   exit={{ opacity: 0 }}
                   className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3"
                 >
-                  {[1, 2, 3, 4, 5, 6].map(i => <BlogCardSkeleton key={i} />)}
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <BlogCardSkeleton key={i} />
+                  ))}
                 </motion.div>
-              ) : posts.length === 0 ? (
+              ) : posts.length === 0 && !featured ? (
                 <motion.div
                   key="empty"
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   className="rounded-[2rem] border border-border/60 bg-white p-16 text-center shadow-xl shadow-black/5"
                 >
-                  <p className="mb-4 text-base font-medium text-muted-foreground">
-                    Chưa có bài phù hợp. Thử bỏ bớt từ khóa hoặc chọn &quot;Tất cả&quot; chuyên mục.
-                  </p>
+                  {listSource === 'error' ? (
+                    <div className="mx-auto mb-4 flex max-w-md items-start justify-center gap-2 text-base font-medium text-red-700">
+                      <AlertCircle className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+                      <span>{listError}</span>
+                    </div>
+                  ) : (
+                    <p className="mb-4 text-base font-medium text-muted-foreground">
+                      Chưa có bài phù hợp. Thử bỏ bớt từ khóa hoặc chọn "Tất cả" chuyên mục.
+                    </p>
+                  )}
                   <Button
                     variant="outline"
                     type="button"
                     className="text-base font-bold"
                     onClick={() => {
                       setSearchTerm('');
-                      setSelectedCategory('Tất cả');
+                      setSelectedCategory(ALL_CATEGORY);
+                      setSelectedTag('');
                     }}
                   >
                     Xóa bộ lọc
@@ -416,17 +503,14 @@ const BlogPage = () => {
                     >
                       <div className="grid gap-0 lg:grid-cols-12">
                         <div className="relative lg:col-span-7">
-                          <div className="aspect-[16/9] overflow-hidden bg-muted lg:aspect-auto lg:h-full lg:min-h-[480px]">
-                            <img
-                              src={featured.image || BLOG_CARD_PLACEHOLDER_IMG}
-                              alt=""
-                              className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-110"
-                              loading="eager"
-                              decoding="async"
-                              fetchPriority="high"
-                            />
+                          <BlogImageFrame
+                            src={featured.image}
+                            className="aspect-[16/9] overflow-hidden bg-muted lg:aspect-auto lg:h-full lg:min-h-[480px]"
+                            imageClassName="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                            eager
+                          >
                             <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                          </div>
+                          </BlogImageFrame>
                           <div className="absolute left-8 top-8 rounded-xl bg-primary px-5 py-2 text-xs font-bold uppercase tracking-normal text-white shadow-2xl shadow-primary/40 backdrop-blur-md">
                             {featured.category}
                           </div>
@@ -434,7 +518,7 @@ const BlogPage = () => {
                         <div className="flex flex-col justify-center p-8 sm:p-12 lg:col-span-5">
                           <div className="mb-6 inline-flex items-center gap-3 text-xs font-bold uppercase tracking-normal text-primary">
                             <span className="h-[2px] w-10 rounded-full bg-primary" />
-                            ĐỌC NHIỀU NHẤT
+                            BÀI NỔI BẬT
                           </div>
                           <h2 className="text-3xl font-bold leading-[1.1] tracking-normal text-foreground sm:text-4xl xl:text-5xl">
                             <Link
@@ -484,19 +568,16 @@ const BlogPage = () => {
                             to={`/blog/${post.slug || post.id}`}
                             className="card-premium-hover group flex flex-col overflow-hidden rounded-xl border border-border/40 bg-white shadow-sm transition-all"
                           >
-                            <div className="relative aspect-[16/10] overflow-hidden bg-muted/40">
-                              <img
-                                src={post.image || BLOG_CARD_PLACEHOLDER_IMG}
-                                alt=""
-                                className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
-                                loading="lazy"
-                                decoding="async"
-                              />
+                            <BlogImageFrame
+                              src={post.image}
+                              className="relative aspect-[16/10] overflow-hidden bg-muted/40"
+                              imageClassName="h-full w-full object-cover transition duration-700 group-hover:scale-110"
+                            >
                               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                               <span className="absolute left-3 top-3 rounded-md bg-white/95 px-2.5 py-1 text-sm font-bold uppercase tracking-normal text-primary shadow-sm">
                                 {post.category}
                               </span>
-                            </div>
+                            </BlogImageFrame>
                             <div className="flex flex-1 flex-col p-5">
                               <h3 className="line-clamp-2 text-base font-bold leading-tight text-foreground transition-colors group-hover:text-primary">
                                 {post.title}
@@ -532,18 +613,15 @@ const BlogPage = () => {
                             to={`/blog/${post.slug || post.id}`}
                             className="card-premium-hover group flex flex-col overflow-hidden rounded-xl border border-border/40 bg-white shadow-sm"
                           >
-                            <div className="relative aspect-[16/9] overflow-hidden">
-                              <img
-                                src={post.image || BLOG_CARD_PLACEHOLDER_IMG}
-                                alt=""
-                                className="h-full w-full object-cover transition duration-1000 group-hover:scale-105"
-                                loading="lazy"
-                                decoding="async"
-                              />
+                            <BlogImageFrame
+                              src={post.image}
+                              className="relative aspect-[16/9] overflow-hidden bg-muted"
+                              imageClassName="h-full w-full object-cover transition duration-1000 group-hover:scale-105"
+                            >
                               <div className="absolute left-4 top-4 rounded-md bg-emerald-600 px-3 py-1 text-sm font-bold uppercase tracking-normal text-white shadow-lg">
                                 {post.category}
                               </div>
-                            </div>
+                            </BlogImageFrame>
                             <div className="flex flex-1 flex-col p-6">
                               <div className="mb-4 flex flex-wrap items-center gap-4 text-sm font-bold text-muted-foreground/40">
                                 <span className="flex items-center gap-1.5 uppercase tracking-normal">
@@ -617,49 +695,99 @@ const BlogPage = () => {
               <div className="relative z-10 px-6 py-10 sm:px-10 sm:py-12">
                 <div className="mx-auto max-w-2xl text-center">
                   <p className="mb-2 text-base font-bold uppercase tracking-normal text-emerald-400/95">
-                    Bản tin HireBOT
+                    Bản tin chọn lọc HireBOT
                   </p>
                   <h3
                     id="blog-newsletter-title"
                     className="text-balance font-serif text-2xl font-bold leading-tight tracking-normal text-white sm:text-3xl"
                   >
-                    Nhận bản tin sáng thứ Hai
+                    Nhận bản tin tuyển dụng dành cho người ra quyết định
                   </h3>
-                  <p className="mx-auto mt-3 max-w-lg text-base font-medium leading-relaxed text-slate-400">
-                    Tóm tắt bài phân tích mới và việc làm nổi bật — không spam.
+                  <p className="mx-auto mt-3 max-w-xl text-base font-medium leading-relaxed text-slate-400">
+                    Mỗi tuần, HireBOT gửi tóm tắt xu hướng nhân sự, mức lương thị trường, bài phân
+                    tích mới và cơ hội việc làm đáng chú ý — chỉ khi nội dung đủ giá trị.
                   </p>
                 </div>
-                <form
-                  className="mx-auto mt-8 max-w-lg"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                  }}
-                >
-                  <div className="flex flex-col gap-2 sm:flex-row sm:gap-0 sm:overflow-hidden sm:rounded-xl sm:ring-1 sm:ring-white/20 sm:shadow-lg">
+
+                <form className="mx-auto mt-8 max-w-2xl" onSubmit={newsletter.submit} noValidate>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:gap-0 sm:overflow-hidden sm:rounded-xl sm:ring-1 sm:ring-white/20 sm:shadow-lg">
                     <div className="relative min-w-0 flex-1">
                       <Mail
                         className="pointer-events-none absolute left-3.5 top-1/2 size-[1.125rem] -translate-y-1/2 text-slate-400"
                         strokeWidth={2}
-                        aria-hidden
+                        aria-hidden="true"
                       />
                       <Input
+                        id="blog-newsletter-email"
                         type="email"
                         name="newsletter-email"
                         autoComplete="email"
-                        placeholder="email@example.com"
+                        spellCheck={false}
+                        placeholder="ten@congty.com"
                         aria-label="Địa chỉ email nhận bản tin"
-                        className="h-12 rounded-xl border-0 bg-white pl-11 text-base text-slate-900 shadow-none placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-primary/50 sm:rounded-none sm:rounded-l-xl"
+                        value={newsletter.email}
+                        onChange={(e) => newsletter.setEmail(e.target.value)}
+                        disabled={newsletter.isSubmitting}
+                        required
+                        className="h-12 rounded-xl border-0 bg-white pl-11 text-base text-slate-900 shadow-none placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-primary/50 disabled:cursor-not-allowed disabled:opacity-70 sm:rounded-none sm:rounded-l-xl"
                       />
                     </div>
                     <Button
                       type="submit"
-                      className="h-12 shrink-0 rounded-xl px-8 text-base font-bold shadow-none sm:rounded-none sm:rounded-r-xl"
+                      disabled={newsletter.isSubmitting}
+                      className="h-12 shrink-0 rounded-xl px-8 text-base font-bold shadow-none disabled:cursor-not-allowed disabled:opacity-80 sm:rounded-none sm:rounded-r-xl"
                     >
-                      Đăng ký
+                      {newsletter.isSubmitting ? (
+                        <>
+                          <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                          Đang đăng ký
+                        </>
+                      ) : (
+                        'Đăng ký nhận bản tin'
+                      )}
                     </Button>
                   </div>
-                  <p className="mt-3 text-center text-base font-medium leading-snug text-slate-500">
-                    Chúng tôi không bán địa chỉ email.
+
+                  {newsletter.message ? (
+                    <p
+                      className={`mx-auto mt-4 flex max-w-xl items-start justify-center gap-2 rounded-xl px-4 py-3 text-left text-sm font-semibold leading-relaxed ${
+                        newsletter.status === 'error'
+                          ? 'bg-red-500/10 text-red-200 ring-1 ring-red-400/20'
+                          : 'bg-emerald-500/10 text-emerald-100 ring-1 ring-emerald-400/20'
+                      }`}
+                      role={newsletter.status === 'error' ? 'alert' : 'status'}
+                      aria-live="polite"
+                    >
+                      {newsletter.status === 'error' ? (
+                        <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+                      ) : (
+                        <CheckCircle2 className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+                      )}
+                      <span>{newsletter.message}</span>
+                    </p>
+                  ) : null}
+
+                  <div className="mt-5 grid gap-2 text-left sm:grid-cols-3">
+                    {[
+                      'Chọn lọc mỗi tuần',
+                      'Không chia sẻ dữ liệu',
+                      'Huỷ đăng ký bất cứ lúc nào',
+                    ].map((item) => (
+                      <div
+                        key={item}
+                        className="flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2 text-sm font-semibold text-slate-300 ring-1 ring-white/10"
+                      >
+                        <ShieldCheck
+                          className="size-4 shrink-0 text-emerald-300"
+                          aria-hidden="true"
+                        />
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="mt-4 text-center text-sm font-medium leading-relaxed text-slate-500">
+                    Bằng cách đăng ký, bạn đồng ý để HireBOT sử dụng email này cho bản tin tuyển
+                    dụng. Chúng tôi không bán hoặc chia sẻ email cho bên thứ ba.
                   </p>
                 </form>
               </div>

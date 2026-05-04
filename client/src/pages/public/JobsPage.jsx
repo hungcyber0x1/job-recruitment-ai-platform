@@ -60,7 +60,9 @@ const locationOptions = [
 ];
 
 const getLocationOption = (value = '') =>
-  locationOptions.find((option) => option.value.toLowerCase() === String(value).trim().toLowerCase());
+  locationOptions.find(
+    (option) => option.value.toLowerCase() === String(value).trim().toLowerCase()
+  );
 
 const getLocationDisplayLabel = (value = '') => {
   const normalizedValue = String(value || '').trim();
@@ -75,10 +77,15 @@ const resolveLocationValue = (value = '') => {
   const normalizedQuery = normalizedValue.toLowerCase();
   const matchedOption = locationOptions.find(
     (option) =>
-      option.label.toLowerCase() === normalizedQuery || option.value.toLowerCase() === normalizedQuery
+      option.label.toLowerCase() === normalizedQuery ||
+      option.value.toLowerCase() === normalizedQuery
   );
 
-  return matchedOption ? (matchedOption.value === 'all' ? '' : matchedOption.value) : normalizedValue;
+  return matchedOption
+    ? matchedOption.value === 'all'
+      ? ''
+      : matchedOption.value
+    : normalizedValue;
 };
 
 const sortOptions = [
@@ -207,7 +214,6 @@ const JobsPage = () => {
     }
   }, [filters.category_id, searchParams, searchTerm, selectedLocation, setSearchParams]);
 
-
   const applyQuickFilter = (item) => {
     if (item.value === 'fulltime' || item.value === 'remote') {
       setFilters((prev) => ({
@@ -226,7 +232,9 @@ const JobsPage = () => {
   const handleSearch = () => {
     const nextLocation = resolveJobLocationValue(locationQuery);
     setSelectedLocation(nextLocation);
-    setLocationQuery(getJobLocationDisplayLabel(nextLocation) || String(locationQuery || '').trim());
+    setLocationQuery(
+      getJobLocationDisplayLabel(nextLocation) || String(locationQuery || '').trim()
+    );
     setIsLocationOpen(false);
   };
 
@@ -311,7 +319,9 @@ const JobsPage = () => {
                   <input
                     type="text"
                     placeholder="Toàn quốc"
-                    value={isLocationOpen ? locationQuery : getJobLocationDisplayLabel(selectedLocation)}
+                    value={
+                      isLocationOpen ? locationQuery : getJobLocationDisplayLabel(selectedLocation)
+                    }
                     onChange={(e) => {
                       const val = e.target.value;
                       setLocationQuery(val);
@@ -361,8 +371,8 @@ const JobsPage = () => {
                         <span className="truncate">{opt.label}</span>
                         {(selectedLocation === (opt.value === 'all' ? '' : opt.value) ||
                           (opt.value === 'all' && !selectedLocation)) && (
-                            <Check size={14} className="text-primary" />
-                          )}
+                          <Check size={14} className="text-primary" />
+                        )}
                       </button>
                     ))}
 
@@ -407,10 +417,11 @@ const JobsPage = () => {
                     key={item.value}
                     type="button"
                     onClick={() => applyQuickFilter(item)}
-                    className={`rounded-full border px-4 py-2 text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 ${isActive
-                      ? 'border-transparent bg-primary text-primary-foreground hover:bg-primary/90'
-                      : 'border-border bg-transparent hover:bg-primary/10 hover:text-primary'
-                      }`}
+                    className={`rounded-full border px-4 py-2 text-base font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 ${
+                      isActive
+                        ? 'border-transparent bg-primary text-primary-foreground hover:bg-primary/90'
+                        : 'border-border bg-transparent hover:bg-primary/10 hover:text-primary'
+                    }`}
                   >
                     {item.label}
                   </button>

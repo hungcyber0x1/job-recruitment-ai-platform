@@ -1,8 +1,8 @@
 {
-  "watch": ["src", "app.js", "server.js", "socket.js"],
+  "watch": ["src"],
   "ext": ".js, .json",
   "ignore": ["src/**/*.spec.js", "src/**/*.test.js", "logs/*"],
-  "exec": "node server.js",
+  "exec": "node src/server.js",
   "signal": "SIGTERM",
   "delay": 1000
 }

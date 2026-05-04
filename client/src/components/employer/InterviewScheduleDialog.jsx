@@ -12,7 +12,13 @@ const INTERVIEW_TYPES = [
  * Dialog yêu cầu nhập thông tin lịch phỏng vấn trước khi
  * chuyển ứng viên sang cột "Lịch PV" (interview_scheduled).
  */
-export default function InterviewScheduleDialog({ applicantName, jobTitle, initialDate = '', onConfirm, onCancel }) {
+export default function InterviewScheduleDialog({
+  applicantName,
+  jobTitle,
+  initialDate = '',
+  onConfirm,
+  onCancel,
+}) {
   const [form, setForm] = useState({
     interview_type: 'online',
     scheduled_date: initialDate,
@@ -43,11 +49,16 @@ export default function InterviewScheduleDialog({ applicantName, jobTitle, initi
     e.preventDefault();
     if (submittingRef.current) return;
     const errs = validate();
-    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      return;
+    }
 
     submittingRef.current = true;
     try {
-      const scheduled_at = new Date(`${form.scheduled_date}T${form.scheduled_time}:00`).toISOString();
+      const scheduled_at = new Date(
+        `${form.scheduled_date}T${form.scheduled_time}:00`
+      ).toISOString();
       await onConfirm({
         interview_type: form.interview_type,
         scheduled_at,
@@ -61,8 +72,8 @@ export default function InterviewScheduleDialog({ applicantName, jobTitle, initi
   }
 
   function set(field, value) {
-    setForm(prev => ({ ...prev, [field]: value }));
-    setErrors(prev => ({ ...prev, [field]: undefined }));
+    setForm((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
   }
 
   return (
@@ -79,7 +90,10 @@ export default function InterviewScheduleDialog({ applicantName, jobTitle, initi
               {applicantName} — <span className="font-medium text-slate-700">{jobTitle}</span>
             </p>
           </div>
-          <button onClick={onCancel} className="h-8 w-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-all">
+          <button
+            onClick={onCancel}
+            className="h-8 w-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-all"
+          >
             <X size={16} />
           </button>
         </div>
@@ -88,17 +102,20 @@ export default function InterviewScheduleDialog({ applicantName, jobTitle, initi
         <form onSubmit={handleSubmit} className="px-6 py-5 space-y-5">
           {/* Hình thức */}
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">Hình thức phỏng vấn *</label>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Hình thức phỏng vấn *
+            </label>
             <div className="grid grid-cols-3 gap-2">
               {INTERVIEW_TYPES.map(({ value, label, icon: Icon }) => (
                 <button
                   key={value}
                   type="button"
                   onClick={() => set('interview_type', value)}
-                  className={`flex flex-col items-center gap-1.5 rounded-xl border p-3 transition-all text-center text-xs font-medium ${form.interview_type === value
+                  className={`flex flex-col items-center gap-1.5 rounded-xl border p-3 transition-all text-center text-xs font-medium ${
+                    form.interview_type === value
                       ? 'bg-emerald-50 border-emerald-500 text-emerald-700'
                       : 'border-slate-200 text-slate-500 hover:border-emerald-300 hover:bg-slate-50'
-                    }`}
+                  }`}
                 >
                   <Icon size={18} />
                   <span>{label}</span>
@@ -111,41 +128,53 @@ export default function InterviewScheduleDialog({ applicantName, jobTitle, initi
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                <Calendar size={13} className="inline mr-1 text-slate-400" />Ngày *
+                <Calendar size={13} className="inline mr-1 text-slate-400" />
+                Ngày *
               </label>
               <input
                 type="date"
                 value={form.scheduled_date}
                 min={new Date().toISOString().split('T')[0]}
-                onChange={e => set('scheduled_date', e.target.value)}
+                onChange={(e) => set('scheduled_date', e.target.value)}
                 className={`w-full rounded-xl border px-3 py-3 text-sm outline-none transition-all focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 ${errors.scheduled_date ? 'border-red-400' : 'border-slate-200'}`}
               />
-              {errors.scheduled_date && <p className="text-xs text-red-500 mt-1">{errors.scheduled_date}</p>}
+              {errors.scheduled_date && (
+                <p className="text-xs text-red-500 mt-1">{errors.scheduled_date}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                <Clock size={13} className="inline mr-1 text-slate-400" />Giờ *
+                <Clock size={13} className="inline mr-1 text-slate-400" />
+                Giờ *
               </label>
               <input
                 type="time"
                 value={form.scheduled_time}
-                onChange={e => set('scheduled_time', e.target.value)}
+                onChange={(e) => set('scheduled_time', e.target.value)}
                 className={`w-full rounded-xl border px-3 py-3 text-sm outline-none transition-all focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 ${errors.scheduled_time ? 'border-red-400' : 'border-slate-200'}`}
               />
-              {errors.scheduled_time && <p className="text-xs text-red-500 mt-1">{errors.scheduled_time}</p>}
+              {errors.scheduled_time && (
+                <p className="text-xs text-red-500 mt-1">{errors.scheduled_time}</p>
+              )}
             </div>
           </div>
 
           {/* Thời lượng & Địa điểm */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Thời lượng (phút)</label>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                Thời lượng (phút)
+              </label>
               <select
                 value={form.duration_minutes}
-                onChange={e => set('duration_minutes', e.target.value)}
+                onChange={(e) => set('duration_minutes', e.target.value)}
                 className="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               >
-                {[30, 45, 60, 90, 120].map(m => <option key={m} value={m}>{m} phút</option>)}
+                {[30, 45, 60, 90, 120].map((m) => (
+                  <option key={m} value={m}>
+                    {m} phút
+                  </option>
+                ))}
               </select>
             </div>
             <div>
@@ -156,8 +185,12 @@ export default function InterviewScheduleDialog({ applicantName, jobTitle, initi
               <input
                 type="text"
                 value={form.location}
-                onChange={e => set('location', e.target.value)}
-                placeholder={form.interview_type === 'online' ? 'https://meet.google.com/...' : 'Tầng 5, 123 Điện Biên Phủ...'}
+                onChange={(e) => set('location', e.target.value)}
+                placeholder={
+                  form.interview_type === 'online'
+                    ? 'https://meet.google.com/...'
+                    : 'Tầng 5, 123 Điện Biên Phủ...'
+                }
                 className="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
               />
             </div>
@@ -165,10 +198,12 @@ export default function InterviewScheduleDialog({ applicantName, jobTitle, initi
 
           {/* Ghi chú cho ứng viên */}
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1.5">Ghi chú gửi ứng viên <span className="text-slate-400 font-normal">(tùy chọn)</span></label>
+            <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+              Ghi chú gửi ứng viên <span className="text-slate-400 font-normal">(tùy chọn)</span>
+            </label>
             <textarea
               value={form.candidate_note}
-              onChange={e => set('candidate_note', e.target.value)}
+              onChange={(e) => set('candidate_note', e.target.value)}
               rows={2}
               placeholder="Vd: Mang theo CV bản cứng, ăn mặc lịch sự..."
               className="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 resize-none"

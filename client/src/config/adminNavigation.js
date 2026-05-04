@@ -3,92 +3,55 @@
  */
 import {
   BarChart3,
-  Bell,
-  BookOpen,
-  BrainCircuit,
   Briefcase,
   Building2,
-  Calendar,
   FileText,
-  HelpCircle,
-  Home,
-  KeyRound,
-  Layers,
   LayoutDashboard,
-  MessageSquare,
+  Newspaper,
   Settings,
-  Sparkles,
+  Tags,
+  UserRound,
   Users,
 } from 'lucide-react';
 import { ADMIN_PERMISSIONS, hasAdminPermission } from '@/utils/adminPermissions';
 
 export const ADMIN_NAV_GROUPS = [
   {
-    title: 'A. TONG QUAN',
-    items: [
-      { path: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    ],
+    title: 'TỔNG QUAN',
+    items: [{ path: '/admin/dashboard', label: 'Tổng quan', icon: LayoutDashboard }],
   },
   {
-    title: 'B. NGUOI DUNG & PHAN QUYEN',
+    title: 'QUẢN LÝ TUYỂN DỤNG',
     items: [
-      { path: '/admin/users', label: 'Tai khoan', icon: Users },
+      { path: '/admin/companies', label: 'Công ty', icon: Building2, badgeKey: 'companies' },
+      { path: '/admin/jobs', label: 'Tin tuyển dụng', icon: Briefcase, badgeKey: 'jobs' },
       {
-        path: '/admin/permissions',
-        label: 'Phan quyen',
-        icon: KeyRound,
-        requiredPermission: ADMIN_PERMISSIONS.ADMIN_PERMISSIONS,
+        path: '/admin/categories',
+        label: 'Ngành nghề',
+        icon: Tags,
+        requiredPermission: ADMIN_PERMISSIONS.TAXONOMY_MANAGE,
       },
+      { path: '/admin/applications', label: 'Ứng tuyển', icon: FileText, badgeKey: 'applications' },
     ],
   },
   {
-    title: 'C. DOANH NGHIEP & TUYEN DUNG',
+    title: 'NỘI DUNG',
+    items: [{ path: '/admin/blog', label: 'Blog', icon: Newspaper }],
+  },
+  {
+    title: 'QUẢN TRỊ',
     items: [
-      { path: '/admin/companies', label: 'Doanh nghiep', icon: Building2, badgeKey: 'companies' },
-      { path: '/admin/jobs', label: 'Tin tuyen dung', icon: Briefcase, badgeKey: 'jobs' },
-      { path: '/admin/applications', label: 'Ung tuyen', icon: FileText, badgeKey: 'applications' },
-      { path: '/admin/interviews', label: 'Lich phong van', icon: Calendar },
+      { path: '/admin/profile', label: 'Hồ sơ của tôi', icon: UserRound },
+      { path: '/admin/users', label: 'Người dùng', icon: Users },
     ],
   },
   {
-    title: 'D. NOI DUNG PUBLIC',
-    items: [
-      { path: '/admin/blog', label: 'Blog', icon: BookOpen },
-      { path: '/admin/homepage', label: 'Homepage CMS', icon: Home },
-    ],
+    title: 'BÁO CÁO',
+    items: [{ path: '/admin/analytics', label: 'Báo cáo', icon: BarChart3 }],
   },
   {
-    title: 'E. TAXONOMY DU LIEU',
-    items: [
-      { path: '/admin/categories', label: 'Nganh nghe', icon: Layers },
-    ],
-  },
-  {
-    title: 'F. CHATBOT & CONG CU',
-    items: [
-      { path: '/admin/chatbot', label: 'Chatbot', icon: MessageSquare },
-      { path: '/admin/ai-tools', label: 'Cong cu AI', icon: BrainCircuit },
-    ],
-  },
-  {
-    title: 'G. BAO CAO & VAN HANH',
-    items: [
-      { path: '/admin/analytics', label: 'Phan tich', icon: BarChart3 },
-      {
-        path: '/admin/settings',
-        label: 'Cai dat he thong',
-        icon: Settings,
-        requiredPermission: ADMIN_PERMISSIONS.SETTINGS_MANAGE,
-      },
-      {
-        path: '/admin/feature-flags',
-        label: 'Tinh nang',
-        icon: Sparkles,
-        requiredPermission: ADMIN_PERMISSIONS.SETTINGS_MANAGE,
-      },
-      { path: '/admin/support', label: 'Ho tro', icon: HelpCircle },
-      { path: '/admin/notifications', label: 'Thong bao', icon: Bell, badgeKey: 'notifications' },
-    ],
+    title: 'HỆ THỐNG',
+    items: [{ path: '/admin/settings', label: 'Cài đặt', icon: Settings }],
   },
 ];
 
@@ -100,8 +63,7 @@ export const filterAdminNavGroups = (user) =>
     ),
   })).filter((group) => group.items.length > 0);
 
-export const flattenNavItems = (user) =>
-  filterAdminNavGroups(user).flatMap((group) => group.items);
+export const flattenNavItems = (user) => filterAdminNavGroups(user).flatMap((group) => group.items);
 
 export const findNavItem = (path, user) => {
   for (const group of filterAdminNavGroups(user)) {

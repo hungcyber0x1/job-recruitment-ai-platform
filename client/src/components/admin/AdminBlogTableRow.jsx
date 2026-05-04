@@ -1,14 +1,14 @@
 import React from 'react';
-import { 
-  ExternalLink, 
-  Pencil, 
-  Trash2, 
-  Eye, 
-  User, 
+import {
+  ExternalLink,
+  Pencil,
+  Trash2,
+  Eye,
+  User,
   Calendar,
   MoreVertical,
   BookOpen,
-  Send
+  Send,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -30,7 +30,7 @@ const formatWhen = (raw) => {
       month: '2-digit',
       year: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   } catch {
     return '—';
@@ -45,10 +45,14 @@ const AdminBlogTableRow = ({ row, onEdit, onDelete }) => {
     <tr className="group hover:bg-emerald-50/20 transition-all duration-300">
       <td className="px-8 py-6">
         <div className="flex items-start gap-4 max-w-lg">
-          <div className={cn(
-            "mt-1 p-2.5 rounded-xl shrink-0 transition-colors",
-            isDraft ? "bg-slate-100 text-slate-400" : "bg-emerald-100 text-emerald-600 ring-4 ring-emerald-500/5"
-          )}>
+          <div
+            className={cn(
+              'mt-1 p-2.5 rounded-xl shrink-0 transition-colors',
+              isDraft
+                ? 'bg-slate-100 text-slate-400'
+                : 'bg-emerald-100 text-emerald-600 ring-4 ring-emerald-500/5'
+            )}
+          >
             <BookOpen size={20} strokeWidth={2.5} />
           </div>
           <div className="min-w-0">
@@ -76,21 +80,23 @@ const AdminBlogTableRow = ({ row, onEdit, onDelete }) => {
       <td className="px-8 py-6">
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
-             <div className="size-6 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-500">
-                {row.author_name?.[0] || 'A'}
-             </div>
-             <span className="text-sm font-bold text-slate-700">{row.author_name || 'Quản trị viên'}</span>
+            <div className="size-6 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-500">
+              {row.author_name?.[0] || 'A'}
+            </div>
+            <span className="text-sm font-bold text-slate-700">
+              {row.author_name || 'Quản trị viên'}
+            </span>
           </div>
-          <Badge 
-            variant="outline" 
+          <Badge
+            variant="outline"
             className={cn(
-              "text-xs h-4 uppercase font-bold tracking-normal",
-              row.author_type === 'employer' 
-                ? "bg-amber-50 text-amber-600 border-amber-100" 
-                : "bg-slate-50 text-slate-500 border-slate-200"
+              'text-xs h-4 uppercase font-bold tracking-normal',
+              row.author_type === 'recruiter'
+                ? 'bg-amber-50 text-amber-600 border-amber-100'
+                : 'bg-slate-50 text-slate-500 border-slate-200'
             )}
           >
-            {row.author_type === 'employer' ? 'Nhà tuyển dụng' : 'Admin Hệ thống'}
+            {row.author_type === 'recruiter' ? 'Nhà tuyển dụng' : 'Admin Hệ thống'}
           </Badge>
           {row.company_name && (
             <p className="text-xs font-medium text-slate-400 line-clamp-1 italic italic">
@@ -124,7 +130,10 @@ const AdminBlogTableRow = ({ row, onEdit, onDelete }) => {
             </div>
           </div>
         ) : (
-          <Badge variant="outline" className="bg-slate-50 text-slate-400 border-slate-200 uppercase font-bold text-xs tracking-normal px-2">
+          <Badge
+            variant="outline"
+            className="bg-slate-50 text-slate-400 border-slate-200 uppercase font-bold text-xs tracking-normal px-2"
+          >
             Bản nháp
           </Badge>
         )}
@@ -133,30 +142,47 @@ const AdminBlogTableRow = ({ row, onEdit, onDelete }) => {
       <td className="px-8 py-6 text-right">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-12 w-12 rounded-xl hover:bg-white hover:shadow-md transition-all">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-12 w-12 rounded-xl hover:bg-white hover:shadow-md transition-all"
+            >
               <MoreVertical size={20} className="text-slate-400" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 rounded-xl border-slate-200 p-2 shadow-xl animate-in fade-in zoom-in-95">
-            <DropdownMenuLabel className="px-3 text-xs font-bold uppercase tracking-normal text-slate-400">Thao tác bài viết</DropdownMenuLabel>
+          <DropdownMenuContent
+            align="end"
+            className="w-56 rounded-xl border-slate-200 p-2 shadow-xl animate-in fade-in zoom-in-95"
+          >
+            <DropdownMenuLabel className="px-3 text-xs font-bold uppercase tracking-normal text-slate-400">
+              Thao tác bài viết
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            
+
             {row.is_published && row.slug && (
               <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
-                <a href={`/blog/${encodeURIComponent(row.slug)}`} target="_blank" rel="noreferrer" className="flex items-center gap-2">
+                <a
+                  href={`/blog/${encodeURIComponent(row.slug)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2"
+                >
                   <ExternalLink className="size-4 text-emerald-500" />
                   <span className="font-bold">Xem bài đăng</span>
                 </a>
               </DropdownMenuItem>
             )}
-            
-            <DropdownMenuItem onClick={() => onEdit(row)} className="rounded-xl cursor-pointer gap-2">
+
+            <DropdownMenuItem
+              onClick={() => onEdit(row)}
+              className="rounded-xl cursor-pointer gap-2"
+            >
               <Pencil className="size-4 text-blue-500" />
               <span className="font-bold">Chỉnh sửa</span>
             </DropdownMenuItem>
-            
+
             <DropdownMenuSeparator />
-            <DropdownMenuItem 
+            <DropdownMenuItem
               onClick={() => onDelete(row.id, row)}
               className="rounded-xl cursor-pointer gap-2 text-red-600 focus:bg-red-50 focus:text-red-600"
             >

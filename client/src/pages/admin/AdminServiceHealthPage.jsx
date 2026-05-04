@@ -13,7 +13,7 @@ import {
   AlertTriangle,
   MinusCircle,
   Loader2,
-  Clock
+  Clock,
 } from 'lucide-react';
 import adminService from '../../services/adminService';
 import { Button } from '../../components/ui/button';
@@ -113,14 +113,19 @@ const AdminServiceHealthPage = () => {
             ? 'operational'
             : 'degraded'
           : 'unknown',
-        detail: gatewayHealth?.database === 'ok' ? 'Connected' : (gatewayHealth?.database || 'Đang chờ kiểm tra'),
+        detail:
+          gatewayHealth?.database === 'ok'
+            ? 'Connected'
+            : gatewayHealth?.database || 'Đang chờ kiểm tra',
         icon: Database,
         hint: 'MySQL / Kết nối pool',
       },
       {
         name: 'Dịch vụ xác thực',
         status: gatewayHealth ? mapStatus(serviceMap.auth?.status) : 'unknown',
-        detail: serviceMap.auth?.error || (serviceMap.auth?.status === 'ok' ? 'Đang hoạt động' : 'Không có báo cáo chi tiết'),
+        detail:
+          serviceMap.auth?.error ||
+          (serviceMap.auth?.status === 'ok' ? 'Đang hoạt động' : 'Không có báo cáo chi tiết'),
         icon: Shield,
         hint: 'JWT & Session Management',
       },
@@ -190,21 +195,21 @@ const AdminServiceHealthPage = () => {
         <div className="relative flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-               <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3.5 py-2 text-xs font-bold uppercase tracking-normal text-emerald-700 border border-emerald-100 shadow-sm">
+              <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3.5 py-2 text-xs font-bold uppercase tracking-normal text-emerald-700 border border-emerald-100 shadow-sm">
                 <HeartPulse size={14} className="shrink-0" strokeWidth={2.5} />
                 Service Health System
               </span>
             </div>
-            <h1 className="text-4xl font-bold tracking-normal text-slate-900">
-              Sức khỏe Hệ thống
-            </h1>
+            <h1 className="text-4xl font-bold tracking-normal text-slate-900">Sức khỏe Hệ thống</h1>
             <p className="max-w-xl text-base font-semibold text-slate-500 leading-relaxed italic opacity-80">
-              Tổng hợp health check từ gateway và các module nghiệp vụ để giám sát hiệu năng nền tảng Emerald.
+              Tổng hợp health check từ gateway và các module nghiệp vụ để giám sát hiệu năng nền
+              tảng Emerald.
             </p>
             <div className="flex items-center gap-4 text-xs font-bold text-slate-400 uppercase tracking-normal pt-2">
-               <div className="flex items-center gap-1.5">
-                  <Clock size={14} /> Cập nhật lần cuối: <span className="text-slate-900">{formatTime(refreshedAt)}</span>
-               </div>
+              <div className="flex items-center gap-1.5">
+                <Clock size={14} /> Cập nhật lần cuối:{' '}
+                <span className="text-slate-900">{formatTime(refreshedAt)}</span>
+              </div>
             </div>
           </div>
 
@@ -215,17 +220,25 @@ const AdminServiceHealthPage = () => {
               variant="outline"
               className="h-12 rounded-xl border-slate-200 bg-white font-bold uppercase tracking-normal shadow-sm hover:bg-slate-50 min-w-[180px]"
             >
-              {loading ? <Loader2 size={18} className="mr-2 animate-spin" /> : <RefreshCw size={18} className="mr-2" />}
+              {loading ? (
+                <Loader2 size={18} className="mr-2 animate-spin" />
+              ) : (
+                <RefreshCw size={18} className="mr-2" />
+              )}
               Làm mới
             </Button>
             <div className="rounded-xl bg-slate-900 p-6 text-center shadow-xl shadow-slate-900/20 min-w-[180px]">
-              <p className="text-xs font-bold uppercase tracking-normal text-white/50">System Score</p>
+              <p className="text-xs font-bold uppercase tracking-normal text-white/50">
+                System Score
+              </p>
               <p className="mt-1 text-4xl font-bold tabular-nums text-emerald-400">
                 {loading ? '...' : `${healthSummary.score}%`}
               </p>
               <div className="mt-3 flex items-center justify-center gap-1.5 px-3 py-1 bg-white/10 rounded-full">
                 <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-xs font-bold text-white uppercase">{healthSummary.operational}/{healthSummary.total} OK</span>
+                <span className="text-xs font-bold text-white uppercase">
+                  {healthSummary.operational}/{healthSummary.total} OK
+                </span>
               </div>
             </div>
           </div>
@@ -234,12 +247,38 @@ const AdminServiceHealthPage = () => {
         {!loading && (
           <div className="mt-8 flex flex-wrap gap-2 pt-8 border-t border-slate-100">
             {[
-              { n: healthSummary.operational, label: 'Ổn định', Icon: CheckCircle2, cls: 'bg-emerald-50 text-emerald-700 border-emerald-100' },
-              { n: healthSummary.monitoring, label: 'Theo dõi', Icon: AlertTriangle, cls: 'bg-amber-50 text-amber-700 border-amber-100' },
-              { n: healthSummary.degraded, label: 'Suy giảm', Icon: AlertTriangle, cls: 'bg-red-50 text-red-700 border-red-100' },
-              { n: healthSummary.unknown, label: 'Chưa rõ', Icon: MinusCircle, cls: 'bg-slate-50 text-slate-600 border-slate-100' },
+              {
+                n: healthSummary.operational,
+                label: 'Ổn định',
+                Icon: CheckCircle2,
+                cls: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+              },
+              {
+                n: healthSummary.monitoring,
+                label: 'Theo dõi',
+                Icon: AlertTriangle,
+                cls: 'bg-amber-50 text-amber-700 border-amber-100',
+              },
+              {
+                n: healthSummary.degraded,
+                label: 'Suy giảm',
+                Icon: AlertTriangle,
+                cls: 'bg-red-50 text-red-700 border-red-100',
+              },
+              {
+                n: healthSummary.unknown,
+                label: 'Chưa rõ',
+                Icon: MinusCircle,
+                cls: 'bg-slate-50 text-slate-600 border-slate-100',
+              },
             ].map(({ n, label, Icon, cls }) => (
-              <span key={label} className={cn('inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-normal border shadow-sm', cls)}>
+              <span
+                key={label}
+                className={cn(
+                  'inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-normal border shadow-sm',
+                  cls
+                )}
+              >
                 <Icon size={14} strokeWidth={2.5} />
                 {n} {label}
               </span>
@@ -251,7 +290,10 @@ const AdminServiceHealthPage = () => {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {loading
           ? Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="animate-pulse rounded-xl border border-slate-200 bg-white p-6 h-[200px]" />
+              <div
+                key={i}
+                className="animate-pulse rounded-xl border border-slate-200 bg-white p-6 h-[200px]"
+              />
             ))
           : services.map((service) => {
               const meta = STATUS_META[service.status] || STATUS_META.unknown;
@@ -261,7 +303,9 @@ const AdminServiceHealthPage = () => {
                   key={service.name}
                   className={cn(
                     'group relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1',
-                    service.status === 'operational' ? 'hover:border-emerald-500/30' : 'hover:border-amber-500/30'
+                    service.status === 'operational'
+                      ? 'hover:border-emerald-500/30'
+                      : 'hover:border-amber-500/30'
                   )}
                 >
                   <div className={cn('absolute inset-y-0 left-0 w-1.5', meta.bar)} />
@@ -270,12 +314,19 @@ const AdminServiceHealthPage = () => {
                       <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-900 border border-slate-100 ring-4 ring-slate-500/5">
                         <Icon size={22} strokeWidth={2.5} />
                       </div>
-                      <span className={cn('rounded-lg px-3.5 py-2 text-xs font-bold uppercase tracking-normal border', meta.badge)}>
+                      <span
+                        className={cn(
+                          'rounded-lg px-3.5 py-2 text-xs font-bold uppercase tracking-normal border',
+                          meta.badge
+                        )}
+                      >
                         {meta.label}
                       </span>
                     </div>
                     <div className="mt-5">
-                      <p className="text-xs font-bold uppercase tracking-normal text-slate-400 mb-1">{service.hint}</p>
+                      <p className="text-xs font-bold uppercase tracking-normal text-slate-400 mb-1">
+                        {service.hint}
+                      </p>
                       <h2 className="text-lg font-bold tracking-normal text-slate-900 line-clamp-1">
                         {service.name}
                       </h2>
@@ -325,10 +376,17 @@ const AdminServiceHealthPage = () => {
                   <AlertTriangle size={18} className="text-amber-500" />
                 )}
               </div>
-              <p className={cn('text-2xl font-bold capitalize tabular-nums', row.ok ? 'text-slate-900' : 'text-amber-600')}>
+              <p
+                className={cn(
+                  'text-2xl font-bold capitalize tabular-nums',
+                  row.ok ? 'text-slate-900' : 'text-amber-600'
+                )}
+              >
                 {row.value}
               </p>
-              <p className="mt-1 text-xs font-bold text-slate-400 uppercase tracking-normal">{row.sub}</p>
+              <p className="mt-1 text-xs font-bold text-slate-400 uppercase tracking-normal">
+                {row.sub}
+              </p>
             </div>
           ))}
         </div>

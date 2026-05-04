@@ -22,11 +22,7 @@ const AdminKPIGrid = ({ cards, columns = 4, className }) => {
   return (
     <div className={cn('grid gap-4', gridCols[columns] || gridCols[4], className)}>
       {cards.map((card, index) => (
-        <AdminStatCard
-          key={card.key || index}
-          {...card}
-          delay={index * 100}
-        />
+        <AdminStatCard key={card.key || index} {...card} delay={index * 100} />
       ))}
     </div>
   );

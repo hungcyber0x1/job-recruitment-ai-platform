@@ -33,6 +33,16 @@ Thumbs.db
 server/uploads/avatars/*
 server/uploads/cvs/*
 server/uploads/company-logos/*
+server/uploads/site-logos/*
 !server/uploads/avatars/.gitkeep
 !server/uploads/cvs/.gitkeep
 !server/uploads/company-logos/.gitkeep
+!server/uploads/site-logos/.gitkeep
+
+# Local documentation and database exports
+/docs/
+/database/
+
+# Runtime/debug artifacts
+server/debug-output.txt
+server/scratch/

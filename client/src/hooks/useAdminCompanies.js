@@ -98,7 +98,8 @@ const useAdminCompanies = () => {
     if (filters.industry === 'all') return companies;
 
     return companies.filter((company) => {
-      const searchableIndustry = `${company.industry || ''} ${company.category_name || ''}`.toLowerCase();
+      const searchableIndustry =
+        `${company.industry || ''} ${company.category_name || ''}`.toLowerCase();
       return INDUSTRY_KEYWORDS[filters.industry]?.some((keyword) =>
         searchableIndustry.includes(keyword)
       );

@@ -1,188 +1,169 @@
 import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
 import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ComposedChart,
-  Line,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
-import {
-  AlertTriangle,
+  AlertCircle,
   BarChart3,
   BrainCircuit,
   Briefcase,
   Building2,
-  CheckCircle,
+  CheckCircle2,
   Download,
   FileText,
-  Globe,
-  LayoutDashboard,
+  Info,
   Loader2,
-  MessageSquare,
   RefreshCw,
-  ShieldAlert,
   Sparkles,
-  Tags,
-  Target,
   TrendingUp,
   Users,
   XCircle,
 } from 'lucide-react';
 
 import ChartSurface, { CHART_MUTED_TICK_STYLE } from '@/components/charts/ChartSurface';
+import { PageHeader } from '@/components/admin';
+import { EmptyState } from '@/components/common';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useNotification } from '@/context/NotificationContext';
 import adminService from '@/services/adminService';
 import { cn } from '../../utils';
 
-const EMPTY_STATS = {
-  users: 0,
-  jobs: 0,
-  applications: 0,
-  companies: 0,
-  tickets: 0,
-  revenue: 0,
-  candidateAccounts: 0,
-  recruiterAccounts: 0,
-  adminAccounts: 0,
-  lockedAccounts: 0,
-  verifiedCompanies: 0,
-  pendingCompanyApprovals: 0,
-  publishedJobs: 0,
-  pendingJobApprovals: 0,
-  rejectedJobs: 0,
-  blogPosts: 0,
-  homepageBanners: 0,
-  testimonials: 0,
-  totalSkills: 0,
-  totalCategories: 0,
-  totalLocations: 0,
-  aiUsageCount: 0,
-  chatbotConversations: 0,
-  cvScans: 0,
-  aiAccuracyScore: 0,
-  spamDetected: 0,
-  flaggedAccounts: 0,
-  totalApplications: 0,
-  submittedCount: 0,
-  screeningCount: 0,
-  interviewCount: 0,
-  hiredCount: 0,
-  rejectedCount: 0,
-  topSkills: [],
-  topIndustries: [],
-  topLocations: [],
-};
-
-const EMPTY_CHARTS = {
-  userGrowth: [],
-  jobStats: [],
-  applicationStats: [],
-  weeklyActivity: [],
-  userDistribution: [],
-};
-
-const TIME_FILTERS = [
-  { id: 'month', label: 'Theo tháng' },
-  { id: 'quarter', label: 'Theo quý' },
-  { id: 'year', label: 'Theo năm' },
+const RANGE_FILTERS = [
+  { id: '7d', label: '7 ngày', helper: 'Tập trung tín hiệu rất mới' },
+  { id: '30d', label: '30 ngày', helper: 'Theo dõi vận hành tháng này' },
+  { id: '3m', label: '3 tháng', helper: 'Nhìn xu hướng ổn định hơn' },
 ];
 
-const MONTH_ABBR_VI = {
-  Jan: 'T1',
-  Feb: 'T2',
-  Mar: 'T3',
-  Apr: 'T4',
-  May: 'T5',
-  Jun: 'T6',
-  Jul: 'T7',
-  Aug: 'T8',
-  Sep: 'T9',
-  Oct: 'T10',
-  Nov: 'T11',
-  Dec: 'T12',
+const EMPTY_DASHBOARD = {
+  range: { id: '30d', label: '30 ngày gần nhất', days: 30 },
+  kpi: {
+    users: 0,
+    jobs: 0,
+    applications: 0,
+    companies: 0,
+  },
+  pipeline: {
+    applied: 0,
+    interview: 0,
+    hired: 0,
+    rejected: 0,
+  },
+  growth: [],
+  topIndustries: [],
+  insights: [],
+  aiInsight: null,
+  moderation: {
+    pendingJobs: 0,
+    pendingCompanies: 0,
+  },
 };
 
-const MONTH_INDEX = {
-  Jan: 1,
-  Feb: 2,
-  Mar: 3,
-  Apr: 4,
-  May: 5,
-  Jun: 6,
-  Jul: 7,
-  Aug: 8,
-  Sep: 9,
-  Oct: 10,
-  Nov: 11,
-  Dec: 12,
+const INSIGHT_TONE = {
+  success: {
+    icon: CheckCircle2,
+    card: 'border-emerald-200 bg-emerald-50/80 text-emerald-900',
+    iconBox: 'bg-emerald-600 text-white',
+    badge: 'border-emerald-200 bg-white text-emerald-700',
+    label: 'Tốt',
+  },
+  warning: {
+    icon: AlertCircle,
+    card: 'border-amber-200 bg-amber-50/80 text-amber-950',
+    iconBox: 'bg-amber-500 text-white',
+    badge: 'border-amber-200 bg-white text-amber-700',
+    label: 'Cảnh báo',
+  },
+  danger: {
+    icon: XCircle,
+    card: 'border-rose-200 bg-rose-50/80 text-rose-950',
+    iconBox: 'bg-rose-600 text-white',
+    badge: 'border-rose-200 bg-white text-rose-700',
+    label: 'Vấn đề',
+  },
+  info: {
+    icon: Info,
+    card: 'border-sky-200 bg-sky-50/80 text-sky-950',
+    iconBox: 'bg-sky-600 text-white',
+    badge: 'border-sky-200 bg-white text-sky-700',
+    label: 'Nhận định',
+  },
+  neutral: {
+    icon: Sparkles,
+    card: 'border-slate-200 bg-slate-50/80 text-slate-950',
+    iconBox: 'bg-slate-800 text-white',
+    badge: 'border-slate-200 bg-white text-slate-600',
+    label: 'Theo dõi',
+  },
 };
 
-const TONE_STYLES = {
-  emerald: {
-    icon: 'bg-emerald-100 text-emerald-700 ring-emerald-100',
-    badge: 'border-emerald-200 bg-emerald-50 text-emerald-700',
-    progress: 'bg-emerald-500',
-    surface: 'border-emerald-200/80 bg-emerald-50/70',
+const KPI_CARDS = [
+  {
+    key: 'users',
+    title: 'Tổng người dùng',
+    description: 'Tài khoản mới phát sinh trong khoảng lọc.',
+    icon: Users,
+    accent: 'text-emerald-700 bg-emerald-50 ring-emerald-100',
   },
-  blue: {
-    icon: 'bg-blue-100 text-blue-700 ring-blue-100',
-    badge: 'border-blue-200 bg-blue-50 text-blue-700',
-    progress: 'bg-blue-500',
-    surface: 'border-blue-200/80 bg-blue-50/70',
+  {
+    key: 'jobs',
+    title: 'Tin tuyển dụng',
+    description: 'Nhu cầu tuyển dụng mới trên hệ thống.',
+    icon: Briefcase,
+    accent: 'text-sky-700 bg-sky-50 ring-sky-100',
   },
-  violet: {
-    icon: 'bg-violet-100 text-violet-700 ring-violet-100',
-    badge: 'border-violet-200 bg-violet-50 text-violet-700',
-    progress: 'bg-violet-500',
-    surface: 'border-violet-200/80 bg-violet-50/70',
+  {
+    key: 'applications',
+    title: 'Ứng tuyển',
+    description: 'Lượt ứng viên nộp hồ sơ vào pipeline.',
+    icon: FileText,
+    accent: 'text-violet-700 bg-violet-50 ring-violet-100',
   },
-  amber: {
-    icon: 'bg-amber-100 text-amber-700 ring-amber-100',
-    badge: 'border-amber-200 bg-amber-50 text-amber-700',
-    progress: 'bg-amber-500',
-    surface: 'border-amber-200/80 bg-amber-50/70',
+  {
+    key: 'companies',
+    title: 'Doanh nghiệp',
+    description: 'Doanh nghiệp mới tham gia nền tảng.',
+    icon: Building2,
+    accent: 'text-amber-700 bg-amber-50 ring-amber-100',
   },
-  rose: {
-    icon: 'bg-rose-100 text-rose-700 ring-rose-100',
-    badge: 'border-rose-200 bg-rose-50 text-rose-700',
-    progress: 'bg-rose-500',
-    surface: 'border-rose-200/80 bg-rose-50/70',
+];
+
+const PIPELINE_STAGES = [
+  {
+    key: 'applied',
+    label: 'Đã nộp',
+    description: 'Hồ sơ đầu vào',
+    icon: FileText,
+    tone: 'bg-slate-900 text-white',
+    border: 'border-slate-200',
   },
-  indigo: {
-    icon: 'bg-indigo-100 text-indigo-700 ring-indigo-100',
-    badge: 'border-indigo-200 bg-indigo-50 text-indigo-700',
-    progress: 'bg-indigo-500',
-    surface: 'border-indigo-200/80 bg-indigo-50/70',
+  {
+    key: 'interview',
+    label: 'Phỏng vấn',
+    description: 'Đã lên lịch hoặc đã phỏng vấn',
+    icon: Users,
+    tone: 'bg-amber-500 text-white',
+    border: 'border-amber-200',
   },
-  orange: {
-    icon: 'bg-orange-100 text-orange-700 ring-orange-100',
-    badge: 'border-orange-200 bg-orange-50 text-orange-700',
-    progress: 'bg-orange-500',
-    surface: 'border-orange-200/80 bg-orange-50/70',
+  {
+    key: 'hired',
+    label: 'Đã tuyển',
+    description: 'Kết quả tuyển thành công',
+    icon: TrendingUp,
+    tone: 'bg-emerald-600 text-white',
+    border: 'border-emerald-200',
   },
-  slate: {
-    icon: 'bg-slate-100 text-slate-700 ring-slate-100',
-    badge: 'border-slate-200 bg-slate-50 text-slate-600',
-    progress: 'bg-slate-700',
-    surface: 'border-slate-200/80 bg-slate-50/70',
+  {
+    key: 'rejected',
+    label: 'Từ chối',
+    description: 'Hồ sơ kết thúc không phù hợp',
+    icon: XCircle,
+    tone: 'bg-rose-600 text-white',
+    border: 'border-rose-200',
   },
-};
+];
 
 function formatNumber(value) {
   return Number(value || 0).toLocaleString('vi-VN');
-}
-
-function calculatePercent(value, total) {
-  const safeValue = Number(value) || 0;
-  const safeTotal = Number(total) || 0;
-  if (!safeTotal) return 0;
-  return Math.round((safeValue / safeTotal) * 100);
 }
 
 function csvEscape(value) {
@@ -203,93 +184,26 @@ function downloadCsv(filename, rows) {
   URL.revokeObjectURL(url);
 }
 
-function normalizeTimeSeries(rows, dataKey) {
-  if (!Array.isArray(rows)) return [];
-
-  return rows
-    .map((row, index) => {
-      const rawName = String(row?.name ?? '').trim();
-      const month = MONTH_INDEX[rawName] || index + 1;
-
-      return {
-        month,
-        label: MONTH_ABBR_VI[rawName] || rawName || `M${index + 1}`,
-        [dataKey]: Number(row?.[dataKey] ?? row?.value ?? 0) || 0,
-      };
-    })
-    .sort((a, b) => a.month - b.month);
+function getInsightTone(tone) {
+  return INSIGHT_TONE[tone] || INSIGHT_TONE.neutral;
 }
 
-function getFallbackSeries(filter, dataKey) {
-  if (filter === 'quarter') {
-    return Array.from({ length: 4 }, (_, index) => ({
-      label: `Q${index + 1}`,
-      [dataKey]: 0,
-    }));
-  }
-
-  if (filter === 'year') {
-    return [{ label: '12 tháng', [dataKey]: 0 }];
-  }
-
-  return ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'].map((label) => ({
-    label,
-    [dataKey]: 0,
-  }));
-}
-
-function aggregateSeries(series, filter, dataKey) {
-  if (!series.length) return getFallbackSeries(filter, dataKey);
-
-  if (filter === 'quarter') {
-    const grouped = new Map();
-
-    series.forEach((point) => {
-      const quarter = Math.ceil((point.month || 1) / 3);
-      grouped.set(quarter, (grouped.get(quarter) || 0) + (Number(point[dataKey]) || 0));
-    });
-
-    return Array.from({ length: 4 }, (_, index) => ({
-      label: `Q${index + 1}`,
-      [dataKey]: grouped.get(index + 1) || 0,
-    }));
-  }
-
-  if (filter === 'year') {
-    return [
-      {
-        label: '12 tháng',
-        [dataKey]: series.reduce((sum, point) => sum + (Number(point[dataKey]) || 0), 0),
-      },
-    ];
-  }
-
-  return series.map((point) => ({
-    label: point.label,
-    [dataKey]: Number(point[dataKey]) || 0,
-  }));
-}
-
-function SectionCard({ icon: Icon, title, description, action, className = '', children, ...props }) {
+function SectionCard({ title, description, icon: Icon, action, children, className }) {
   return (
     <section
-      className={cn(
-        'rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:border-emerald-200/70 hover:shadow-md sm:p-6',
-        className
-      )}
-      {...props}
+      className={cn('rounded-3xl border border-slate-200 bg-white p-6 shadow-sm', className)}
     >
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex min-w-0 items-start gap-3">
           {Icon ? (
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100">
-              <Icon className="h-4 w-4" />
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-white shadow-sm">
+              <Icon className="h-5 w-5" />
             </div>
           ) : null}
           <div className="min-w-0">
-            <h2 className="text-base font-bold tracking-tight text-slate-950">{title}</h2>
+            <h2 className="text-lg font-bold tracking-tight text-slate-950">{title}</h2>
             {description ? (
-              <p className="mt-1 text-sm leading-6 text-slate-500">{description}</p>
+              <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500">{description}</p>
             ) : null}
           </div>
         </div>
@@ -300,1093 +214,634 @@ function SectionCard({ icon: Icon, title, description, action, className = '', c
   );
 }
 
-function OverviewCard({ icon: Icon, label, value, helper, badge, tone = 'slate' }) {
-  const toneStyle = TONE_STYLES[tone] || TONE_STYLES.slate;
+function KpiCard({ item, value }) {
+  const Icon = item.icon;
 
   return (
-    <div
-      className={cn(
-        'rounded-2xl border bg-white p-5 shadow-sm transition-all hover:shadow-md',
-        toneStyle.surface
-      )}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{label}</p>
-          <p className="mt-3 text-3xl font-bold tracking-tight text-slate-950">{formatNumber(value)}</p>
-        </div>
+    <div className="group rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-lg hover:shadow-slate-200/60">
+      <div className="flex items-start justify-between gap-4">
         <div
           className={cn(
-            'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ring-1 ring-inset',
-            toneStyle.icon
+            'flex h-12 w-12 items-center justify-center rounded-2xl ring-1 ring-inset',
+            item.accent
           )}
         >
           <Icon className="h-5 w-5" />
         </div>
-      </div>
-
-      {badge ? (
-        <div className="mt-4">
-          <span className={cn('inline-flex rounded-full px-2.5 py-1 text-xs font-semibold', toneStyle.badge)}>
-            {badge}
-          </span>
-        </div>
-      ) : null}
-
-      {helper ? <p className="mt-3 text-sm leading-6 text-slate-500">{helper}</p> : null}
-    </div>
-  );
-}
-
-function MetricRow({ icon: Icon, label, value, helper, tone = 'slate', suffix = '' }) {
-  const toneStyle = TONE_STYLES[tone] || TONE_STYLES.slate;
-
-  return (
-    <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
-      <div
-        className={cn(
-          'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ring-1 ring-inset',
-          toneStyle.icon
-        )}
-      >
-        <Icon className="h-5 w-5" />
-      </div>
-
-      <div className="min-w-0 flex-1">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{label}</p>
-        {helper ? <p className="mt-1 text-sm text-slate-500">{helper}</p> : null}
-      </div>
-
-      <div className="shrink-0 text-right">
-        <div className="text-xl font-bold tracking-tight text-slate-950">
-          {formatNumber(value)}
-          {suffix}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function PipelineStep({ icon: Icon, label, value, progress, tone = 'slate' }) {
-  const toneStyle = TONE_STYLES[tone] || TONE_STYLES.slate;
-
-  return (
-    <div className="p-4">
-      <div className="flex items-center gap-3">
-        <div
-          className={cn(
-            'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset',
-            toneStyle.icon
-          )}
-        >
-          <Icon className="h-4 w-4" />
-        </div>
-        <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{label}</p>
-          <p className="mt-1 text-2xl font-bold tracking-tight text-slate-950">{formatNumber(value)}</p>
-          <p className="mt-1 text-xs text-slate-500">{progress}% trên tổng hồ sơ</p>
-        </div>
-      </div>
-
-      <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
-        <div
-          className={cn('h-full rounded-full transition-all', toneStyle.progress)}
-          style={{ width: `${progress > 0 ? Math.max(8, Math.round(progress)) : 0}%` }}
-        />
-      </div>
-    </div>
-  );
-}
-
-function InsightItem({ label, value, tone = 'slate', helper }) {
-  const toneStyle = TONE_STYLES[tone] || TONE_STYLES.slate;
-
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
-      <div className="flex items-center justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">{label}</p>
-          {helper ? <p className="mt-1 text-sm text-slate-500">{helper}</p> : null}
-        </div>
-        <span className={cn('inline-flex rounded-full px-2.5 py-1 text-xs font-semibold', toneStyle.badge)}>
-          {value}
+        <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] text-slate-500">
+          KPI
         </span>
       </div>
+      <p className="mt-7 text-sm font-semibold uppercase tracking-[0.14em] text-slate-400">
+        {item.title}
+      </p>
+      <p className="mt-3 text-4xl font-black tracking-tight text-slate-950">
+        {formatNumber(value)}
+      </p>
+      <p className="mt-3 text-sm leading-6 text-slate-500">{item.description}</p>
     </div>
   );
 }
 
-function RankedColumn({ icon: Icon, title, description, items, emptyMessage, tone = 'emerald' }) {
-  const toneStyle = TONE_STYLES[tone] || TONE_STYLES.emerald;
-  const maxValue = Math.max(1, ...items.map((item) => Number(item.value) || 0));
+function InsightCard({ insight, index }) {
+  const tone = getInsightTone(insight.tone);
+  const Icon = tone.icon;
 
   return (
-    <div className="p-5">
-      <div className="flex items-start gap-3">
+    <article className={cn('rounded-2xl border p-4', tone.card)}>
+      <div className="flex gap-3">
         <div
           className={cn(
-            'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset',
-            toneStyle.icon
+            'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-sm',
+            tone.iconBox
           )}
         >
           <Icon className="h-4 w-4" />
         </div>
-        <div>
-          <h3 className="text-sm font-semibold text-slate-950">{title}</h3>
-          <p className="mt-1 text-sm leading-6 text-slate-500">{description}</p>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge className={cn('rounded-full px-2.5 py-1 text-[11px] font-bold', tone.badge)}>
+              {tone.label} {index + 1}
+            </Badge>
+          </div>
+          <h3 className="mt-3 text-base font-bold leading-6">{insight.title}</h3>
+          <p className="mt-2 text-sm leading-6 opacity-80">{insight.description}</p>
         </div>
       </div>
+    </article>
+  );
+}
 
-      {items.length ? (
-        <div className="mt-5 space-y-3">
-          {items.map((item, index) => {
-            const width = `${Math.max(12, Math.round(((Number(item.value) || 0) / maxValue) * 100))}%`;
+function PipelineCard({ stage, value }) {
+  const Icon = stage.icon;
 
-            return (
-              <div key={`${item.label}-${index}`}>
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <span
-                      className={cn(
-                        'inline-flex h-7 min-w-7 items-center justify-center rounded-full px-2 text-xs font-bold',
-                        toneStyle.badge
-                      )}
-                    >
-                      {index + 1}
-                    </span>
-                    <p className="truncate text-sm font-medium text-slate-800">{item.label}</p>
-                  </div>
-                  <span className="text-xs font-semibold text-slate-500">{formatNumber(item.value)}</span>
-                </div>
-                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
-                  <div className={cn('h-full rounded-full', toneStyle.progress)} style={{ width }} />
-                </div>
-              </div>
-            );
-          })}
+  return (
+    <div className={cn('rounded-2xl border bg-white p-5 shadow-sm', stage.border)}>
+      <div className="flex items-start gap-4">
+        <div
+          className={cn(
+            'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl',
+            stage.tone
+          )}
+        >
+          <Icon className="h-5 w-5" />
         </div>
-      ) : (
-        <div className="mt-5 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm leading-6 text-slate-500">
-          {emptyMessage}
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-slate-500">{stage.label}</p>
+          <p className="mt-2 text-3xl font-black tracking-tight text-slate-950">
+            {formatNumber(value)}
+          </p>
+          <p className="mt-2 text-sm leading-5 text-slate-500">{stage.description}</p>
         </div>
-      )}
+      </div>
     </div>
   );
 }
 
-const ChartTooltip = ({ active, payload, label, valueSuffix }) => {
-  if (!active || !payload?.length) return null;
+function HotIndustryList({ items }) {
+  if (!items.length) {
+    return (
+      <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-6 py-10 text-center">
+        <p className="text-sm font-bold text-slate-700">Chưa có ngành nghề nổi bật</p>
+        <p className="mt-2 text-sm text-slate-500">
+          Khi có tin tuyển dụng mới, top ngành sẽ tự động cập nhật từ dữ liệu thật.
+        </p>
+      </div>
+    );
+  }
 
-  const value = Number(payload[0]?.value);
+  const maxValue = Math.max(1, ...items.map((item) => Number(item.count) || 0));
 
   return (
-    <div className="rounded-xl border border-slate-200/90 bg-white px-4 py-3 shadow-xl shadow-slate-200/50">
-      <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">{label}</p>
-      <p className="text-lg font-bold tabular-nums text-slate-900">
-        {Number.isFinite(value) ? value.toLocaleString('vi-VN') : '—'}
-        {valueSuffix ? <span className="ml-1 text-xs font-semibold text-slate-500">{valueSuffix}</span> : null}
-      </p>
+    <div className="space-y-4">
+      {items.map((item, index) => {
+        const width = `${Math.max(12, Math.round(((Number(item.count) || 0) / maxValue) * 100))}%`;
+        return (
+          <div
+            key={`${item.name}-${index}`}
+            className="rounded-2xl border border-slate-200 bg-white p-4"
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="flex h-8 min-w-8 items-center justify-center rounded-xl bg-amber-50 px-2 text-sm font-black text-amber-700 ring-1 ring-inset ring-amber-100">
+                  {index + 1}
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-bold text-slate-900">{item.name}</p>
+                  <p className="mt-0.5 text-xs font-medium text-slate-500">
+                    Nguồn: {item.source === 'applications' ? 'ứng tuyển' : 'tin tuyển dụng'}
+                  </p>
+                </div>
+              </div>
+              <span className="shrink-0 text-sm font-black tabular-nums text-slate-950">
+                {formatNumber(item.count)}
+              </span>
+            </div>
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
+              <div className="h-full rounded-full bg-amber-500" style={{ width }} />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+const GrowthTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null;
+
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-xl shadow-slate-200/60">
+      <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">{label}</p>
+      <div className="mt-2 space-y-1.5">
+        {payload.map((entry) => (
+          <div key={entry.dataKey} className="flex items-center justify-between gap-8 text-sm">
+            <span className="flex items-center gap-2 font-semibold text-slate-600">
+              <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
+              {entry.name}
+            </span>
+            <span className="font-black tabular-nums text-slate-950">
+              {formatNumber(entry.value)}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
 
-ChartTooltip.propTypes = {
-  active: PropTypes.bool,
-  payload: PropTypes.arrayOf(
-    PropTypes.shape({
-      value: PropTypes.number,
-    })
-  ),
-  label: PropTypes.string,
-  valueSuffix: PropTypes.string,
-};
-
-SectionCard.propTypes = {
-  icon: PropTypes.elementType,
-  title: PropTypes.string.isRequired,
-  description: PropTypes.string,
-  action: PropTypes.node,
-  className: PropTypes.string,
-  children: PropTypes.node,
-};
-
-OverviewCard.propTypes = {
-  icon: PropTypes.elementType.isRequired,
-  label: PropTypes.string.isRequired,
-  value: PropTypes.number.isRequired,
-  helper: PropTypes.string,
-  badge: PropTypes.string,
-  tone: PropTypes.string,
-};
-
-MetricRow.propTypes = {
-  icon: PropTypes.elementType.isRequired,
-  label: PropTypes.string.isRequired,
-  value: PropTypes.number.isRequired,
-  helper: PropTypes.string,
-  tone: PropTypes.string,
-  suffix: PropTypes.string,
-};
-
-PipelineStep.propTypes = {
-  icon: PropTypes.elementType.isRequired,
-  label: PropTypes.string.isRequired,
-  value: PropTypes.number.isRequired,
-  progress: PropTypes.number.isRequired,
-  tone: PropTypes.string,
-};
-
-InsightItem.propTypes = {
-  label: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired,
-  tone: PropTypes.string,
-  helper: PropTypes.string,
-};
-
-RankedColumn.propTypes = {
-  icon: PropTypes.elementType.isRequired,
-  title: PropTypes.string.isRequired,
-  description: PropTypes.string.isRequired,
-  items: PropTypes.arrayOf(
-    PropTypes.shape({
-      label: PropTypes.string.isRequired,
-      value: PropTypes.number.isRequired,
-    })
-  ).isRequired,
-  emptyMessage: PropTypes.string.isRequired,
-  tone: PropTypes.string,
-};
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {[1, 2, 3, 4].map((item) => (
+          <div
+            key={item}
+            className="h-52 animate-pulse rounded-3xl border border-slate-200 bg-white"
+          />
+        ))}
+      </div>
+      <div className="h-72 animate-pulse rounded-3xl border border-slate-200 bg-white" />
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.5fr)_420px]">
+        <div className="h-96 animate-pulse rounded-3xl border border-slate-200 bg-white" />
+        <div className="h-96 animate-pulse rounded-3xl border border-slate-200 bg-white" />
+      </div>
+    </div>
+  );
+}
 
 const AdminAnalyticsPage = () => {
   const { showNotification } = useNotification();
-  const [stats, setStats] = useState(EMPTY_STATS);
-  const [charts, setCharts] = useState(EMPTY_CHARTS);
-  const [timeFilter, setTimeFilter] = useState('month');
+  const [dashboard, setDashboard] = useState(EMPTY_DASHBOARD);
+  const [timeRange, setTimeRange] = useState('30d');
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [error, setError] = useState('');
 
-  const fetchData = useCallback(async () => {
-    try {
-      setLoading(true);
+  const fetchDashboard = useCallback(
+    async ({ silent = false } = {}) => {
+      try {
+        if (silent) setRefreshing(true);
+        else setLoading(true);
+        setError('');
 
-      const [statsRes, chartRes] = await Promise.all([
-        adminService.getStats(),
-        adminService.getChartStats(),
-      ]);
+        const response = await adminService.getAnalyticsDashboard({ range: timeRange });
+        const payload = response?.data?.data || {};
 
-      if (statsRes?.data?.success) {
-        const raw = statsRes.data.data || {};
-        setStats({
-          ...EMPTY_STATS,
-          ...raw,
-          users: Number(raw.users) || 0,
-          jobs: Number(raw.jobs) || 0,
-          applications: Number(raw.applications) || 0,
-          companies: Number(raw.companies) || 0,
-          revenue: Number(raw.revenue) || 0,
+        setDashboard({
+          ...EMPTY_DASHBOARD,
+          ...payload,
+          range: payload.range || EMPTY_DASHBOARD.range,
+          kpi: { ...EMPTY_DASHBOARD.kpi, ...(payload.kpi || {}) },
+          pipeline: { ...EMPTY_DASHBOARD.pipeline, ...(payload.pipeline || {}) },
+          moderation: { ...EMPTY_DASHBOARD.moderation, ...(payload.moderation || {}) },
+          growth: Array.isArray(payload.growth) ? payload.growth : [],
+          topIndustries: Array.isArray(payload.topIndustries)
+            ? payload.topIndustries.slice(0, 5)
+            : [],
+          insights: Array.isArray(payload.insights) ? payload.insights : [],
+          aiInsight: payload.aiInsight || null,
         });
+      } catch (fetchError) {
+        console.error('Error loading analytics dashboard:', fetchError);
+        setError('Không thể tải dữ liệu phân tích hệ thống. Vui lòng thử lại sau.');
+        showNotification('Không tải được dữ liệu phân tích hệ thống', 'error');
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
       }
-
-      if (chartRes?.data?.success) {
-        setCharts({
-          ...EMPTY_CHARTS,
-          ...(chartRes.data.data || {}),
-        });
-      }
-    } catch (error) {
-      console.error('Error loading analytics:', error);
-      showNotification('Không tải được dữ liệu phân tích hệ thống', 'error');
-    } finally {
-      setLoading(false);
-    }
-  }, [showNotification]);
+    },
+    [showNotification, timeRange]
+  );
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    fetchDashboard();
+  }, [fetchDashboard]);
 
-  const totalApplications = stats.totalApplications || stats.applications || 0;
-  const activeAccounts = Math.max(0, stats.users - stats.lockedAccounts);
-  const accountHealth = calculatePercent(activeAccounts, stats.users);
-  const hiringRate = calculatePercent(stats.hiredCount, totalApplications);
-  const rejectionRate = calculatePercent(stats.rejectedCount, totalApplications);
-  const companyVerificationRate = calculatePercent(stats.verifiedCompanies, stats.companies);
-  const aiUsageTotal =
-    (stats.chatbotConversations || 0) + (stats.cvScans || 0);
+  const selectedRange = RANGE_FILTERS.find((item) => item.id === timeRange) || RANGE_FILTERS[1];
 
-  const overviewCards = useMemo(
-    () => [
-      {
-        label: 'Tổng người dùng',
-        value: stats.users,
-        helper: `${formatNumber(activeAccounts)} tài khoản đang hoạt động ổn định.`,
-        badge: `${accountHealth}% ổn định`,
-        tone: 'emerald',
-        icon: Users,
-      },
-      {
-        label: 'Việc làm hoạt động',
-        value: stats.jobs,
-        helper: `${formatNumber(stats.publishedJobs || stats.jobs)} tin đang hiển thị trên nền tảng.`,
-        badge: `${formatNumber(stats.pendingJobApprovals || 0)} chờ duyệt`,
-        tone: 'blue',
-        icon: Briefcase,
-      },
-      {
-        label: 'Đơn ứng tuyển',
-        value: stats.applications,
-        helper: `${formatNumber(totalApplications)} hồ sơ đã đi vào pipeline tuyển dụng.`,
-        badge: `${hiringRate}% được nhận`,
-        tone: 'violet',
-        icon: FileText,
-      },
-      {
-        label: 'Doanh nghiệp',
-        value: stats.companies,
-        helper: `${formatNumber(stats.verifiedCompanies)} doanh nghiệp đã xác thực.`,
-        badge: `${companyVerificationRate}% verified`,
-        tone: 'amber',
-        icon: Building2,
-      },
-    ],
-    [accountHealth, activeAccounts, companyVerificationRate, hiringRate, stats, totalApplications]
-  );
+  const hasData = useMemo(() => {
+    const kpiTotal = Object.values(dashboard.kpi || {}).reduce(
+      (sum, value) => sum + Number(value || 0),
+      0
+    );
+    const pipelineTotal = Object.values(dashboard.pipeline || {}).reduce((sum, value) => {
+      if (typeof value === 'object') return sum;
+      return sum + Number(value || 0);
+    }, 0);
+    return (
+      kpiTotal > 0 ||
+      pipelineTotal > 0 ||
+      dashboard.growth.some((item) => item.users > 0 || item.applications > 0)
+    );
+  }, [dashboard]);
 
-  const accountBreakdown = useMemo(
-    () => [
-      {
-        label: 'Ứng viên',
-        value: formatNumber(stats.candidateAccounts),
-        tone: 'emerald',
-      },
-      {
-        label: 'Nhà tuyển dụng',
-        value: formatNumber(stats.recruiterAccounts),
-        tone: 'blue',
-      },
-      {
-        label: 'Admin',
-        value: formatNumber(stats.adminAccounts),
-        tone: 'violet',
-      },
-      {
-        label: 'Đã khóa',
-        value: formatNumber(stats.lockedAccounts),
-        tone: 'rose',
-      },
-    ],
-    [stats.adminAccounts, stats.candidateAccounts, stats.lockedAccounts, stats.recruiterAccounts]
-  );
-
-  const pipelineKpis = useMemo(() => {
-    const total = totalApplications;
-
-    return [
-      {
-        label: 'Đã nộp',
-        value: stats.submittedCount || 0,
-        icon: FileText,
-        tone: 'slate',
-        progress: calculatePercent(stats.submittedCount, total),
-      },
-      {
-        label: 'Sàng lọc',
-        value: stats.screeningCount || 0,
-        icon: CheckCircle,
-        tone: 'blue',
-        progress: calculatePercent(stats.screeningCount, total),
-      },
-      {
-        label: 'Phỏng vấn',
-        value: stats.interviewCount || 0,
-        icon: Users,
-        tone: 'amber',
-        progress: calculatePercent(stats.interviewCount, total),
-      },
-      {
-        label: 'Được nhận',
-        value: stats.hiredCount || 0,
-        icon: TrendingUp,
-        tone: 'emerald',
-        progress: calculatePercent(stats.hiredCount, total),
-      },
-      {
-        label: 'Từ chối',
-        value: stats.rejectedCount || 0,
-        icon: XCircle,
-        tone: 'rose',
-        progress: calculatePercent(stats.rejectedCount, total),
-      },
-    ];
-  }, [stats, totalApplications]);
-
-  const aiUsageItems = useMemo(
-    () => [
-      {
-        label: 'Lượt chatbot',
-        value: stats.chatbotConversations || 0,
-        icon: MessageSquare,
-        tone: 'indigo',
-        helper: 'Số phiên AI chat được kích hoạt trong hệ thống.',
-      },
-      {
-        label: 'CV scans',
-        value: stats.cvScans || 0,
-        icon: FileText,
-        tone: 'violet',
-        helper: 'Lượt phân tích CV tự động phục vụ screening.',
-      },
-    ],
-    [stats]
-  );
-
-  const applicationTypeMix = useMemo(() => {
-    if (!Array.isArray(charts.applicationStats)) return [];
-
-    return charts.applicationStats
-      .map((item) => ({
-        label: String(item?.name ?? 'Khác'),
-        value: Number(item?.value ?? 0) || 0,
-      }))
-      .filter((item) => item.value > 0)
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 4);
-  }, [charts.applicationStats]);
-
-  const taxonomySkills = useMemo(
+  const chartTotals = useMemo(
     () =>
-      (Array.isArray(stats.topSkills) ? stats.topSkills : []).slice(0, 8).map((item, index) => ({
-        label: String(item?.name ?? item?.skill ?? `Kỹ năng ${index + 1}`),
-        value: Number(item?.count ?? item?.value ?? 0) || 0,
-      })),
-    [stats.topSkills]
+      dashboard.growth.reduce(
+        (summary, item) => ({
+          users: summary.users + Number(item.users || 0),
+          applications: summary.applications + Number(item.applications || 0),
+        }),
+        { users: 0, applications: 0 }
+      ),
+    [dashboard.growth]
   );
 
-  const taxonomyIndustries = useMemo(
-    () =>
-      (Array.isArray(stats.topIndustries) ? stats.topIndustries : []).slice(0, 6).map((item, index) => ({
-        label: String(item?.name ?? item?.industry ?? `Ngành ${index + 1}`),
-        value: Number(item?.count ?? item?.value ?? 0) || 0,
-      })),
-    [stats.topIndustries]
-  );
-
-  const taxonomyLocations = useMemo(
-    () =>
-      (Array.isArray(stats.topLocations) ? stats.topLocations : []).slice(0, 6).map((item, index) => ({
-        label: String(item?.name ?? item?.location ?? `Địa điểm ${index + 1}`),
-        value: Number(item?.count ?? item?.value ?? 0) || 0,
-      })),
-    [stats.topLocations]
-  );
-
-  const userGrowthSeries = useMemo(
-    () => normalizeTimeSeries(charts.userGrowth, 'users'),
-    [charts.userGrowth]
-  );
-
-  const jobGrowthSeries = useMemo(
-    () => normalizeTimeSeries(charts.jobStats, 'jobs'),
-    [charts.jobStats]
-  );
-
-  const userChartSeries = useMemo(
-    () => aggregateSeries(userGrowthSeries, timeFilter, 'users'),
-    [timeFilter, userGrowthSeries]
-  );
-
-  const jobChartSeries = useMemo(
-    () => aggregateSeries(jobGrowthSeries, timeFilter, 'jobs'),
-    [jobGrowthSeries, timeFilter]
-  );
-
-  const userChartTotal = useMemo(
-    () => userChartSeries.reduce((sum, item) => sum + (Number(item.users) || 0), 0),
-    [userChartSeries]
-  );
-
-  const jobChartTotal = useMemo(
-    () => jobChartSeries.reduce((sum, item) => sum + (Number(item.jobs) || 0), 0),
-    [jobChartSeries]
-  );
-
-  const timeFilterLabel = TIME_FILTERS.find((item) => item.id === timeFilter)?.label || 'Theo tháng';
-
-  const timeFilterHint = useMemo(() => {
-    if (timeFilter === 'quarter') {
-      return 'Gộp dữ liệu thành 4 quý để so sánh nhịp tăng trưởng rõ hơn.';
-    }
-
-    if (timeFilter === 'year') {
-      return 'Hiển thị tổng lũy kế 12 tháng gần nhất cho góc nhìn dài hạn.';
-    }
-
-    return 'Hiển thị dữ liệu theo từng tháng trong 12 tháng gần nhất.';
-  }, [timeFilter]);
+  const aiTone = getInsightTone(dashboard.aiInsight?.tone);
+  const AiToneIcon = aiTone.icon;
 
   const handleExportReport = useCallback(() => {
     try {
       setExporting(true);
-
       const rows = [
         ['Nhóm', 'Chỉ số', 'Giá trị'],
-        ...overviewCards.map((item) => ['Tổng quan', item.label, String(item.value)]),
-        ...pipelineKpis.map((item) => ['Pipeline tuyển dụng', item.label, String(item.value)]),
-        ...aiUsageItems.map((item) => ['AI vận hành', item.label, String(item.value)]),
-        ['AI chất lượng', 'Độ chính xác AI', `${stats.aiAccuracyScore || 0}%`],
-        ['AI chất lượng', 'Spam phát hiện', String(stats.spamDetected || 0)],
-        ['AI chất lượng', 'Tài khoản bị khóa', String(stats.flaggedAccounts || 0)],
-        ['Taxonomy', 'Tổng kỹ năng', String(stats.totalSkills || 0)],
-        ['Taxonomy', 'Tổng ngành nghề', String(stats.totalCategories || 0)],
-        ['Taxonomy', 'Tổng địa điểm', String(stats.totalLocations || 0)],
-        ...taxonomySkills.map((item) => ['Top kỹ năng', item.label, String(item.value)]),
-        ...taxonomyIndustries.map((item) => ['Top ngành nghề', item.label, String(item.value)]),
-        ...taxonomyLocations.map((item) => ['Top địa điểm', item.label, String(item.value)]),
-        ...userChartSeries.map((item) => [`Người dùng mới (${timeFilterLabel})`, item.label, String(item.users)]),
-        ...jobChartSeries.map((item) => [`Tin tuyển dụng (${timeFilterLabel})`, item.label, String(item.jobs)]),
+        ['Khoảng lọc', 'Thời gian', dashboard.range?.label || selectedRange.label],
+        ...KPI_CARDS.map((item) => ['KPI', item.title, String(dashboard.kpi?.[item.key] || 0)]),
+        ...PIPELINE_STAGES.map((stage) => [
+          'Pipeline tuyển dụng',
+          stage.label,
+          String(dashboard.pipeline?.[stage.key] || 0),
+        ]),
+        ...dashboard.topIndustries.map((item) => [
+          'Ngành nghề hot',
+          item.name,
+          String(item.count || 0),
+        ]),
+        ...dashboard.insights.map((item) => ['Nhận định', item.title, item.description]),
+        ...dashboard.growth.map((item) => [
+          'Tăng trưởng',
+          item.date || item.label,
+          `Người dùng: ${item.users || 0}; Ứng tuyển: ${item.applications || 0}`,
+        ]),
       ];
 
-      downloadCsv(`analytics-report-${new Date().toISOString().slice(0, 10)}.csv`, rows);
+      downloadCsv(
+        `analytics-dashboard-${timeRange}-${new Date().toISOString().slice(0, 10)}.csv`,
+        rows
+      );
       showNotification('Đã xuất báo cáo phân tích', 'success');
-    } catch (error) {
-      console.error('Export analytics report error:', error);
+    } catch (exportError) {
+      console.error('Export analytics dashboard error:', exportError);
       showNotification('Không thể xuất báo cáo phân tích', 'error');
     } finally {
       setExporting(false);
     }
-  }, [
-    aiUsageItems,
-    jobChartSeries,
-    overviewCards,
-    pipelineKpis,
-    showNotification,
-    stats.aiAccuracyScore,
-    stats.flaggedAccounts,
-    stats.spamDetected,
-    stats.totalCategories,
-    stats.totalLocations,
-    stats.totalSkills,
-    taxonomyIndustries,
-    taxonomyLocations,
-    taxonomySkills,
-    timeFilterLabel,
-    userChartSeries,
-  ]);
+  }, [dashboard, selectedRange.label, showNotification, timeRange]);
 
   return (
-    <div className="min-h-screen bg-slate-50/40 pb-16 animate-fade-in">
-      <section className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-40"
-          style={{
-            backgroundImage:
-              'linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px)',
-            backgroundSize: '32px 32px',
-          }}
-        />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.14),transparent_36%),radial-gradient(circle_at_top_right,rgba(59,130,246,0.08),transparent_32%)]" />
-
-        <div className="relative mx-auto max-w-7xl px-4 pb-8 pt-10 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-            <div className="flex-1 space-y-5">
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-white shadow-sm shadow-emerald-900/10">
-                  <BarChart3 className="h-5 w-5" strokeWidth={2.5} />
-                </div>
-                <div className="max-w-3xl">
-                  <span className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 text-xs font-bold uppercase text-emerald-700 ring-1 ring-inset ring-emerald-100">
-                    <Sparkles className="h-3.5 w-3.5" />
-                    Analytics workspace
-                  </span>
-                  <h1 className="mt-3 text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
-                    Phân tích hệ thống
-                  </h1>
-                  <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-                    Theo dõi nhịp tăng trưởng người dùng, hiệu quả tuyển dụng, chất lượng dữ liệu và mức độ
-                    vận hành AI trên toàn bộ nền tảng. Trang được tinh gọn lại để giảm số lượng card, ưu tiên
-                    các nhóm chỉ số có tác động trực tiếp đến vận hành.
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                {overviewCards.map((item) => (
-                  <OverviewCard
-                    key={item.label}
-                    icon={item.icon}
-                    label={item.label}
-                    value={item.value}
-                    helper={item.helper}
-                    badge={item.badge}
-                    tone={item.tone}
-                  />
-                ))}
-              </div>
+    <div className="animate-fade-in space-y-7 pb-10">
+      <PageHeader
+        icon={BarChart3}
+        eyebrow="Tổng quan phân tích"
+        badge="Chỉ xem dữ liệu"
+        title="Phân tích hệ thống"
+        description="Tổng quan tinh gọn cho Admin: ưu tiên KPI cốt lõi, nhận định nhanh và tín hiệu tuyển dụng giúp ra quyết định trong vài giây."
+        actions={
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex rounded-2xl border border-slate-200 bg-white p-1 shadow-sm">
+              {RANGE_FILTERS.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  title={item.helper}
+                  onClick={() => setTimeRange(item.id)}
+                  className={cn(
+                    'rounded-xl px-4 py-2.5 text-sm font-bold transition-all',
+                    timeRange === item.id
+                      ? 'bg-slate-950 text-white shadow-sm'
+                      : 'text-slate-500 hover:bg-slate-50 hover:text-slate-950'
+                  )}
+                >
+                  {item.label}
+                </button>
+              ))}
             </div>
+            <Button
+              type="button"
+              variant="outline"
+              className="h-11 rounded-xl bg-white px-5 text-sm font-bold text-slate-700 shadow-sm"
+              onClick={() => fetchDashboard({ silent: true })}
+              disabled={loading || refreshing}
+            >
+              {refreshing ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="mr-2 h-4 w-4" />
+              )}
+              Làm mới
+            </Button>
+            <Button
+              type="button"
+              className="h-11 rounded-xl bg-slate-950 px-5 text-sm font-bold text-white shadow-sm hover:bg-slate-800"
+              onClick={handleExportReport}
+              disabled={exporting || loading || !hasData}
+            >
+              {exporting ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="mr-2 h-4 w-4" />
+              )}
+              Xuất CSV
+            </Button>
+          </div>
+        }
+      />
 
-            <div className="flex w-full self-start flex-col gap-3 lg:max-w-[320px]">
-              <div className="flex flex-wrap items-center gap-3 lg:justify-end">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-10 rounded-lg border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700"
-                  onClick={fetchData}
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                  )}
-                  Làm mới
-                </Button>
-
-                <Button
-                  type="button"
-                  className="h-10 rounded-lg bg-slate-950 px-4 text-sm font-semibold text-white shadow-sm hover:bg-slate-800"
-                  onClick={handleExportReport}
-                  disabled={exporting}
-                >
-                  {exporting ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Download className="mr-2 h-4 w-4" />
-                  )}
-                  Xuất báo cáo
-                </Button>
-              </div>
-
-              <div className="rounded-lg border border-white/80 bg-white/85 p-4 shadow-sm backdrop-blur">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                      Sức khỏe tài khoản
-                    </p>
-                    <p className="mt-1 text-2xl font-bold text-slate-950">{accountHealth}%</p>
-                  </div>
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100">
-                    <LayoutDashboard className="h-5 w-5" />
-                  </div>
-                </div>
-
-                <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
-                  <div className="h-full rounded-full bg-emerald-600" style={{ width: `${accountHealth}%` }} />
-                </div>
-
-                <div className="mt-4 grid grid-cols-2 gap-2">
-                  {accountBreakdown.map((item) => {
-                    const toneStyle = TONE_STYLES[item.tone] || TONE_STYLES.slate;
-
-                    return (
-                      <div
-                        key={item.label}
-                        className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-3 py-2.5"
-                      >
-                        <p className="text-sm font-medium text-slate-600">{item.label}</p>
-                        <span
-                          className={cn(
-                            'inline-flex rounded-full px-2.5 py-1 text-xs font-semibold',
-                            toneStyle.badge
-                          )}
-                        >
-                          {item.value}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+      {loading ? (
+        <DashboardSkeleton />
+      ) : error ? (
+        <div className="rounded-3xl border border-rose-200 bg-rose-50 p-8 text-rose-800 shadow-sm">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-rose-600 text-white">
+              <AlertCircle className="h-6 w-6" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h2 className="text-xl font-black text-rose-950">Không tải được tổng quan</h2>
+              <p className="mt-2 text-sm leading-6 text-rose-700">{error}</p>
+              <Button
+                className="mt-5 rounded-xl bg-rose-600 text-white hover:bg-rose-700"
+                onClick={() => fetchDashboard()}
+              >
+                Thử lại
+              </Button>
             </div>
           </div>
         </div>
-      </section>
-
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="space-y-6">
-          <SectionCard
-            icon={TrendingUp}
-            title="Tuyển dụng & chuyển đổi"
-            description="Gộp toàn bộ pipeline vào một khối để nhìn nhanh khả năng đi tiếp của hồ sơ và chất lượng đầu vào."
-            action={
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge className="rounded-full border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
-                  {formatNumber(totalApplications)} hồ sơ
-                </Badge>
-                <Badge className="rounded-full border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                  Hired {hiringRate}%
-                </Badge>
-                <Badge className="rounded-full border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">
-                  Reject {rejectionRate}%
-                </Badge>
-              </div>
-            }
-          >
-            <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
-              <div className="rounded-[24px] border border-slate-200 bg-slate-50/70 p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
-                  Toàn cảnh pipeline
-                </p>
-                <h3 className="mt-2 text-lg font-semibold text-slate-950">Từ hồ sơ vào đến quyết định tuyển dụng</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-500">
-                  Phần này tập trung vào những chỉ số giúp admin và đội vận hành đánh giá hiệu quả xử lý hồ sơ
-                  thay vì tách thành nhiều ô nhỏ rời rạc.
-                </p>
-
-                <div className="mt-5 space-y-3">
-                  <InsightItem
-                    label="Tổng hồ sơ"
-                    value={`${formatNumber(totalApplications)} hồ sơ`}
-                    tone="slate"
-                    helper="Toàn bộ ứng viên đã đi qua pipeline tuyển dụng."
-                  />
-                  <InsightItem
-                    label="Tỷ lệ được nhận"
-                    value={`${hiringRate}%`}
-                    tone="emerald"
-                    helper={
-                      stats.hiredCount
-                        ? `${formatNumber(stats.hiredCount)} hồ sơ đã được nhận`
-                        : 'Chưa có hồ sơ được nhận trong tập dữ liệu'
-                    }
-                  />
-                  <InsightItem
-                    label="Tỷ lệ từ chối"
-                    value={`${rejectionRate}%`}
-                    tone="rose"
-                    helper={
-                      stats.rejectedCount
-                        ? `${formatNumber(stats.rejectedCount)} hồ sơ bị từ chối`
-                        : 'Chưa có hồ sơ từ chối trong tập dữ liệu'
-                    }
-                  />
-                  <InsightItem
-                    label="Tin chờ duyệt"
-                    value={formatNumber(stats.pendingJobApprovals || 0)}
-                    tone="amber"
-                    helper="Khối lượng tuyển dụng mới có thể tác động tới pipeline sắp tới."
-                  />
-                </div>
-
-                {applicationTypeMix.length ? (
-                  <div className="mt-5">
-                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
-                      Loại công việc nhận hồ sơ
-                    </p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {applicationTypeMix.map((item) => (
-                        <Badge
-                          key={item.label}
-                          className="rounded-full border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600"
-                        >
-                          {item.label}: {formatNumber(item.value)}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-
-              <div className="overflow-hidden rounded-[24px] border border-slate-200 bg-white">
-                <div className="grid divide-y divide-slate-200 md:grid-cols-5 md:divide-x md:divide-y-0">
-                  {pipelineKpis.map((item) => (
-                    <PipelineStep
-                      key={item.label}
-                      icon={item.icon}
-                      label={item.label}
-                      value={item.value}
-                      progress={item.progress}
-                      tone={item.tone}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </SectionCard>
+      ) : !hasData ? (
+        <div className="rounded-3xl border border-dashed border-slate-200 bg-white p-10 shadow-sm">
+          <EmptyState
+            title="Chưa có dữ liệu phân tích"
+            description="Khoảng thời gian đang chọn chưa phát sinh người dùng, tin tuyển dụng hoặc ứng tuyển. Hãy đổi filter để xem dữ liệu rộng hơn."
+            variant="robotSearch"
+          />
+        </div>
+      ) : (
+        <div className="space-y-7">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {KPI_CARDS.map((item) => (
+              <KpiCard key={item.key} item={item} value={dashboard.kpi?.[item.key] || 0} />
+            ))}
+          </div>
 
           <SectionCard
             icon={BrainCircuit}
-            title="AI & chất lượng dữ liệu"
-            description="Nhóm lại theo 2 mục tiêu rõ ràng: khối lượng sử dụng AI và các tín hiệu kiểm soát chất lượng."
+            title="Nhận định nhanh"
+            description={`Nhận định được sinh tự động từ dữ liệu thật trong ${dashboard.range?.label || selectedRange.label}; không dùng nhận định hardcode.`}
             action={
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge className="rounded-full border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
-                  {formatNumber(aiUsageTotal)} tương tác AI
-                </Badge>
-                <Badge className="rounded-full border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                  Accuracy {formatNumber(stats.aiAccuracyScore)}%
-                </Badge>
-              </div>
+              <Badge className={cn('rounded-full px-3 py-1 text-xs font-bold', aiTone.badge)}>
+                Nhận định AI
+              </Badge>
             }
+            className="bg-gradient-to-br from-white via-white to-slate-50"
           >
-            <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-              <div className="rounded-[24px] border border-slate-200 bg-slate-50/70 p-5">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
-                      Khối lượng sử dụng
-                    </p>
-                    <h3 className="mt-2 text-lg font-semibold text-slate-950">Tương tác AI trong vận hành</h3>
-                    <p className="mt-2 text-sm leading-6 text-slate-500">
-                      Theo dõi khối lượng xử lý của các mô-đun AI đang tham gia trực tiếp vào trải nghiệm tuyển dụng.
-                    </p>
-                  </div>
+            <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
+              <div className="grid gap-4 md:grid-cols-2">
+                {(dashboard.insights.length ? dashboard.insights : EMPTY_DASHBOARD.insights).map(
+                  (insight, index) => (
+                    <InsightCard
+                      key={insight.id || `${insight.title}-${index}`}
+                      insight={insight}
+                      index={index}
+                    />
+                  )
+                )}
+              </div>
 
-                  <div className="rounded-xl border border-indigo-200 bg-white px-3 py-2 text-right shadow-sm">
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Tổng</p>
-                    <p className="mt-1 text-lg font-bold text-slate-950">{formatNumber(aiUsageTotal)}</p>
+              <aside className="rounded-3xl border border-slate-200 bg-slate-950 p-6 text-white shadow-xl shadow-slate-200/60">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-white ring-1 ring-inset ring-white/10">
+                    <AiToneIcon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-300">
+                      Nhận định AI
+                    </p>
+                    <h3 className="mt-3 text-lg font-black leading-7">
+                      {dashboard.aiInsight?.title || 'Chưa đủ dữ liệu để tạo nhận định'}
+                    </h3>
+                    <p className="mt-3 text-sm leading-6 text-slate-300">
+                      {dashboard.aiInsight?.description ||
+                        'Nhận định AI sẽ xuất hiện khi hệ thống có thêm dữ liệu vận hành.'}
+                    </p>
                   </div>
                 </div>
+                <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm leading-6 text-slate-300">
+                  {dashboard.aiInsight?.context ||
+                    'Không có dữ liệu nhạy cảm; chỉ tổng hợp số đếm vận hành.'}
+                </div>
+                <details className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-300">
+                  <summary className="cursor-pointer font-bold text-white">
+                    Chi tiết dữ liệu phụ
+                  </summary>
+                  <div className="mt-3 space-y-2 leading-6">
+                    <p>Tin chờ duyệt: {formatNumber(dashboard.moderation?.pendingJobs)}</p>
+                    <p>
+                      Doanh nghiệp chưa xác minh:{' '}
+                      {formatNumber(dashboard.moderation?.pendingCompanies)}
+                    </p>
+                  </div>
+                </details>
+              </aside>
+            </div>
+          </SectionCard>
 
-                <div className="mt-5 space-y-3">
-                  {aiUsageItems.map((item) => (
-                    <MetricRow
-                      key={item.label}
-                      icon={item.icon}
-                      label={item.label}
-                      value={item.value}
-                      helper={item.helper}
-                      tone={item.tone}
+          <div className="grid gap-7 xl:grid-cols-[minmax(0,1.45fr)_420px]">
+            <div className="space-y-7">
+              <SectionCard
+                icon={TrendingUp}
+                title="Pipeline tuyển dụng"
+                description="Chỉ giữ 4 trạng thái nghiệp vụ quan trọng: đã nộp, phỏng vấn, đã tuyển và từ chối."
+              >
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                  {PIPELINE_STAGES.map((stage) => (
+                    <PipelineCard
+                      key={stage.key}
+                      stage={stage}
+                      value={dashboard.pipeline?.[stage.key] || 0}
                     />
                   ))}
                 </div>
-              </div>
+              </SectionCard>
 
-              <div className="rounded-[24px] border border-slate-200 bg-slate-50/70 p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
-                  Chất lượng & rủi ro
-                </p>
-                <h3 className="mt-2 text-lg font-semibold text-slate-950">Kiểm soát đầu ra và cảnh báo</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-500">
-                  Giữ lại các chỉ số thật sự quan trọng cho vận hành: độ chính xác AI, spam và tài khoản bị khóa.
-                </p>
-
-                <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50/75 p-5">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-emerald-700 ring-1 ring-inset ring-emerald-100">
-                        <Target className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">
-                          Độ chính xác AI
+              <SectionCard
+                icon={BarChart3}
+                title="Biểu đồ tăng trưởng"
+                description="Một line chart duy nhất theo trục thời gian, hiển thị người dùng mới và lượt ứng tuyển mới trong filter toàn cục."
+                action={
+                  <div className="flex flex-wrap gap-2">
+                    <Badge className="rounded-full border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+                      Người dùng {formatNumber(chartTotals.users)}
+                    </Badge>
+                    <Badge className="rounded-full border-violet-200 bg-violet-50 px-3 py-1 text-xs font-bold text-violet-700">
+                      Ứng tuyển {formatNumber(chartTotals.applications)}
+                    </Badge>
+                  </div>
+                }
+              >
+                <div className="h-[380px] rounded-3xl border border-slate-200 bg-white p-5">
+                  {dashboard.growth.length ? (
+                    <ChartSurface className="h-full" minChartHeight={300}>
+                      <LineChart
+                        data={dashboard.growth}
+                        margin={{ top: 18, right: 18, left: -16, bottom: 12 }}
+                      >
+                        <CartesianGrid strokeDasharray="4 4" stroke="#e2e8f0" vertical={false} />
+                        <XAxis
+                          dataKey="label"
+                          tick={CHART_MUTED_TICK_STYLE}
+                          axisLine={false}
+                          tickLine={false}
+                        />
+                        <YAxis
+                          tick={CHART_MUTED_TICK_STYLE}
+                          axisLine={false}
+                          tickLine={false}
+                          allowDecimals={false}
+                        />
+                        <Tooltip
+                          content={<GrowthTooltip />}
+                          cursor={{ stroke: '#cbd5e1', strokeWidth: 2 }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="users"
+                          name="Người dùng"
+                          stroke="#059669"
+                          strokeWidth={3}
+                          dot={{ fill: '#059669', r: 3, strokeWidth: 2, stroke: '#ffffff' }}
+                          activeDot={{ r: 7, strokeWidth: 0 }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="applications"
+                          name="Ứng tuyển"
+                          stroke="#7c3aed"
+                          strokeWidth={3}
+                          dot={{ fill: '#7c3aed', r: 3, strokeWidth: 2, stroke: '#ffffff' }}
+                          activeDot={{ r: 7, strokeWidth: 0 }}
+                        />
+                      </LineChart>
+                    </ChartSurface>
+                  ) : (
+                    <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 text-center">
+                      <div className="max-w-sm px-6">
+                        <p className="text-sm font-bold text-slate-700">
+                          Chưa có dữ liệu tăng trưởng
                         </p>
-                        <p className="mt-1 text-sm text-emerald-800/90">
-                          Chỉ số tổng hợp của các mô-đun đang phục vụ matching và screening.
+                        <p className="mt-2 text-sm leading-6 text-slate-500">
+                          Biểu đồ sẽ xuất hiện khi có người dùng hoặc lượt ứng tuyển mới.
                         </p>
                       </div>
                     </div>
-                    <p className="text-2xl font-bold text-slate-950">{formatNumber(stats.aiAccuracyScore)}%</p>
-                  </div>
-
-                  <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/90">
-                    <div
-                      className="h-full rounded-full bg-[linear-gradient(90deg,#10b981_0%,#34d399_100%)]"
-                      style={{ width: `${Math.min(100, Math.max(0, stats.aiAccuracyScore || 0))}%` }}
-                    />
-                  </div>
+                  )}
                 </div>
-
-                <div className="mt-5 space-y-3">
-                  <MetricRow
-                    icon={ShieldAlert}
-                    label="Spam phát hiện"
-                    value={stats.spamDetected || 0}
-                    helper="Nội dung hoặc tín hiệu bị gắn cờ trong quá trình kiểm soát."
-                    tone="rose"
-                  />
-                  <MetricRow
-                    icon={AlertTriangle}
-                    label="Tài khoản bị khóa"
-                    value={stats.flaggedAccounts || 0}
-                    helper="Tài khoản vi phạm hoặc bị tạm khóa để rà soát thêm."
-                    tone="orange"
-                  />
-                </div>
-              </div>
+              </SectionCard>
             </div>
-          </SectionCard>
 
-          <SectionCard
-            icon={Tags}
-            title="Taxonomy dữ liệu"
-            description="Ba cụm xếp hạng được gom chung vào một mặt phẳng để đọc nhanh mà không bị chia cắt quá nhiều."
-            action={
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge className="rounded-full border-violet-200 bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700">
-                  {formatNumber(stats.totalSkills)} kỹ năng
+            <SectionCard
+              icon={Building2}
+              title="Ngành nghề hot"
+              description="Top 5 ngành được tính từ tin tuyển dụng thật trong khoảng lọc."
+              action={
+                <Badge className="rounded-full border-amber-200 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">
+                  Top 5
                 </Badge>
-                <Badge className="rounded-full border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
-                  {formatNumber(stats.totalCategories)} ngành nghề
-                </Badge>
-                <Badge className="rounded-full border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                  {formatNumber(stats.totalLocations)} địa điểm
-                </Badge>
-              </div>
-            }
-          >
-            <div className="overflow-hidden rounded-[24px] border border-slate-200 bg-white">
-              <div className="grid divide-y divide-slate-200 xl:grid-cols-3 xl:divide-x xl:divide-y-0">
-                <RankedColumn
-                  icon={Tags}
-                  title="Top kỹ năng"
-                  description="Những skill xuất hiện hoặc được tra cứu nhiều nhất trong taxonomy."
-                  items={taxonomySkills}
-                  emptyMessage="Chưa có dữ liệu kỹ năng nổi bật."
-                  tone="violet"
-                />
-                <RankedColumn
-                  icon={Building2}
-                  title="Top ngành nghề"
-                  description="Nhóm ngành đang có tần suất quan tâm và tương tác cao nhất."
-                  items={taxonomyIndustries}
-                  emptyMessage="Chưa có dữ liệu ngành nghề nổi bật."
-                  tone="amber"
-                />
-                <RankedColumn
-                  icon={Globe}
-                  title="Top địa điểm"
-                  description="Những khu vực được gắn vào dữ liệu hoặc tìm kiếm nhiều nhất."
-                  items={taxonomyLocations}
-                  emptyMessage="Chưa có dữ liệu địa điểm nổi bật."
-                  tone="emerald"
-                />
-              </div>
-            </div>
-          </SectionCard>
-
-          <SectionCard
-            icon={BarChart3}
-            title="Biểu đồ tăng trưởng"
-            description={timeFilterHint}
-            action={
-              <div className="flex rounded-xl border border-slate-200 bg-slate-100/90 p-1">
-                {TIME_FILTERS.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setTimeFilter(item.id)}
-                    className={cn(
-                      'rounded-lg px-4 py-2 text-xs font-semibold transition-all',
-                      timeFilter === item.id
-                        ? 'bg-white text-slate-950 shadow-sm'
-                        : 'text-slate-500 hover:text-slate-900'
-                    )}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-            }
-          >
-            <div className="grid gap-6 xl:grid-cols-2">
-              <div className="overflow-hidden rounded-[24px] border border-slate-200 bg-slate-50/40">
-                <div className="border-b border-slate-200 bg-white px-6 py-5">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100">
-                        <Users className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-semibold text-slate-950">Người dùng mới</h3>
-                        <p className="mt-1 text-sm text-slate-500">{timeFilterHint}</p>
-                      </div>
-                    </div>
-
-                    <div className="text-right">
-                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
-                        {timeFilterLabel}
-                      </p>
-                      <p className="mt-1 text-lg font-bold text-emerald-700">{formatNumber(userChartTotal)}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="h-[340px] bg-white p-6">
-                  <ChartSurface className="h-full" minChartHeight={260}>
-                    <ComposedChart data={userChartSeries} margin={{ top: 16, right: 12, left: -20, bottom: 8 }}>
-                      <defs>
-                        <linearGradient id="analyticsUserArea" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#10b981" stopOpacity={0.18} />
-                          <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="4 4" stroke="#e2e8f0" vertical={false} />
-                      <XAxis dataKey="label" tick={CHART_MUTED_TICK_STYLE} axisLine={false} tickLine={false} />
-                      <YAxis tick={CHART_MUTED_TICK_STYLE} axisLine={false} tickLine={false} allowDecimals={false} />
-                      <Tooltip
-                        content={<ChartTooltip valueSuffix="người" />}
-                        cursor={{ stroke: '#e2e8f0', strokeWidth: 2 }}
-                      />
-                      <Area type="monotone" dataKey="users" stroke="none" fill="url(#analyticsUserArea)" />
-                      <Line
-                        type="monotone"
-                        dataKey="users"
-                        stroke="#10b981"
-                        strokeWidth={3.5}
-                        dot={{ fill: '#10b981', r: 4, strokeWidth: 2, stroke: '#ffffff' }}
-                        activeDot={{ r: 7, strokeWidth: 0 }}
-                      />
-                    </ComposedChart>
-                  </ChartSurface>
-                </div>
-              </div>
-
-              <div className="overflow-hidden rounded-[24px] border border-slate-200 bg-slate-50/40">
-                <div className="border-b border-slate-200 bg-white px-6 py-5">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-100">
-                        <Briefcase className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-semibold text-slate-950">Tin tuyển dụng</h3>
-                        <p className="mt-1 text-sm text-slate-500">{timeFilterHint}</p>
-                      </div>
-                    </div>
-
-                    <div className="text-right">
-                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
-                        {timeFilterLabel}
-                      </p>
-                      <p className="mt-1 text-lg font-bold text-blue-700">{formatNumber(jobChartTotal)}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="h-[340px] bg-white p-6">
-                  <ChartSurface className="h-full" minChartHeight={260}>
-                    <AreaChart data={jobChartSeries} margin={{ top: 16, right: 12, left: -20, bottom: 8 }}>
-                      <defs>
-                        <linearGradient id="analyticsJobArea" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.18} />
-                          <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="4 4" stroke="#e2e8f0" vertical={false} />
-                      <XAxis dataKey="label" tick={CHART_MUTED_TICK_STYLE} axisLine={false} tickLine={false} />
-                      <YAxis tick={CHART_MUTED_TICK_STYLE} axisLine={false} tickLine={false} allowDecimals={false} />
-                      <Tooltip
-                        content={<ChartTooltip valueSuffix="tin" />}
-                        cursor={{ stroke: '#e2e8f0', strokeWidth: 2 }}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="jobs"
-                        stroke="#3b82f6"
-                        strokeWidth={3.5}
-                        fill="url(#analyticsJobArea)"
-                        activeDot={{ r: 7, strokeWidth: 0 }}
-                      />
-                    </AreaChart>
-                  </ChartSurface>
-                </div>
-              </div>
-            </div>
-          </SectionCard>
+              }
+            >
+              <HotIndustryList items={dashboard.topIndustries} />
+            </SectionCard>
+          </div>
         </div>
-      </main>
+      )}
     </div>
   );
+};
+
+SectionCard.propTypes = {
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string,
+  icon: PropTypes.elementType,
+  action: PropTypes.node,
+  children: PropTypes.node.isRequired,
+  className: PropTypes.string,
+};
+
+KpiCard.propTypes = {
+  item: PropTypes.shape({
+    key: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    icon: PropTypes.elementType.isRequired,
+    accent: PropTypes.string.isRequired,
+  }).isRequired,
+  value: PropTypes.number,
+};
+
+InsightCard.propTypes = {
+  insight: PropTypes.shape({
+    id: PropTypes.string,
+    tone: PropTypes.string,
+    title: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+  }).isRequired,
+  index: PropTypes.number.isRequired,
+};
+
+PipelineCard.propTypes = {
+  stage: PropTypes.shape({
+    key: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    icon: PropTypes.elementType.isRequired,
+    tone: PropTypes.string.isRequired,
+    border: PropTypes.string.isRequired,
+  }).isRequired,
+  value: PropTypes.number,
+};
+
+HotIndustryList.propTypes = {
+  items: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      count: PropTypes.number.isRequired,
+      source: PropTypes.string,
+    })
+  ).isRequired,
+};
+
+GrowthTooltip.propTypes = {
+  active: PropTypes.bool,
+  payload: PropTypes.arrayOf(
+    PropTypes.shape({
+      dataKey: PropTypes.string,
+      color: PropTypes.string,
+      name: PropTypes.string,
+      value: PropTypes.number,
+    })
+  ),
+  label: PropTypes.string,
 };
 
 export default AdminAnalyticsPage;

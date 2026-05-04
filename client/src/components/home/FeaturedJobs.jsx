@@ -4,7 +4,6 @@ import {
   MapPin,
   DollarSign,
   ArrowRight,
-
   Briefcase,
   Clock,
   Building2,
@@ -63,8 +62,14 @@ const JOB_TYPE_LABELS = {
 const formatJobTypeLabel = (value = '') => JOB_TYPE_LABELS[String(value).trim()] || value;
 
 const COMPANY_COLORS = [
-  '#10b981', '#059669', '#e25b26', '#0d9488',
-  '#ae2070', '#0068ff', '#ee4d2d', '#00b14f',
+  '#10b981',
+  '#059669',
+  '#e25b26',
+  '#0d9488',
+  '#ae2070',
+  '#0068ff',
+  '#ee4d2d',
+  '#00b14f',
 ];
 
 const getCompanyColor = (name = '') => {
@@ -181,7 +186,9 @@ const JobCard = ({ job, index }) => {
 
             <div className="flex items-center gap-1.5 mt-1">
               <Building2 size={12} className="text-muted-foreground/60 shrink-0" />
-              <p className="text-base font-medium text-muted-foreground truncate">{job.company_name}</p>
+              <p className="text-base font-medium text-muted-foreground truncate">
+                {job.company_name}
+              </p>
             </div>
           </div>
         </div>
@@ -291,7 +298,9 @@ const FeaturedJobs = () => {
       }
     };
     fetchFeatured();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (

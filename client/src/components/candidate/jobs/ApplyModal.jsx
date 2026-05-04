@@ -1,6 +1,15 @@
 import { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { X, FileText, CheckCircle2, Loader2, Upload, Trash2, ExternalLink, AlertCircle } from 'lucide-react';
+import {
+  X,
+  FileText,
+  CheckCircle2,
+  Loader2,
+  Upload,
+  Trash2,
+  ExternalLink,
+  AlertCircle,
+} from 'lucide-react';
 import { cn } from '@/utils/cn';
 import Card from '../../common/Card';
 import Button from '../../common/Button';
@@ -29,15 +38,18 @@ const ApplyModal = ({ job, onClose, onSuccess }) => {
   const fileInputRef = useRef(null);
 
   useEffect(() => {
-    candidateService.getProfile().then((res) => {
-      const profile = res.data?.data || res.data;
-      if (profile?.resume_url) {
-        setCurrentResume({
-          url: profile.resume_url,
-          name: profile.resume_name || profile.resume_url.split('/').pop() || 'CV_hiện_tại.pdf',
-        });
-      }
-    }).catch(() => {});
+    candidateService
+      .getProfile()
+      .then((res) => {
+        const profile = res.data?.data || res.data;
+        if (profile?.resume_url) {
+          setCurrentResume({
+            url: profile.resume_url,
+            name: profile.resume_name || profile.resume_url.split('/').pop() || 'CV_hiện_tại.pdf',
+          });
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const effectiveResume = selectedFile ? selectedFile : currentResume;
@@ -220,9 +232,7 @@ const ApplyModal = ({ job, onClose, onSuccess }) => {
                   <p className="text-slate-900 font-bold mb-1">
                     {uploadProgress ? 'Đang tải lên...' : 'Kéo thả file hoặc nhấn để chọn'}
                   </p>
-                  <p className="text-sm text-slate-500">
-                    PDF, DOC, DOCX — tối đa 10MB
-                  </p>
+                  <p className="text-sm text-slate-500">PDF, DOC, DOCX — tối đa 10MB</p>
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -238,7 +248,10 @@ const ApplyModal = ({ job, onClose, onSuccess }) => {
               {!effectiveResume && !uploadProgress && (
                 <div className="mt-2 flex items-start gap-2 text-amber-600 text-sm">
                   <AlertCircle size={14} className="mt-0.5 flex-shrink-0" />
-                  <span>Bạn chưa có CV. Vẫn có thể nộp đơn, nhưng nhà tuyển dụng sẽ không nhận được CV kèm theo.</span>
+                  <span>
+                    Bạn chưa có CV. Vẫn có thể nộp đơn, nhưng nhà tuyển dụng sẽ không nhận được CV
+                    kèm theo.
+                  </span>
                 </div>
               )}
 
@@ -258,10 +271,12 @@ const ApplyModal = ({ job, onClose, onSuccess }) => {
                   Thư giới thiệu (Cover Letter)
                 </label>
                 {coverLetter.length > 0 && (
-                  <span className={cn(
-                    "text-xs font-semibold",
-                    coverLetter.trim().length < 50 ? "text-amber-500" : "text-slate-400"
-                  )}>
+                  <span
+                    className={cn(
+                      'text-xs font-semibold',
+                      coverLetter.trim().length < 50 ? 'text-amber-500' : 'text-slate-400'
+                    )}
+                  >
                     {coverLetter.trim().length < 50
                       ? `Còn ${50 - coverLetter.trim().length} ký tự để đạt tối thiểu`
                       : `${coverLetter.trim().length} ký tự`}
@@ -272,8 +287,10 @@ const ApplyModal = ({ job, onClose, onSuccess }) => {
                 rows="5"
                 maxLength={2000}
                 className={cn(
-                  "w-full p-4 rounded-xl bg-slate-50 border outline-none focus:ring-2 font-medium text-slate-700 resize-none",
-                  coverLetterError ? "border-red-400 focus:ring-red-300" : "border-slate-200 focus:ring-primary-500"
+                  'w-full p-4 rounded-xl bg-slate-50 border outline-none focus:ring-2 font-medium text-slate-700 resize-none',
+                  coverLetterError
+                    ? 'border-red-400 focus:ring-red-300'
+                    : 'border-slate-200 focus:ring-primary-500'
                 )}
                 placeholder="Viết ngắn gọn về lý do tại sao bạn phù hợp với vị trí này..."
                 value={coverLetter}

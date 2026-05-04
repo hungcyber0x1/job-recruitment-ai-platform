@@ -15,13 +15,17 @@ router.get('/attachments/:filename', messagingController.getAttachment);
 router.get('/conversations/:id', messagingController.getConversation);
 router.post('/conversations/:id/messages', messageLimiter, messagingController.sendMessage);
 router.post(
-    '/conversations/:id/attachments',
-    messageLimiter,
-    upload.single('message_attachment'),
-    verifyUploadSignature,
-    messagingController.sendAttachment
+  '/conversations/:id/attachments',
+  messageLimiter,
+  upload.single('message_attachment'),
+  verifyUploadSignature,
+  messagingController.sendAttachment
 );
-router.post('/conversations/:id/interview-invite', messageLimiter, messagingController.sendInterviewInvite);
+router.post(
+  '/conversations/:id/interview-invite',
+  messageLimiter,
+  messagingController.sendInterviewInvite
+);
 router.post('/conversations/:id/job-info', messageLimiter, messagingController.sendJobInfo);
 router.post('/conversations/:id/read', messagingController.markRead);
 router.post('/conversations/:id/archive', messagingController.archiveConversation);

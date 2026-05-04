@@ -15,6 +15,23 @@
 
 const BaseRepository = require('./Base');
 
+const LOCKED_USER_STATUSES = ['banned', 'suspended', 'locked'];
+const LOCKED_USER_STATUS_SQL_LIST = LOCKED_USER_STATUSES.map((status) => `'${status}'`).join(', ');
+
+function toBooleanFilter(value) {
+  if (value === true || value === 1 || value === '1' || value === 'true') return true;
+  if (value === false || value === 0 || value === '0' || value === 'false') return false;
+  return Boolean(value);
+}
+
+function lockedStatusSql(alias = 'u') {
+  return `COALESCE(${alias}.status, 'active') IN (${LOCKED_USER_STATUS_SQL_LIST})`;
+}
+
+function unlockedStatusSql(alias = 'u') {
+  return `COALESCE(${alias}.status, 'active') NOT IN (${LOCKED_USER_STATUS_SQL_LIST})`;
+}
+
 class CompanyRepository extends BaseRepository {
   constructor() {
     super('company_profiles');
@@ -24,13 +41,9 @@ class CompanyRepository extends BaseRepository {
     let whereClause = `
       WHERE cp.deleted_at IS NULL
         AND u.deleted_at IS NULL
-        AND EXISTS (
-          SELECT 1
-          FROM jobs j
-          WHERE j.company_id = cp.id
-            AND j.status = 'published'
-            AND j.deleted_at IS NULL
-        )
+        AND COALESCE(cp.is_verified, 0) = 1
+        AND COALESCE(cp.flagged, 0) = 0
+        AND COALESCE(u.status, 'active') = 'active'
     `;
     const params = [];
 
@@ -54,7 +67,9 @@ class CompanyRepository extends BaseRepository {
   }
 
   _buildFiltersQuery(filters = {}) {
-    let whereClause = filters.include_deleted ? 'WHERE 1=1' : 'WHERE cp.deleted_at IS NULL AND u.deleted_at IS NULL';
+    let whereClause = filters.include_deleted
+      ? 'WHERE 1=1'
+      : 'WHERE cp.deleted_at IS NULL AND u.deleted_at IS NULL';
     const params = [];
 
     if (filters.search) {
@@ -69,12 +84,46 @@ class CompanyRepository extends BaseRepository {
 
     if (filters.is_verified !== undefined && filters.is_verified !== 'all') {
       whereClause += ` AND cp.is_verified = ?`;
-      params.push(filters.is_verified === 'true' || filters.is_verified === true);
+      params.push(toBooleanFilter(filters.is_verified));
     }
 
     if (filters.flagged !== undefined && filters.flagged !== 'all') {
       whereClause += ` AND cp.flagged = ?`;
-      params.push(filters.flagged === 'true' || filters.flagged === true);
+      params.push(toBooleanFilter(filters.flagged));
+    }
+
+    const moderationStatus = String(filters.moderation_status || filters.moderationStatus || '')
+      .trim()
+      .toLowerCase();
+    if (moderationStatus && moderationStatus !== 'all') {
+      if (moderationStatus === 'approved' || moderationStatus === 'verified') {
+        whereClause += `
+          AND COALESCE(cp.is_verified, 0) = 1
+          AND COALESCE(cp.flagged, 0) = 0
+          AND ${unlockedStatusSql('u')}
+        `;
+      } else if (moderationStatus === 'pending') {
+        whereClause += `
+          AND COALESCE(cp.is_verified, 0) = 0
+          AND COALESCE(cp.flagged, 0) = 0
+          AND COALESCE(cp.verification_status, 'pending') = 'pending'
+          AND ${unlockedStatusSql('u')}
+        `;
+      } else if (moderationStatus === 'rejected') {
+        whereClause += `
+          AND COALESCE(cp.is_verified, 0) = 0
+          AND COALESCE(cp.flagged, 0) = 0
+          AND COALESCE(cp.verification_status, 'pending') = 'rejected'
+          AND ${unlockedStatusSql('u')}
+        `;
+      } else if (moderationStatus === 'flagged') {
+        whereClause += `
+          AND COALESCE(cp.flagged, 0) = 1
+          AND ${unlockedStatusSql('u')}
+        `;
+      } else if (moderationStatus === 'locked' || moderationStatus === 'banned') {
+        whereClause += ` AND ${lockedStatusSql('u')}`;
+      }
     }
 
     return { whereClause, params };
@@ -83,7 +132,8 @@ class CompanyRepository extends BaseRepository {
   async findAllWithFilters(filters = {}) {
     const { whereClause, params } = this._buildFiltersQuery(filters);
     let query = `
-            SELECT cp.*, u.email, u.first_name, u.last_name, 
+            SELECT cp.*, u.email, u.first_name, u.last_name, u.phone AS user_phone,
+             u.avatar_url, u.status AS user_status, u.deleted_at AS user_deleted_at,
              (SELECT COUNT(*) FROM jobs j WHERE j.company_id = cp.id AND j.deleted_at IS NULL) as job_count
             FROM company_profiles cp
             JOIN users u ON cp.user_id = u.id
@@ -107,7 +157,7 @@ class CompanyRepository extends BaseRepository {
     }
 
     const [rows] = await this.pool.query(query, queryParams);
-    
+
     const total = await this.countWithFilters(filters);
 
     return { data: rows, total };
@@ -135,6 +185,7 @@ class CompanyRepository extends BaseRepository {
           WHERE j.company_id = cp.id
             AND j.status = 'published'
             AND j.deleted_at IS NULL
+            AND (j.deadline IS NULL OR j.deadline >= CURDATE())
         ) AS open_positions
       FROM company_profiles cp
       JOIN users u ON cp.user_id = u.id
@@ -161,7 +212,6 @@ class CompanyRepository extends BaseRepository {
 
     return { data: rows, total };
   }
-
 
   async countWithFilters(filters = {}) {
     const { whereClause, params } = this._buildFiltersQuery(filters);
@@ -202,22 +252,58 @@ class CompanyRepository extends BaseRepository {
   }
 
   async countFlagged() {
-    const [rows] = await this.pool.query('SELECT COUNT(*) AS total FROM company_profiles WHERE flagged = 1 AND deleted_at IS NULL');
+    const [rows] = await this.pool.query(
+      'SELECT COUNT(*) AS total FROM company_profiles WHERE flagged = 1 AND deleted_at IS NULL'
+    );
     return Number(rows[0]?.total || 0);
   }
 
+  async countByModerationStatus(status) {
+    return this.countWithFilters({ moderation_status: status });
+  }
+
   async verifyCompany(id, isVerified, note = null) {
+    const verified = Boolean(isVerified);
     const [result] = await this.pool.query(
-      'UPDATE company_profiles SET is_verified = ?, moderation_note = ? WHERE id = ?',
-      [isVerified, note, id]
+      `UPDATE company_profiles
+          SET is_verified = ?,
+              verification_status = ?,
+              flagged = CASE WHEN ? = 1 THEN 0 ELSE flagged END,
+              moderation_note = ?,
+              rejection_reason = ?,
+              updated_at = NOW()
+        WHERE id = ?`,
+      [
+        verified ? 1 : 0,
+        verified ? 'approved' : 'rejected',
+        verified ? 1 : 0,
+        note,
+        verified ? null : note,
+        id,
+      ]
     );
     return result.affectedRows > 0;
   }
 
   async flagCompany(id, flagged, note = null) {
     const [result] = await this.pool.query(
-      'UPDATE company_profiles SET flagged = ?, moderation_note = ? WHERE id = ?',
-      [flagged, note, id]
+      'UPDATE company_profiles SET flagged = ?, moderation_note = ?, updated_at = NOW() WHERE id = ?',
+      [Boolean(flagged), note, id]
+    );
+    return result.affectedRows > 0;
+  }
+
+  async banCompany(id, note = 'Banned by Admin') {
+    const [result] = await this.pool.query(
+      `UPDATE company_profiles
+          SET is_verified = 0,
+              verification_status = 'rejected',
+              flagged = 1,
+              moderation_note = ?,
+              rejection_reason = ?,
+              updated_at = NOW()
+        WHERE id = ?`,
+      [note, note, id]
     );
     return result.affectedRows > 0;
   }
@@ -240,14 +326,15 @@ class CompanyRepository extends BaseRepository {
 
   async bulkUpdateStatus(ids, status, note = null) {
     if (!ids || !ids.length) return 0;
-    
+
     let query = '';
     let params = [];
 
     if (status === 'verify') {
-      query = 'UPDATE company_profiles SET is_verified = 1, flagged = 0';
+      query =
+        "UPDATE company_profiles SET is_verified = 1, verification_status = 'approved', flagged = 0, rejection_reason = NULL";
     } else if (status === 'unverify') {
-      query = 'UPDATE company_profiles SET is_verified = 0';
+      query = "UPDATE company_profiles SET is_verified = 0, verification_status = 'rejected'";
     } else if (status === 'flag') {
       query = 'UPDATE company_profiles SET flagged = 1';
     } else if (status === 'unflag') {
@@ -263,8 +350,13 @@ class CompanyRepository extends BaseRepository {
     if (note) {
       query += ', moderation_note = ?';
       params.push(note);
+      if (status === 'unverify') {
+        query += ', rejection_reason = ?';
+        params.push(note);
+      }
     }
 
+    query += ', updated_at = NOW()';
     query += ` WHERE id IN (${ids.map(() => '?').join(',')})`;
     params = [...params, ...ids];
 
@@ -275,6 +367,7 @@ class CompanyRepository extends BaseRepository {
   async findByIdWithDetails(id) {
     const [rows] = await this.pool.query(
       `SELECT cp.*, u.email, u.first_name, u.last_name, u.phone AS user_phone, u.avatar_url,
+              u.status AS user_status, u.deleted_at AS user_deleted_at,
               (SELECT COUNT(*) FROM jobs j WHERE j.company_id = cp.id AND j.deleted_at IS NULL) AS job_count,
               (SELECT COUNT(*) FROM applications a
                  JOIN jobs j ON a.job_id = j.id
@@ -310,19 +403,16 @@ class CompanyRepository extends BaseRepository {
             WHERE j.company_id = cp.id
               AND j.status = 'published'
               AND j.deleted_at IS NULL
+              AND (j.deadline IS NULL OR j.deadline >= CURDATE())
           ) AS open_positions
         FROM company_profiles cp
         JOIN users u ON cp.user_id = u.id
         WHERE cp.id = ?
           AND cp.deleted_at IS NULL
           AND u.deleted_at IS NULL
-          AND EXISTS (
-            SELECT 1
-            FROM jobs j
-            WHERE j.company_id = cp.id
-              AND j.status = 'published'
-              AND j.deleted_at IS NULL
-          )
+          AND COALESCE(cp.is_verified, 0) = 1
+          AND COALESCE(cp.flagged, 0) = 0
+          AND COALESCE(u.status, 'active') = 'active'
       `,
       [id]
     );
@@ -332,7 +422,8 @@ class CompanyRepository extends BaseRepository {
 
   async findById(id) {
     const [rows] = await this.pool.query(
-      `SELECT cp.*, u.email as owner_email, u.first_name as owner_first_name, u.last_name as owner_last_name
+      `SELECT cp.*, u.email as owner_email, u.first_name as owner_first_name, u.last_name as owner_last_name,
+              u.status AS owner_status, u.deleted_at AS owner_deleted_at
        FROM company_profiles cp
        JOIN users u ON cp.user_id = u.id
        WHERE cp.id = ? AND cp.deleted_at IS NULL`,
@@ -343,7 +434,7 @@ class CompanyRepository extends BaseRepository {
 
   async findByUserId(userId) {
     const [rows] = await this.pool.query(
-      `SELECT * FROM company_profiles WHERE user_id = ? LIMIT 1`,
+      `SELECT * FROM company_profiles WHERE user_id = ? AND deleted_at IS NULL LIMIT 1`,
       [userId]
     );
     return rows[0] || null;

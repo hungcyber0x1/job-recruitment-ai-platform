@@ -7,11 +7,7 @@ export function resolveMediaUrl(url) {
   if (url == null || typeof url !== 'string') return '';
   const u = url.trim();
   if (u === '') return '';
-  if (
-    u.startsWith('http://') ||
-    u.startsWith('blob:') ||
-    u.startsWith('data:')
-  ) {
+  if (u.startsWith('http://') || u.startsWith('blob:') || u.startsWith('data:')) {
     try {
       const parsed = new URL(u);
       const isLoopback = ['localhost', '127.0.0.1', '[::1]', '::1'].includes(parsed.hostname);

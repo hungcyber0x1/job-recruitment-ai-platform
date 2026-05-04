@@ -7,18 +7,18 @@ import { Award, DollarSign, Calendar, AlignLeft, X } from 'lucide-react';
  */
 export default function OfferDialog({ applicantName, jobTitle, onConfirm, onCancel }) {
   const [form, setForm] = useState({
-    salary_offered:    '',
+    salary_offered: '',
     response_deadline: '',
-    start_date:        '',
-    benefits:          '',
-    offer_notes:       '',
+    start_date: '',
+    benefits: '',
+    offer_notes: '',
   });
   const [errors, setErrors] = useState({});
   const submittingRef = useRef(false);
 
   function set(field, value) {
-    setForm(prev => ({ ...prev, [field]: value }));
-    setErrors(prev => ({ ...prev, [field]: undefined, form: undefined }));
+    setForm((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: undefined, form: undefined }));
   }
 
   function validate() {
@@ -61,11 +61,11 @@ export default function OfferDialog({ applicantName, jobTitle, onConfirm, onCanc
     submittingRef.current = true;
     try {
       await onConfirm({
-        salary_offered:    form.salary_offered ? parseInt(form.salary_offered, 10) : null,
+        salary_offered: form.salary_offered ? parseInt(form.salary_offered, 10) : null,
         response_deadline: form.response_deadline || null,
-        start_date:        form.start_date || null,
-        benefits:          form.benefits || null,
-        offer_notes:       form.offer_notes || null,
+        start_date: form.start_date || null,
+        benefits: form.benefits || null,
+        offer_notes: form.offer_notes || null,
       });
     } finally {
       submittingRef.current = false;
@@ -86,7 +86,10 @@ export default function OfferDialog({ applicantName, jobTitle, onConfirm, onCanc
               {applicantName} — <span className="font-medium text-slate-700">{jobTitle}</span>
             </p>
           </div>
-          <button onClick={onCancel} className="h-8 w-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-all">
+          <button
+            onClick={onCancel}
+            className="h-8 w-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-all"
+          >
             <X size={16} />
           </button>
         </div>
@@ -97,13 +100,14 @@ export default function OfferDialog({ applicantName, jobTitle, onConfirm, onCanc
           <div>
             <label className="block text-sm font-semibold text-slate-700 mb-1.5">
               <DollarSign size={13} className="inline mr-1 text-slate-400" />
-              Mức lương đề nghị (VND) <span className="text-slate-400 font-normal">— để trống nếu thỏa thuận</span>
+              Mức lương đề nghị (VND){' '}
+              <span className="text-slate-400 font-normal">— để trống nếu thỏa thuận</span>
             </label>
             <div className="relative">
               <input
                 type="number"
                 value={form.salary_offered}
-                onChange={e => set('salary_offered', e.target.value)}
+                onChange={(e) => set('salary_offered', e.target.value)}
                 min={0}
                 step={500000}
                 placeholder="Vd: 25000000"
@@ -111,40 +115,50 @@ export default function OfferDialog({ applicantName, jobTitle, onConfirm, onCanc
               />
               {form.salary_offered && (
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">
-                  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(form.salary_offered)}
+                  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
+                    form.salary_offered
+                  )}
                 </span>
               )}
             </div>
-            {errors.salary_offered && <p className="mt-1 text-xs text-red-500">{errors.salary_offered}</p>}
+            {errors.salary_offered && (
+              <p className="mt-1 text-xs text-red-500">{errors.salary_offered}</p>
+            )}
           </div>
 
           {/* Hạn phản hồi & Ngày bắt đầu */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                <Calendar size={13} className="inline mr-1 text-slate-400" />Hạn phản hồi
+                <Calendar size={13} className="inline mr-1 text-slate-400" />
+                Hạn phản hồi
               </label>
               <input
                 type="date"
                 value={form.response_deadline}
                 min={new Date().toISOString().split('T')[0]}
-                onChange={e => set('response_deadline', e.target.value)}
+                onChange={(e) => set('response_deadline', e.target.value)}
                 className={`w-full rounded-xl border px-3 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 ${errors.response_deadline ? 'border-red-400' : 'border-slate-200'}`}
               />
-              {errors.response_deadline && <p className="mt-1 text-xs text-red-500">{errors.response_deadline}</p>}
+              {errors.response_deadline && (
+                <p className="mt-1 text-xs text-red-500">{errors.response_deadline}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                <Calendar size={13} className="inline mr-1 text-slate-400" />Ngày bắt đầu dự kiến
+                <Calendar size={13} className="inline mr-1 text-slate-400" />
+                Ngày bắt đầu dự kiến
               </label>
               <input
                 type="date"
                 value={form.start_date}
                 min={new Date().toISOString().split('T')[0]}
-                onChange={e => set('start_date', e.target.value)}
+                onChange={(e) => set('start_date', e.target.value)}
                 className={`w-full rounded-xl border px-3 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 ${errors.start_date ? 'border-red-400' : 'border-slate-200'}`}
               />
-              {errors.start_date && <p className="mt-1 text-xs text-red-500">{errors.start_date}</p>}
+              {errors.start_date && (
+                <p className="mt-1 text-xs text-red-500">{errors.start_date}</p>
+              )}
             </div>
           </div>
 
@@ -156,7 +170,7 @@ export default function OfferDialog({ applicantName, jobTitle, onConfirm, onCanc
             <input
               type="text"
               value={form.benefits}
-              onChange={e => set('benefits', e.target.value)}
+              onChange={(e) => set('benefits', e.target.value)}
               placeholder="Vd: Laptop, bảo hiểm sức khoẻ, 13 tháng lương..."
               className="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
@@ -170,7 +184,7 @@ export default function OfferDialog({ applicantName, jobTitle, onConfirm, onCanc
             </label>
             <textarea
               value={form.offer_notes}
-              onChange={e => set('offer_notes', e.target.value)}
+              onChange={(e) => set('offer_notes', e.target.value)}
               rows={2}
               placeholder="Chi tiết thêm về điều kiện, quy trình onboarding..."
               className="w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 resize-none"
@@ -209,7 +223,7 @@ export default function OfferDialog({ applicantName, jobTitle, onConfirm, onCanc
 
 OfferDialog.propTypes = {
   applicantName: PropTypes.string.isRequired,
-  jobTitle:      PropTypes.string.isRequired,
-  onConfirm:     PropTypes.func.isRequired,
-  onCancel:      PropTypes.func.isRequired,
+  jobTitle: PropTypes.string.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
 };

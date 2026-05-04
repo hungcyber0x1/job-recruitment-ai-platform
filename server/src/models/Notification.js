@@ -32,7 +32,7 @@ class NotificationRepository extends BaseRepository {
    */
   async findByUser(userId, options = {}) {
     const { limit = 20, offset = 0, type, unreadOnly = false } = options;
-    
+
     let whereClause = 'WHERE n.user_id = ?';
     const params = [userId];
 
@@ -122,13 +122,20 @@ class NotificationRepository extends BaseRepository {
    * Tạo thông báo mới
    */
   async create(data) {
-    const { user_id, type = 'system', category = null, title, message = null, data: extraData = null } = data;
-    
+    const {
+      user_id,
+      type = 'system',
+      category = null,
+      title,
+      message = null,
+      data: extraData = null,
+    } = data;
+
     const [result] = await this.pool.query(
       `INSERT INTO notifications (user_id, type, category, title, message, data) VALUES (?, ?, ?, ?, ?, ?)`,
       [user_id, type, category, title, message, extraData ? JSON.stringify(extraData) : null]
     );
-    
+
     return { id: result.insertId, ...data };
   }
 
@@ -140,13 +147,13 @@ class NotificationRepository extends BaseRepository {
       return [];
     }
 
-    const values = notifications.map(n => [
+    const values = notifications.map((n) => [
       n.user_id,
       n.type || 'system',
       n.category || null,
       n.title,
       n.message || null,
-      n.data ? JSON.stringify(n.data) : null
+      n.data ? JSON.stringify(n.data) : null,
     ]);
 
     const [result] = await this.pool.query(
@@ -167,7 +174,7 @@ class NotificationRepository extends BaseRepository {
        GROUP BY type`,
       [userId]
     );
-    
+
     return rows.reduce((acc, row) => {
       acc[row.type] = { total: row.total, unread: row.unread };
       return acc;
@@ -179,7 +186,7 @@ class NotificationRepository extends BaseRepository {
    */
   async findByCategory(userId, category, options = {}) {
     const { limit = 20, offset = 0 } = options;
-    
+
     const [rows] = await this.pool.query(
       `SELECT * FROM notifications 
        WHERE user_id = ? AND category = ?
@@ -187,7 +194,7 @@ class NotificationRepository extends BaseRepository {
        LIMIT ? OFFSET ?`,
       [userId, category, parseInt(limit, 10), parseInt(offset, 10)]
     );
-    
+
     return rows;
   }
 }

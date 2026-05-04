@@ -4,10 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import applicationService from '../../../services/applicationService';
 import { formatTimeAgo } from '../../../utils/formatters';
-import {
-  NOTIFICATION_TYPE_CONFIG,
-  getAppStatusConfig,
-} from '../../../constants';
+import { NOTIFICATION_TYPE_CONFIG, getAppStatusConfig } from '../../../constants';
 import { isHandledAuthError } from '../../../utils/authErrors';
 
 /**
@@ -22,7 +19,8 @@ const getIconConfig = (notification) => {
       return { icon: appCfg.icon, bg: appCfg.bg, text: appCfg.text };
     }
   }
-  const typeCfg = NOTIFICATION_TYPE_CONFIG[notification?.type] || NOTIFICATION_TYPE_CONFIG.application;
+  const typeCfg =
+    NOTIFICATION_TYPE_CONFIG[notification?.type] || NOTIFICATION_TYPE_CONFIG.application;
   return { icon: typeCfg.icon, bg: typeCfg.bg, text: typeCfg.text };
 };
 

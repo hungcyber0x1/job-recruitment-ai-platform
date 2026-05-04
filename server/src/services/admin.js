@@ -20,24 +20,70 @@ const CompanyRepository = require('../models/Company');
 const BlogRepository = require('../models/Blog');
 const SkillRepository = require('../models/Skill');
 const JobService = require('./job');
+const ApplicationService = require('./application');
 const AppError = require('../utils/errorHandler');
 const bcrypt = require('bcryptjs');
 const {
+  APP_STATUS,
   APP_STATUS_VALUES,
+  JOB_STATUS,
+  JOB_STATUS_VALUES,
   ROLE_VALUES,
   USER_STATUS,
   USER_STATUS_VALUES,
 } = require('../utils/constants');
-const {
-  ADMIN_PERMISSIONS,
-  hasAdminPermission,
-  isSuperAdminIdentity,
-  normalizeAdminPermissions,
-} = require('../utils/admin-permissions');
+const { normalizeAdminPermissions } = require('../utils/admin-permissions');
 
 function normalizeRole(role) {
-  const normalizedRole = String(role ?? '').trim().toLowerCase();
-  return normalizedRole === 'employer' ? 'recruiter' : normalizedRole;
+  return String(role ?? '')
+    .trim()
+    .toLowerCase();
+}
+
+function normalizeOptionalText(value) {
+  const text = String(value ?? '').trim();
+  return text.length ? text : null;
+}
+
+function parseOptionalCurrency(value) {
+  if (value == null || value === '') return null;
+  if (typeof value === 'number') return Number.isFinite(value) && value >= 0 ? value : null;
+
+  const numericText = String(value).replace(/[^\d.-]/g, '');
+  if (!numericText) return null;
+
+  const parsed = Number(numericText);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
+}
+
+function normalizeAdminApplicationMetadata(status, metadata = {}) {
+  const normalized = { ...(metadata || {}) };
+
+  if (status === APP_STATUS.OFFERED) {
+    const offerDetails = metadata?.offer_details || metadata?.offerDetails || metadata?.offer || {};
+    const source =
+      offerDetails && typeof offerDetails === 'object'
+        ? { ...normalized, ...offerDetails }
+        : normalized;
+
+    return {
+      salary_offered: parseOptionalCurrency(source.salary_offered ?? source.salary ?? null),
+      salary_currency: source.salary_currency || 'VND',
+      response_deadline: source.response_deadline ?? source.responseDeadline ?? null,
+      start_date: source.start_date ?? source.startDate ?? null,
+      benefits: normalizeOptionalText(source.benefits),
+      offer_notes: normalizeOptionalText(source.offer_notes ?? source.notes),
+      offer_letter_url: normalizeOptionalText(source.offer_letter_url),
+    };
+  }
+
+  return normalized;
+}
+
+function parseModerationBoolean(value, fieldName) {
+  if (value === true || value === 1 || value === '1' || value === 'true') return true;
+  if (value === false || value === 0 || value === '0' || value === 'false') return false;
+  throw new AppError(`${fieldName} không hợp lệ`, 400);
 }
 
 const OPTIONAL_SCHEMA_ERROR_CODES = new Set([
@@ -50,9 +96,7 @@ function toIdList(rows, key = 'id') {
   if (!Array.isArray(rows)) return [];
   return [
     ...new Set(
-      rows
-        .map((row) => Number.parseInt(row?.[key], 10))
-        .filter((id) => Number.isFinite(id))
+      rows.map((row) => Number.parseInt(row?.[key], 10)).filter((id) => Number.isFinite(id))
     ),
   ];
 }
@@ -120,39 +164,275 @@ async function getActorAdmin(adminId) {
   return actor;
 }
 
-async function assertSuperAdmin(adminId, message = 'Only Super Admin can perform this action') {
-  const actor = await getActorAdmin(adminId);
-  if (!hasAdminPermission(actor, ADMIN_PERMISSIONS.ALL)) {
-    throw new AppError(message, 403);
-  }
-  return actor;
+async function assertAdminActor(adminId) {
+  return getActorAdmin(adminId);
 }
 
-async function assertCanManageTargetAdmin(adminId, targetUser, actionLabel = 'manage this account') {
+async function assertCanManageTargetAdmin(adminId, targetUser) {
   if (!targetUser || normalizeRole(targetUser.role) !== 'admin') return;
-
-  const actor = await getActorAdmin(adminId);
-  if (!hasAdminPermission(actor, ADMIN_PERMISSIONS.ALL)) {
-    throw new AppError(`Only Super Admin can ${actionLabel} for admin accounts`, 403);
-  }
+  await assertAdminActor(adminId);
 }
 
-async function assertCanManageTargetIds(adminId, targetIds, actionLabel = 'manage these accounts') {
-  const ids = targetIds
-    .map((id) => Number.parseInt(id, 10))
-    .filter((id) => Number.isFinite(id));
+async function assertCanManageTargetIds(adminId, targetIds) {
+  const ids = targetIds.map((id) => Number.parseInt(id, 10)).filter((id) => Number.isFinite(id));
   if (!ids.length) return;
+  await assertAdminActor(adminId);
+}
 
-  const [rows] = await pool.query(
-    'SELECT id, email, role, permissions FROM users WHERE id IN (?)',
-    [ids]
-  );
-  if (!rows.some((row) => normalizeRole(row.role) === 'admin')) return;
+const ANALYTICS_RANGES = {
+  '7d': { id: '7d', days: 7, label: '7 ngày gần nhất' },
+  '30d': { id: '30d', days: 30, label: '30 ngày gần nhất' },
+  '3m': { id: '3m', days: 90, label: '3 tháng gần nhất' },
+};
 
-  await assertSuperAdmin(adminId, `Only Super Admin can ${actionLabel} for admin accounts`);
+function normalizeAnalyticsRange(range) {
+  const key = String(range || '30d')
+    .trim()
+    .toLowerCase();
+  return ANALYTICS_RANGES[key] || ANALYTICS_RANGES['30d'];
+}
+
+function buildAnalyticsDateSequence(days) {
+  return Array.from({ length: days }, (_, index) => `SELECT ${index} AS n`).join(' UNION ALL ');
+}
+
+function toNumber(value) {
+  return Number(value || 0);
+}
+
+function formatViNumber(value) {
+  return toNumber(value).toLocaleString('vi-VN');
+}
+
+function buildAnalyticsInsights(dashboard) {
+  const { kpi, pipeline, topIndustries, moderation, range } = dashboard;
+  const applications = toNumber(kpi.applications);
+  const hired = toNumber(pipeline.hired);
+  const rejected = toNumber(pipeline.rejected);
+  const interview = toNumber(pipeline.interview);
+  const pendingJobs = toNumber(moderation.pendingJobs);
+  const pendingCompanies = toNumber(moderation.pendingCompanies);
+  const topIndustry = Array.isArray(topIndustries) ? topIndustries[0] : null;
+  const insights = [];
+
+  if (applications >= 5 && hired === 0) {
+    insights.push({
+      id: 'applications-without-hire',
+      tone: 'danger',
+      title: 'Ứng tuyển đã phát sinh nhưng chưa có tuyển thành công',
+      description: `${formatViNumber(applications)} lượt ứng tuyển trong ${range.label}, chưa ghi nhận hồ sơ được tuyển. Admin nên theo dõi tốc độ xử lý pipeline cùng nhà tuyển dụng.`,
+    });
+  } else if (applications >= 20 && applications > Math.max(1, hired) * 8) {
+    insights.push({
+      id: 'hiring-output-low',
+      tone: 'warning',
+      title: 'Ứng tuyển cao nhưng kết quả tuyển còn thấp',
+      description: `${formatViNumber(applications)} lượt ứng tuyển đang tạo tải cho hệ thống, trong khi mới có ${formatViNumber(hired)} hồ sơ được tuyển.`,
+    });
+  } else if (hired > 0) {
+    insights.push({
+      id: 'hiring-output-positive',
+      tone: 'success',
+      title: 'Pipeline đã ghi nhận tuyển thành công',
+      description: `${formatViNumber(hired)} hồ sơ đã đi đến trạng thái tuyển trong ${range.label}. Đây là tín hiệu tích cực về chất lượng luồng tuyển dụng.`,
+    });
+  }
+
+  if (topIndustry && toNumber(topIndustry.count) > 0) {
+    insights.push({
+      id: 'top-industry',
+      tone: 'info',
+      title: `Ngành ${topIndustry.name} đang nổi bật`,
+      description: `${formatViNumber(topIndustry.count)} tin tuyển dụng thuộc nhóm ngành này trong ${range.label}, cao nhất trong dữ liệu hiện tại.`,
+    });
+  }
+
+  if (pendingJobs > 0) {
+    insights.push({
+      id: 'pending-jobs',
+      tone: pendingJobs >= 10 ? 'warning' : 'info',
+      title: 'Có tin tuyển dụng đang chờ duyệt',
+      description: `${formatViNumber(pendingJobs)} tin tuyển dụng cần được kiểm duyệt để không làm chậm nguồn cung việc làm mới.`,
+    });
+  }
+
+  if (pendingCompanies > 0) {
+    insights.push({
+      id: 'pending-companies',
+      tone: pendingCompanies >= 5 ? 'warning' : 'info',
+      title: 'Có doanh nghiệp chưa xác minh',
+      description: `${formatViNumber(pendingCompanies)} doanh nghiệp mới chưa được xác minh trong ${range.label}; dữ liệu này ảnh hưởng tới khả năng đăng tin hợp lệ.`,
+    });
+  }
+
+  if (rejected > interview && rejected >= 5) {
+    insights.push({
+      id: 'rejection-pressure',
+      tone: 'warning',
+      title: 'Số hồ sơ bị từ chối đang vượt nhóm phỏng vấn',
+      description: `${formatViNumber(rejected)} hồ sơ bị từ chối so với ${formatViNumber(interview)} hồ sơ ở giai đoạn phỏng vấn. Nên rà chất lượng matching giữa ứng viên và tin tuyển dụng.`,
+    });
+  }
+
+  if (!insights.length) {
+    insights.push({
+      id: 'no-activity',
+      tone: 'neutral',
+      title: 'Chưa có tín hiệu đủ lớn để kết luận',
+      description: `Dữ liệu trong ${range.label} còn ít. Dashboard sẽ tự tạo nhận định khi có thêm người dùng, tin tuyển dụng hoặc ứng tuyển mới.`,
+    });
+  }
+
+  return insights.slice(0, 4);
+}
+
+function buildAnalyticsAiSummary(insights, dashboard) {
+  const priorityInsight =
+    insights.find((item) => item.tone === 'danger' || item.tone === 'warning') || insights[0];
+  const topIndustry = dashboard.topIndustries?.[0];
+
+  return {
+    title: priorityInsight?.title || 'Chưa đủ dữ liệu để tạo AI Insight',
+    description:
+      priorityInsight?.description || 'Hệ thống sẽ tự động tổng hợp khi có dữ liệu vận hành mới.',
+    tone: priorityInsight?.tone || 'neutral',
+    context: topIndustry
+      ? `Ngành nổi bật: ${topIndustry.name} với ${formatViNumber(topIndustry.count)} tin tuyển dụng.`
+      : 'Chưa xác định ngành nổi bật trong khoảng thời gian này.',
+  };
 }
 
 class AdminService {
+  async getAnalyticsDashboard({ range = '30d' } = {}) {
+    const rangeMeta = normalizeAnalyticsRange(range);
+    const rangeStartSql = `DATE_SUB(CURDATE(), INTERVAL ${rangeMeta.days - 1} DAY)`;
+    const dateSequence = buildAnalyticsDateSequence(rangeMeta.days);
+
+    const [[kpiRows], [pipelineRows], [growthRows], [topIndustryRows], [moderationRows]] =
+      await Promise.all([
+        pool.query(`
+        SELECT
+          (SELECT COUNT(*) FROM users WHERE deleted_at IS NULL AND created_at >= ${rangeStartSql}) AS users,
+          (SELECT COUNT(*) FROM jobs WHERE deleted_at IS NULL AND created_at >= ${rangeStartSql}) AS jobs,
+          (SELECT COUNT(*) FROM applications WHERE created_at >= ${rangeStartSql}) AS applications,
+          (SELECT COUNT(*) FROM company_profiles WHERE deleted_at IS NULL AND created_at >= ${rangeStartSql}) AS companies
+      `),
+        pool.query(`
+        SELECT status, COUNT(*) AS count
+        FROM applications
+        WHERE created_at >= ${rangeStartSql}
+        GROUP BY status
+      `),
+        pool.query(`
+        SELECT
+          DATE_FORMAT(d.day, '%Y-%m-%d') AS date,
+          DATE_FORMAT(d.day, '%d/%m') AS label,
+          COUNT(DISTINCT u.id) AS users,
+          COUNT(DISTINCT a.id) AS applications
+        FROM (
+          SELECT DATE_SUB(CURDATE(), INTERVAL seq.n DAY) AS day
+          FROM (${dateSequence}) seq
+        ) d
+        LEFT JOIN users u
+          ON DATE(u.created_at) = d.day
+         AND u.deleted_at IS NULL
+        LEFT JOIN applications a
+          ON DATE(a.created_at) = d.day
+        GROUP BY d.day
+        ORDER BY d.day ASC
+      `),
+        pool.query(`
+        SELECT
+          industry_name AS name,
+          COUNT(DISTINCT job_id) AS count
+        FROM (
+          SELECT
+            j.id AS job_id,
+            COALESCE(NULLIF(c.name, ''), NULLIF(cp.industry, ''), 'Chưa phân loại') AS industry_name
+          FROM jobs j
+          LEFT JOIN categories c ON j.category_id = c.id
+          LEFT JOIN company_profiles cp ON j.company_id = cp.id
+          WHERE j.deleted_at IS NULL
+            AND j.created_at >= ${rangeStartSql}
+            AND (cp.deleted_at IS NULL OR cp.id IS NULL)
+        ) industry_jobs
+        GROUP BY industry_name
+        HAVING COUNT(DISTINCT job_id) > 0
+        ORDER BY count DESC, name ASC
+        LIMIT 5
+      `),
+        pool.query(`
+        SELECT
+          (SELECT COUNT(*) FROM jobs
+             WHERE deleted_at IS NULL
+               AND status IN ('pending_review', 'pending')
+               AND created_at >= ${rangeStartSql}) AS pendingJobs,
+          (SELECT COUNT(*) FROM company_profiles
+             WHERE deleted_at IS NULL
+               AND is_verified = 0
+               AND created_at >= ${rangeStartSql}) AS pendingCompanies
+      `),
+      ]);
+
+    const kpiSource = kpiRows?.[0] || {};
+    const moderationSource = moderationRows?.[0] || {};
+    const statusCounts = (pipelineRows || []).reduce((summary, row) => {
+      summary[row.status] = toNumber(row.count);
+      return summary;
+    }, {});
+
+    const kpi = {
+      users: toNumber(kpiSource.users),
+      jobs: toNumber(kpiSource.jobs),
+      applications: toNumber(kpiSource.applications),
+      companies: toNumber(kpiSource.companies),
+    };
+
+    const pipeline = {
+      applied: toNumber(statusCounts[APP_STATUS.SUBMITTED]),
+      interview:
+        toNumber(statusCounts[APP_STATUS.INTERVIEW_SCHEDULED]) +
+        toNumber(statusCounts[APP_STATUS.INTERVIEWED]),
+      hired: toNumber(statusCounts[APP_STATUS.HIRED]),
+      rejected: toNumber(statusCounts[APP_STATUS.REJECTED]),
+      sourceStatuses: {
+        applied: [APP_STATUS.SUBMITTED],
+        interview: [APP_STATUS.INTERVIEW_SCHEDULED, APP_STATUS.INTERVIEWED],
+        hired: [APP_STATUS.HIRED],
+        rejected: [APP_STATUS.REJECTED],
+      },
+    };
+
+    const dashboard = {
+      range: rangeMeta,
+      kpi,
+      pipeline,
+      growth: (growthRows || []).map((row) => ({
+        date: row.date,
+        label: row.label,
+        users: toNumber(row.users),
+        applications: toNumber(row.applications),
+      })),
+      topIndustries: (topIndustryRows || []).map((row) => ({
+        name: row.name || 'Chưa phân loại',
+        count: toNumber(row.count),
+        source: 'jobs',
+      })),
+      moderation: {
+        pendingJobs: toNumber(moderationSource.pendingJobs),
+        pendingCompanies: toNumber(moderationSource.pendingCompanies),
+      },
+    };
+
+    const insights = buildAnalyticsInsights(dashboard);
+
+    return {
+      ...dashboard,
+      insights,
+      aiInsight: buildAnalyticsAiSummary(insights, dashboard),
+    };
+  }
+
   async getDashboardStats() {
     const [
       usersCount,
@@ -161,10 +441,14 @@ class AdminService {
       openTickets,
       pendingJobs,
       flaggedJobs,
-      unverifiedCompanies,
-      verifiedCount,
+      companyTotal,
+      verifiedCompanies,
+      pendingCompanyApprovals,
+      rejectedCompanies,
       flaggedCompanies,
+      lockedCompanies,
       applicationsByStatus,
+      blogPostsTotal,
       pendingBlogs,
       flaggedBlogs,
       // Block A: User distribution
@@ -183,9 +467,12 @@ class AdminService {
       SupportTicketRepository.countByStatus('open'),
       JobRepository.countByStatus('pending_review'),
       JobRepository.countFlagged(),
-      CompanyRepository.countByVerification(false),
-      CompanyRepository.countByVerification(true),
-      CompanyRepository.countFlagged(),
+      CompanyRepository.countWithFilters({}),
+      CompanyRepository.countByModerationStatus('approved'),
+      CompanyRepository.countByModerationStatus('pending'),
+      CompanyRepository.countByModerationStatus('rejected'),
+      CompanyRepository.countByModerationStatus('flagged'),
+      CompanyRepository.countByModerationStatus('locked'),
       ApplicationRepository.countByStatus(),
       BlogRepository.countAll(),
       BlogRepository.countByStatus('pending'),
@@ -199,15 +486,11 @@ class AdminService {
         `SELECT COUNT(*) as total FROM users WHERE (status = 'suspended' OR status = 'banned' OR locked_at IS NOT NULL) AND deleted_at IS NULL`
       ),
       // B: Jobs by status
-      pool.query(
-        `SELECT status, COUNT(*) as count FROM jobs GROUP BY status`
-      ),
+      pool.query(`SELECT status, COUNT(*) as count FROM jobs GROUP BY status`),
       // D: Skill count
       SkillRepository?.countAll ? SkillRepository.countAll() : Promise.resolve(0),
-      // D: Industry count
-      pool.query(
-        `SELECT COUNT(DISTINCT industry) as total FROM company_profiles WHERE industry IS NOT NULL AND industry != ''`
-      ),
+      // D: Industry/category count
+      pool.query(`SELECT COUNT(*) as total FROM categories`),
       // D: Location count (from jobs)
       pool.query(
         `SELECT COUNT(DISTINCT location_id) as total FROM jobs WHERE location_id IS NOT NULL`
@@ -216,13 +499,14 @@ class AdminService {
 
     // Parse user by role array
     const roleRows = userByRole[0] || [];
-    const byRole = {};
-    let candidateCount = 0, recruiterCount = 0, adminCount = 0;
+    let candidateCount = 0,
+      recruiterCount = 0,
+      adminCount = 0;
     for (const row of roleRows) {
-      byRole[row.role] = Number(row.count);
-      if (row.role === 'candidate') candidateCount = Number(row.count);
-      else if (row.role === 'recruiter' || row.role === 'employer') recruiterCount = Number(row.count);
-      else if (row.role === 'admin') adminCount = Number(row.count);
+      const count = Number(row.count || 0);
+      if (row.role === 'candidate') candidateCount += count;
+      else if (row.role === 'recruiter') recruiterCount += count;
+      else if (row.role === 'admin') adminCount += count;
     }
 
     // Parse jobs by status
@@ -237,33 +521,39 @@ class AdminService {
     const totalIndustries = Number(industryCount?.[0]?.[0]?.total || 0);
     const totalLocations = Number(locationCount?.[0]?.[0]?.total || 0);
 
-    // Top skills query (Block D)
+    // Top skills query (Block D) based on current job demand.
     let topSkills = [];
     try {
       const [skillRows] = await pool.query(`
-        SELECT s.name, COUNT(sa.id) as count
+        SELECT s.name, COUNT(js.job_id) as count
         FROM skills s
-        LEFT JOIN skill_assessments sa ON sa.skill_id = s.id
+        JOIN job_skills js ON js.skill_id = s.id
+        JOIN jobs j ON j.id = js.job_id AND j.deleted_at IS NULL
         GROUP BY s.id, s.name
-        ORDER BY count DESC
+        ORDER BY count DESC, s.name ASC
         LIMIT 8
       `);
-      topSkills = skillRows.map(r => ({ name: r.name, count: Number(r.count) }));
-    } catch { /* graceful fallback */ }
+      topSkills = skillRows.map((r) => ({ name: r.name, count: Number(r.count) }));
+    } catch {
+      /* graceful fallback */
+    }
 
-    // Top industries query
+    // Top industries/categories query based on recruitment demand.
     let topIndustries = [];
     try {
       const [indRows] = await pool.query(`
-        SELECT industry as name, COUNT(*) as count
-        FROM company_profiles
-        WHERE industry IS NOT NULL AND industry != ''
-        GROUP BY industry
-        ORDER BY count DESC
+        SELECT c.name, COUNT(j.id) as count
+        FROM categories c
+        JOIN jobs j ON j.category_id = c.id AND j.deleted_at IS NULL
+        GROUP BY c.id, c.name
+        HAVING count > 0
+        ORDER BY count DESC, c.name ASC
         LIMIT 6
       `);
-      topIndustries = indRows.map(r => ({ name: r.name, count: Number(r.count) }));
-    } catch { /* graceful fallback */ }
+      topIndustries = indRows.map((r) => ({ name: r.name, count: Number(r.count) }));
+    } catch {
+      /* graceful fallback */
+    }
 
     // Top locations query
     let topLocations = [];
@@ -276,72 +566,106 @@ class AdminService {
         ORDER BY count DESC
         LIMIT 6
       `);
-      topLocations = locRows.map(r => ({ name: r.name, count: Number(r.count) }));
-    } catch { /* graceful fallback */ }
+      topLocations = locRows.map((r) => ({ name: r.name, count: Number(r.count) }));
+    } catch {
+      /* graceful fallback */
+    }
 
-    // Pipeline: map application statuses
+    // Pipeline: map application statuses, including legacy values still present in older data.
     const apps = applicationsByStatus || {};
-    const totalApps = applicationsCount || 1;
-    const submittedCount = Number(apps.submitted || 0);
-    const shortlistingCount = Number(apps.shortlisted || 0);
-    const interviewCount =
-      Number(apps.interview_scheduled || 0) +
-      Number(apps.interviewed || 0) +
-      Number(apps.offered || 0);
+    const totalApps = Number(applicationsCount || 0);
+    const submittedCount = Number(apps.submitted || apps.pending || 0);
+    const screeningCount = Number(apps.screening || 0);
+    const shortlistedCount = Number(apps.shortlisted || apps.reviewed || 0);
+    const inReviewCount = screeningCount + shortlistedCount;
+    const interviewScheduledCount = Number(apps.interview_scheduled || apps.interviewing || 0);
+    const interviewedCount = Number(apps.interviewed || 0);
+    const offeredCount = Number(apps.offered || apps.accepted || 0);
+    const interviewCount = interviewScheduledCount + interviewedCount + offeredCount;
     const hiredCount = Number(apps.hired || 0);
     const rejectedCount = Number(apps.rejected || 0);
+    const withdrawnCount = Number(apps.withdrawn || 0);
+    const activePipelineTotal =
+      totalApps ||
+      submittedCount + inReviewCount + interviewCount + hiredCount + rejectedCount + withdrawnCount;
 
     return {
       // A. Người dùng & Phân quyền
       users: usersCount,
-      userDistribution: roleRows.map(r => ({ role: r.role, count: Number(r.count) })),
+      userDistribution: roleRows.map((r) => ({ role: r.role, count: Number(r.count) })),
       candidateAccounts: candidateCount,
       recruiterAccounts: recruiterCount,
       adminAccounts: adminCount,
       lockedAccounts: Number(lockedAccounts[0]?.[0]?.total || 0),
 
       // B. Doanh nghiệp & Tuyển dụng
-      companies: verifiedCount + unverifiedCompanies,
-      verifiedCompanies: verifiedCount,
-      unverifiedCompanies,
-      jobs: jobsCount,
+      companies: Number(companyTotal || 0),
+      verifiedCompanies: Number(verifiedCompanies || 0),
+      unverifiedCompanies: Number(pendingCompanyApprovals || 0),
+      pendingCompanyApprovals: Number(pendingCompanyApprovals || 0),
+      rejectedCompanies: Number(rejectedCompanies || 0),
+      flaggedCompanies: Number(flaggedCompanies || 0),
+      lockedCompanies: Number(lockedCompanies || 0),
+      jobs: Number(jobsCount || 0),
       publishedJobs,
-      pendingJobApprovals: pendingJobs,
+      pendingJobApprovals: Number(pendingJobs || 0),
       rejectedJobs: jobStatusCounts.rejected || 0,
       closedJobs: jobStatusCounts.closed || 0,
-      applications: applicationsCount,
+      applications: totalApps,
+      totalApplications: totalApps,
+      submittedCount,
+      screeningCount: inReviewCount,
+      shortlistedCount,
+      interviewCount,
+      hiredCount,
+      rejectedCount,
+      withdrawnCount,
       // Pipeline counts
       pipeline: {
         submitted: submittedCount,
-        shortlisted: shortlistingCount,
-        interview_scheduled: Number(apps.interview_scheduled || 0),
-        interviewed: Number(apps.interviewed || 0),
-        offered: Number(apps.offered || 0),
+        screening: inReviewCount,
+        shortlisted: shortlistedCount,
+        interview_scheduled: interviewScheduledCount,
+        interviewed: interviewedCount,
+        offered: offeredCount,
+        interviewing: interviewCount,
         hired: hiredCount,
         rejected: rejectedCount,
+        withdrawn: withdrawnCount,
       },
       // Pipeline conversion rates
       conversion: {
-        submittedToShortlisted: totalApps > 0 ? Math.round((shortlistingCount / totalApps) * 100) : 0,
-        shortlistedToInterview: shortlistingCount > 0 ? Math.round((interviewCount / shortlistingCount) * 100) : 0,
+        submittedToScreening:
+          activePipelineTotal > 0 ? Math.round((inReviewCount / activePipelineTotal) * 100) : 0,
+        submittedToShortlisted:
+          activePipelineTotal > 0 ? Math.round((inReviewCount / activePipelineTotal) * 100) : 0,
+        screeningToInterview:
+          inReviewCount > 0 ? Math.round((interviewCount / inReviewCount) * 100) : 0,
+        shortlistedToInterview:
+          inReviewCount > 0 ? Math.round((interviewCount / inReviewCount) * 100) : 0,
         interviewToHired: interviewCount > 0 ? Math.round((hiredCount / interviewCount) * 100) : 0,
-        submittedToHired: totalApps > 0 ? Math.round((hiredCount / totalApps) * 100) : 0,
+        submittedToHired:
+          activePipelineTotal > 0 ? Math.round((hiredCount / activePipelineTotal) * 100) : 0,
       },
       // Moderation (within B)
       moderation: {
         pendingJobs,
         flaggedJobs,
-        unverifiedCompanies,
-        flaggedCompanies,
+        unverifiedCompanies: Number(pendingCompanyApprovals || 0),
+        pendingCompanyApprovals: Number(pendingCompanyApprovals || 0),
+        rejectedCompanies: Number(rejectedCompanies || 0),
+        flaggedCompanies: Number(flaggedCompanies || 0),
+        lockedCompanies: Number(lockedCompanies || 0),
         pendingBlogs,
         flaggedBlogs,
       },
 
       // C. Nội dung Public
-      blogPosts: pendingBlogs,
+      blogPosts: Number(blogPostsTotal || 0),
       homepageBanners: 0,
 
       // D. Taxonomy dữ liệu
+      totalCategories: totalIndustries,
       taxonomy: {
         totalSkills,
         totalIndustries,
@@ -353,7 +677,8 @@ class AdminService {
 
       // E. AI & Chất lượng dữ liệu
       aiStats: {
-        spamDetected: flaggedJobs + flaggedCompanies + flaggedBlogs,
+        spamDetected:
+          Number(flaggedJobs || 0) + Number(flaggedCompanies || 0) + Number(flaggedBlogs || 0),
         flaggedAccounts: lockedAccounts[0]?.[0]?.total || 0,
         chatbotConversations: 0,
         cvScans: 0,
@@ -367,7 +692,10 @@ class AdminService {
 
   async updateUserStatus(adminId, userId, status, ip, userAgent) {
     if (!USER_STATUS_VALUES.includes(status)) {
-      throw new AppError(`Invalid user status. Must be one of: ${USER_STATUS_VALUES.join(', ')}`, 400);
+      throw new AppError(
+        `Invalid user status. Must be one of: ${USER_STATUS_VALUES.join(', ')}`,
+        400
+      );
     }
 
     const user = await UserRepository.findById(userId);
@@ -378,7 +706,11 @@ class AdminService {
     const updated = await UserRepository.updateStatus(userId, status);
 
     if (updated) {
-      if (normalizeRole(user.role) === 'recruiter' && user.status === USER_STATUS.PENDING_VERIFICATION && status === USER_STATUS.ACTIVE) {
+      if (
+        normalizeRole(user.role) === 'recruiter' &&
+        user.status === USER_STATUS.PENDING_VERIFICATION &&
+        status === USER_STATUS.ACTIVE
+      ) {
         try {
           const EmailService = require('./email');
           EmailService.sendAccountApprovalEmail(
@@ -411,21 +743,30 @@ class AdminService {
 
     const updateData = { ...data };
 
-    if (updateData.role !== undefined || updateData.permissions !== undefined) {
-      await assertSuperAdmin(adminId, 'Only Super Admin can change admin role or permissions');
+    if (updateData.role !== undefined) {
+      updateData.role = normalizeRole(updateData.role);
+      if (!ROLE_VALUES.includes(updateData.role)) {
+        throw new AppError(`Invalid role. Must be one of: ${ROLE_VALUES.join(', ')}`, 400);
+      }
+
+      updateData.permissions = updateData.role === 'admin' ? JSON.stringify(['all']) : null;
     }
 
-    if (updateData.permissions !== undefined && normalizeRole(user.role) !== 'admin') {
-      throw new AppError('Permissions can only be assigned to admin accounts', 400);
-    }
-
-    if (updateData.role && !ROLE_VALUES.includes(updateData.role)) {
-      throw new AppError(`Invalid role. Must be one of: ${ROLE_VALUES.join(', ')}`, 400);
+    const roleForPermissions = normalizeRole(updateData.role ?? user.role);
+    if (updateData.permissions !== undefined && roleForPermissions !== 'admin') {
+      const normalizedPermissions = normalizeAdminPermissions(updateData.permissions);
+      if (normalizedPermissions.length > 0) {
+        throw new AppError('Permissions can only be assigned to admin accounts', 400);
+      }
+      updateData.permissions = null;
     }
 
     if (updateData.status) {
       if (!USER_STATUS_VALUES.includes(updateData.status)) {
-        throw new AppError(`Invalid user status. Must be one of: ${USER_STATUS_VALUES.join(', ')}`, 400);
+        throw new AppError(
+          `Invalid user status. Must be one of: ${USER_STATUS_VALUES.join(', ')}`,
+          400
+        );
       }
     }
 
@@ -448,12 +789,17 @@ class AdminService {
     const updated = await UserRepository.updateByAdmin(userId, updateData);
 
     if (updated) {
-      if (normalizeRole(user.role) === 'recruiter' && user.status === USER_STATUS.PENDING_VERIFICATION && updateData.status === USER_STATUS.ACTIVE) {
+      if (
+        normalizeRole(user.role) === 'recruiter' &&
+        user.status === USER_STATUS.PENDING_VERIFICATION &&
+        updateData.status === USER_STATUS.ACTIVE
+      ) {
         try {
           const EmailService = require('./email');
           EmailService.sendAccountApprovalEmail(
             user.email,
-            `${updateData.first_name || user.first_name || ''} ${updateData.last_name || user.last_name || ''}`.trim() || 'Nhà tuyển dụng'
+            `${updateData.first_name || user.first_name || ''} ${updateData.last_name || user.last_name || ''}`.trim() ||
+              'Nhà tuyển dụng'
           );
         } catch (error) {
           console.error('Lỗi khi gửi email phê duyệt trong updateUser:', error);
@@ -533,27 +879,6 @@ class AdminService {
              FROM interview_schedules is2
              JOIN applications a ON a.id = is2.application_id
             WHERE a.job_id IN (?)`
-        )
-      );
-      addCount(
-        summary,
-        'interviews',
-        await runMutationForIds(
-          connection,
-          jobIds,
-          `DELETE isess
-             FROM interview_sessions isess
-             JOIN applications a ON a.id = isess.application_id
-            WHERE a.job_id IN (?)`
-        )
-      );
-      addCount(
-        summary,
-        'interviews',
-        await runMutationForIds(
-          connection,
-          jobIds,
-          'DELETE FROM interview_questions WHERE job_id IN (?)'
         )
       );
       addCount(
@@ -708,7 +1033,11 @@ class AdminService {
       addCount(
         summary,
         'savedJobs',
-        await runMutationForIds(connection, candidateIds, 'DELETE FROM saved_jobs WHERE candidate_id IN (?)')
+        await runMutationForIds(
+          connection,
+          candidateIds,
+          'DELETE FROM saved_jobs WHERE candidate_id IN (?)'
+        )
       );
       addCount(
         summary,
@@ -783,11 +1112,13 @@ class AdminService {
     );
     addCount(
       summary,
-      'notifications',
-      await runMutation(connection, 'DELETE FROM chatbot_analytics WHERE user_id = ?', [userId])
+      'chatbotEvents',
+      await runMutation(connection, 'DELETE FROM chatbot_analytics_events WHERE user_id = ?', [
+        userId,
+      ])
     );
 
-    const oldConversationIds = await selectIds(
+    const conversationIds = await selectIds(
       connection,
       'SELECT id FROM conversations WHERE user_id = ?',
       [userId]
@@ -797,37 +1128,17 @@ class AdminService {
       'conversations',
       await runMutationForIds(
         connection,
-        oldConversationIds,
+        conversationIds,
         'DELETE FROM chat_messages WHERE conversation_id IN (?)'
       )
     );
     addCount(
       summary,
       'conversations',
-      await runMutationForIds(connection, oldConversationIds, 'DELETE FROM conversations WHERE id IN (?)')
-    );
-
-    const chatbotConversationIds = await selectIds(
-      connection,
-      'SELECT id FROM chatbot_conversations WHERE candidate_id = ? OR recruiter_id = ?',
-      [userId, userId]
-    );
-    addCount(
-      summary,
-      'conversations',
       await runMutationForIds(
         connection,
-        chatbotConversationIds,
-        'DELETE FROM chatbot_messages WHERE conversation_id IN (?)'
-      )
-    );
-    addCount(
-      summary,
-      'conversations',
-      await runMutationForIds(
-        connection,
-        chatbotConversationIds,
-        'DELETE FROM chatbot_conversations WHERE id IN (?)'
+        conversationIds,
+        'DELETE FROM conversations WHERE id IN (?)'
       )
     );
 
@@ -842,7 +1153,7 @@ class AdminService {
     if (targetId === Number.parseInt(adminId, 10)) {
       throw new AppError('Khong the xoa chinh tai khoan dang dang nhap.', 400);
     }
-    await assertSuperAdmin(adminId, 'Only Super Admin can delete user accounts');
+    await assertAdminActor(adminId);
 
     const connection = await pool.getConnection();
     let updated = false;
@@ -859,10 +1170,6 @@ class AdminService {
         await connection.rollback();
         return false;
       }
-      if (isSuperAdminIdentity(rows[0])) {
-        throw new AppError('Super Admin accounts cannot be deleted', 403);
-      }
-
       summary = await this.cascadeDeleteUserOwnedData(connection, targetId);
 
       const [result] = await connection.query(
@@ -907,7 +1214,7 @@ class AdminService {
     if (targetId === Number.parseInt(adminId, 10)) {
       throw new AppError('Khong the xoa chinh tai khoan dang dang nhap.', 400);
     }
-    await assertSuperAdmin(adminId, 'Only Super Admin can permanently delete user accounts');
+    await assertAdminActor(adminId);
 
     const connection = await pool.getConnection();
     let deleted = false;
@@ -923,10 +1230,6 @@ class AdminService {
       if (!rows.length) {
         throw new AppError('Nguoi dung khong ton tai', 404);
       }
-      if (isSuperAdminIdentity(rows[0])) {
-        throw new AppError('Super Admin accounts cannot be permanently deleted', 403);
-      }
-
       summary = await this.cascadeDeleteUserOwnedData(connection, targetId);
 
       const [result] = await connection.query('DELETE FROM users WHERE id = ?', [targetId]);
@@ -955,7 +1258,7 @@ class AdminService {
   }
 
   async restoreUser(adminId, userId, ip, userAgent) {
-    await assertSuperAdmin(adminId, 'Only Super Admin can restore deleted user accounts');
+    await assertAdminActor(adminId);
 
     const updated = await UserRepository.restore(userId);
 
@@ -976,15 +1279,23 @@ class AdminService {
   async bulkUpdateUsersStatus(adminId, ids, status, ip, userAgent) {
     if (!Array.isArray(ids) || ids.length === 0) return 0;
 
-    if (status !== 'restore' && status !== 'soft-delete' && !status.startsWith('role:') && !USER_STATUS_VALUES.includes(status)) {
-      throw new AppError(`Invalid user status. Must be one of: ${USER_STATUS_VALUES.join(', ')}`, 400);
+    if (
+      status !== 'restore' &&
+      status !== 'soft-delete' &&
+      !status.startsWith('role:') &&
+      !USER_STATUS_VALUES.includes(status)
+    ) {
+      throw new AppError(
+        `Invalid user status. Must be one of: ${USER_STATUS_VALUES.join(', ')}`,
+        400
+      );
     }
 
-    const targetIds = ids.filter(id => parseInt(id) !== parseInt(adminId) || status === 'active');
+    const targetIds = ids.filter((id) => parseInt(id) !== parseInt(adminId) || status === 'active');
     await assertCanManageTargetIds(adminId, targetIds, 'bulk update status');
 
     if (status === 'restore' || status === 'soft-delete' || status.startsWith('role:')) {
-      await assertSuperAdmin(adminId, 'Only Super Admin can bulk restore, delete, or change roles');
+      await assertAdminActor(adminId);
     }
 
     let count = 0;
@@ -1151,7 +1462,7 @@ class AdminService {
   }
 
   async updateUserPermissions(adminId, userId, permissions, ip, userAgent) {
-    await assertSuperAdmin(adminId, 'Only Super Admin can update admin permissions');
+    await assertAdminActor(adminId);
 
     const user = await UserRepository.findById(userId);
     if (!user) throw new AppError('Người dùng không tồn tại', 404);
@@ -1163,7 +1474,7 @@ class AdminService {
     const validPermissions = normalizeAdminPermissions(permissions);
 
     const updated = await UserRepository.updateByAdmin(userId, {
-      permissions: JSON.stringify(validPermissions)
+      permissions: JSON.stringify(validPermissions),
     });
 
     if (updated) {
@@ -1181,19 +1492,31 @@ class AdminService {
   }
 
   async updateJobStatus(adminId, jobId, status, rejectionReason, ip, userAgent) {
-    const { JOB_STATUS_VALUES } = require('../utils/constants');
     if (!JOB_STATUS_VALUES.includes(status)) {
       throw new AppError(`Invalid status. Allowed: ${JOB_STATUS_VALUES.join(', ')}`, 400);
     }
 
-    const updated = await JobRepository.updateStatus(jobId, status, rejectionReason);
+    const normalizedReason = normalizeOptionalText(rejectionReason);
+    if (status === JOB_STATUS.REJECTED && !normalizedReason) {
+      throw new AppError('Lý do từ chối tin tuyển dụng là bắt buộc', 400);
+    }
+
+    const reasonToPersist = status === JOB_STATUS.REJECTED ? normalizedReason : null;
+    const updated = await JobRepository.updateStatus(jobId, status, reasonToPersist);
 
     if (updated) {
+      const action =
+        status === JOB_STATUS.REJECTED
+          ? 'REJECT_JOB'
+          : [JOB_STATUS.PUBLISHED, JOB_STATUS.APPROVED].includes(status)
+            ? 'APPROVE_JOB'
+            : 'UPDATE_JOB_STATUS';
+
       await ActivityLogRepository.create({
         adminCode: adminId,
         userId: null,
-        action: 'UPDATE_JOB_STATUS',
-        details: `Updated job ${jobId} status to ${status}`,
+        action,
+        details: `Updated job ${jobId} status to ${status}${normalizedReason ? ` (Reason: ${normalizedReason})` : ''}`,
         ip,
         userAgent,
       });
@@ -1249,8 +1572,7 @@ class AdminService {
 
   async updateAdminJob(adminId, jobId, jobData, ip, userAgent) {
     const companyIdRaw = jobData.company_id ?? jobData.employer_id;
-    const companyId =
-      companyIdRaw != null ? Number.parseInt(companyIdRaw, 10) : undefined;
+    const companyId = companyIdRaw != null ? Number.parseInt(companyIdRaw, 10) : undefined;
 
     if (companyIdRaw != null && !Number.isFinite(companyId)) {
       throw new AppError('Company is invalid', 400);
@@ -1299,14 +1621,34 @@ class AdminService {
   async bulkUpdateJobsStatus(adminId, ids, status, reason, ip, userAgent) {
     if (!Array.isArray(ids) || ids.length === 0) return 0;
 
-    const count = await JobRepository.bulkUpdateStatus(ids, status, reason);
+    if (!JOB_STATUS_VALUES.includes(status)) {
+      throw new AppError(`Invalid status. Allowed: ${JOB_STATUS_VALUES.join(', ')}`, 400);
+    }
+
+    const normalizedReason = normalizeOptionalText(reason);
+    if (status === JOB_STATUS.REJECTED && !normalizedReason) {
+      throw new AppError('Lý do từ chối tin tuyển dụng là bắt buộc khi thao tác hàng loạt', 400);
+    }
+
+    const count = await JobRepository.bulkUpdateStatus(
+      ids,
+      status,
+      status === JOB_STATUS.REJECTED ? normalizedReason : null
+    );
 
     if (count > 0) {
+      const action =
+        status === JOB_STATUS.REJECTED
+          ? 'BULK_REJECT_JOBS'
+          : [JOB_STATUS.PUBLISHED, JOB_STATUS.APPROVED].includes(status)
+            ? 'BULK_APPROVE_JOBS'
+            : 'BULK_UPDATE_JOB_STATUS';
+
       await ActivityLogRepository.create({
         adminCode: adminId,
         userId: null,
-        action: 'BULK_UPDATE_JOB_STATUS',
-        details: `Bulk updated ${count} jobs to status ${status}${reason ? ` (Reason: ${reason})` : ''}`,
+        action,
+        details: `Bulk updated ${count} jobs to status ${status}${normalizedReason ? ` (Reason: ${normalizedReason})` : ''}`,
         ip,
         userAgent,
       });
@@ -1323,7 +1665,7 @@ class AdminService {
       CompanyRepository.findAllWithFilters({}),
       require('../models/SystemSettings').findAll(),
       require('../models/Category').findAll(),
-      require('../models/Skill').findAll()
+      require('../models/Skill').findAll(),
     ]);
 
     const sanitizedUsers = users.map((u) => {
@@ -1341,20 +1683,22 @@ class AdminService {
         companies,
         settings,
         categories,
-        skills
+        skills,
       },
     };
   }
 
   async updateCompanyFlag(adminId, companyId, flagged, note, ip, userAgent) {
-    const updated = await CompanyRepository.flagCompany(companyId, flagged, note);
+    const shouldFlag = parseModerationBoolean(flagged, 'Trạng thái gắn cờ công ty');
+    const normalizedNote = normalizeOptionalText(note);
+    const updated = await CompanyRepository.flagCompany(companyId, shouldFlag, normalizedNote);
 
     if (updated) {
       await ActivityLogRepository.create({
         adminCode: adminId,
         userId: null,
         action: 'UPDATE_COMPANY_FLAG',
-        details: `Updated company ${companyId} flagged to ${flagged}${note ? ` (${note})` : ''}`,
+        details: `Updated company ${companyId} flagged to ${shouldFlag}${normalizedNote ? ` (${normalizedNote})` : ''}`,
         ip,
         userAgent,
       });
@@ -1385,14 +1729,41 @@ class AdminService {
     return await EmailLogRepository.count(params);
   }
   async verifyCompany(adminId, companyId, isVerified, note, ip, userAgent) {
-    const updated = await CompanyRepository.verifyCompany(companyId, isVerified, note);
+    const shouldVerify = parseModerationBoolean(isVerified, 'Trạng thái duyệt công ty');
+    const normalizedNote = normalizeOptionalText(note);
+    const company = await CompanyRepository.findById(companyId);
+
+    if (!company) {
+      return false;
+    }
+
+    if (!shouldVerify && !normalizedNote) {
+      throw new AppError('Lý do từ chối công ty là bắt buộc', 400);
+    }
+
+    const updated = await CompanyRepository.verifyCompany(companyId, shouldVerify, normalizedNote);
 
     if (updated) {
+      const ownerStatus = String(company.owner_status || '')
+        .trim()
+        .toLowerCase();
+      const ownerLocked = [USER_STATUS.BANNED, USER_STATUS.SUSPENDED, 'locked'].includes(
+        ownerStatus
+      );
+
+      if (company.user_id && !ownerLocked) {
+        await UserRepository.updateStatus(
+          company.user_id,
+          shouldVerify ? USER_STATUS.ACTIVE : USER_STATUS.PENDING_VERIFICATION,
+          { updatedBy: adminId }
+        );
+      }
+
       await ActivityLogRepository.create({
         adminCode: adminId,
-        userId: null,
-        action: isVerified ? 'VERIFY_COMPANY' : 'REJECT_COMPANY',
-        details: `${isVerified ? 'Verified' : 'Rejected verification for'} company ${companyId}${note ? ` (${note})` : ''}`,
+        userId: company.user_id || null,
+        action: shouldVerify ? 'VERIFY_COMPANY' : 'REJECT_COMPANY',
+        details: `${shouldVerify ? 'Verified' : 'Rejected verification for'} company ${companyId}${normalizedNote ? ` (${normalizedNote})` : ''}`,
         ip,
         userAgent,
       });
@@ -1432,7 +1803,8 @@ class AdminService {
         adminCode: adminId,
         userId: null,
         action: 'SOFT_DELETE_COMPANY',
-        details: `Soft-deleted company ${companyId} (${company.company_name}): ` +
+        details:
+          `Soft-deleted company ${companyId} (${company.company_name}): ` +
           `${deletedJobsCount} jobs, ${deletedBlogsCount} blogs, ` +
           `${deletedMembersCount} company members, ${deletedUsersCount} user accounts`,
         ip,
@@ -1460,12 +1832,43 @@ class AdminService {
     return updated;
   }
 
-  async bulkUpdateCompaniesStatus(adminId, ids, status, ip, userAgent) {
+  async bulkUpdateCompaniesStatus(adminId, ids, status, note, ip, userAgent) {
     if (!Array.isArray(ids) || ids.length === 0) return 0;
 
-    const count = await CompanyRepository.bulkUpdateStatus(ids, status);
+    const normalizedNote = normalizeOptionalText(note);
+    if (status === 'unverify' && !normalizedNote) {
+      throw new AppError('Lý do từ chối công ty là bắt buộc khi thao tác hàng loạt', 400);
+    }
+
+    const count = await CompanyRepository.bulkUpdateStatus(ids, status, normalizedNote);
 
     if (count > 0) {
+      if (status === 'verify') {
+        await pool.query(
+          `UPDATE users u
+             JOIN company_profiles cp ON cp.user_id = u.id
+              SET u.status = ?, u.updated_at = CURRENT_TIMESTAMP
+            WHERE cp.id IN (?)
+              AND u.status NOT IN (?, ?, ?)`,
+          [USER_STATUS.ACTIVE, ids, USER_STATUS.BANNED, USER_STATUS.SUSPENDED, 'locked']
+        );
+      } else if (status === 'unverify') {
+        await pool.query(
+          `UPDATE users u
+             JOIN company_profiles cp ON cp.user_id = u.id
+              SET u.status = ?, u.updated_at = CURRENT_TIMESTAMP
+            WHERE cp.id IN (?)
+              AND u.status NOT IN (?, ?, ?)`,
+          [
+            USER_STATUS.PENDING_VERIFICATION,
+            ids,
+            USER_STATUS.BANNED,
+            USER_STATUS.SUSPENDED,
+            'locked',
+          ]
+        );
+      }
+
       if (status === 'soft-delete') {
         const JobRepository = require('../models/Job');
 
@@ -1475,19 +1878,19 @@ class AdminService {
       }
 
       const actionLabels = {
-        'verify': 'BULK_VERIFY_COMPANIES',
-        'unverify': 'BULK_UNVERIFY_COMPANIES',
-        'flag': 'BULK_FLAG_COMPANIES',
-        'unflag': 'BULK_UNFLAG_COMPANIES',
+        verify: 'BULK_VERIFY_COMPANIES',
+        unverify: 'BULK_UNVERIFY_COMPANIES',
+        flag: 'BULK_FLAG_COMPANIES',
+        unflag: 'BULK_UNFLAG_COMPANIES',
         'soft-delete': 'BULK_SOFT_DELETE_COMPANIES',
-        'restore': 'BULK_RESTORE_COMPANIES'
+        restore: 'BULK_RESTORE_COMPANIES',
       };
 
       await ActivityLogRepository.create({
         adminCode: adminId,
         userId: null,
         action: actionLabels[status] || 'BULK_UPDATE_COMPANIES',
-        details: `Bulk updated ${count} companies with status ${status}`,
+        details: `Bulk updated ${count} companies with status ${status}${normalizedNote ? ` (Reason: ${normalizedNote})` : ''}`,
         ip,
         userAgent,
       });
@@ -1500,24 +1903,26 @@ class AdminService {
     const company = await CompanyRepository.findById(companyId);
     if (!company) throw new AppError('Công ty không tồn tại', 404);
 
-    // 1. Flag the company
-    await CompanyRepository.flagCompany(companyId, true, 'Banned by Admin');
+    const moderationNote = 'Doanh nghiệp bị khóa bởi quản trị viên';
 
-    // 2. Lock the associated user
+    // 1. Mark the company as rejected + flagged so it is removed from all public flows.
+    await CompanyRepository.banCompany(companyId, moderationNote);
+
+    // 2. Lock the associated recruiter account.
     if (company.user_id) {
       await UserRepository.updateStatus(company.user_id, USER_STATUS.BANNED, {
         lockedBy: adminId,
       });
     }
 
-    // 3. Suspend all jobs
+    // 3. Close all active jobs owned by the company.
     const suspendedCount = await JobRepository.bulkUpdateStatusByCompany(companyId, 'closed');
 
     await ActivityLogRepository.create({
       adminCode: adminId,
       userId: company.user_id,
       action: 'BAN_COMPANY',
-      details: `Banned company ${companyId}, locked employer account ${company.user_id}, and closed ${suspendedCount} jobs`,
+      details: `Banned company ${companyId}, locked recruiter account ${company.user_id}, and closed ${suspendedCount} jobs`,
       ip,
       userAgent,
     });
@@ -1525,19 +1930,35 @@ class AdminService {
     return true;
   }
 
-  async updateApplicationStatus(adminId, applicationId, status, notes, offerDetails, ip, userAgent) {
+  async updateApplicationStatus(
+    adminId,
+    applicationId,
+    status,
+    notes,
+    metadata = {},
+    ip,
+    userAgent
+  ) {
     if (!APP_STATUS_VALUES.includes(status)) {
-      throw new AppError(`Invalid application status. Must be one of: ${APP_STATUS_VALUES.join(', ')}`, 400);
+      throw new AppError(
+        `Invalid application status. Must be one of: ${APP_STATUS_VALUES.join(', ')}`,
+        400
+      );
     }
     const application = await ApplicationRepository.findById(applicationId);
     if (!application) throw new AppError('Đơn ứng tuyển không tồn tại', 404);
 
-    const data = {};
-    if (offerDetails) {
-      data.offer_details = offerDetails;
-    }
+    const data = normalizeAdminApplicationMetadata(status, metadata);
 
-    const updated = await ApplicationRepository.updateStatus(applicationId, status, adminId, notes, data);
+    const updated = await ApplicationService.updateApplicationStatus(
+      applicationId,
+      null,
+      adminId,
+      status,
+      notes,
+      true,
+      data
+    );
 
     if (updated) {
       await ActivityLogRepository.create({
@@ -1576,9 +1997,57 @@ class AdminService {
   async bulkUpdateApplicationsStatus(adminId, ids, status, notes, ip, userAgent) {
     if (!Array.isArray(ids) || ids.length === 0) return 0;
     if (!APP_STATUS_VALUES.includes(status)) {
-      throw new AppError(`Invalid application status. Must be one of: ${APP_STATUS_VALUES.join(', ')}`, 400);
+      throw new AppError(
+        `Invalid application status. Must be one of: ${APP_STATUS_VALUES.join(', ')}`,
+        400
+      );
     }
-    const count = await ApplicationRepository.bulkUpdateStatus(ids, status, adminId, notes);
+    if (
+      [APP_STATUS.INTERVIEW_SCHEDULED, APP_STATUS.OFFERED, APP_STATUS.WITHDRAWN].includes(status)
+    ) {
+      throw new AppError(
+        'Không thể cập nhật hàng loạt sang trạng thái này vì cần dữ liệu nghiệp vụ riêng cho từng hồ sơ.',
+        400
+      );
+    }
+
+    const uniqueIds = [
+      ...new Set(ids.map((id) => Number.parseInt(id, 10)).filter(Number.isFinite)),
+    ];
+    if (!uniqueIds.length) return 0;
+
+    const applications = await Promise.all(
+      uniqueIds.map(async (id) => {
+        const application = await ApplicationRepository.findByIdWithDetails(id);
+        if (!application) throw new AppError(`Đơn ứng tuyển #${id} không tồn tại`, 404);
+        return application;
+      })
+    );
+
+    for (const application of applications) {
+      if (application.status === status) continue;
+      if (!ApplicationService.canTransitionApplicationStatus(application.status, status)) {
+        throw new AppError(
+          `Không thể chuyển hồ sơ #${application.id} từ "${application.status}" sang "${status}".`,
+          400
+        );
+      }
+    }
+
+    let count = 0;
+    for (const application of applications) {
+      if (application.status === status) continue;
+      await ApplicationService.updateApplicationStatus(
+        application.id,
+        null,
+        adminId,
+        status,
+        notes,
+        true,
+        {}
+      );
+      count++;
+    }
 
     if (count > 0) {
       await ActivityLogRepository.create({

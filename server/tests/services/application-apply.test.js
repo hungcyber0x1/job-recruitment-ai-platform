@@ -109,7 +109,7 @@ describe('ApplicationService.applyToJob', () => {
 
     await expect(ApplicationService.applyToJob(7, 101)).rejects.toMatchObject({
       statusCode: 400,
-      message: 'You have already applied to this job',
+      message: 'Bạn đã ứng tuyển tin tuyển dụng này',
     });
 
     expect(connection.commit).not.toHaveBeenCalled();
@@ -140,7 +140,7 @@ describe('ApplicationService.applyToJob', () => {
 
     await expect(ApplicationService.applyToJob(7, 101, {})).rejects.toMatchObject({
       statusCode: 400,
-      message: 'You have already applied to this job',
+      message: 'Bạn đã ứng tuyển tin tuyển dụng này',
     });
 
     expect(connection.commit).not.toHaveBeenCalled();
@@ -161,10 +161,51 @@ describe('ApplicationService.applyToJob', () => {
 
     await expect(ApplicationService.applyToJob(7, 101)).rejects.toMatchObject({
       statusCode: 404,
-      message: 'Job not found',
+      message: 'Không tìm thấy tin tuyển dụng',
     });
 
     expect(connection.commit).not.toHaveBeenCalled();
     expect(connection.rollback).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects non-positive and partially numeric ids before opening a transaction', async () => {
+    await expect(ApplicationService.applyToJob('7abc', 101)).rejects.toMatchObject({
+      statusCode: 400,
+    });
+    await expect(ApplicationService.applyToJob(7, 0)).rejects.toMatchObject({
+      statusCode: 400,
+    });
+
+    expect(pool.getConnection).not.toHaveBeenCalled();
+  });
+
+  it('trims empty optional cover letter and resume url before inserting', async () => {
+    const connection = buildConnection();
+    pool.getConnection.mockResolvedValue(connection);
+
+    connection.query.mockImplementation(async (sql) => {
+      if (isActiveJobLookup(sql)) {
+        return [[{ id: 101, status: 'published', company_id: 11, deadline: null }]];
+      }
+
+      if (sql === 'SELECT id FROM applications WHERE candidate_id = ? AND job_id = ?') {
+        return [[]];
+      }
+
+      if (sql.includes('INSERT INTO applications')) {
+        return [{ insertId: 9003 }];
+      }
+
+      throw new Error(`Unexpected query: ${sql}`);
+    });
+
+    await expect(
+      ApplicationService.applyToJob(7, 101, { cover_letter: '   ', resume_url: '   ' })
+    ).resolves.toBe(9003);
+
+    expect(connection.query).toHaveBeenCalledWith(
+      expect.stringContaining('INSERT INTO applications'),
+      [7, 101, null, null]
+    );
   });
 });

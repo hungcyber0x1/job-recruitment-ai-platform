@@ -1,6 +1,7 @@
 function normalizeRole(role) {
-  const normalizedRole = String(role ?? '').trim().toLowerCase();
-  return normalizedRole === 'employer' ? 'recruiter' : normalizedRole;
+  return String(role ?? '')
+    .trim()
+    .toLowerCase();
 }
 
 function getNonEmptyToken(...candidates) {
@@ -12,16 +13,19 @@ function getNonEmptyToken(...candidates) {
 
 function isRecruiterAwaitingApproval(role, status) {
   return (
-    normalizeRole(role) === 'recruiter'
-    && ['pending', 'pending_verification'].includes(String(status ?? '').trim().toLowerCase())
+    normalizeRole(role) === 'recruiter' &&
+    ['pending', 'pending_verification'].includes(
+      String(status ?? '')
+        .trim()
+        .toLowerCase()
+    )
   );
 }
 
 export function extractAuthResponse(body = {}) {
   const rawData = body?.data && typeof body.data === 'object' ? body.data : null;
   const token = getNonEmptyToken(body?.token, rawData?.token);
-  const requiresApproval =
-    body?.requires_approval === true || rawData?.requires_approval === true;
+  const requiresApproval = body?.requires_approval === true || rawData?.requires_approval === true;
   const userData = rawData ? { ...rawData } : null;
 
   if (userData) {

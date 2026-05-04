@@ -43,13 +43,11 @@ const AdminChartPanel = ({
             <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
               {title}
             </h3>
-            {subtitle && (
-              <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>
-            )}
+            {subtitle && <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>}
           </div>
 
-          {actionLabel && (
-            actionTo ? (
+          {actionLabel &&
+            (actionTo ? (
               <Link
                 to={actionTo}
                 className="ml-auto inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-xs font-semibold text-primary transition-colors hover:text-primary/80"
@@ -65,8 +63,7 @@ const AdminChartPanel = ({
                 {actionLabel}
                 <ArrowRight className="h-3.5 w-3.5" />
               </button>
-            )
-          )}
+            ))}
         </div>
       )}
 
@@ -86,9 +83,7 @@ const AdminChartPanel = ({
             </div>
           </div>
         ) : (
-          <div className={cn(chartClassName)}>
-            {children}
-          </div>
+          <div className={cn(chartClassName)}>{children}</div>
         )}
       </div>
 

@@ -169,9 +169,7 @@ const EmptyState = ({
       </div>
       <h2 className="text-xl font-semibold text-foreground">{title}</h2>
       {description && (
-        <p className="mt-2 max-w-sm text-sm leading-6 text-muted-foreground">
-          {description}
-        </p>
+        <p className="mt-2 max-w-sm text-sm leading-6 text-muted-foreground">{description}</p>
       )}
       {action && <div className="mt-4">{action}</div>}
     </div>

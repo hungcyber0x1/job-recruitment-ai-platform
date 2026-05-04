@@ -7,19 +7,19 @@ import { cn } from '../../utils/cn';
  */
 const Card = React.forwardRef(
   ({ children, className, hover = false, variant = 'default', ...props }, ref) => {
-    const baseStyles =
-      'ds-surface-card p-5';
+    const baseStyles = 'ds-surface-card p-5';
 
     const variants = {
       default: '',
-      premium:
-        'border-primary/10 shadow-sm shadow-primary/5',
+      premium: 'border-primary/10 shadow-sm shadow-primary/5',
       glass: 'glass-premium',
       flat: 'border-transparent bg-muted/50 shadow-none',
       bordered: 'border-border bg-card',
     };
 
-    const hoverEffects = hover ? 'hover:-translate-y-px hover:border-primary/20 hover:shadow-md' : '';
+    const hoverEffects = hover
+      ? 'hover:-translate-y-px hover:border-primary/20 hover:shadow-md'
+      : '';
 
     return (
       <div

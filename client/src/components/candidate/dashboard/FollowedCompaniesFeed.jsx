@@ -1,25 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Building2,
-  Bell,
-  Loader2,
-  ExternalLink,
-  TrendingUp,
-  MapPin,
-  Users,
-  Plus,
-} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Building2, ExternalLink, MapPin, Plus, TrendingUp, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import candidateService from '../../../services/candidateService';
-import { useNotification } from '../../../context/NotificationContext';
-import { formatDate } from '../../../utils/formatters';
-import { cn } from '../../../utils/cn';
 import { isHandledAuthError } from '../../../utils/authErrors';
 
 const FollowedCompaniesFeed = () => {
-  const { showNotification } = useNotification();
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -46,7 +33,7 @@ const FollowedCompaniesFeed = () => {
   if (loading) {
     return (
       <div className="space-y-3">
-        {[1, 2, 3].map(i => (
+        {[1, 2, 3].map((i) => (
           <Card key={i} className="rounded-xl">
             <CardContent className="h-20 animate-pulse bg-slate-100" />
           </Card>
@@ -61,7 +48,7 @@ const FollowedCompaniesFeed = () => {
         <CardContent className="flex flex-col items-center justify-center py-8 text-center">
           <Building2 className="h-10 w-10 text-slate-300 mb-2" />
           <p className="text-sm font-semibold text-slate-500">Chưa theo dõi công ty nào</p>
-          <Link to="/candidate/companies">
+          <Link to="/companies">
             <Button variant="outline" className="mt-3 rounded-lg text-sm font-bold gap-2">
               <Plus className="h-4 w-4" />
               Khám phá công ty
@@ -74,7 +61,7 @@ const FollowedCompaniesFeed = () => {
 
   return (
     <div className="space-y-3">
-      {companies.slice(0, 5).map(company => (
+      {companies.slice(0, 5).map((company) => (
         <Link key={company.id} to={`/candidate/companies/${company.id}`}>
           <Card className="rounded-xl border border-slate-200 bg-white hover:shadow-md hover:border-emerald-200 transition-all">
             <CardContent className="p-4">
@@ -114,7 +101,7 @@ const FollowedCompaniesFeed = () => {
         </Link>
       ))}
       {companies.length > 5 && (
-        <Link to="/candidate/companies">
+        <Link to="/candidate/saved-companies">
           <Button variant="outline" className="w-full rounded-xl h-10 text-sm font-bold gap-2">
             <Building2 className="h-4 w-4" />
             Xem tất cả công ty đã lưu ({companies.length})

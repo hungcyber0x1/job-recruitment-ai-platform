@@ -39,7 +39,9 @@ function SectionHeader({ icon: Icon, eyebrow, title, description, insight }) {
             <Icon className="h-4 w-4" />
           </div>
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-600">{eyebrow}</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-600">
+              {eyebrow}
+            </p>
             <h2 className="mt-1 text-base font-bold text-slate-950">{title}</h2>
             <p className="mt-1 text-sm leading-6 text-slate-500">{description}</p>
           </div>
@@ -47,7 +49,9 @@ function SectionHeader({ icon: Icon, eyebrow, title, description, insight }) {
 
         {insight ? (
           <div className="max-w-sm rounded-2xl border border-emerald-100 bg-emerald-50/70 px-4 py-3">
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-700">Goi y</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-700">
+              Goi y
+            </p>
             <p className="mt-1 text-sm leading-6 text-emerald-900/80">{insight}</p>
           </div>
         ) : null}
@@ -105,10 +109,13 @@ const JobBasicInfoSection = ({ formData, jobTypes, onChange, today }) => {
                 <DollarSign className="h-4 w-4" />
               </div>
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">Dai ngo</p>
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">
+                  Dai ngo
+                </p>
                 <h3 className="mt-1 text-base font-bold text-slate-950">Muc luong du kien</h3>
                 <p className="mt-1 text-sm leading-6 text-slate-500">
-                  Khoang luong ro rang giup ung vien danh gia nhanh muc do phu hop va tang ty le ho so dung nhu cau.
+                  Khoang luong ro rang giup ung vien danh gia nhanh muc do phu hop va tang ty le ho
+                  so dung nhu cau.
                 </p>
               </div>
             </div>
@@ -148,7 +155,9 @@ const JobBasicInfoSection = ({ formData, jobTypes, onChange, today }) => {
           <div className="mt-3 flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
             <div>
               <p className="text-sm font-bold text-slate-800">Cho phep thuong luong luong</p>
-              <p className="mt-0.5 text-xs text-slate-500">Bat khi chua muon cong khai dai luong co dinh.</p>
+              <p className="mt-0.5 text-xs text-slate-500">
+                Bat khi chua muon cong khai dai luong co dinh.
+              </p>
             </div>
             <button
               type="button"
@@ -162,7 +171,9 @@ const JobBasicInfoSection = ({ formData, jobTypes, onChange, today }) => {
                   : 'border-slate-200 bg-white text-slate-500'
               }`}
             >
-              <span className={`h-2 w-2 rounded-full ${formData.salaryNegotiable ? 'bg-emerald-500' : 'bg-slate-300'}`} />
+              <span
+                className={`h-2 w-2 rounded-full ${formData.salaryNegotiable ? 'bg-emerald-500' : 'bg-slate-300'}`}
+              />
               <span>{formData.salaryNegotiable ? 'Dang bat' : 'Dang tat'}</span>
             </button>
           </div>
@@ -191,7 +202,12 @@ const JobBasicInfoSection = ({ formData, jobTypes, onChange, today }) => {
               <FieldLabel>Hoc van yeu cau</FieldLabel>
               <div className="relative">
                 <GraduationCap className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <select name="education" value={formData.education} onChange={onChange} className={`${selectClassName} pl-10`}>
+                <select
+                  name="education"
+                  value={formData.education}
+                  onChange={onChange}
+                  className={`${selectClassName} pl-10`}
+                >
                   {EDUCATION_OPTIONS.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
@@ -207,7 +223,12 @@ const JobBasicInfoSection = ({ formData, jobTypes, onChange, today }) => {
               <FieldLabel>Loai hinh lam viec</FieldLabel>
               <div className="relative">
                 <Briefcase className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <select name="jobType" value={formData.jobType} onChange={onChange} className={`${selectClassName} pl-10`}>
+                <select
+                  name="jobType"
+                  value={formData.jobType}
+                  onChange={onChange}
+                  className={`${selectClassName} pl-10`}
+                >
                   {jobTypes.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}

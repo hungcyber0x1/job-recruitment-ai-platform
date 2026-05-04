@@ -59,6 +59,12 @@ const adminPermission = (permission) => [
 
 router.get('/stats', protect, authorize('admin'), AdminController.getDashboardStats);
 router.get('/chart-stats', protect, authorize('admin'), AdminController.getChartStats);
+router.get(
+  '/analytics-dashboard',
+  protect,
+  authorize('admin'),
+  AdminController.getAnalyticsDashboard
+);
 
 // Exports (MUST be before parametric :id routes to avoid shadowing)
 router.get('/email-logs', protect, authorize('admin'), AdminController.getEmailLogs);
@@ -87,29 +93,80 @@ router.put('/users/:id', protect, authorize('admin'), AdminController.updateUser
 router.patch('/users/:id/status', protect, authorize('admin'), AdminController.updateUserStatus);
 router.patch('/users/:id/lock', protect, authorize('admin'), AdminController.lockUser);
 router.patch('/users/:id/unlock', protect, authorize('admin'), AdminController.unlockUser);
-router.patch('/users/:id/permissions', adminPermission(ADMIN_PERMISSIONS.ADMIN_PERMISSIONS), AdminController.updateUserPermissions);
-router.delete('/users/:id', adminPermission(ADMIN_PERMISSIONS.USERS_DELETE), AdminController.deleteUser);
-router.delete('/users/:id/hard', adminPermission(ADMIN_PERMISSIONS.USERS_DELETE), AdminController.hardDeleteUser);
-router.patch('/users/:id/restore', adminPermission(ADMIN_PERMISSIONS.USERS_DELETE), AdminController.restoreUser);
-router.post('/users/:id/reset-password', protect, authorize('admin'), AdminController.resetPassword);
+router.patch(
+  '/users/:id/permissions',
+  adminPermission(ADMIN_PERMISSIONS.ADMIN_PERMISSIONS),
+  AdminController.updateUserPermissions
+);
+router.delete(
+  '/users/:id',
+  adminPermission(ADMIN_PERMISSIONS.USERS_DELETE),
+  AdminController.deleteUser
+);
+router.delete(
+  '/users/:id/hard',
+  adminPermission(ADMIN_PERMISSIONS.USERS_DELETE),
+  AdminController.hardDeleteUser
+);
+router.patch(
+  '/users/:id/restore',
+  adminPermission(ADMIN_PERMISSIONS.USERS_DELETE),
+  AdminController.restoreUser
+);
+router.post(
+  '/users/:id/reset-password',
+  protect,
+  authorize('admin'),
+  AdminController.resetPassword
+);
 router.post('/users/:id/force-logout', protect, authorize('admin'), AdminController.forceLogout);
-router.post('/users/:id/resend-verification', protect, authorize('admin'), AdminController.resendVerification);
+router.post(
+  '/users/:id/resend-verification',
+  protect,
+  authorize('admin'),
+  AdminController.resendVerification
+);
 router.get('/users/:id/activity', protect, authorize('admin'), AdminController.getUserActivity);
-router.post('/users/bulk-status', protect, authorize('admin'), AdminController.bulkUpdateUsersStatus);
+router.post(
+  '/users/bulk-status',
+  protect,
+  authorize('admin'),
+  AdminController.bulkUpdateUsersStatus
+);
 
 // Companies
 router.get('/companies', protect, authorize('admin'), CompanyController.getAllCompanies);
-router.post('/companies/bulk-status', protect, authorize('admin'), CompanyController.bulkUpdateStatus);
+router.post(
+  '/companies/bulk-status',
+  protect,
+  authorize('admin'),
+  CompanyController.bulkUpdateStatus
+);
 router.get('/companies/:id', protect, authorize('admin'), AdminController.getCompanyById);
 router.patch('/companies/:id/verify', protect, authorize('admin'), CompanyController.verifyCompany);
 router.patch('/companies/:id/flag', protect, authorize('admin'), CompanyController.flagCompany);
 router.patch('/companies/:id/ban', protect, authorize('admin'), CompanyController.banCompany);
-router.patch('/companies/:id/restore', adminPermission(ADMIN_PERMISSIONS.COMPANIES_DELETE), CompanyController.restoreCompany);
-router.delete('/companies/:id', adminPermission(ADMIN_PERMISSIONS.COMPANIES_DELETE), CompanyController.deleteCompany);
+router.patch(
+  '/companies/:id/restore',
+  adminPermission(ADMIN_PERMISSIONS.COMPANIES_DELETE),
+  CompanyController.restoreCompany
+);
+router.delete(
+  '/companies/:id',
+  adminPermission(ADMIN_PERMISSIONS.COMPANIES_DELETE),
+  CompanyController.deleteCompany
+);
 
 // Jobs
 router.get('/jobs', protect, authorize('admin'), AdminController.getAllJobs);
-router.post('/jobs', protect, authorize('admin'), jobValidator, validate, AdminController.createJob);
+router.post(
+  '/jobs',
+  protect,
+  authorize('admin'),
+  jobValidator,
+  validate,
+  AdminController.createJob
+);
 router.post('/jobs/bulk-status', protect, authorize('admin'), AdminController.bulkUpdateJobsStatus);
 router.get('/jobs/:id', protect, authorize('admin'), AdminController.getJobById);
 router.post('/jobs/:id/duplicate', protect, authorize('admin'), AdminController.duplicateJob);
@@ -124,14 +181,39 @@ router.put(
 );
 router.patch('/jobs/:id/status', protect, authorize('admin'), AdminController.updateJobStatus);
 router.patch('/jobs/:id/flag', protect, authorize('admin'), AdminController.updateJobFlag);
-router.delete('/jobs/:id', adminPermission(ADMIN_PERMISSIONS.JOBS_DELETE), AdminController.deleteJob);
+router.delete(
+  '/jobs/:id',
+  adminPermission(ADMIN_PERMISSIONS.JOBS_DELETE),
+  AdminController.deleteJob
+);
 
 // Applications
 router.get('/applications', protect, authorize('admin'), AdminController.getAllApplications);
 router.get('/applications/:id', protect, authorize('admin'), AdminController.getApplicationById);
-router.post('/applications/bulk-status', protect, authorize('admin'), AdminController.bulkUpdateApplicationsStatus);
-router.patch('/applications/:id/status', protect, authorize('admin'), AdminController.updateApplicationStatus);
-router.patch('/applications/:id/internal-note', protect, authorize('admin'), AdminController.updateApplicationInternalNote);
+router.get(
+  '/applications/:id/history',
+  protect,
+  authorize('admin'),
+  AdminController.getApplicationHistory
+);
+router.post(
+  '/applications/bulk-status',
+  protect,
+  authorize('admin'),
+  AdminController.bulkUpdateApplicationsStatus
+);
+router.patch(
+  '/applications/:id/status',
+  protect,
+  authorize('admin'),
+  AdminController.updateApplicationStatus
+);
+router.patch(
+  '/applications/:id/internal-note',
+  protect,
+  authorize('admin'),
+  AdminController.updateApplicationInternalNote
+);
 
 // Logs
 router.get('/logs', protect, authorize('admin'), AdminController.getLogs);
@@ -148,8 +230,12 @@ router.get('/tickets/:id/messages', protect, authorize('admin'), AdminController
 router.post('/tickets/:id/reply', protect, authorize('admin'), AdminController.replyToTicket);
 
 // Settings
-router.get('/settings', adminPermission(ADMIN_PERMISSIONS.SETTINGS_MANAGE), AdminController.getSettings);
-router.put('/settings', adminPermission(ADMIN_PERMISSIONS.SETTINGS_MANAGE), AdminController.updateSettings);
+router.get('/settings', protect, authorize('admin'), AdminController.getSettings);
+router.put(
+  '/settings',
+  adminPermission(ADMIN_PERMISSIONS.SETTINGS_MANAGE),
+  AdminController.updateSettings
+);
 router.post(
   '/settings/upload-logo',
   protect,
@@ -168,12 +254,7 @@ router.post(
   }).single('site_logo'),
   AdminController.uploadSiteLogo
 );
-router.post(
-  '/settings/smtp/test',
-  protect,
-  authorize('admin'),
-  AdminController.testSmtpConnection
-);
+router.post('/settings/smtp/test', protect, authorize('admin'), AdminController.testSmtpConnection);
 router.post(
   '/settings/api/generate-key',
   protect,
@@ -186,13 +267,17 @@ router.get('/blog/posts', protect, authorize('admin'), BlogController.listAdmin)
 router.post('/blog/posts', protect, authorize('admin'), BlogController.createAdmin);
 router.post('/blog/posts/bulk-action', protect, authorize('admin'), BlogController.bulkActionAdmin);
 router.put('/blog/posts/:id', protect, authorize('admin'), BlogController.updateAdmin);
-router.patch('/blog/posts/:id/status', protect, authorize('admin'), BlogController.updateStatusAdmin);
-router.delete('/blog/posts/:id', adminPermission(ADMIN_PERMISSIONS.CONTENT_DELETE), BlogController.deleteAdmin);
-
-// Content
-router.get('/banners', protect, authorize('admin'), AdminController.getBanners);
-router.post('/banners', protect, authorize('admin'), AdminController.createBanner);
-router.delete('/banners/:id', adminPermission(ADMIN_PERMISSIONS.CONTENT_DELETE), AdminController.deleteBanner);
+router.patch(
+  '/blog/posts/:id/status',
+  protect,
+  authorize('admin'),
+  BlogController.updateStatusAdmin
+);
+router.delete(
+  '/blog/posts/:id',
+  adminPermission(ADMIN_PERMISSIONS.CONTENT_DELETE),
+  BlogController.deleteAdmin
+);
 
 // Chatbot
 router.get('/chatbot/stats', protect, authorize('admin'), AdminController.getChatStats);

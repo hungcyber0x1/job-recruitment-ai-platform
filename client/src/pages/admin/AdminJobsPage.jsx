@@ -3,33 +3,23 @@ import { Link, useSearchParams } from 'react-router-dom';
 import {
   AlertTriangle,
   Briefcase,
-  Building2,
   CheckCircle,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Clock3,
-  DollarSign,
   Download,
-  Edit,
   Eye,
   FileX,
   Filter,
-  Flag,
-  FolderOpen,
-  MapPin,
   MoreVertical,
-  Plus,
   RefreshCw,
   Search,
-  Shield,
-  Sparkles,
-  Trash2,
-  Users,
   X,
   XCircle,
 } from 'lucide-react';
 
+import { ContentCard, PageHeader } from '@/components/admin';
+import StatCard from '@/components/common/StatCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -46,25 +36,21 @@ import { useNotification } from '../../context/NotificationContext';
 import useDebounce from '../../hooks/useDebounce';
 import adminService from '../../services/adminService';
 
-const DEFAULT_FILTERS = {
-  riskLevel: 'all',
-  company: '',
-  dateRange: 'all',
-};
+const PAGE_SIZE = 10;
 
 const STATUS_CONFIG = {
   [JOB_STATUS.DRAFT]: {
     label: 'Bản nháp',
     description: 'Nhà tuyển dụng đang hoàn thiện nội dung.',
-    color: 'bg-slate-500',
-    text: 'text-slate-600',
-    bg: 'bg-slate-100',
+    dot: 'bg-slate-500',
+    text: 'text-slate-700',
+    bg: 'bg-slate-50',
     border: 'border-slate-200',
   },
   [JOB_STATUS.PENDING_REVIEW]: {
     label: 'Chờ duyệt',
     description: 'Cần admin phê duyệt trước khi hiển thị.',
-    color: 'bg-amber-500',
+    dot: 'bg-amber-500',
     text: 'text-amber-700',
     bg: 'bg-amber-50',
     border: 'border-amber-200',
@@ -72,7 +58,7 @@ const STATUS_CONFIG = {
   [JOB_STATUS.APPROVED]: {
     label: 'Đã duyệt',
     description: 'Sẵn sàng phát hành theo lịch vận hành.',
-    color: 'bg-blue-500',
+    dot: 'bg-blue-500',
     text: 'text-blue-700',
     bg: 'bg-blue-50',
     border: 'border-blue-200',
@@ -80,7 +66,7 @@ const STATUS_CONFIG = {
   [JOB_STATUS.PUBLISHED]: {
     label: 'Đã đăng',
     description: 'Tin đang hiển thị công khai với ứng viên.',
-    color: 'bg-emerald-500',
+    dot: 'bg-emerald-500',
     text: 'text-emerald-700',
     bg: 'bg-emerald-50',
     border: 'border-emerald-200',
@@ -88,15 +74,23 @@ const STATUS_CONFIG = {
   [JOB_STATUS.REJECTED]: {
     label: 'Từ chối',
     description: 'Tin không đạt yêu cầu kiểm duyệt.',
-    color: 'bg-red-500',
-    text: 'text-red-700',
-    bg: 'bg-red-50',
-    border: 'border-red-200',
+    dot: 'bg-rose-500',
+    text: 'text-rose-700',
+    bg: 'bg-rose-50',
+    border: 'border-rose-200',
+  },
+  [JOB_STATUS.SUSPENDED]: {
+    label: 'Đã ẩn',
+    description: 'Tin đang bị ẩn khỏi luồng công khai.',
+    dot: 'bg-violet-500',
+    text: 'text-violet-700',
+    bg: 'bg-violet-50',
+    border: 'border-violet-200',
   },
   [JOB_STATUS.CLOSED]: {
     label: 'Đã đóng',
     description: 'Tin đã dừng nhận hồ sơ mới.',
-    color: 'bg-slate-500',
+    dot: 'bg-slate-500',
     text: 'text-slate-700',
     bg: 'bg-slate-100',
     border: 'border-slate-200',
@@ -104,175 +98,70 @@ const STATUS_CONFIG = {
   [JOB_STATUS.EXPIRED]: {
     label: 'Hết hạn',
     description: 'Tin đã quá thời hạn hiển thị.',
-    color: 'bg-orange-500',
+    dot: 'bg-orange-500',
     text: 'text-orange-700',
     bg: 'bg-orange-50',
     border: 'border-orange-200',
   },
-  [JOB_STATUS.SUSPENDED]: {
-    label: 'Tạm ngưng',
-    description: 'Tin đang bị tạm ngưng để rà soát.',
-    color: 'bg-violet-500',
-    text: 'text-violet-700',
-    bg: 'bg-violet-50',
-    border: 'border-violet-200',
-  },
 };
 
-const RISK_CONFIG = {
-  low: {
-    label: 'Thấp',
-    color: 'text-emerald-700',
-    bg: 'bg-emerald-50',
-    border: 'border-emerald-200',
-    icon: Shield,
-  },
-  medium: {
-    label: 'Trung bình',
-    color: 'text-amber-700',
-    bg: 'bg-amber-50',
-    border: 'border-amber-200',
-    icon: AlertTriangle,
-  },
-  high: {
-    label: 'Cao',
-    color: 'text-red-700',
-    bg: 'bg-red-50',
-    border: 'border-red-200',
-    icon: AlertTriangle,
-  },
-};
-
-const DATE_RANGE_OPTIONS = [
-  { value: 'all', label: 'Tất cả thời gian' },
-  { value: 'today', label: 'Hôm nay' },
-  { value: 'week', label: '7 ngày gần nhất' },
-  { value: 'month', label: '30 ngày gần nhất' },
-];
-
-const SORT_OPTIONS = [
-  { value: 'created_at-desc', label: 'Mới cập nhật trước' },
-  { value: 'created_at-asc', label: 'Cũ nhất trước' },
-  { value: 'title-asc', label: 'Tiêu đề A-Z' },
-  { value: 'title-desc', label: 'Tiêu đề Z-A' },
+const STATUS_OPTIONS = [
+  { value: 'all', label: 'Tất cả trạng thái' },
+  { value: JOB_STATUS.PENDING_REVIEW, label: 'Chờ duyệt' },
+  { value: JOB_STATUS.PUBLISHED, label: 'Đã đăng' },
+  { value: JOB_STATUS.REJECTED, label: 'Từ chối' },
+  { value: JOB_STATUS.SUSPENDED, label: 'Đã ẩn' },
+  { value: JOB_STATUS.CLOSED, label: 'Đã đóng' },
 ];
 
 function formatNumber(value) {
   return Number(value || 0).toLocaleString('vi-VN');
 }
 
-const isTruthyFlag = (value) =>
-  value === true || value === 1 || value === '1' || String(value).toLowerCase() === 'true';
-
-function formatSalary(jobOrMin, maxValue) {
-  const isJobObject = typeof jobOrMin === 'object' && jobOrMin !== null;
-  const min = isJobObject ? jobOrMin.salary_min : jobOrMin;
-  const max = isJobObject ? jobOrMin.salary_max : maxValue;
-  if (isJobObject && isTruthyFlag(jobOrMin.salary_negotiable)) return 'Thỏa thuận';
-  if (!min && !max) return 'Thỏa thuận';
-
-  const formatMoney = (amount) =>
-    new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-      maximumFractionDigits: 0,
-    }).format(amount);
-
-  if (min && max) return `${formatMoney(min)} - ${formatMoney(max)}`;
-  if (min) return `Từ ${formatMoney(min)}`;
-  return `Đến ${formatMoney(max)}`;
-}
-
-function formatRelativeDate(value) {
+function formatDate(value) {
   if (!value) return 'Chưa cập nhật';
 
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return 'Chưa cập nhật';
 
-  const now = new Date();
-  const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
-
-  if (diffDays < 0) return date.toLocaleDateString('vi-VN');
-  if (diffDays === 0) return 'Hôm nay';
-  if (diffDays === 1) return 'Hôm qua';
-  if (diffDays < 7) return `${diffDays} ngày trước`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)} tuần trước`;
-  return date.toLocaleDateString('vi-VN');
+  return new Intl.DateTimeFormat('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(date);
 }
 
-function resolveRiskScore(job) {
-  const rawRisk = job?.ai_risk ?? job?.risk_score ?? (job?.flagged ? 0.45 : 0.05);
-  return rawRisk > 1 ? rawRisk / 100 : rawRisk;
-}
+function buildPaginationItems(currentPage, totalPages) {
+  if (totalPages <= 1) return [1];
 
-function buildPageNumbers(page, totalPages) {
-  if (totalPages <= 5) {
-    return Array.from({ length: totalPages }, (_, index) => index + 1);
+  const pages = new Set([1, totalPages, currentPage, currentPage - 1, currentPage + 1]);
+
+  if (currentPage <= 3) {
+    pages.add(2);
+    pages.add(3);
+    pages.add(4);
   }
 
-  if (page <= 3) return [1, 2, 3, 4, 5];
-  if (page >= totalPages - 2) {
-    return Array.from({ length: 5 }, (_, index) => totalPages - 4 + index);
+  if (currentPage >= totalPages - 2) {
+    pages.add(totalPages - 1);
+    pages.add(totalPages - 2);
+    pages.add(totalPages - 3);
   }
 
-  return [page - 2, page - 1, page, page + 1, page + 2];
+  const sortedPages = Array.from(pages)
+    .filter((page) => page >= 1 && page <= totalPages)
+    .sort((a, b) => a - b);
+
+  return sortedPages.reduce((items, page, index) => {
+    if (index > 0 && page - sortedPages[index - 1] > 1) {
+      items.push(`ellipsis-${page}`);
+    }
+    items.push(page);
+    return items;
+  }, []);
 }
 
-function SectionCard({ icon: Icon, title, description, action, className = '', children, ...props }) {
-  return (
-    <section
-      className={cn(
-        'rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition-all hover:border-emerald-200/70 hover:shadow-md sm:p-6',
-        className
-      )}
-      {...props}
-    >
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex min-w-0 items-start gap-3">
-          {Icon ? (
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100">
-              <Icon className="h-4 w-4" />
-            </div>
-          ) : null}
-          <div className="min-w-0">
-            <h2 className="text-base font-bold tracking-normal text-slate-950">{title}</h2>
-            {description ? (
-              <p className="mt-1 text-sm leading-6 text-slate-500">{description}</p>
-            ) : null}
-          </div>
-        </div>
-        {action}
-      </div>
-      <div className="mt-6">{children}</div>
-    </section>
-  );
-}
-
-function HeroMetricCard({ item }) {
-  const Icon = item.icon;
-
-  return (
-    <div className="rounded-lg border border-white/80 bg-white/85 p-4 shadow-sm backdrop-blur">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-normal text-slate-500">
-            {item.label}
-          </p>
-          <p className="mt-2 text-2xl font-bold tracking-normal text-slate-950">{item.value}</p>
-          <p className="mt-2 text-sm text-slate-500">{item.helper}</p>
-        </div>
-        <div
-          className={cn(
-            'flex h-10 w-10 items-center justify-center rounded-lg ring-1 ring-inset',
-            item.className
-          )}
-        >
-          <Icon className="h-4 w-4" />
-        </div>
-      </div>
-    </div>
-  );
-}
+const SectionCard = ContentCard;
 
 function StatusBadge({ status }) {
   const config = STATUS_CONFIG[status] || STATUS_CONFIG[JOB_STATUS.DRAFT];
@@ -286,73 +175,9 @@ function StatusBadge({ status }) {
         config.border
       )}
     >
-      <span className={cn('h-1.5 w-1.5 rounded-full', config.color)} />
+      <span className={cn('h-1.5 w-1.5 rounded-full', config.dot)} />
       {config.label}
     </span>
-  );
-}
-
-function RiskBadge({ risk, className = '' }) {
-  const config = RISK_CONFIG[risk.level] || RISK_CONFIG.low;
-  const Icon = config.icon;
-
-  return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold',
-        config.bg,
-        config.color,
-        config.border,
-        className
-      )}
-    >
-      <Icon className="h-3.5 w-3.5" />
-      {risk.label} ({risk.pct}%)
-    </span>
-  );
-}
-
-function TableActionMenu({ job, onOpenDelete }) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-10 w-10 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-        >
-          <MoreVertical className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        className="w-52 rounded-xl border-slate-200 bg-white p-2 shadow-xl"
-      >
-        <DropdownMenuLabel className="px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-slate-400">
-          Thao tác tin
-        </DropdownMenuLabel>
-        <DropdownMenuItem asChild className="cursor-pointer rounded-lg px-3 py-2 text-sm font-medium">
-          <Link to={`/admin/jobs/${job.id}`}>
-            <Eye className="h-4 w-4 text-emerald-600" />
-            Xem chi tiết
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild className="cursor-pointer rounded-lg px-3 py-2 text-sm font-medium">
-          <Link to={`/admin/jobs/${job.id}/edit`}>
-            <Edit className="h-4 w-4 text-slate-600" />
-            Chỉnh sửa
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator className="bg-slate-100" />
-        <DropdownMenuItem
-          onClick={() => onOpenDelete(job)}
-          className="cursor-pointer rounded-lg px-3 py-2 text-sm font-medium text-red-600 focus:bg-red-50 focus:text-red-700"
-        >
-          <Trash2 className="h-4 w-4" />
-          Xóa tin
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
   );
 }
 
@@ -364,7 +189,7 @@ function EmptyState({ onReset }) {
       </div>
       <h3 className="mt-4 text-lg font-bold text-slate-950">Không tìm thấy tin tuyển dụng</h3>
       <p className="mt-2 text-sm leading-6 text-slate-500">
-        Hãy thử thay đổi bộ lọc, từ khóa hoặc quay lại danh sách mặc định để tiếp tục rà soát.
+        Hãy thử thay đổi từ khóa, trạng thái hoặc ngành để tiếp tục rà soát.
       </p>
       <Button
         type="button"
@@ -378,130 +203,171 @@ function EmptyState({ onReset }) {
   );
 }
 
+function JobActionMenu({ job, onApprove, onReject, onHide }) {
+  const canApprove = job.status === JOB_STATUS.PENDING_REVIEW;
+  const canReject = job.status !== JOB_STATUS.REJECTED;
+  const canHide = ![JOB_STATUS.SUSPENDED, JOB_STATUS.CLOSED].includes(job.status);
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="h-10 w-10 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+        >
+          <MoreVertical className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        className="w-52 rounded-xl border-slate-200 bg-white p-2 shadow-xl"
+      >
+        <DropdownMenuLabel className="px-3 py-2 text-xs font-bold uppercase tracking-[0.14em] text-slate-400">
+          Thao tác
+        </DropdownMenuLabel>
+        <DropdownMenuItem
+          asChild
+          className="cursor-pointer rounded-lg px-3 py-2 text-sm font-medium"
+        >
+          <Link to={`/admin/jobs/${job.id}`}>
+            <Eye className="h-4 w-4 text-emerald-600" />
+            Xem chi tiết
+          </Link>
+        </DropdownMenuItem>
+        {canApprove ? (
+          <DropdownMenuItem
+            onClick={() => onApprove(job)}
+            className="cursor-pointer rounded-lg px-3 py-2 text-sm font-medium text-emerald-700 focus:bg-emerald-50 focus:text-emerald-800"
+          >
+            <CheckCircle className="h-4 w-4" />
+            Duyệt tin
+          </DropdownMenuItem>
+        ) : null}
+        {canReject ? (
+          <DropdownMenuItem
+            onClick={() => onReject(job)}
+            className="cursor-pointer rounded-lg px-3 py-2 text-sm font-medium text-rose-700 focus:bg-rose-50 focus:text-rose-800"
+          >
+            <XCircle className="h-4 w-4" />
+            Từ chối
+          </DropdownMenuItem>
+        ) : null}
+        {canHide ? (
+          <>
+            <DropdownMenuSeparator className="bg-slate-100" />
+            <DropdownMenuItem
+              onClick={() => onHide(job)}
+              className="cursor-pointer rounded-lg px-3 py-2 text-sm font-medium text-slate-700 focus:bg-slate-100 focus:text-slate-900"
+            >
+              <FileX className="h-4 w-4" />
+              Ẩn tin
+            </DropdownMenuItem>
+          </>
+        ) : null}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 const AdminJobsPage = () => {
   const { showNotification } = useNotification();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [inputValue, setInputValue] = useState(() => searchParams.get('search') || '');
-  const [tabFilter, setTabFilter] = useState(() => searchParams.get('status') || 'all');
+  const [industryValue, setIndustryValue] = useState(() => searchParams.get('industry') || '');
+  const [statusFilter, setStatusFilter] = useState(() => searchParams.get('status') || 'all');
   const [page, setPage] = useState(() => Number(searchParams.get('page')) || 1);
   const [pagination, setPagination] = useState({ total: 0, pages: 1 });
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedJob, setSelectedJob] = useState(null);
-  const [showFilterPanel, setShowFilterPanel] = useState(false);
-  const [selectedJobs, setSelectedJobs] = useState([]);
-  const [sortBy, setSortBy] = useState('created_at');
-  const [sortOrder, setSortOrder] = useState('desc');
-  const [filters, setFilters] = useState(() => ({ ...DEFAULT_FILTERS }));
+  const [stats, setStats] = useState({ total: 0, pending: 0, published: 0, flagged: 0 });
   const [exporting, setExporting] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [rejectDialog, setRejectDialog] = useState({ open: false, job: null, reason: '' });
+  const [hideDialog, setHideDialog] = useState({ open: false, job: null });
 
   const debouncedSearch = useDebounce(inputValue, 500);
-  const limit = 10;
+  const debouncedIndustry = useDebounce(industryValue, 500);
 
-  const getDateRange = useCallback(() => {
-    const now = new Date();
-
-    if (filters.dateRange === 'today') {
-      const today = now.toISOString().split('T')[0];
-      return { startDate: today, endDate: today };
-    }
-
-    if (filters.dateRange === 'week') {
-      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      return {
-        startDate: weekAgo.toISOString().split('T')[0],
-        endDate: now.toISOString().split('T')[0],
-      };
-    }
-
-    if (filters.dateRange === 'month') {
-      const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-      return {
-        startDate: monthAgo.toISOString().split('T')[0],
-        endDate: now.toISOString().split('T')[0],
-      };
-    }
-
-    return { startDate: undefined, endDate: undefined };
-  }, [filters.dateRange]);
+  const requestParams = useMemo(
+    () => ({
+      search: debouncedSearch.trim() || undefined,
+      status: statusFilter !== 'all' ? statusFilter : undefined,
+      industry: debouncedIndustry.trim() || undefined,
+      page,
+      limit: PAGE_SIZE,
+    }),
+    [debouncedIndustry, debouncedSearch, page, statusFilter]
+  );
 
   const fetchJobs = useCallback(async () => {
     try {
       setLoading(true);
-      const { startDate, endDate } = getDateRange();
+      setError('');
 
-      const params = {
-        search: debouncedSearch.trim() || undefined,
-        status: tabFilter !== 'all' && tabFilter !== 'flagged' ? tabFilter : undefined,
-        flagged: tabFilter === 'flagged' ? 'true' : undefined,
-        ai_risk: filters.riskLevel !== 'all' ? filters.riskLevel : undefined,
-        company: filters.company.trim() || undefined,
-        start_date: startDate,
-        end_date: endDate,
-        sort_by: sortBy,
-        order: sortOrder,
-        page,
-        limit,
-      };
+      const response = await adminService.getJobs(requestParams);
+      const payload = response?.data;
+      const rawJobs = Array.isArray(payload)
+        ? payload
+        : Array.isArray(payload?.data)
+          ? payload.data
+          : [];
 
-      const response = await adminService.getJobs(params);
-      const rawData = response.data;
-      let jobsData = [];
-
-      if (Array.isArray(rawData)) {
-        jobsData = rawData;
-      } else if (Array.isArray(rawData?.data)) {
-        jobsData = rawData.data;
-      }
-
-      const sanitized = jobsData.map((job) => ({
+      const sanitizedJobs = rawJobs.map((job) => ({
         id: Number(job?.id ?? 0),
         title: String(job?.title ?? 'Tin chưa đặt tiêu đề'),
-        company_name: String(job?.company_name ?? job?.company?.name ?? 'Chưa gắn doanh nghiệp'),
-        employer_id: job?.employer_id ?? job?.company_id ?? null,
-        status: String(job?.status ?? JOB_STATUS.DRAFT),
-        flagged: Boolean(job?.flagged ?? job?.is_flagged ?? false),
-        created_at: job?.created_at ?? new Date().toISOString(),
-        updated_at: job?.updated_at ?? new Date().toISOString(),
-        ai_risk: typeof job?.ai_risk === 'number' ? job.ai_risk : null,
-        risk_score: typeof job?.risk_score === 'number' ? job.risk_score : null,
-        salary_min: job?.salary_min ?? null,
-        salary_max: job?.salary_max ?? null,
-        location: String(job?.location ?? job?.location_name ?? 'Chưa cập nhật'),
-        category: String(job?.category ?? job?.category_name ?? 'Chưa phân loại'),
-        applicants: Number(
-          job?.applicant_count ?? job?.applications_count ?? job?.applicants ?? 0
+        company_id: job?.company_id ?? job?.employer_id ?? null,
+        company_name: String(job?.company_name ?? job?.company?.name ?? 'Chưa gắn công ty'),
+        industry: String(
+          job?.company_industry ?? job?.category_name ?? job?.category ?? 'Chưa phân loại'
         ),
-        views: Number(job?.views ?? job?.view_count ?? 0),
+        status: String(job?.status ?? JOB_STATUS.DRAFT),
+        created_at: job?.created_at ?? null,
+        flagged: Boolean(job?.flagged ?? job?.is_flagged ?? false),
         moderation_note: String(job?.moderation_note ?? job?.rejection_reason ?? ''),
       }));
 
-      setJobs(sanitized);
-      setPagination(
-        response.data?.pagination ?? {
-          total: sanitized.length,
-          pages: 1,
-        }
-      );
-    } catch (error) {
-      console.error('Error fetching jobs:', error);
+      const nextPagination = payload?.pagination ?? {
+        total: sanitizedJobs.length,
+        pages: 1,
+      };
+      const nextPages = Math.max(1, Number(nextPagination?.pages ?? 1));
+      const nextTotal = Math.max(0, Number(nextPagination?.total ?? sanitizedJobs.length));
+
+      setJobs(sanitizedJobs);
+      setPagination({ total: nextTotal, pages: nextPages });
+      setStats({
+        total: Number(payload?.stats?.total ?? nextTotal),
+        pending: Number(
+          payload?.stats?.pending ??
+            sanitizedJobs.filter((job) => job.status === JOB_STATUS.PENDING_REVIEW).length
+        ),
+        published: Number(
+          payload?.stats?.published ??
+            sanitizedJobs.filter((job) => job.status === JOB_STATUS.PUBLISHED).length
+        ),
+        flagged: Number(
+          payload?.stats?.flagged ?? sanitizedJobs.filter((job) => job.flagged).length
+        ),
+      });
+
+      if (nextTotal > 0 && page > nextPages) {
+        setPage(nextPages);
+      }
+    } catch (fetchError) {
+      const message =
+        fetchError?.response?.data?.message || 'Không thể tải danh sách tin tuyển dụng.';
+      setError(message);
       setJobs([]);
       setPagination({ total: 0, pages: 1 });
+      showNotification(message, 'error');
     } finally {
       setLoading(false);
     }
-  }, [
-    debouncedSearch,
-    filters.company,
-    filters.riskLevel,
-    getDateRange,
-    page,
-    sortBy,
-    sortOrder,
-    tabFilter,
-  ]);
+  }, [page, requestParams, showNotification]);
 
   useEffect(() => {
     fetchJobs();
@@ -509,201 +375,77 @@ const AdminJobsPage = () => {
 
   useEffect(() => {
     const nextParams = new URLSearchParams();
-
     if (debouncedSearch.trim()) nextParams.set('search', debouncedSearch.trim());
-    if (tabFilter !== 'all') nextParams.set('status', tabFilter);
+    if (statusFilter !== 'all') nextParams.set('status', statusFilter);
+    if (debouncedIndustry.trim()) nextParams.set('industry', debouncedIndustry.trim());
     if (page > 1) nextParams.set('page', String(page));
 
     if (nextParams.toString() !== searchParams.toString()) {
       setSearchParams(nextParams, { replace: true });
     }
-  }, [debouncedSearch, page, searchParams, setSearchParams, tabFilter]);
+  }, [debouncedIndustry, debouncedSearch, page, searchParams, setSearchParams, statusFilter]);
 
-  useEffect(() => {
-    setSelectedJobs((prev) => prev.filter((id) => jobs.some((job) => job.id === id)));
-  }, [jobs]);
-
-  const displayedJobs = jobs;
-  const totalJobs = pagination.total || displayedJobs.length;
   const totalPages = Math.max(1, pagination.pages || 1);
-  const visibleFrom = totalJobs === 0 ? 0 : (page - 1) * limit + 1;
-  const visibleTo = totalJobs === 0 ? 0 : Math.min(page * limit, totalJobs);
+  const visibleFrom = pagination.total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
+  const visibleTo = pagination.total === 0 ? 0 : Math.min(page * PAGE_SIZE, pagination.total);
+  const pageItems = useMemo(() => buildPaginationItems(page, totalPages), [page, totalPages]);
 
-  const stats = useMemo(
-    () => ({
-      total: totalJobs,
-      pending: displayedJobs.filter((job) => job.status === JOB_STATUS.PENDING_REVIEW).length,
-      published: displayedJobs.filter((job) => job.status === JOB_STATUS.PUBLISHED).length,
-      flagged: displayedJobs.filter((job) => job.flagged).length,
-      avgRisk:
-        displayedJobs.length > 0
-          ? (
-              (displayedJobs.reduce((sum, job) => sum + resolveRiskScore(job), 0) /
-                displayedJobs.length) *
-              100
-            ).toFixed(1)
-          : '0.0',
-    }),
-    [displayedJobs, totalJobs]
-  );
+  const statusLabel =
+    STATUS_OPTIONS.find((option) => option.value === statusFilter)?.label || 'Tất cả trạng thái';
 
-  const tabs = useMemo(
-    () => [
-      { id: 'all', label: 'Tất cả', count: stats.total },
-      { id: JOB_STATUS.PENDING_REVIEW, label: 'Chờ duyệt', count: stats.pending },
-      { id: JOB_STATUS.PUBLISHED, label: 'Đã đăng', count: stats.published },
-      { id: 'flagged', label: 'Bị gắn cờ', count: stats.flagged },
-    ],
-    [stats]
-  );
-
-  const heroMetrics = useMemo(
+  const summaryCards = useMemo(
     () => [
       {
-        label: 'Tổng tin tuyển dụng',
+        label: 'Tổng tin',
         value: formatNumber(stats.total),
-        helper: 'Toàn bộ kết quả theo truy vấn hiện tại',
+        helper: 'Toàn bộ tin tuyển dụng',
         icon: Briefcase,
         className: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
       },
       {
         label: 'Chờ duyệt',
         value: formatNumber(stats.pending),
-        helper: 'Ưu tiên cao trên trang đang xem',
-        icon: FolderOpen,
+        helper: 'Cần kiểm duyệt trước khi hiển thị',
+        icon: Clock3,
         className: 'bg-amber-50 text-amber-700 ring-amber-100',
       },
       {
-        label: 'Tin bị gắn cờ',
-        value: formatNumber(stats.flagged),
-        helper: 'Có cảnh báo cần kiểm tra kỹ hơn',
-        icon: Flag,
-        className: 'bg-red-50 text-red-700 ring-red-100',
+        label: 'Đã đăng',
+        value: formatNumber(stats.published),
+        helper: 'Đang hiển thị với ứng viên',
+        icon: CheckCircle,
+        className: 'bg-sky-50 text-sky-700 ring-sky-100',
       },
       {
-        label: 'Rủi ro AI trung bình',
-        value: `${stats.avgRisk}%`,
-        helper: 'Mức rủi ro của danh sách đang hiển thị',
-        icon: Shield,
-        className: 'bg-sky-50 text-sky-700 ring-sky-100',
+        label: 'Cần rà soát',
+        value: formatNumber(stats.flagged),
+        helper: 'Tin bị gắn cờ hoặc có cảnh báo',
+        icon: AlertTriangle,
+        className: 'bg-rose-50 text-rose-700 ring-rose-100',
       },
     ],
     [stats]
   );
 
-  const activeFilterCount = useMemo(
-    () =>
-      [
-        inputValue.trim().length > 0,
-        tabFilter !== 'all',
-        filters.riskLevel !== 'all',
-        filters.company.trim().length > 0,
-        filters.dateRange !== 'all',
-      ].filter(Boolean).length,
-    [filters.company, filters.dateRange, filters.riskLevel, inputValue, tabFilter]
-  );
-
-  const activeFilterTags = useMemo(() => {
-    const items = [];
-
-    if (inputValue.trim()) items.push(`Từ khóa: ${inputValue.trim()}`);
-    if (tabFilter !== 'all') {
-      items.push(
-        `Trạng thái: ${tabs.find((tab) => tab.id === tabFilter)?.label || 'Tuỳ chọn hiện tại'}`
-      );
-    }
-    if (filters.riskLevel !== 'all') {
-      items.push(`Rủi ro AI: ${RISK_CONFIG[filters.riskLevel]?.label || filters.riskLevel}`);
-    }
-    if (filters.company.trim()) items.push(`Doanh nghiệp: ${filters.company.trim()}`);
-    if (filters.dateRange !== 'all') {
-      items.push(
-        `Thời gian: ${
-          DATE_RANGE_OPTIONS.find((option) => option.value === filters.dateRange)?.label ||
-          filters.dateRange
-        }`
-      );
-    }
-
-    return items;
-  }, [filters.company, filters.dateRange, filters.riskLevel, inputValue, tabFilter, tabs]);
-
-  const pageNumbers = useMemo(() => buildPageNumbers(page, totalPages), [page, totalPages]);
-
-  const getAiRisk = useCallback((job) => {
-    const pct = Math.round(resolveRiskScore(job) * 100);
-    if (pct <= 20) return { level: 'low', pct };
-    if (pct <= 60) return { level: 'medium', pct };
-    return { level: 'high', pct };
-  }, []);
-
-  const openDeleteDialog = (job) => {
-    setSelectedJob(job);
-    setShowDeleteModal(true);
+  const handleResetFilters = () => {
+    setInputValue('');
+    setIndustryValue('');
+    setStatusFilter('all');
+    setPage(1);
   };
 
   const handleRefresh = () => {
-    setSelectedJobs([]);
     fetchJobs();
-  };
-
-  const handleResetAllFilters = () => {
-    setInputValue('');
-    setTabFilter('all');
-    setFilters({ ...DEFAULT_FILTERS });
-    setSortBy('created_at');
-    setSortOrder('desc');
-    setPage(1);
-    setShowFilterPanel(false);
-    setSelectedJobs([]);
-  };
-
-  const handleStatusUpdate = async (jobId, newStatus) => {
-    try {
-      await adminService.updateJobStatus(jobId, newStatus);
-      showNotification(
-        `Đã cập nhật trạng thái sang "${STATUS_CONFIG[newStatus]?.label || newStatus}"`,
-        'success'
-      );
-      fetchJobs();
-    } catch (error) {
-      console.error('Error updating job status:', error);
-      showNotification('Không thể cập nhật trạng thái tin tuyển dụng.', 'error');
-    }
-  };
-
-  const handleDeleteJob = async () => {
-    if (!selectedJob) return;
-
-    try {
-      await adminService.deleteJob(selectedJob.id);
-      showNotification('Đã xóa tin tuyển dụng khỏi danh sách quản trị.', 'success');
-      setShowDeleteModal(false);
-      setSelectedJob(null);
-      fetchJobs();
-    } catch (error) {
-      console.error('Error deleting job:', error);
-      showNotification('Không thể xóa tin tuyển dụng.', 'error');
-    }
   };
 
   const handleExportJobs = async () => {
     try {
       setExporting(true);
-      const { startDate, endDate } = getDateRange();
-      const params = {
-        search: inputValue.trim() || undefined,
-        status: tabFilter !== 'all' && tabFilter !== 'flagged' ? tabFilter : undefined,
-        flagged: tabFilter === 'flagged' ? 'true' : undefined,
-        ai_risk: filters.riskLevel !== 'all' ? filters.riskLevel : undefined,
-        company: filters.company.trim() || undefined,
-        start_date: startDate,
-        end_date: endDate,
-        sort_by: sortBy,
-        order: sortOrder,
-      };
-
-      const response = await adminService.exportJobs(params);
+      const response = await adminService.exportJobs({
+        search: debouncedSearch.trim() || undefined,
+        status: statusFilter !== 'all' ? statusFilter : undefined,
+        industry: debouncedIndustry.trim() || undefined,
+      });
       const blob = response.data instanceof Blob ? response.data : new Blob([response.data]);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -714,802 +456,506 @@ const AdminJobsPage = () => {
       link.remove();
       window.URL.revokeObjectURL(url);
       showNotification('Đã xuất danh sách tin tuyển dụng thành công.', 'success');
-    } catch (error) {
-      console.error('Error exporting jobs:', error);
-      showNotification('Không thể xuất danh sách tin tuyển dụng.', 'error');
+    } catch (exportError) {
+      console.error('Error exporting jobs:', exportError);
+      showNotification(
+        exportError?.response?.data?.message || 'Không thể xuất danh sách tin tuyển dụng.',
+        'error'
+      );
     } finally {
       setExporting(false);
     }
   };
 
-  const handleSelectAll = () => {
-    if (selectedJobs.length === displayedJobs.length) {
-      setSelectedJobs([]);
+  const updateJobStatus = async (job, nextStatus, rejectionReason = null) => {
+    try {
+      setActionLoading(true);
+      await adminService.updateJobStatus(job.id, nextStatus, rejectionReason);
+      showNotification(
+        `Đã cập nhật trạng thái tin sang "${STATUS_CONFIG[nextStatus]?.label || nextStatus}".`,
+        'success'
+      );
+      await fetchJobs();
+      return true;
+    } catch (statusError) {
+      console.error('Error updating job status:', statusError);
+      showNotification(
+        statusError?.response?.data?.message || 'Không thể cập nhật trạng thái tin tuyển dụng.',
+        'error'
+      );
+      return false;
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleApproveJob = (job) => updateJobStatus(job, JOB_STATUS.PUBLISHED);
+
+  const openRejectDialog = (job) => {
+    setRejectDialog({ open: true, job, reason: '' });
+  };
+
+  const closeRejectDialog = () => {
+    if (actionLoading) return;
+    setRejectDialog({ open: false, job: null, reason: '' });
+  };
+
+  const handleRejectJob = async () => {
+    const reason = rejectDialog.reason.trim();
+    if (!rejectDialog.job) return;
+    if (!reason) {
+      showNotification('Vui lòng nhập lý do từ chối tin tuyển dụng.', 'error');
       return;
     }
 
-    setSelectedJobs(displayedJobs.map((job) => job.id));
+    const succeeded = await updateJobStatus(rejectDialog.job, JOB_STATUS.REJECTED, reason);
+    if (succeeded) {
+      setRejectDialog({ open: false, job: null, reason: '' });
+    }
   };
 
-  const handleSelectJob = (jobId) => {
-    setSelectedJobs((prev) =>
-      prev.includes(jobId) ? prev.filter((id) => id !== jobId) : [...prev, jobId]
-    );
+  const openHideDialog = (job) => {
+    setHideDialog({ open: true, job });
+  };
+
+  const closeHideDialog = () => {
+    if (actionLoading) return;
+    setHideDialog({ open: false, job: null });
+  };
+
+  const handleHideJob = async () => {
+    if (!hideDialog.job) return;
+
+    const succeeded = await updateJobStatus(hideDialog.job, JOB_STATUS.SUSPENDED);
+    if (succeeded) {
+      setHideDialog({ open: false, job: null });
+    }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/40 pb-16 animate-fade-in">
-      <section className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-40"
-          style={{
-            backgroundImage:
-              'linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px)',
-            backgroundSize: '32px 32px',
-          }}
-        />
-
-        <div className="relative mx-auto max-w-7xl px-4 pb-8 pt-10 sm:px-6 lg:px-8">
-          <div className="space-y-5">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge className="rounded-full border border-emerald-200 bg-white/80 px-3 py-1 font-bold text-emerald-700 shadow-sm">
-                <Sparkles className="h-3.5 w-3.5" />
-                Admin workspace
-              </Badge>
-              <Badge className="rounded-full border border-slate-200 bg-white/80 px-3 py-1 font-bold text-slate-600 shadow-sm">
-                Quản lý tin tuyển dụng
-              </Badge>
-            </div>
-
-            <div className="max-w-4xl">
-              <p className="text-sm font-semibold text-emerald-600">Job operations</p>
-              <h1 className="mt-3 text-3xl font-bold tracking-normal text-slate-950 sm:text-4xl lg:text-5xl">
-                Quản lý tin tuyển dụng
-              </h1>
-              <p className="mt-4 max-w-3xl text-sm font-medium leading-7 text-slate-600 sm:text-base">
-                Tổ chức lại khu vực điều phối tin đăng theo cùng nền, nhịp layout và mức độ
-                hoàn thiện như các trang hồ sơ hoặc tài khoản, đồng thời giữ nguyên luồng kiểm
-                duyệt, lọc và theo dõi hiệu quả tuyển dụng.
-              </p>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              {heroMetrics.map((metric) => (
-                <HeroMetricCard key={metric.label} item={metric} />
-              ))}
-            </div>
-
-            <div className="flex flex-wrap gap-3">
-              <Button
-                type="button"
-                onClick={handleRefresh}
-                className="h-11 rounded-lg bg-slate-950 px-5 font-bold text-white shadow-sm hover:bg-emerald-700"
-              >
-                <RefreshCw className={cn('h-4 w-4', loading && 'animate-spin')} />
-                Làm mới
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleExportJobs}
-                disabled={exporting}
-                className="h-11 rounded-lg border-white/80 bg-white/80 px-5 font-bold shadow-sm hover:bg-white"
-              >
-                <Download className="h-4 w-4" />
-                {exporting ? 'Đang xuất dữ liệu...' : 'Xuất CSV'}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleResetAllFilters}
-                className="h-11 rounded-lg border-white/80 bg-white/80 px-5 font-bold shadow-sm hover:bg-white"
-              >
-                <X className="h-4 w-4" />
-                Làm sạch bộ lọc
-              </Button>
-              <Button
-                asChild
-                className="h-11 rounded-lg bg-emerald-600 px-5 font-bold text-white shadow-sm hover:bg-emerald-700"
-              >
-                <Link to="/admin/jobs/new">
-                  <Plus className="h-4 w-4" />
-                  Tạo tin mới
-                </Link>
-              </Button>
-            </div>
-          </div>
+    <div className="space-y-7 pb-10 animate-fade-in">
+      <PageHeader
+        icon={Briefcase}
+        eyebrow="Kiểm duyệt tin tuyển dụng"
+        badge="Quản lý tin tuyển dụng"
+        title="Quản lý tin tuyển dụng"
+        description="Rà soát tin mới theo trạng thái chờ duyệt, duyệt để hiển thị công khai, từ chối kèm lý do hoặc ẩn tin khi cần kiểm tra thêm."
+        actions={
+          <>
+            <Button
+              type="button"
+              onClick={handleRefresh}
+              className="h-11 rounded-xl bg-slate-950 px-5 font-bold text-white shadow-sm hover:bg-emerald-700"
+            >
+              <RefreshCw className={cn('h-4 w-4', loading && 'animate-spin')} />
+              Làm mới
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleExportJobs}
+              disabled={exporting}
+              className="h-11 rounded-xl bg-white px-5 font-bold shadow-sm"
+            >
+              <Download className="h-4 w-4" />
+              {exporting ? 'Đang xuất dữ liệu...' : 'Xuất CSV'}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleResetFilters}
+              className="h-11 rounded-xl bg-white px-5 font-bold shadow-sm"
+            >
+              <X className="h-4 w-4" />
+              Làm sạch bộ lọc
+            </Button>
+          </>
+        }
+      >
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {summaryCards.map((metric) => (
+            <StatCard
+              key={metric.label}
+              title={metric.label}
+              value={metric.value}
+              subtitle={metric.helper}
+              icon={metric.icon}
+              type={metric.className}
+            />
+          ))}
         </div>
-      </section>
+      </PageHeader>
 
-      <main className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
-        <section className="space-y-6">
-          <SectionCard
-            icon={Filter}
-            title="Bộ lọc & điều phối"
-            description="Giữ phần kiểm duyệt gọn, rõ thứ tự và bám đúng logic nghiệp vụ hiện có."
-            action={
-              <div className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-semibold text-slate-600">
-                {activeFilterCount > 0 ? `${activeFilterCount} bộ lọc đang dùng` : 'Không giới hạn'}
+      <section className="space-y-6">
+        <SectionCard
+          icon={Filter}
+          title="Bộ lọc danh sách"
+          description="Bộ lọc đúng nhu cầu vận hành: tìm kiếm, trạng thái và ngành nghề."
+          action={
+            <div className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-semibold text-slate-600">
+              {statusLabel}
+            </div>
+          }
+        >
+          <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_220px_220px]">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Tìm tiêu đề hoặc mô tả tin..."
+                value={inputValue}
+                onChange={(event) => {
+                  setInputValue(event.target.value);
+                  setPage(1);
+                }}
+                className="h-12 w-full rounded-lg border border-slate-200 bg-white pl-11 pr-4 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
+              />
+            </div>
+
+            <select
+              value={statusFilter}
+              onChange={(event) => {
+                setStatusFilter(event.target.value);
+                setPage(1);
+              }}
+              className="h-12 rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 outline-none transition-all focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
+            >
+              {STATUS_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+
+            <input
+              type="text"
+              placeholder="Lọc theo ngành..."
+              value={industryValue}
+              onChange={(event) => {
+                setIndustryValue(event.target.value);
+                setPage(1);
+              }}
+              className="h-12 rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
+            />
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500">
+            <span>
+              Từ khóa:{' '}
+              <strong className="text-slate-700">{debouncedSearch.trim() || 'Tất cả tin'}</strong>
+            </span>
+            <span>
+              Trạng thái: <strong className="text-slate-700">{statusLabel}</strong>
+            </span>
+            <span>
+              Ngành:{' '}
+              <strong className="text-slate-700">
+                {debouncedIndustry.trim() || 'Tất cả ngành'}
+              </strong>
+            </span>
+          </div>
+        </SectionCard>
+
+        <SectionCard
+          icon={Briefcase}
+          title="Danh sách tin tuyển dụng"
+          description="Bảng vận hành gồm: Tiêu đề, Công ty, Ngành, Trạng thái và Ngày đăng."
+          action={
+            <div className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-semibold text-slate-600">
+              {loading
+                ? 'Đang tải...'
+                : `${visibleFrom}-${visibleTo} / ${formatNumber(pagination.total)} tin`}
+            </div>
+          }
+        >
+          {error ? (
+            <div className="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700">
+              {error}
+            </div>
+          ) : null}
+
+          {loading ? (
+            <div className="flex h-72 items-center justify-center">
+              <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-emerald-500" />
+            </div>
+          ) : jobs.length === 0 ? (
+            <EmptyState onReset={handleResetFilters} />
+          ) : (
+            <div className="overflow-hidden rounded-lg border border-slate-200">
+              <div className="overflow-x-auto">
+                <table className="min-w-[1040px] w-full divide-y divide-slate-200">
+                  <thead className="bg-slate-50/90">
+                    <tr>
+                      <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-normal text-slate-500">
+                        Tiêu đề
+                      </th>
+                      <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-normal text-slate-500">
+                        Công ty
+                      </th>
+                      <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-normal text-slate-500">
+                        Ngành
+                      </th>
+                      <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-normal text-slate-500">
+                        Trạng thái
+                      </th>
+                      <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-normal text-slate-500">
+                        Ngày đăng
+                      </th>
+                      <th className="px-5 py-4 text-right text-xs font-semibold uppercase tracking-normal text-slate-500">
+                        Thao tác
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 bg-white">
+                    {jobs.map((job) => (
+                      <tr key={job.id} className="transition-colors hover:bg-emerald-50/30">
+                        <td className="px-5 py-4 align-top">
+                          <div className="min-w-0">
+                            <Link
+                              to={`/admin/jobs/${job.id}`}
+                              className="line-clamp-2 text-sm font-bold text-slate-950 transition-colors hover:text-emerald-700"
+                            >
+                              {job.title}
+                            </Link>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              <Badge className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 font-semibold text-slate-600">
+                                JOB-{String(job.id).slice(-4).padStart(4, '0')}
+                              </Badge>
+                              {job.flagged ? (
+                                <Badge className="rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 font-semibold text-rose-700">
+                                  Cần rà soát
+                                </Badge>
+                              ) : null}
+                            </div>
+                            {job.moderation_note ? (
+                              <p className="mt-2 line-clamp-2 text-xs leading-5 text-rose-600">
+                                Ghi chú: {job.moderation_note}
+                              </p>
+                            ) : null}
+                          </div>
+                        </td>
+                        <td className="px-5 py-4 align-top">
+                          {job.company_id ? (
+                            <Link
+                              to={`/admin/companies/${job.company_id}`}
+                              className="line-clamp-2 text-sm font-semibold text-slate-800 transition-colors hover:text-emerald-700"
+                            >
+                              {job.company_name}
+                            </Link>
+                          ) : (
+                            <p className="line-clamp-2 text-sm font-semibold text-slate-800">
+                              {job.company_name}
+                            </p>
+                          )}
+                        </td>
+                        <td className="px-5 py-4 align-top">
+                          <Badge className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-semibold text-slate-700">
+                            {job.industry}
+                          </Badge>
+                        </td>
+                        <td className="px-5 py-4 align-top">
+                          <StatusBadge status={job.status} />
+                          <p className="mt-2 max-w-[240px] text-xs leading-5 text-slate-500">
+                            {
+                              (STATUS_CONFIG[job.status] || STATUS_CONFIG[JOB_STATUS.DRAFT])
+                                .description
+                            }
+                          </p>
+                        </td>
+                        <td className="px-5 py-4 align-top">
+                          <p className="text-sm font-semibold text-slate-700">
+                            {formatDate(job.created_at)}
+                          </p>
+                        </td>
+                        <td className="px-5 py-4 text-right align-top">
+                          <div className="flex justify-end gap-2">
+                            {job.status === JOB_STATUS.PENDING_REVIEW ? (
+                              <Button
+                                type="button"
+                                size="icon"
+                                onClick={() => handleApproveJob(job)}
+                                disabled={actionLoading}
+                                className="h-10 w-10 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
+                              >
+                                <CheckCircle className="h-4 w-4" />
+                              </Button>
+                            ) : null}
+                            <JobActionMenu
+                              job={job}
+                              onApprove={handleApproveJob}
+                              onReject={openRejectDialog}
+                              onHide={openHideDialog}
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            }
-          >
-            <div className="space-y-5">
-              <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
-                <div className="relative flex-1">
-                  <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="text"
-                    placeholder="Tìm chức danh, doanh nghiệp hoặc mã tin..."
-                    value={inputValue}
-                    onChange={(event) => {
-                      setInputValue(event.target.value);
-                      setPage(1);
-                    }}
-                    className="h-12 w-full rounded-lg border border-slate-200 bg-white pl-11 pr-4 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
-                  />
-                </div>
 
-                <div className="flex flex-wrap gap-3">
-                  <div className="relative">
-                    <select
-                      value={`${sortBy}-${sortOrder}`}
-                      onChange={(event) => {
-                        const [nextSortBy, nextSortOrder] = event.target.value.split('-');
-                        setSortBy(nextSortBy);
-                        setSortOrder(nextSortOrder);
-                        setPage(1);
-                      }}
-                      className="h-11 appearance-none rounded-lg border border-slate-200 bg-white px-4 pr-10 text-sm font-medium text-slate-700 outline-none transition-all focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
-                    >
-                      {SORT_OPTIONS.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                  </div>
+              {pagination.total > 0 ? (
+                <div className="flex flex-col gap-4 border-t border-slate-200 bg-slate-50/80 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-sm text-slate-500">
+                    Hiển thị <span className="font-semibold text-slate-900">{visibleFrom}</span>-
+                    <span className="font-semibold text-slate-900">{visibleTo}</span> trên{' '}
+                    <span className="font-semibold text-slate-900">
+                      {formatNumber(pagination.total)}
+                    </span>{' '}
+                    tin tuyển dụng
+                  </p>
 
-                  <Button
-                    type="button"
-                    variant={showFilterPanel ? 'primary' : 'outline'}
-                    onClick={() => setShowFilterPanel((prev) => !prev)}
-                    className="h-11 rounded-lg font-bold"
-                  >
-                    <Filter className="h-4 w-4" />
-                    {showFilterPanel ? 'Ẩn lọc nâng cao' : 'Lọc nâng cao'}
-                  </Button>
-                </div>
-              </div>
-
-              {showFilterPanel ? (
-                <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4">
-                  <div className="grid gap-4 md:grid-cols-3">
-                    <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-600">
-                        Mức độ rủi ro AI
-                      </label>
-                      <select
-                        value={filters.riskLevel}
-                        onChange={(event) => {
-                          setFilters((prev) => ({ ...prev, riskLevel: event.target.value }));
-                          setPage(1);
-                        }}
-                        className="h-11 w-full rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 outline-none transition-all focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
-                      >
-                        <option value="all">Tất cả mức độ</option>
-                        <option value="low">Rủi ro thấp</option>
-                        <option value="medium">Rủi ro trung bình</option>
-                        <option value="high">Rủi ro cao</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-600">
-                        Doanh nghiệp
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Lọc theo tên công ty..."
-                        value={filters.company}
-                        onChange={(event) => {
-                          setFilters((prev) => ({ ...prev, company: event.target.value }));
-                          setPage(1);
-                        }}
-                        className="h-11 w-full rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 outline-none transition-all placeholder:text-slate-400 focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-600">
-                        Khung thời gian
-                      </label>
-                      <select
-                        value={filters.dateRange}
-                        onChange={(event) => {
-                          setFilters((prev) => ({ ...prev, dateRange: event.target.value }));
-                          setPage(1);
-                        }}
-                        className="h-11 w-full rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 outline-none transition-all focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
-                      >
-                        {DATE_RANGE_OPTIONS.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 flex justify-end">
+                  <div className="flex flex-wrap items-center gap-2">
                     <Button
                       type="button"
-                      variant="ghost"
-                      onClick={() => {
-                        setFilters({ ...DEFAULT_FILTERS });
-                        setPage(1);
-                      }}
-                      className="rounded-lg"
+                      variant="outline"
+                      onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                      disabled={page <= 1}
+                      className="h-10 rounded-lg bg-white px-3"
                     >
-                      Xóa lọc nâng cao
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+
+                    {pageItems.map((item) =>
+                      typeof item === 'string' ? (
+                        <span key={item} className="px-1 text-sm font-semibold text-slate-400">
+                          ...
+                        </span>
+                      ) : (
+                        <button
+                          key={item}
+                          type="button"
+                          onClick={() => setPage(item)}
+                          className={cn(
+                            'min-w-[40px] rounded-lg border px-3 py-2 text-sm font-semibold transition-all',
+                            page === item
+                              ? 'border-emerald-600 bg-emerald-600 text-white shadow-sm'
+                              : 'border-slate-200 bg-white text-slate-600 hover:border-emerald-200 hover:bg-emerald-50/50 hover:text-emerald-700'
+                          )}
+                        >
+                          {item}
+                        </button>
+                      )
+                    )}
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+                      disabled={page >= totalPages}
+                      className="h-10 rounded-lg bg-white px-3"
+                    >
+                      <ChevronRight className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
               ) : null}
-
-              {activeFilterTags.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {activeFilterTags.map((item) => (
-                    <Badge
-                      key={item}
-                      className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-semibold text-slate-600 shadow-sm"
-                    >
-                      {item}
-                    </Badge>
-                  ))}
-                </div>
-              ) : null}
-
-              <div className="flex flex-wrap gap-2">
-                {tabs.map((tab) => {
-                  const active = tabFilter === tab.id;
-
-                  return (
-                    <button
-                      key={tab.id}
-                      type="button"
-                      onClick={() => {
-                        setTabFilter(tab.id);
-                        setPage(1);
-                      }}
-                      className={cn(
-                        'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-all',
-                        active
-                          ? 'border-emerald-200 bg-emerald-50 text-emerald-700 shadow-sm'
-                          : 'border-slate-200 bg-white text-slate-600 hover:border-emerald-200 hover:bg-emerald-50/50 hover:text-emerald-700'
-                      )}
-                    >
-                      {tab.label}
-                      <span
-                        className={cn(
-                          'inline-flex min-w-[22px] items-center justify-center rounded-full px-1.5 py-0.5 text-xs',
-                          active ? 'bg-white text-emerald-700' : 'bg-slate-100 text-slate-600'
-                        )}
-                      >
-                        {formatNumber(tab.count)}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
             </div>
-          </SectionCard>
+          )}
+        </SectionCard>
+      </section>
 
-          {selectedJobs.length > 0 ? (
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-emerald-200 bg-emerald-50/80 px-4 py-3 shadow-sm">
-              <div className="flex flex-wrap items-center gap-3">
-                <Badge className="rounded-full border border-emerald-200 bg-white/80 px-3 py-1 font-bold text-emerald-700 shadow-sm">
-                  {formatNumber(selectedJobs.length)} tin đang được chọn
-                </Badge>
-                <p className="text-sm text-emerald-900">
-                  Dùng chọn nhanh để đối chiếu trước khi phê duyệt hoặc mở chi tiết từng tin.
-                </p>
-              </div>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setSelectedJobs([])}
-                className="rounded-lg text-emerald-700 hover:bg-white"
-              >
-                <X className="h-4 w-4" />
-                Bỏ chọn
-              </Button>
-            </div>
-          ) : null}
-
-          <SectionCard
-            icon={Briefcase}
-            title="Danh sách tin tuyển dụng"
-            description="Giữ cấu trúc thông tin đủ sâu để phê duyệt nhanh nhưng vẫn sạch và dễ quét."
-            action={
-              <div className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-semibold text-slate-600">
-                {loading
-                  ? 'Đang tải...'
-                  : totalJobs > 0
-                    ? `${visibleFrom}-${visibleTo} / ${formatNumber(totalJobs)} tin`
-                    : '0 tin'}
-              </div>
-            }
-          >
-            {loading ? (
-              <div className="grid gap-4 md:grid-cols-2">
-                {Array.from({ length: 4 }).map((_, index) => (
-                  <div
-                    key={index}
-                    className="animate-pulse rounded-xl border border-slate-200 bg-slate-50/70 p-5"
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="h-5 w-5 rounded bg-slate-200" />
-                      <div className="flex-1 space-y-3">
-                        <div className="h-5 w-2/3 rounded bg-slate-200" />
-                        <div className="h-4 w-1/2 rounded bg-slate-200" />
-                        <div className="grid gap-2 sm:grid-cols-2">
-                          <div className="h-16 rounded-lg bg-white" />
-                          <div className="h-16 rounded-lg bg-white" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : displayedJobs.length === 0 ? (
-              <EmptyState onReset={handleResetAllFilters} />
-            ) : (
-              <>
-                <div className="space-y-4 lg:hidden">
-                  {displayedJobs.map((job) => {
-                    const statusConfig = STATUS_CONFIG[job.status] || STATUS_CONFIG[JOB_STATUS.DRAFT];
-                    const risk = getAiRisk(job);
-                    const isSelected = selectedJobs.includes(job.id);
-
-                    return (
-                      <article
-                        key={job.id}
-                        className={cn(
-                          'rounded-xl border p-4 shadow-sm transition-all',
-                          isSelected
-                            ? 'border-emerald-200 bg-emerald-50/40'
-                            : 'border-slate-200 bg-white'
-                        )}
-                      >
-                        <div className="flex items-start gap-3">
-                          <input
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={() => handleSelectJob(job.id)}
-                            className="mt-1 h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-                          />
-
-                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-sm font-bold text-emerald-700 ring-1 ring-inset ring-emerald-100">
-                            {job.title.charAt(0).toUpperCase()}
-                          </div>
-
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-start justify-between gap-3">
-                              <div className="min-w-0">
-                                <Link
-                                  to={`/admin/jobs/${job.id}`}
-                                  className="line-clamp-2 text-base font-bold text-slate-950 transition-colors hover:text-emerald-700"
-                                >
-                                  {job.title}
-                                </Link>
-                                <div className="mt-2 flex flex-wrap gap-2">
-                                  <Badge className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 font-semibold text-slate-600">
-                                    JOB-{String(job.id).slice(-4).padStart(4, '0')}
-                                  </Badge>
-                                  {job.flagged ? (
-                                    <Badge className="rounded-full border border-red-200 bg-red-50 px-2.5 py-1 font-semibold text-red-700">
-                                      <Flag className="h-3 w-3" />
-                                      Bị gắn cờ
-                                    </Badge>
-                                  ) : null}
-                                </div>
-                              </div>
-                              <StatusBadge status={job.status} />
-                            </div>
-
-                            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                              <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-3">
-                                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
-                                  Doanh nghiệp
-                                </p>
-                                <p className="mt-2 text-sm font-bold text-slate-900">
-                                  {job.company_name}
-                                </p>
-                                <p className="mt-1 text-xs text-slate-500">{job.category}</p>
-                              </div>
-
-                              <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-3">
-                                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
-                                  Lương & địa điểm
-                                </p>
-                                <p className="mt-2 text-sm font-bold text-emerald-700">
-                                  {formatSalary(job)}
-                                </p>
-                                <p className="mt-1 text-xs text-slate-500">{job.location}</p>
-                              </div>
-                            </div>
-
-                            <div className="mt-4 flex flex-wrap items-center gap-2">
-                              <Badge className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-semibold text-slate-600">
-                                <Users className="h-3 w-3" />
-                                {formatNumber(job.applicants)} ứng viên
-                              </Badge>
-                              {job.vacancies ? (
-                                <Badge className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 font-semibold text-sky-700">
-                                  <Users className="h-3 w-3" />
-                                  Tuyển {formatNumber(job.vacancies)} người
-                                </Badge>
-                              ) : null}
-                              <Badge className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-semibold text-slate-600">
-                                <Eye className="h-3 w-3" />
-                                {formatNumber(job.views)} lượt xem
-                              </Badge>
-                              <RiskBadge risk={risk} />
-                            </div>
-
-                            <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2">
-                              <p className="text-xs text-slate-500">
-                                {statusConfig.description} Cập nhật {formatRelativeDate(job.updated_at)}.
-                              </p>
-                              {job.moderation_note ? (
-                                <p className="mt-2 text-xs leading-5 text-red-600">
-                                  Ghi chú: {job.moderation_note}
-                                </p>
-                              ) : null}
-                            </div>
-
-                            <div className="mt-4 flex flex-wrap gap-2">
-                              <Button
-                                asChild
-                                variant="outline"
-                                className="h-10 rounded-lg bg-white font-bold"
-                              >
-                                <Link to={`/admin/jobs/${job.id}`}>
-                                  <Eye className="h-4 w-4" />
-                                  Xem
-                                </Link>
-                              </Button>
-
-                              {job.status === JOB_STATUS.PENDING_REVIEW ? (
-                                <>
-                                  <Button
-                                    type="button"
-                                    onClick={() => handleStatusUpdate(job.id, JOB_STATUS.PUBLISHED)}
-                                    className="h-10 rounded-lg bg-emerald-600 font-bold text-white hover:bg-emerald-700"
-                                  >
-                                    <CheckCircle className="h-4 w-4" />
-                                    Duyệt
-                                  </Button>
-                                  <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => handleStatusUpdate(job.id, JOB_STATUS.REJECTED)}
-                                    className="h-10 rounded-lg border-red-200 bg-white font-bold text-red-700 hover:bg-red-50"
-                                  >
-                                    <XCircle className="h-4 w-4" />
-                                    Từ chối
-                                  </Button>
-                                </>
-                              ) : null}
-
-                              <TableActionMenu job={job} onOpenDelete={openDeleteDialog} />
-                            </div>
-                          </div>
-                        </div>
-                      </article>
-                    );
-                  })}
-                </div>
-
-                <div className="hidden overflow-hidden rounded-lg border border-slate-200 lg:block">
-                  <div className="overflow-x-auto">
-                    <table className="min-w-[1120px] w-full border-collapse">
-                      <thead>
-                        <tr className="border-b border-slate-200 bg-slate-50/90">
-                          <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                            <div className="flex items-center gap-3">
-                              <input
-                                type="checkbox"
-                                checked={
-                                  displayedJobs.length > 0 &&
-                                  selectedJobs.length === displayedJobs.length
-                                }
-                                onChange={handleSelectAll}
-                                className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-                              />
-                              Tin tuyển dụng
-                            </div>
-                          </th>
-                          <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                            Doanh nghiệp
-                          </th>
-                          <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                            Lương & địa điểm
-                          </th>
-                          <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                            Tín hiệu
-                          </th>
-                          <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                            Trạng thái
-                          </th>
-                          <th className="px-5 py-4 text-right text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                            Thao tác
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {displayedJobs.map((job) => {
-                          const risk = getAiRisk(job);
-                          const statusConfig =
-                            STATUS_CONFIG[job.status] || STATUS_CONFIG[JOB_STATUS.DRAFT];
-                          const isSelected = selectedJobs.includes(job.id);
-
-                          return (
-                            <tr
-                              key={job.id}
-                              className={cn(
-                                'border-b border-slate-100 last:border-b-0 transition-colors',
-                                isSelected ? 'bg-emerald-50/40' : 'hover:bg-slate-50/70'
-                              )}
-                            >
-                              <td className="px-5 py-4 align-top">
-                                <div className="flex items-start gap-4">
-                                  <input
-                                    type="checkbox"
-                                    checked={isSelected}
-                                    onChange={() => handleSelectJob(job.id)}
-                                    className="mt-2 h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-                                  />
-
-                                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-sm font-bold text-emerald-700 ring-1 ring-inset ring-emerald-100">
-                                    {job.title.charAt(0).toUpperCase()}
-                                  </div>
-
-                                  <div className="min-w-0">
-                                    <Link
-                                      to={`/admin/jobs/${job.id}`}
-                                      className="line-clamp-1 text-base font-bold text-slate-950 transition-colors hover:text-emerald-700"
-                                    >
-                                      {job.title}
-                                    </Link>
-
-                                    <div className="mt-2 flex flex-wrap gap-2">
-                                      <Badge className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 font-semibold text-slate-600">
-                                        JOB-{String(job.id).slice(-4).padStart(4, '0')}
-                                      </Badge>
-                                      <Badge className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 font-semibold text-slate-600">
-                                        <Clock3 className="h-3 w-3" />
-                                        {formatRelativeDate(job.created_at)}
-                                      </Badge>
-                                      {job.flagged ? (
-                                        <Badge className="rounded-full border border-red-200 bg-red-50 px-2.5 py-1 font-semibold text-red-700">
-                                          <Flag className="h-3 w-3" />
-                                          Bị gắn cờ
-                                        </Badge>
-                                      ) : null}
-                                    </div>
-
-                                    {job.moderation_note ? (
-                                      <p className="mt-3 line-clamp-2 text-xs leading-5 text-red-600">
-                                        Ghi chú: {job.moderation_note}
-                                      </p>
-                                    ) : null}
-                                  </div>
-                                </div>
-                              </td>
-
-                              <td className="px-5 py-4 align-top">
-                                <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-3">
-                                  <div className="flex items-center gap-2">
-                                    <Building2 className="h-4 w-4 text-slate-400" />
-                                    {job.employer_id ? (
-                                      <Link
-                                        to={`/admin/companies/${job.employer_id}`}
-                                        className="line-clamp-1 text-sm font-bold text-slate-900 transition-colors hover:text-emerald-700"
-                                      >
-                                        {job.company_name}
-                                      </Link>
-                                    ) : (
-                                      <p className="line-clamp-1 text-sm font-bold text-slate-900">
-                                        {job.company_name}
-                                      </p>
-                                    )}
-                                  </div>
-                                  <p className="mt-2 text-xs text-slate-500">{job.category}</p>
-                                </div>
-                              </td>
-
-                              <td className="px-5 py-4 align-top">
-                                <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-3">
-                                  <div className="flex items-start gap-2">
-                                    <DollarSign className="mt-0.5 h-4 w-4 text-emerald-600" />
-                                    <div>
-                                      <p className="text-sm font-bold text-emerald-700">
-                                        {formatSalary(job)}
-                                      </p>
-                                      <p className="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
-                                        <MapPin className="h-3.5 w-3.5" />
-                                        {job.location}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
-                              </td>
-
-                              <td className="px-5 py-4 align-top">
-                                <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50/70 p-3">
-                                  <div className="flex flex-wrap gap-2">
-                                    <Badge className="rounded-full border border-slate-200 bg-white px-3 py-1 font-semibold text-slate-600">
-                                      <Users className="h-3 w-3" />
-                                      {formatNumber(job.applicants)} ứng viên
-                                    </Badge>
-                                    {job.vacancies ? (
-                                      <Badge className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 font-semibold text-sky-700">
-                                        <Users className="h-3 w-3" />
-                                        Tuyển {formatNumber(job.vacancies)} người
-                                      </Badge>
-                                    ) : null}
-                                    <Badge className="rounded-full border border-slate-200 bg-white px-3 py-1 font-semibold text-slate-600">
-                                      <Eye className="h-3 w-3" />
-                                      {formatNumber(job.views)} lượt xem
-                                    </Badge>
-                                  </div>
-                                  <RiskBadge risk={risk} />
-                                </div>
-                              </td>
-
-                              <td className="px-5 py-4 align-top">
-                                <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50/70 p-3">
-                                  <StatusBadge status={job.status} />
-                                  <p className="text-xs leading-5 text-slate-500">
-                                    {statusConfig.description}
-                                  </p>
-                                </div>
-                              </td>
-
-                              <td className="px-5 py-4 align-top">
-                                <div className="flex justify-end gap-2">
-                                  {job.status === JOB_STATUS.PENDING_REVIEW ? (
-                                    <>
-                                      <Button
-                                        type="button"
-                                        size="icon"
-                                        onClick={() =>
-                                          handleStatusUpdate(job.id, JOB_STATUS.PUBLISHED)
-                                        }
-                                        className="h-10 w-10 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
-                                      >
-                                        <CheckCircle className="h-4 w-4" />
-                                      </Button>
-                                      <Button
-                                        type="button"
-                                        size="icon"
-                                        variant="outline"
-                                        onClick={() =>
-                                          handleStatusUpdate(job.id, JOB_STATUS.REJECTED)
-                                        }
-                                        className="h-10 w-10 rounded-lg border-red-200 text-red-700 hover:bg-red-50"
-                                      >
-                                        <XCircle className="h-4 w-4" />
-                                      </Button>
-                                    </>
-                                  ) : null}
-
-                                  <TableActionMenu job={job} onOpenDelete={openDeleteDialog} />
-                                </div>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-                {totalJobs > 0 ? (
-                  <div className="mt-6 flex flex-col gap-4 border-t border-slate-200 pt-5 sm:flex-row sm:items-center sm:justify-between">
-                    <p className="text-sm text-slate-500">
-                      Hiển thị <span className="font-semibold text-slate-900">{visibleFrom}</span>-
-                      <span className="font-semibold text-slate-900">{visibleTo}</span> trên{' '}
-                      <span className="font-semibold text-slate-900">{formatNumber(totalJobs)}</span>{' '}
-                      tin tuyển dụng
-                    </p>
-
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-                        disabled={page <= 1}
-                        className="h-10 rounded-lg bg-white px-3"
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                      </Button>
-
-                      {pageNumbers.map((pageNumber) => (
-                        <button
-                          key={pageNumber}
-                          type="button"
-                          onClick={() => setPage(pageNumber)}
-                          className={cn(
-                            'min-w-[40px] rounded-lg border px-3 py-2 text-sm font-semibold transition-all',
-                            page === pageNumber
-                              ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                              : 'border-slate-200 bg-white text-slate-600 hover:border-emerald-200 hover:bg-emerald-50/50 hover:text-emerald-700'
-                          )}
-                        >
-                          {pageNumber}
-                        </button>
-                      ))}
-
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
-                        disabled={page >= totalPages}
-                        className="h-10 rounded-lg bg-white px-3"
-                      >
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ) : null}
-              </>
-            )}
-          </SectionCard>
-        </section>
-      </main>
-
-      {showDeleteModal && selectedJob ? (
+      {rejectDialog.open && rejectDialog.job ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
+          <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
             <div className="flex items-start gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-red-50 text-red-600 ring-1 ring-inset ring-red-100">
-                <FileX className="h-7 w-7" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-50 text-rose-600 ring-1 ring-inset ring-rose-100">
+                <XCircle className="h-6 w-6" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-slate-950">Xóa tin tuyển dụng?</h3>
+                <h3 className="text-lg font-bold text-slate-950">Từ chối tin tuyển dụng?</h3>
                 <p className="mt-1 text-sm leading-6 text-slate-500">
-                  Hành động này sẽ gỡ tin khỏi khu vực quản trị và không thể hoàn tác trực tiếp.
+                  Lý do từ chối là bắt buộc và sẽ được lưu để nhà tuyển dụng biết cần chỉnh sửa nội
+                  dung nào.
                 </p>
               </div>
             </div>
 
             <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-              <p className="font-bold text-slate-950">{selectedJob.title}</p>
-              <p className="mt-1 text-sm text-slate-500">{selectedJob.company_name}</p>
+              <p className="font-bold text-slate-950">{rejectDialog.job.title}</p>
+              <p className="mt-1 text-sm text-slate-500">{rejectDialog.job.company_name}</p>
             </div>
 
-            <div className="mt-6 flex gap-3">
+            <label
+              className="mt-5 block text-sm font-bold text-slate-700"
+              htmlFor="job-reject-reason"
+            >
+              Lý do từ chối
+            </label>
+            <textarea
+              id="job-reject-reason"
+              rows={4}
+              value={rejectDialog.reason}
+              onChange={(event) =>
+                setRejectDialog((previous) => ({ ...previous, reason: event.target.value }))
+              }
+              placeholder="Ví dụ: Mô tả công việc thiếu thông tin bắt buộc hoặc nội dung chưa phù hợp chính sách đăng tuyển."
+              className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-emerald-300 focus:ring-4 focus:ring-emerald-100"
+            />
+
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => {
-                  setShowDeleteModal(false);
-                  setSelectedJob(null);
-                }}
-                className="flex-1 rounded-lg bg-white font-bold"
+                onClick={closeRejectDialog}
+                disabled={actionLoading}
+                className="rounded-lg bg-white font-bold"
               >
                 Hủy bỏ
               </Button>
               <Button
                 type="button"
                 variant="destructive"
-                onClick={handleDeleteJob}
-                className="flex-1 rounded-lg font-bold"
+                onClick={handleRejectJob}
+                disabled={actionLoading || !rejectDialog.reason.trim()}
+                className="rounded-lg font-bold"
               >
-                Xóa vĩnh viễn
+                {actionLoading ? 'Đang xử lý...' : 'Từ chối tin'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {hideDialog.open && hideDialog.job ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-slate-700 ring-1 ring-inset ring-slate-200">
+                <FileX className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-slate-950">Ẩn tin tuyển dụng?</h3>
+                <p className="mt-1 text-sm leading-6 text-slate-500">
+                  Tin sẽ chuyển sang trạng thái tạm ngưng và không được xem như tin đang hiển thị
+                  công khai.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+              <p className="font-bold text-slate-950">{hideDialog.job.title}</p>
+              <p className="mt-1 text-sm text-slate-500">{hideDialog.job.company_name}</p>
+            </div>
+
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={closeHideDialog}
+                disabled={actionLoading}
+                className="rounded-lg bg-white font-bold"
+              >
+                Hủy bỏ
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleHideJob}
+                disabled={actionLoading}
+                className="rounded-lg font-bold"
+              >
+                {actionLoading ? 'Đang xử lý...' : 'Ẩn tin'}
               </Button>
             </div>
           </div>

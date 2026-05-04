@@ -31,10 +31,7 @@ import {
 import { Link } from 'react-router-dom';
 import { cn } from '@/utils';
 import { useNotification } from '@/context/NotificationContext';
-import {
-  calendarDaysLeftUntilDeadline,
-  isJobApplicationDeadlinePassed,
-} from '@/utils/jobDeadline';
+import { calendarDaysLeftUntilDeadline, isJobApplicationDeadlinePassed } from '@/utils/jobDeadline';
 import { formatDate } from '@/utils/formatters';
 import { Badge } from '@/components/ui/badge';
 import { getJobSalaryCardLabel, hasConcreteJobSalary } from '@/utils/jobSalary';
@@ -136,7 +133,9 @@ function getSalarySortValue(job = {}) {
   if (Number.isFinite(salaryMax) && salaryMax > 0) return salaryMax;
   if (Number.isFinite(salaryMin) && salaryMin > 0) return salaryMin;
 
-  const raw = String(job.salary_range || job.salary_display || '').trim().toLowerCase();
+  const raw = String(job.salary_range || job.salary_display || '')
+    .trim()
+    .toLowerCase();
   if (!raw) return 0;
 
   const matches = [...raw.matchAll(/(\d+(?:[.,]\d+)?)/g)].map((match) =>
@@ -146,11 +145,7 @@ function getSalarySortValue(job = {}) {
   if (!matches.length) return 0;
 
   const unit =
-    raw.includes('triệu') || raw.includes('trieu')
-      ? 1000000
-      : raw.includes('k')
-        ? 1000
-        : 1;
+    raw.includes('triệu') || raw.includes('trieu') ? 1000000 : raw.includes('k') ? 1000 : 1;
 
   return Math.max(...matches) * unit;
 }
@@ -209,17 +204,36 @@ function matchesExperienceFilter(job = {}, experienceFilter) {
 
   switch (experienceFilter) {
     case 'Fresher / Mới tốt nghiệp':
-      return haystack.includes('entry') || haystack.includes('fresher') || haystack.includes('intern');
+      return (
+        haystack.includes('entry') || haystack.includes('fresher') || haystack.includes('intern')
+      );
     case 'Dưới 1 năm':
       return haystack.includes('junior') || haystack.includes('entry') || haystack.includes('1');
     case '1 - 3 năm':
-      return haystack.includes('mid') || haystack.includes('1') || haystack.includes('2') || haystack.includes('3');
+      return (
+        haystack.includes('mid') ||
+        haystack.includes('1') ||
+        haystack.includes('2') ||
+        haystack.includes('3')
+      );
     case '3 - 5 năm':
-      return haystack.includes('senior') || haystack.includes('3') || haystack.includes('4') || haystack.includes('5');
+      return (
+        haystack.includes('senior') ||
+        haystack.includes('3') ||
+        haystack.includes('4') ||
+        haystack.includes('5')
+      );
     case 'Trên 5 năm':
-      return haystack.includes('lead') || haystack.includes('principal') || haystack.includes('6') || haystack.includes('7');
+      return (
+        haystack.includes('lead') ||
+        haystack.includes('principal') ||
+        haystack.includes('6') ||
+        haystack.includes('7')
+      );
     case 'Quản lý / Manager':
-      return haystack.includes('manager') || haystack.includes('lead') || haystack.includes('director');
+      return (
+        haystack.includes('manager') || haystack.includes('lead') || haystack.includes('director')
+      );
     default:
       return true;
   }
@@ -273,9 +287,9 @@ const SkillPill = ({ skill, index, isLast }) => {
 /**
  * Deadline Indicator
  */
-const DeadlineIndicator = ({ deadline, daysLeft, deadlinePassed }) => {
+const DeadlineIndicator = ({ daysLeft, deadlinePassed }) => {
   const getDeadlineConfig = () => {
-    if (deadlinePassed || daysLeft === 0) {
+    if (deadlinePassed) {
       return {
         bg: 'bg-red-50',
         border: 'border-red-200',
@@ -285,7 +299,30 @@ const DeadlineIndicator = ({ deadline, daysLeft, deadlinePassed }) => {
         dot: 'bg-red-500',
       };
     }
-    if (daysLeft && daysLeft <= 3) {
+
+    if (daysLeft == null) {
+      return {
+        bg: 'bg-emerald-50',
+        border: 'border-emerald-200',
+        text: 'text-emerald-600',
+        icon: 'text-emerald-500',
+        label: 'Không giới hạn',
+        dot: 'bg-emerald-500',
+      };
+    }
+
+    if (daysLeft === 0) {
+      return {
+        bg: 'bg-amber-50',
+        border: 'border-amber-200',
+        text: 'text-amber-600',
+        icon: 'text-amber-500',
+        label: 'Hạn hôm nay',
+        dot: 'bg-amber-500',
+      };
+    }
+
+    if (daysLeft <= 3) {
       return {
         bg: 'bg-amber-50',
         border: 'border-amber-200',
@@ -300,7 +337,7 @@ const DeadlineIndicator = ({ deadline, daysLeft, deadlinePassed }) => {
       border: 'border-emerald-200',
       text: 'text-emerald-600',
       icon: 'text-emerald-500',
-      label: `${daysLeft || '∞'} ngày nữa`,
+      label: `${daysLeft} ngày nữa`,
       dot: 'bg-emerald-500',
     };
   };
@@ -344,9 +381,7 @@ const JobCard = ({ job, onToggleSave, isSaved, onShare, onViewDetails }) => {
   const vacancies = Number.parseInt(job.vacancies, 10);
   const vacanciesLabel = Number.isFinite(vacancies) && vacancies > 0 ? `${vacancies} người` : null;
   const hasSkills = Array.isArray(job.skills) && job.skills.length > 0;
-  const deadlinePassed = Boolean(
-    job.deadline && isJobApplicationDeadlinePassed(job.deadline)
-  );
+  const deadlinePassed = Boolean(job.deadline && isJobApplicationDeadlinePassed(job.deadline));
   const daysLeft = calendarDaysLeftUntilDeadline(job.deadline);
 
   const handleToggleSave = async (e) => {
@@ -458,9 +493,7 @@ const JobCard = ({ job, onToggleSave, isSaved, onShare, onViewDetails }) => {
             <div
               className={cn(
                 'flex items-center gap-1.5 text-sm font-bold px-3 py-1 rounded-lg',
-                hasConcreteSalary
-                  ? 'bg-emerald-50 text-emerald-700'
-                  : 'bg-slate-100 text-slate-600'
+                hasConcreteSalary ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'
               )}
             >
               <DollarSign size={14} />
@@ -504,15 +537,9 @@ const JobCard = ({ job, onToggleSave, isSaved, onShare, onViewDetails }) => {
             )}
           >
             <div className="flex items-center gap-3">
-              <DeadlineIndicator
-                deadline={job.deadline}
-                daysLeft={daysLeft}
-                deadlinePassed={deadlinePassed}
-              />
+              <DeadlineIndicator daysLeft={daysLeft} deadlinePassed={deadlinePassed} />
               {job.deadline && (
-                <span className="text-xs text-slate-400">
-                  Hạn: {formatDate(job.deadline)}
-                </span>
+                <span className="text-xs text-slate-400">Hạn: {formatDate(job.deadline)}</span>
               )}
             </div>
 
@@ -607,7 +634,8 @@ const EmptyJobsState = ({ onClearFilters, showResetAction = false }) => (
     </div>
     <h3 className="mb-2 text-2xl font-bold text-slate-900">Không tìm thấy việc phù hợp</h3>
     <p className="mx-auto mb-6 max-w-md text-base font-medium leading-8 text-slate-500">
-      Thử điều chỉnh bộ lọc, cập nhật hồ sơ hoặc khám phá thêm các vị trí mới để hệ thống gợi ý sát hơn.
+      Thử điều chỉnh bộ lọc, cập nhật hồ sơ hoặc khám phá thêm các vị trí mới để hệ thống gợi ý sát
+      hơn.
     </p>
 
     {showResetAction ? (
@@ -623,7 +651,11 @@ const EmptyJobsState = ({ onClearFilters, showResetAction = false }) => (
         <Button asChild className="rounded-xl bg-emerald-500 font-bold hover:bg-emerald-600">
           <Link to="/candidate/jobs">Khám phá việc làm</Link>
         </Button>
-        <Button asChild variant="outline" className="rounded-xl border-slate-200 font-bold text-slate-700 hover:bg-white">
+        <Button
+          asChild
+          variant="outline"
+          className="rounded-xl border-slate-200 font-bold text-slate-700 hover:bg-white"
+        >
           <Link to="/candidate/profile/edit">Cập nhật hồ sơ</Link>
         </Button>
       </div>
@@ -641,9 +673,7 @@ EmptyJobsState.propTypes = {
  */
 const FilterPanel = ({ filters, onFilterChange, onReset }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTypes, setActiveTypes] = useState(
-    Array.isArray(filters?.type) ? filters.type : []
-  );
+  const [activeTypes, setActiveTypes] = useState(Array.isArray(filters?.type) ? filters.type : []);
   const [activeSalary, setActiveSalary] = useState(null);
   const [activeExperience, setActiveExperience] = useState(null);
 
@@ -707,9 +737,7 @@ const FilterPanel = ({ filters, onFilterChange, onReset }) => {
               <div
                 className={cn(
                   'h-4 w-4 rounded-full border-2 transition-all',
-                  activeSalary === item
-                    ? 'border-primary bg-primary'
-                    : 'border-slate-300'
+                  activeSalary === item ? 'border-primary bg-primary' : 'border-slate-300'
                 )}
               >
                 {activeSalary === item && (
@@ -787,9 +815,7 @@ const FilterPanel = ({ filters, onFilterChange, onReset }) => {
               <div
                 className={cn(
                   'h-4 w-4 rounded-full border-2 transition-all',
-                  activeExperience === item
-                    ? 'border-amber-500 bg-amber-500'
-                    : 'border-slate-300'
+                  activeExperience === item ? 'border-amber-500 bg-amber-500' : 'border-slate-300'
                 )}
               >
                 {activeExperience === item && (
@@ -1017,9 +1043,7 @@ const RecommendedJobs = ({
           <div>
             <h2 className="text-2xl font-bold text-slate-900">{title}</h2>
             <p className="text-sm font-medium text-slate-500">
-              {loading
-                ? 'Đang tải...'
-                : `${visibleJobs.length} vị trí tuyển dụng`}
+              {loading ? 'Đang tải...' : `${visibleJobs.length} vị trí tuyển dụng`}
             </p>
           </div>
         </div>
@@ -1090,7 +1114,9 @@ const RecommendedJobs = ({
         <div className="space-y-4">
           {loading ? (
             // Loading skeletons
-            <div className={cn(viewMode === 'grid' ? 'grid grid-cols-1 gap-6' : 'flex flex-col gap-4')}>
+            <div
+              className={cn(viewMode === 'grid' ? 'grid grid-cols-1 gap-6' : 'flex flex-col gap-4')}
+            >
               {[1, 2, 3, 4].map((i) => (
                 <div
                   key={i}
@@ -1112,9 +1138,7 @@ const RecommendedJobs = ({
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
                 className={cn(
-                  viewMode === 'grid'
-                    ? 'grid grid-cols-1 gap-6'
-                    : 'flex flex-col gap-4'
+                  viewMode === 'grid' ? 'grid grid-cols-1 gap-6' : 'flex flex-col gap-4'
                 )}
               >
                 {visibleJobs.map((job, index) => (
@@ -1178,9 +1202,7 @@ RecommendedJobs.propTypes = {
       is_company_saved: PropTypes.bool,
     })
   ),
-  savedJobIds: PropTypes.arrayOf(
-    PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-  ),
+  savedJobIds: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
   onToggleSave: PropTypes.func,
   title: PropTypes.string,
   showFilters: PropTypes.bool,
@@ -1195,14 +1217,14 @@ RecommendedJobs.propTypes = {
 RecommendedJobs.defaultProps = {
   jobs: [],
   savedJobIds: [],
-  onToggleSave: () => { },
+  onToggleSave: () => {},
   title: 'Việc làm phù hợp',
   showFilters: true,
   sortBy: 'match',
-  onSortChange: () => { },
+  onSortChange: () => {},
   filters: {},
-  onFilterChange: () => { },
-  onClearFilters: () => { },
+  onFilterChange: () => {},
+  onClearFilters: () => {},
   loading: false,
 };
 

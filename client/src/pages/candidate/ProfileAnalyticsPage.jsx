@@ -86,7 +86,8 @@ const defaultSuggestions = [
   },
   {
     label: 'Bổ sung kỹ năng trọng tâm',
-    description: 'Thêm các kỹ năng chính liên quan vị trí mục tiêu để tăng khả năng ghép nối phù hợp.',
+    description:
+      'Thêm các kỹ năng chính liên quan vị trí mục tiêu để tăng khả năng ghép nối phù hợp.',
     priority: 'high',
   },
   {
@@ -229,7 +230,12 @@ const SuggestionItem = ({ suggestion, index }) => {
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <p className="font-bold text-slate-900">{suggestion.label}</p>
-            <span className={cn('rounded-full border px-2 py-0.5 text-xs font-semibold', priority.className)}>
+            <span
+              className={cn(
+                'rounded-full border px-2 py-0.5 text-xs font-semibold',
+                priority.className
+              )}
+            >
               {priority.label}
             </span>
           </div>
@@ -360,8 +366,8 @@ const ProfileAnalyticsPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-14">
-      <section className="border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_86%)]">
+    <div className="min-h-screen bg-transparent pb-14">
+      <section className="border-b border-emerald-100/70 bg-transparent">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
@@ -373,7 +379,8 @@ const ProfileAnalyticsPage = () => {
                 Phân tích hồ sơ
               </h1>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Theo dõi độ hoàn thiện hồ sơ, phản hồi tuyển dụng và những điểm cần tối ưu để hồ sơ nổi bật hơn.
+                Theo dõi độ hoàn thiện hồ sơ, phản hồi tuyển dụng và những điểm cần tối ưu để hồ sơ
+                nổi bật hơn.
               </p>
             </div>
 
@@ -397,7 +404,9 @@ const ProfileAnalyticsPage = () => {
                 <div>
                   <p className="text-sm font-bold text-slate-900">Tổng quan hồ sơ hiện tại</p>
                   <p className="mt-1 text-sm leading-6 text-slate-500">
-                    Hồ sơ có {formatNumber(skillCount)} kỹ năng, {formatNumber(totalApplications)} đơn ứng tuyển, {formatNumber(responseCount)} phản hồi và {formatNumber(views)} lượt xem ghi nhận.
+                    Hồ sơ có {formatNumber(skillCount)} kỹ năng, {formatNumber(totalApplications)}{' '}
+                    đơn ứng tuyển, {formatNumber(responseCount)} phản hồi và {formatNumber(views)}{' '}
+                    lượt xem ghi nhận.
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -454,7 +463,10 @@ const ProfileAnalyticsPage = () => {
               {recentViewers.length > 0 ? (
                 <div className="space-y-3">
                   {recentViewers.map((viewer, index) => (
-                    <ViewerRow key={`${viewer.company_name || viewer.company || 'viewer'}-${index}`} viewer={viewer} />
+                    <ViewerRow
+                      key={`${viewer.company_name || viewer.company || 'viewer'}-${index}`}
+                      viewer={viewer}
+                    />
                   ))}
                 </div>
               ) : (
@@ -485,7 +497,11 @@ const ProfileAnalyticsPage = () => {
               {suggestions.length > 0 ? (
                 <div className="space-y-3">
                   {suggestions.map((suggestion, index) => (
-                    <SuggestionItem key={`${suggestion.label}-${index}`} suggestion={suggestion} index={index} />
+                    <SuggestionItem
+                      key={`${suggestion.label}-${index}`}
+                      suggestion={suggestion}
+                      index={index}
+                    />
                   ))}
                 </div>
               ) : (

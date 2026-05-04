@@ -15,6 +15,7 @@ import {
   Zap,
 } from 'lucide-react';
 
+import StatCard from '../../components/common/StatCard';
 import adminService from '../../services/adminService';
 import { useNotification } from '../../context/NotificationContext';
 import { Badge } from '../../components/ui/badge';
@@ -83,7 +84,7 @@ const UI_FEATURES = [
   },
   {
     key: 'compact_dashboard',
-    label: 'Bảng điều khiển rút gọn',
+    label: 'Tổng quan rút gọn',
     icon: LayoutDashboard,
     desc: 'Sử dụng giao diện tập trung cho các màn hình nhỏ.',
   },
@@ -153,34 +154,7 @@ const isAuthError = (error) => {
 };
 
 function SummaryCard({ icon: Icon, label, value, helper, tone = 'emerald' }) {
-  const tones = {
-    emerald: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
-    blue: 'bg-blue-50 text-blue-700 ring-blue-100',
-    violet: 'bg-violet-50 text-violet-700 ring-violet-100',
-    amber: 'bg-amber-50 text-amber-700 ring-amber-100',
-  };
-
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-            {label}
-          </p>
-          <p className="mt-2 text-2xl font-bold tracking-tight text-slate-950">{value}</p>
-          <p className="mt-1 text-sm leading-6 text-slate-500">{helper}</p>
-        </div>
-        <div
-          className={cn(
-            'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ring-1 ring-inset',
-            tones[tone] || tones.emerald
-          )}
-        >
-          <Icon className="h-5 w-5" />
-        </div>
-      </div>
-    </div>
-  );
+  return <StatCard title={label} value={value} subtitle={helper} icon={Icon} type={tone} />;
 }
 
 function SectionCard({ icon: Icon, title, description, action, children }) {
@@ -365,7 +339,7 @@ const AdminFeatureFlagsPage = () => {
   }
 
   return (
-    <div className="min-h-full bg-slate-50 text-slate-900">
+    <div className="min-h-full bg-slate-50/40 text-slate-900">
       <div className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
@@ -398,8 +372,8 @@ const AdminFeatureFlagsPage = () => {
                 Cấu hình tính năng
               </h1>
               <p className="mt-4 max-w-3xl text-sm font-medium leading-7 text-slate-600 sm:text-base">
-                Quản lý toàn bộ feature flag theo đúng logic vận hành của dự án: năng lực AI cốt lõi,
-                rollout thử nghiệm, hành vi giao diện và quyền truy cập theo cấp độ tài khoản.
+                Quản lý toàn bộ feature flag theo đúng logic vận hành của dự án: năng lực AI cốt
+                lõi, rollout thử nghiệm, hành vi giao diện và quyền truy cập theo cấp độ tài khoản.
               </p>
             </div>
 
@@ -439,11 +413,12 @@ const AdminFeatureFlagsPage = () => {
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                  Bảng điều khiển
+                  Tổng quan
                 </p>
                 <p className="mt-1 text-2xl font-bold text-slate-950">Rollout health</p>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Các thay đổi qua toggle có hiệu lực ngay. Nút lưu giúp đồng bộ lại toàn bộ snapshot hiện tại.
+                  Các thay đổi qua toggle có hiệu lực ngay. Nút lưu giúp đồng bộ lại toàn bộ
+                  snapshot hiện tại.
                 </p>
               </div>
               <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-3 py-2 text-right">
@@ -478,7 +453,8 @@ const AdminFeatureFlagsPage = () => {
                     Trạng thái hiện tại
                   </p>
                   <p className="mt-1 text-sm font-semibold text-slate-950">
-                    {enabledFlagsCount} flag đang bật, {ALL_FLAG_KEYS.length - enabledFlagsCount} flag đang tắt
+                    {enabledFlagsCount} flag đang bật, {ALL_FLAG_KEYS.length - enabledFlagsCount}{' '}
+                    flag đang tắt
                   </p>
                 </div>
                 {refreshing ? (
@@ -551,7 +527,10 @@ const AdminFeatureFlagsPage = () => {
             </SectionCard>
           ) : (
             <div className="space-y-6">
-              {(filteredCore.length > 0 || filteredBeta.length > 0 || filteredUI.length > 0 || !q) && (
+              {(filteredCore.length > 0 ||
+                filteredBeta.length > 0 ||
+                filteredUI.length > 0 ||
+                !q) && (
                 <SectionCard
                   icon={Sparkles}
                   title="Bản đồ rollout"
@@ -580,11 +559,13 @@ const AdminFeatureFlagsPage = () => {
                                 AI, moderation và kiểm soát hệ thống
                               </h3>
                               <p className="mt-2 text-sm leading-6 text-slate-500">
-                                Đây là nhóm ảnh hưởng trực tiếp đến trải nghiệm chính và lớp quản trị rủi ro của nền tảng.
+                                Đây là nhóm ảnh hưởng trực tiếp đến trải nghiệm chính và lớp quản
+                                trị rủi ro của nền tảng.
                               </p>
                             </div>
                             <Badge className="rounded-full border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-                              {CORE_FEATURES.filter((item) => getEnabled(item.key)).length}/{CORE_FEATURES.length} bật
+                              {CORE_FEATURES.filter((item) => getEnabled(item.key)).length}/
+                              {CORE_FEATURES.length} bật
                             </Badge>
                           </div>
 
@@ -600,12 +581,16 @@ const AdminFeatureFlagsPage = () => {
                                 >
                                   <div className="min-w-0">
                                     <div className="flex flex-wrap items-center gap-2">
-                                      <p className="text-sm font-semibold text-slate-950">{item.label}</p>
+                                      <p className="text-sm font-semibold text-slate-950">
+                                        {item.label}
+                                      </p>
                                       <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
                                         {item.badge}
                                       </span>
                                     </div>
-                                    <p className="mt-1 text-sm leading-6 text-slate-500">{item.desc}</p>
+                                    <p className="mt-1 text-sm leading-6 text-slate-500">
+                                      {item.desc}
+                                    </p>
                                     <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
                                       {item.key}
                                     </p>
@@ -630,7 +615,9 @@ const AdminFeatureFlagsPage = () => {
                           <div>
                             <p className="text-sm font-semibold">Nguyên tắc áp dụng</p>
                             <p className="mt-1 text-sm leading-6 text-white/60">
-                              Thay đổi qua toggle được áp dụng ngay cho phiên hiện tại. Người dùng đang hoạt động sẽ thấy khác biệt khi tải lại trang hoặc khởi tạo phiên mới.
+                              Thay đổi qua toggle được áp dụng ngay cho phiên hiện tại. Người dùng
+                              đang hoạt động sẽ thấy khác biệt khi tải lại trang hoặc khởi tạo phiên
+                              mới.
                             </p>
                           </div>
                         </div>
@@ -667,14 +654,18 @@ const AdminFeatureFlagsPage = () => {
                                   <div className="flex items-start justify-between gap-4">
                                     <div className="min-w-0">
                                       <div className="flex flex-wrap items-center gap-2">
-                                        <p className="text-sm font-semibold text-slate-950">{item.label}</p>
+                                        <p className="text-sm font-semibold text-slate-950">
+                                          {item.label}
+                                        </p>
                                         {item.isNew ? (
                                           <Badge className="rounded-full border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
                                             Mới
                                           </Badge>
                                         ) : null}
                                       </div>
-                                      <p className="mt-2 text-sm leading-6 text-slate-500">{item.desc}</p>
+                                      <p className="mt-2 text-sm leading-6 text-slate-500">
+                                        {item.desc}
+                                      </p>
                                       <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
                                         {item.tier}
                                       </p>
@@ -725,8 +716,12 @@ const AdminFeatureFlagsPage = () => {
                                       <Icon className="h-4 w-4" />
                                     </div>
                                     <div className="min-w-0">
-                                      <p className="text-sm font-semibold text-slate-950">{item.label}</p>
-                                      <p className="mt-1 text-sm leading-6 text-slate-500">{item.desc}</p>
+                                      <p className="text-sm font-semibold text-slate-950">
+                                        {item.label}
+                                      </p>
+                                      <p className="mt-1 text-sm leading-6 text-slate-500">
+                                        {item.desc}
+                                      </p>
                                     </div>
                                   </div>
                                   <InlineSwitch
@@ -787,60 +782,70 @@ const AdminFeatureFlagsPage = () => {
                               <tr key={row.key} className="transition-colors hover:bg-slate-50/40">
                                 <td className="px-6 py-5">
                                   <div>
-                                    <p className="text-sm font-semibold text-slate-950">{row.label}</p>
+                                    <p className="text-sm font-semibold text-slate-950">
+                                      {row.label}
+                                    </p>
                                     <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
                                       {row.key}
                                     </p>
                                   </div>
                                 </td>
-                                {[row.basic, row.professional, row.enterprise].map((hasAccess, index) => {
-                                  const toneClass =
-                                    index === 0
-                                      ? 'text-slate-500'
-                                      : index === 1
-                                        ? 'text-blue-600'
-                                        : 'text-emerald-600';
+                                {[row.basic, row.professional, row.enterprise].map(
+                                  (hasAccess, index) => {
+                                    const toneClass =
+                                      index === 0
+                                        ? 'text-slate-500'
+                                        : index === 1
+                                          ? 'text-blue-600'
+                                          : 'text-emerald-600';
 
-                                  if (!hasAccess) {
+                                    if (!hasAccess) {
+                                      return (
+                                        <td
+                                          key={`${row.key}-${index}`}
+                                          className="px-6 py-5 text-center"
+                                        >
+                                          <div className="flex justify-center">
+                                            <X className="h-4 w-4 text-slate-200" strokeWidth={3} />
+                                          </div>
+                                        </td>
+                                      );
+                                    }
+
+                                    const cellActive = enabled;
+
                                     return (
-                                      <td key={`${row.key}-${index}`} className="px-6 py-5 text-center">
-                                        <div className="flex justify-center">
-                                          <X className="h-4 w-4 text-slate-200" strokeWidth={3} />
-                                        </div>
+                                      <td
+                                        key={`${row.key}-${index}`}
+                                        className={cn(
+                                          'px-6 py-5 text-center',
+                                          cellActive && 'bg-emerald-50/40'
+                                        )}
+                                      >
+                                        <button
+                                          type="button"
+                                          onClick={() => toggleFlag(row.key)}
+                                          disabled={loading || isSaving}
+                                          className="inline-flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+                                          title={enabled ? `Tắt ${row.label}` : `Bật ${row.label}`}
+                                        >
+                                          {isSaving ? (
+                                            <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+                                          ) : cellActive ? (
+                                            <Check
+                                              className={cn('h-4 w-4', toneClass)}
+                                              strokeWidth={3}
+                                            />
+                                          ) : (
+                                            <span className={cn('text-xs font-bold', toneClass)}>
+                                              {index === 0 ? 'B' : index === 1 ? 'P' : 'E'}
+                                            </span>
+                                          )}
+                                        </button>
                                       </td>
                                     );
                                   }
-
-                                  const cellActive = enabled;
-
-                                  return (
-                                    <td
-                                      key={`${row.key}-${index}`}
-                                      className={cn(
-                                        'px-6 py-5 text-center',
-                                        cellActive && 'bg-emerald-50/40'
-                                      )}
-                                    >
-                                      <button
-                                        type="button"
-                                        onClick={() => toggleFlag(row.key)}
-                                        disabled={loading || isSaving}
-                                        className="inline-flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
-                                        title={enabled ? `Tắt ${row.label}` : `Bật ${row.label}`}
-                                      >
-                                        {isSaving ? (
-                                          <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
-                                        ) : cellActive ? (
-                                          <Check className={cn('h-4 w-4', toneClass)} strokeWidth={3} />
-                                        ) : (
-                                          <span className={cn('text-xs font-bold', toneClass)}>
-                                            {index === 0 ? 'B' : index === 1 ? 'P' : 'E'}
-                                          </span>
-                                        )}
-                                      </button>
-                                    </td>
-                                  );
-                                })}
+                                )}
                               </tr>
                             );
                           })}
@@ -855,9 +860,12 @@ const AdminFeatureFlagsPage = () => {
                         <Zap className="h-4 w-4" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-amber-900">Nguyên tắc rollout theo tier</p>
+                        <p className="text-sm font-semibold text-amber-900">
+                          Nguyên tắc rollout theo tier
+                        </p>
                         <p className="mt-1 text-sm leading-6 text-amber-800">
-                          Dùng feature flag để thử nghiệm có kiểm soát các mô-đun AI mới trước khi mở rộng rộng rãi cho toàn bộ khách hàng Enterprise hoặc toàn hệ thống.
+                          Dùng feature flag để thử nghiệm có kiểm soát các mô-đun AI mới trước khi
+                          mở rộng rộng rãi cho toàn bộ khách hàng Enterprise hoặc toàn hệ thống.
                         </p>
                       </div>
                     </div>

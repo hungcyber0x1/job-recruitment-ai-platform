@@ -62,7 +62,10 @@ const ApplicationForm = ({ job, onClose }) => {
       onClose();
     } catch (error) {
       console.error('ApplicationForm submit error:', error?.message);
-      showNotification(error.response?.data?.message || error.message || 'Có lỗi xảy ra khi nộp hồ sơ.', 'error');
+      showNotification(
+        error.response?.data?.message || error.message || 'Có lỗi xảy ra khi nộp hồ sơ.',
+        'error'
+      );
     } finally {
       setLoading(false);
     }
@@ -127,14 +130,17 @@ const ApplicationForm = ({ job, onClose }) => {
             <p className="text-base font-bold text-gray-900 mb-1">
               {resumeFile ? resumeFile.name : 'Kéo thả file vào đây hoặc click để chọn'}
             </p>
-            <p className="text-base text-gray-400">Định dạng hỗ trợ: PDF, DOC, DOCX (Tối đa 10MB)</p>
+            <p className="text-base text-gray-400">
+              Định dạng hỗ trợ: PDF, DOC, DOCX (Tối đa 10MB)
+            </p>
           </div>
         </div>
 
         <div className="p-4 bg-yellow-50 rounded-xl flex items-center gap-3 border border-yellow-100/50">
           <Info size={18} className="text-yellow-600 shrink-0" />
           <p className="text-sm text-yellow-700 font-medium">
-            Nhà tuyển dụng sẽ xem xét hồ sơ của bạn sau khi nộp đơn. Đảm bảo CV và thông tin cá nhân đã được cập nhật đầy đủ.
+            Nhà tuyển dụng sẽ xem xét hồ sơ của bạn sau khi nộp đơn. Đảm bảo CV và thông tin cá nhân
+            đã được cập nhật đầy đủ.
           </p>
         </div>
 

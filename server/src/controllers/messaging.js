@@ -40,7 +40,11 @@ const sendAttachment = catchAsync(async (req, res) => {
 });
 
 const sendInterviewInvite = catchAsync(async (req, res) => {
-  const message = await messagingService.sendInterviewInvite(req.user, req.params.id, req.body || {});
+  const message = await messagingService.sendInterviewInvite(
+    req.user,
+    req.params.id,
+    req.body || {}
+  );
   return ApiResponse.created(res, message, 'Interview invitation sent');
 });
 
@@ -76,7 +80,10 @@ const getAttachment = catchAsync(async (req, res) => {
   }
 
   res.setHeader('Content-Type', attachment.mime);
-  res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(attachment.name)}"`);
+  res.setHeader(
+    'Content-Disposition',
+    `attachment; filename="${encodeURIComponent(attachment.name)}"`
+  );
   return res.sendFile(attachment.path);
 });
 

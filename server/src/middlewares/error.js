@@ -40,14 +40,18 @@ module.exports = (err, req, res, _next) => {
     err.message = 'File quá lớn. Giới hạn tối đa 5MB';
   }
 
-  // JWT không hợp lệ / hết hạn
+  // JWT không hợp lệ / hết hạn: đây là lỗi xác thực phía client, không phải 500 server.
   if (err.name === 'JsonWebTokenError') {
     err.statusCode = 401;
-    err.message = 'Token không hợp lệ';
+    err.status = 'fail';
+    err.isOperational = true;
+    err.message = 'Token không hợp lệ, vui lòng đăng nhập lại';
   }
 
   if (err.name === 'TokenExpiredError') {
     err.statusCode = 401;
+    err.status = 'fail';
+    err.isOperational = true;
     err.message = 'Token đã hết hạn, vui lòng đăng nhập lại';
   }
 
@@ -79,6 +83,9 @@ module.exports = (err, req, res, _next) => {
   if (process.env.NODE_ENV === 'development') {
     res.status(err.statusCode).json({ ...payload, error: err, stack: err.stack });
   } else {
+    if (err.isOperational) {
+      payload.debug = { code: err.code };
+    }
     res.status(err.statusCode).json(payload);
   }
 };

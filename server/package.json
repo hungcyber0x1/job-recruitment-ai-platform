@@ -7,7 +7,7 @@
     "node": ">=20.0.0 <25"
   },
   "scripts": {
-    "start": "node server.js",
+    "start": "node src/server.js",
     "dev": "nodemon",
     "test": "jest --passWithNoTests",
     "lint": "eslint .",
@@ -15,10 +15,18 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "db:backup": "node database/backup-database.js",
     "db:migrate": "node database/run-migrations.js",
+    "db:migrate:data": "node database/migrate-legacy-to-canonical.js --apply",
+    "db:migrate:data:dry": "node database/migrate-legacy-to-canonical.js",
     "db:seed": "node database/run-seeds.js",
     "db:seed:jobs": "node database/run-seed-jobs.js",
+    "db:seed:sample-content": "node scratch/seed-sample-content.js",
+    "db:seed:initial-data": "node scratch/seed-initial-data.js",
     "db:reset": "node database/db-reset.js",
+    "db:operational:migrate": "node database/operational/scripts/migrate.js",
+    "db:operational:seed": "node database/operational/scripts/seed.js",
+    "db:operational:reset": "node database/operational/scripts/reset.js",
     "prisma:validate": "prisma validate",
     "prisma:generate": "prisma generate",
     "prisma:pull": "prisma db pull"

@@ -37,7 +37,8 @@ class AdminChatbotController {
         );
         events = eventsRows;
 
-        const [intentsRows] = await pool.query(`
+        const [intentsRows] = await pool.query(
+          `
           SELECT JSON_EXTRACT(event_data, '$.intent') as intent, COUNT(*) as count
           FROM chatbot_analytics_events
           WHERE event_type = 'intent_detected'
@@ -46,10 +47,13 @@ class AdminChatbotController {
           GROUP BY intent
           ORDER BY count DESC
           LIMIT 10
-        `, [startDate || null, endDate || null]);
+        `,
+          [startDate || null, endDate || null]
+        );
         intents = intentsRows;
 
-        const [feedbackRows] = await pool.query(`
+        const [feedbackRows] = await pool.query(
+          `
           SELECT
             SUM(CASE WHEN JSON_EXTRACT(event_data, '$.is_positive') = 1 THEN 1 ELSE 0 END) as positive,
             SUM(CASE WHEN JSON_EXTRACT(event_data, '$.is_positive') = 0 THEN 1 ELSE 0 END) as negative
@@ -57,11 +61,15 @@ class AdminChatbotController {
           WHERE event_type = 'message_feedback'
             AND created_at >= COALESCE(?, created_at)
             AND created_at <= COALESCE(?, created_at)
-        `, [startDate || null, endDate || null]);
+        `,
+          [startDate || null, endDate || null]
+        );
         feedbackPositive = parseInt(feedbackRows[0]?.positive || 0);
         feedbackNegative = parseInt(feedbackRows[0]?.negative || 0);
         if (feedbackPositive + feedbackNegative > 0) {
-          satisfactionScore = parseFloat(((feedbackPositive / (feedbackPositive + feedbackNegative)) * 100).toFixed(1));
+          satisfactionScore = parseFloat(
+            ((feedbackPositive / (feedbackPositive + feedbackNegative)) * 100).toFixed(1)
+          );
         }
       } catch (_) {
         // Table may not exist yet - use empty data
@@ -308,12 +316,24 @@ class AdminChatbotController {
         return res.status(400).json({ success: false, message: 'Title and content are required' });
       }
 
-      // Sinh trường name duy nhất từ tiêu đề
-      const name = title.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + Date.now();
+      // Sinh khóa prompt duy nhất từ tiêu đề và đồng bộ các alias cũ/mới.
+      const baseKey =
+        title
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9]+/g, '_')
+          .replace(/^_+|_+$/g, '') || 'prompt';
+      const name = `${baseKey}_${Date.now()}`;
+      const allowedTypes = new Set(['career', 'resume', 'interview', 'chatbot', 'general']);
+      const promptType = allowedTypes.has(category) ? category : 'general';
 
       const [result] = await pool.query(
-        'INSERT INTO ai_prompts (name, display_name, prompt_template, category, created_by) VALUES (?, ?, ?, ?, ?)',
-        [name, title, content, category, adminId]
+        `INSERT INTO ai_prompts (
+          prompt_key, name, prompt_name, display_name, prompt_type,
+          prompt_template, category, created_by
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [name, name, title, title, promptType, content, category || promptType, adminId]
       );
 
       res.json({
@@ -331,9 +351,28 @@ class AdminChatbotController {
       const { id } = req.params;
       const { title, content, category, is_active } = req.body;
 
+      const allowedTypes = new Set(['career', 'resume', 'interview', 'chatbot', 'general']);
+      const promptType = allowedTypes.has(category) ? category : 'general';
+
       await pool.query(
-        'UPDATE ai_prompts SET display_name = ?, prompt_template = ?, category = ?, is_active = ? WHERE id = ?',
-        [title, content, category, is_active !== undefined ? is_active : true, id]
+        `UPDATE ai_prompts
+            SET prompt_name = ?,
+                display_name = ?,
+                prompt_template = ?,
+                prompt_type = ?,
+                category = ?,
+                is_active = ?,
+                updated_at = NOW()
+          WHERE id = ?`,
+        [
+          title,
+          title,
+          content,
+          promptType,
+          category || promptType,
+          is_active !== undefined ? is_active : true,
+          id,
+        ]
       );
 
       res.json({ success: true, message: 'Template updated successfully' });

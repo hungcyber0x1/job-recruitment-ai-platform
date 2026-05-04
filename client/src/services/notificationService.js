@@ -16,12 +16,12 @@ export const notificationService = {
   getNotifications: (params = {}) => {
     const { limit = 20, offset = 0, type, unread_only } = params;
     const queryParams = new URLSearchParams();
-    
+
     queryParams.append('limit', limit);
     queryParams.append('offset', offset);
     if (type) queryParams.append('type', type);
     if (unread_only) queryParams.append('unread_only', 'true');
-    
+
     return api.get(`/notifications/me?${queryParams.toString()}`);
   },
 
@@ -60,12 +60,12 @@ export const notificationService = {
   getRecruiterNotifications: (params = {}) => {
     const { limit = 20, offset = 0, type, unread_only } = params;
     const queryParams = new URLSearchParams();
-    
+
     queryParams.append('limit', limit);
     queryParams.append('offset', offset);
     if (type) queryParams.append('type', type);
     if (unread_only) queryParams.append('unread_only', 'true');
-    
+
     return api.get(`/notifications/recruiter?${queryParams.toString()}`);
   },
 
@@ -79,12 +79,12 @@ export const notificationService = {
   getAdminNotifications: (params = {}) => {
     const { limit = 20, offset = 0, type, unread_only } = params;
     const queryParams = new URLSearchParams();
-    
+
     queryParams.append('limit', limit);
     queryParams.append('offset', offset);
     if (type) queryParams.append('type', type);
     if (unread_only) queryParams.append('unread_only', 'true');
-    
+
     return api.get(`/notifications/admin?${queryParams.toString()}`);
   },
 

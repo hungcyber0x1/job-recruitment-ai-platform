@@ -62,9 +62,7 @@ describe('ApplicationService.updateApplicationStatus interview scheduling', () =
     InterviewScheduleRepository.create.mockResolvedValue({ id: 101 });
     JobRepository.findById.mockResolvedValue(buildJob());
 
-    jest
-      .spyOn(ApplicationService, '_sendStatusNotifications')
-      .mockResolvedValue(undefined);
+    jest.spyOn(ApplicationService, '_sendStatusNotifications').mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -75,21 +73,13 @@ describe('ApplicationService.updateApplicationStatus interview scheduling', () =
     const scheduledAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
     await expect(
-      ApplicationService.updateApplicationStatus(
-        12,
-        5,
-        33,
-        'interview_scheduled',
-        null,
-        false,
-        {
-          scheduled_at: scheduledAt,
-          interview_type: 'online',
-          duration_minutes: 45,
-          location: 'https://meet.example.com/room',
-          candidate_note: 'Join 10 minutes early',
-        }
-      )
+      ApplicationService.updateApplicationStatus(12, 5, 33, 'interview_scheduled', null, false, {
+        scheduled_at: scheduledAt,
+        interview_type: 'online',
+        duration_minutes: 45,
+        location: 'https://meet.example.com/room',
+        candidate_note: 'Join 10 minutes early',
+      })
     ).resolves.toBe(true);
 
     expect(InterviewScheduleRepository.create).toHaveBeenCalledWith({
@@ -159,22 +149,50 @@ describe('ApplicationService.updateApplicationStatus interview scheduling', () =
     const scheduledAt = new Date(Date.now() - 60 * 60 * 1000).toISOString();
 
     await expect(
-      ApplicationService.updateApplicationStatus(
-        12,
-        5,
-        33,
-        'interview_scheduled',
-        null,
-        false,
-        {
-          scheduled_at: scheduledAt,
-          interview_type: 'phone',
-          duration_minutes: 30,
-        }
-      )
+      ApplicationService.updateApplicationStatus(12, 5, 33, 'interview_scheduled', null, false, {
+        scheduled_at: scheduledAt,
+        interview_type: 'phone',
+        duration_minutes: 30,
+      })
     ).rejects.toMatchObject({
       statusCode: 400,
-      message: 'Vui long chon thoi gian phong van trong tuong lai',
+      message: 'Vui lòng chọn thời gian phỏng vấn trong tương lai',
+    });
+
+    expect(InterviewScheduleRepository.create).not.toHaveBeenCalled();
+    expect(ApplicationRepository.updateStatus).not.toHaveBeenCalled();
+  });
+
+  it('rejects unsupported interview types before creating a schedule', async () => {
+    const scheduledAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
+    await expect(
+      ApplicationService.updateApplicationStatus(12, 5, 33, 'interview_scheduled', null, false, {
+        scheduled_at: scheduledAt,
+        interview_type: 'onsite',
+        duration_minutes: 60,
+      })
+    ).rejects.toMatchObject({
+      statusCode: 400,
+      message: 'Hình thức phỏng vấn phải là online, offline hoặc phone',
+    });
+
+    expect(InterviewScheduleRepository.create).not.toHaveBeenCalled();
+    expect(ApplicationRepository.updateStatus).not.toHaveBeenCalled();
+  });
+
+  it('rejects invalid interview durations before creating a schedule', async () => {
+    const scheduledAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
+    await expect(
+      ApplicationService.updateApplicationStatus(12, 5, 33, 'interview_scheduled', null, false, {
+        scheduled_at: scheduledAt,
+        interview_type: 'online',
+        duration_minutes: 5,
+      })
+    ).rejects.toMatchObject({
+      statusCode: 400,
+      message: 'Thời lượng phỏng vấn phải từ 15 đến 480 phút',
     });
 
     expect(InterviewScheduleRepository.create).not.toHaveBeenCalled();

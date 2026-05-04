@@ -9,7 +9,7 @@ import { resolveMediaUrl } from './mediaUrl';
  */
 
 // ─── ROLES ──────────────────────────────────────────────────────────────────
-export const ROLE_VALUES = ['admin', 'employer', 'candidate', 'recruiter'];
+export const ROLE_VALUES = ['admin', 'recruiter', 'candidate'];
 export const ROLE_LABELS = {
   admin: 'Quản trị viên',
   recruiter: 'Nhà tuyển dụng',
@@ -17,8 +17,9 @@ export const ROLE_LABELS = {
 };
 
 export function normalizeUserRole(role) {
-  const normalizedRole = String(role ?? '').trim().toLowerCase();
-  return normalizedRole === 'employer' ? 'recruiter' : normalizedRole;
+  return String(role ?? '')
+    .trim()
+    .toLowerCase();
 }
 
 // ─── USER STATUS ────────────────────────────────────────────────────────────
@@ -29,27 +30,27 @@ export function normalizeUserRole(role) {
  */
 export const USER_STATUS_VALUES = ['active', 'pending', 'inactive', 'banned', 'locked'];
 export const USER_STATUS_LABELS = {
-  active:   'Hoạt động',
-  pending:  'Chờ xác minh',
+  active: 'Hoạt động',
+  pending: 'Chờ xác minh',
   inactive: 'Không hoạt động',
-  banned:   'Bị cấm',
-  locked:   'Đã khóa',
+  banned: 'Bị cấm',
+  locked: 'Đã khóa',
 };
 
 // ─── USER GENDER ────────────────────────────────────────────────────────────
 export const USER_GENDER_VALUES = ['male', 'female', 'other'];
 export const USER_GENDER_LABELS = {
-  male:   'Nam',
+  male: 'Nam',
   female: 'Nữ',
-  other:  'Khác',
+  other: 'Khác',
 };
 
 // ─── USER REGION ────────────────────────────────────────────────────────────
 export const USER_REGION_VALUES = ['North', 'Central', 'South', 'Overseas'];
 export const USER_REGION_LABELS = {
-  North:    'Miền Bắc',
-  Central:  'Miền Trung',
-  South:    'Miền Nam',
+  North: 'Miền Bắc',
+  Central: 'Miền Trung',
+  South: 'Miền Nam',
   Overseas: 'Nước ngoài',
 };
 
@@ -59,11 +60,11 @@ export const USER_REGION_LABELS = {
  * Frontend form state dùng underscore — dùng JOB_TYPE_LABELS để convert → display label.
  */
 export const JOB_TYPE_LABELS = {
-  full_time:  'Toàn thời gian',
-  part_time:  'Bán thời gian',
-  contract:   'Hợp đồng',
+  full_time: 'Toàn thời gian',
+  part_time: 'Bán thời gian',
+  contract: 'Hợp đồng',
   internship: 'Thực tập',
-  remote:     'Từ xa',
+  remote: 'Từ xa',
 };
 
 // ─── JOB STATUS ────────────────────────────────────────────────────────────
@@ -72,17 +73,22 @@ export const JOB_TYPE_LABELS = {
  * ⚠️  7 giá trị - đồng bộ với JOB_STATUS_VALUES trong server/src/utils/constants.js
  */
 export const JOB_STATUS_VALUES = [
-  'draft', 'pending', 'published', 'rejected',
-  'closed', 'archived', 'expired',
+  'draft',
+  'pending',
+  'published',
+  'rejected',
+  'closed',
+  'archived',
+  'expired',
 ];
 export const JOB_STATUS_LABELS = {
-  draft:     'Bản nháp',
-  pending:   'Chờ duyệt',
+  draft: 'Bản nháp',
+  pending: 'Chờ duyệt',
   published: 'Đã đăng',
-  rejected:  'Từ chối',
-  closed:    'Đã đóng',
-  archived:  'Lưu trữ',
-  expired:   'Hết hạn',
+  rejected: 'Từ chối',
+  closed: 'Đã đóng',
+  archived: 'Lưu trữ',
+  expired: 'Hết hạn',
 };
 
 // ─── APPLICATION STATUS ──────────────────────────────────────────────────────
@@ -91,20 +97,26 @@ export const JOB_STATUS_LABELS = {
  * ⚠️  10 giá trị - đồng bộ với APP_STATUS_VALUES trong server/src/utils/constants.js
  */
 export const APPLICATION_STATUS_VALUES = [
-  'pending', 'reviewed', 'shortlisted',
-  'interviewing', 'offered', 'hired',
-  'rejected', 'accepted', 'withdrawn',
+  'pending',
+  'reviewed',
+  'shortlisted',
+  'interviewing',
+  'offered',
+  'hired',
+  'rejected',
+  'accepted',
+  'withdrawn',
 ];
 export const APPLICATION_STATUS_LABELS = {
-  pending:     'Chờ xử lý',
-  reviewed:    'Đã xem',
+  pending: 'Chờ xử lý',
+  reviewed: 'Đã xem',
   shortlisted: 'Danh sách rút gọn',
-  interviewing:'Phỏng vấn',
-  offered:     'Đề nghị',
-  hired:       'Đã tuyển',
-  rejected:    'Từ chối',
-  accepted:    'Đã chấp nhận',
-  withdrawn:   'Đã rút',
+  interviewing: 'Phỏng vấn',
+  offered: 'Đề nghị',
+  hired: 'Đã tuyển',
+  rejected: 'Từ chối',
+  accepted: 'Đã chấp nhận',
+  withdrawn: 'Đã rút',
 };
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────
@@ -116,17 +128,17 @@ export const DOMAIN_FIELD_ALIASES = {
 
 const USER_REGION_ALIASES = {
   North: 'North',
-  'Mien Bac':    'North',
-  'Miền Bắc':    'North',
-  Central:  'Central',
-  'Mien Trung':  'Central',
-  'Miền Trung':  'Central',
-  South:    'South',
-  'Mien Nam':    'South',
-  'Miền Nam':    'South',
+  'Mien Bac': 'North',
+  'Miền Bắc': 'North',
+  Central: 'Central',
+  'Mien Trung': 'Central',
+  'Miền Trung': 'Central',
+  South: 'South',
+  'Mien Nam': 'South',
+  'Miền Nam': 'South',
   Overseas: 'Overseas',
-  'Nuoc ngoai':  'Overseas',
-  'Nước ngoài':  'Overseas',
+  'Nuoc ngoai': 'Overseas',
+  'Nước ngoài': 'Overseas',
 };
 
 export function getDomainLabel(labels, value, fallback = '') {
@@ -162,14 +174,13 @@ const setOptionalField = (target, key, value) => {
 };
 
 export function buildRegisterPayload(formData = {}, role = 'candidate') {
-  // Normalize UI role to server-canonical role ('employer' UI → 'recruiter' API)
   const serverRole = normalizeUserRole(role);
   const payload = { role: serverRole };
   setStringField(payload, 'email', formData.email);
   setStringField(payload, 'password', formData.password);
   setStringField(payload, 'first_name', formData.first_name);
   setStringField(payload, 'last_name', formData.last_name);
-  if (role === 'employer' || role === 'recruiter') {
+  if (role === 'recruiter') {
     setStringField(payload, 'company_name', formData.company_name);
   }
   return payload;
@@ -200,7 +211,9 @@ export function normalizeUserEntity(user = {}) {
   const companyName = String(user.company_name ?? user.companyName ?? '').trim();
   const companyLogo = String(user.company_logo ?? user.companyLogo ?? '').trim();
   const address = String(user.address ?? '').trim();
-  const location = String(user.location ?? user.candidate_location ?? user.company_location ?? '').trim();
+  const location = String(
+    user.location ?? user.candidate_location ?? user.company_location ?? ''
+  ).trim();
   const canonicalRegion = normalizeUserRegion(user.region);
 
   return {
@@ -220,7 +233,9 @@ export function normalizeUserEntity(user = {}) {
     gender: String(user.gender ?? '').trim(),
     region: canonicalRegion,
     region_label: getUserRegionLabel(canonicalRegion, ''),
-    status: String(user.status ?? '').trim().toLowerCase(),
+    status: String(user.status ?? '')
+      .trim()
+      .toLowerCase(),
     company_name: companyName,
     companyName,
     company_logo: companyLogo,
@@ -245,7 +260,13 @@ export function normalizeCompanyEntity(company = {}) {
   const companySize = String(company.company_size ?? company.scale ?? '').trim();
   const industry = String(company.industry ?? company.field ?? '').trim();
   const location = String(company.location ?? company.address ?? '').trim();
-  const email = String(company.email ?? company.contact_email ?? '').trim();
+  const email = String(company.email ?? company.contact_email ?? company.owner_email ?? '').trim();
+  const verificationStatus = String(company.verification_status ?? '')
+    .trim()
+    .toLowerCase();
+  const userStatus = String(company.user_status ?? company.owner_status ?? company.status ?? '')
+    .trim()
+    .toLowerCase();
   const openPositionsRaw =
     company.open_positions ?? company.openPositions ?? company.job_count ?? company.open_jobs_count;
   const openPositions =
@@ -281,7 +302,14 @@ export function normalizeCompanyEntity(company = {}) {
         : Number.parseInt(company.job_count, 10) || 0,
     email,
     contact_email: email,
-    phone: String(company.phone ?? '').trim(),
+    user_status: userStatus,
+    owner_status: userStatus,
+    verification_status: verificationStatus || (company.is_verified ? 'approved' : 'pending'),
+    is_verified: Boolean(company.is_verified),
+    flagged: Boolean(company.flagged),
+    moderation_note: String(company.moderation_note ?? '').trim(),
+    rejection_reason: String(company.rejection_reason ?? '').trim(),
+    phone: String(company.phone ?? company.user_phone ?? '').trim(),
     gender: String(company.gender ?? '').trim(),
     region: normalizeUserRegion(company.region ?? ''),
   };

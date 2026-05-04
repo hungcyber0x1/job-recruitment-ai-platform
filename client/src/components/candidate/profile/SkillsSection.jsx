@@ -11,10 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import SkillBadge from './SkillBadge';
-import {
-  PROFICIENCY_LEVELS,
-  PROFICIENCY_CONFIG,
-} from '@/constants/candidateProfile';
+import { PROFICIENCY_LEVELS, PROFICIENCY_CONFIG } from '@/constants/candidateProfile';
 
 const emptySkill = {
   skill_id: null,
@@ -177,9 +174,7 @@ const SkillsSection = ({ skills = [], onAdd, onUpdate, onRemove, loading }) => {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-slate-600">
-                Số năm kinh nghiệm
-              </Label>
+              <Label className="text-xs font-semibold text-slate-600">Số năm kinh nghiệm</Label>
               <Input
                 type="number"
                 min={0}
@@ -249,12 +244,11 @@ const SkillsSection = ({ skills = [], onAdd, onUpdate, onRemove, loading }) => {
         </div>
       )}
 
-      {(expanded || skills.length <= 8) ? (
+      {expanded || skills.length <= 8 ? (
         skills.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {skills.map((skill, index) => {
-              const hasValidSkillId =
-                getSkillId(skill) !== null && getSkillId(skill) !== undefined;
+              const hasValidSkillId = getSkillId(skill) !== null && getSkillId(skill) !== undefined;
 
               return (
                 <SkillBadge

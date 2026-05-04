@@ -55,9 +55,8 @@ const LandingFooter = () => {
               <Logo asLink={false} className="h-16 w-auto" />
             </Link>
             <p className="max-w-md text-base font-medium leading-relaxed text-slate-500 flex-1">
-              HireBot kết nối nhân tài và cơ hội việc làm: gợi ý việc khớp kỹ năng, phân
-              tích CV và đồng hành phát triển sự nghiệp — dành cho ứng viên và doanh nghiệp tại Việt
-              Nam.
+              HireBot kết nối nhân tài và cơ hội việc làm: gợi ý việc khớp kỹ năng, phân tích CV và
+              đồng hành phát triển sự nghiệp — dành cho ứng viên và doanh nghiệp tại Việt Nam.
             </p>
             <div className="flex items-center gap-2 pt-2">
               {[

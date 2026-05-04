@@ -3,16 +3,7 @@
  * Sync with server-side ENUM values and labels
  */
 
-import {
-  Search,
-  Briefcase,
-  XCircle,
-  UserCheck,
-  Award,
-  BookOpen,
-  Star,
-  Globe,
-} from 'lucide-react';
+import { Search, Briefcase, XCircle, UserCheck, Award, BookOpen, Star, Globe } from 'lucide-react';
 
 // ─── Job Search Status ──────────────────────────────────────────────────────────
 
@@ -163,4 +154,3 @@ export const SALARY_CURRENCIES = [
   { value: 'USD', label: 'USD (US Dollar)', prefix: '$' },
   { value: 'EUR', label: 'EUR (Euro)', prefix: '€' },
 ];
-

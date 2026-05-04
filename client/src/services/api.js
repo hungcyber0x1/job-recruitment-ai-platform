@@ -16,24 +16,26 @@ function normalizeApiPath(url) {
 
 /** Blog doc cong khai: khong gui JWT de tranh 401 tu token het han. */
 function isPublicBlogReadPath(path) {
-  return path === 'blog/posts' || path.startsWith('blog/posts/');
+  return path === 'blog/taxonomy' || path === 'blog/posts' || path.startsWith('blog/posts/');
+}
+
+/** Newsletter công khai: không cần JWT, tránh token hết hạn làm hỏng đăng ký. */
+function isPublicNewsletterPath(path) {
+  return path === 'newsletter/subscribe';
 }
 
 function isPublicAuthPath(path) {
-  return path === 'auth/login' || path === 'auth/register' || path.startsWith('auth/oauth');
-}
+  if (path === 'auth/login' || path === 'auth/register' || path === 'auth/oauth/status') {
+    return true;
+  }
 
-const KNOWN_FORBIDDEN_NON_LOGOUT_ENDPOINTS = [
-  'messages/',
-];
+  return /^auth\/oauth\/(google|facebook|github)(\/callback)?$/.test(path);
+}
 
 const KNOWN_MISSING_ENDPOINTS = [
   'candidates/privacy',
   'candidates/cv-access-logs',
   'candidates/recruiter-views',
-  'notifications/me',
-  'notifications/recruiter',
-  'notifications/admin',
   'candidates/data-export',
   'candidates/account-deletion',
   'applications/notes',
@@ -42,18 +44,7 @@ const KNOWN_MISSING_ENDPOINTS = [
 const AUTH_INVALIDATION_EVENT = 'app:auth-invalidated';
 
 function shouldForceLogoutOn403(path) {
-  if (path === 'auth/me') return true;
-  if (KNOWN_FORBIDDEN_NON_LOGOUT_ENDPOINTS.some((prefix) => path.startsWith(prefix))) return false;
-  const protectedPrefixes = [
-    'admin/',
-    'candidates/',
-    'notifications/',
-    'applications/',
-    'users/',
-    'employers/',
-    'chat/',
-  ];
-  return protectedPrefixes.some((prefix) => path.startsWith(prefix));
+  return path === 'auth/me' || path === 'admin' || path.startsWith('admin/');
 }
 
 function invalidateAuthSession(status, path) {
@@ -97,8 +88,9 @@ api.interceptors.request.use(
     const token = localStorage.getItem('token');
     const path = typeof config.url === 'string' ? config.url : '';
     const isPublicBlogRead = isPublicBlogReadPath(path);
+    const isPublicNewsletter = isPublicNewsletterPath(path);
     const isPublicAuth = isPublicAuthPath(path);
-    if (token && !isPublicBlogRead && !isPublicAuth) {
+    if (token && !isPublicBlogRead && !isPublicNewsletter && !isPublicAuth) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -113,17 +105,26 @@ api.interceptors.response.use(
     const rawUrl = String(error.config?.url || '');
     const path = normalizeApiPath(error.config?.url);
     const isAuthAttempt =
-      rawUrl.includes('auth/login') ||
-      rawUrl.includes('auth/register') ||
-      rawUrl.includes('auth/oauth');
+      isPublicAuthPath(path) || rawUrl.includes('auth/login') || rawUrl.includes('auth/register');
     const isPublicBlogRead = isPublicBlogReadPath(path);
+    const isPublicNewsletter = isPublicNewsletterPath(path);
 
-    if (error.response?.status === 401 && !isAuthAttempt && !isPublicBlogRead) {
+    if (
+      error.response?.status === 401 &&
+      !isAuthAttempt &&
+      !isPublicBlogRead &&
+      !isPublicNewsletter
+    ) {
       invalidateAuthSession(401, path);
       return Promise.reject({ ...error, _authHandled: true });
     }
 
-    if (error.response?.status === 403 && !isAuthAttempt && !isPublicBlogRead) {
+    if (
+      error.response?.status === 403 &&
+      !isAuthAttempt &&
+      !isPublicBlogRead &&
+      !isPublicNewsletter
+    ) {
       if (shouldForceLogoutOn403(path)) {
         invalidateAuthSession(403, path);
         return Promise.reject({ ...error, _authHandled: true });

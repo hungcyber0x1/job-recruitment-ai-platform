@@ -7,6 +7,7 @@ const { jobValidator } = require('../validations/job');
 const { idParamValidator } = require('../validations/common');
 
 router.get('/', JobController.getJobs);
+router.get('/recent-interested', JobController.getRecentInterestedJobs);
 router.get(
   '/my-jobs',
   protect,

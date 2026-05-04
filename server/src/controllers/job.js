@@ -3,10 +3,7 @@ const catchAsync = require('../utils/catchAsync');
 const { toJobContract, toJobContracts } = require('../utils/job-contract');
 const { ApiResponse } = require('../utils/ApiResponse');
 const AppError = require('../utils/errorHandler');
-const {
-  hasCompanyPermission,
-  resolveRecruiterCompanyContext,
-} = require('../utils/company-access');
+const { hasCompanyPermission, resolveRecruiterCompanyContext } = require('../utils/company-access');
 
 class JobController {
   async _getCompanyForUser(user, options = {}) {
@@ -30,15 +27,36 @@ class JobController {
       limit: req.query.limit,
       offset: req.query.offset,
       status: req.query.status,
+      publicOnly: true,
     };
 
     const { data: jobs, total } = await JobService.getAllJobs(filters);
     const safeJobs = Array.isArray(jobs) ? jobs : [];
-    return ApiResponse.success(res, toJobContracts(safeJobs), { pagination: { total: typeof total === 'number' ? total : 0 } });
+    return ApiResponse.success(res, toJobContracts(safeJobs), {
+      pagination: { total: typeof total === 'number' ? total : 0 },
+    });
+  });
+
+  getRecentInterestedJobs = catchAsync(async (req, res) => {
+    const filters = {
+      category_id: req.query.category_id,
+      job_type: req.query.type || req.query.job_type,
+      search: req.query.search,
+      location: req.query.location,
+      limit: req.query.limit,
+      offset: req.query.offset,
+      publicOnly: true,
+    };
+
+    const { data: jobs, total } = await JobService.getRecentInterestedJobs(filters);
+    const safeJobs = Array.isArray(jobs) ? jobs : [];
+    return ApiResponse.success(res, toJobContracts(safeJobs), {
+      pagination: { total: typeof total === 'number' ? total : 0 },
+    });
   });
 
   getJob = catchAsync(async (req, res) => {
-    const job = await JobService.getJobById(req.params.id);
+    const job = await JobService.getJobById(req.params.id, { publicOnly: true });
     return ApiResponse.success(res, toJobContract(job));
   });
 
@@ -58,6 +76,13 @@ class JobController {
     const company = await this._getCompanyForUser(req.user);
     if (!hasCompanyPermission(req.user, 'can_post_job')) {
       return ApiResponse.forbidden(res, 'You do not have permission to create jobs');
+    }
+
+    if (company.flagged) {
+      return ApiResponse.forbidden(
+        res,
+        'Hồ sơ doanh nghiệp đang bị gắn cờ kiểm duyệt, không thể đăng tin mới'
+      );
     }
 
     const result = await JobService.createJob(company.id, req.user.id, req.body);

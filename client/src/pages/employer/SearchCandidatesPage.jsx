@@ -53,7 +53,6 @@ const SALARY_OPTIONS = [
 ];
 
 const SORT_OPTIONS = [
-  { value: 'match', label: 'Phù hợp nhất' },
   { value: 'recent', label: 'Hoạt động gần đây' },
   { value: 'experience', label: 'Kinh nghiệm cao' },
   { value: 'salary', label: 'Lương thấp đến cao' },
@@ -165,13 +164,18 @@ function CandidateCard({ candidate, saving, onToggleSave }) {
 
   return (
     <article className="group relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-md">
-      <div className={cn('absolute inset-y-0 left-0 w-0.5', candidate.is_saved ? 'bg-emerald-500' : 'bg-slate-300')} />
+      <div
+        className={cn(
+          'absolute inset-y-0 left-0 w-0.5',
+          candidate.is_saved ? 'bg-emerald-500' : 'bg-slate-300'
+        )}
+      />
 
       <div className="flex flex-col gap-3 p-4 pl-5 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex min-w-0 flex-1 gap-3">
           <Avatar className="h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-slate-100 bg-slate-50 shadow-sm ring-1 ring-inset ring-slate-100">
             <AvatarFallback className="rounded-lg bg-slate-950 text-sm font-bold text-white">
-                {getInitials(candidate.name)}
+              {getInitials(candidate.name)}
             </AvatarFallback>
           </Avatar>
 
@@ -262,7 +266,11 @@ function CandidateCard({ candidate, saving, onToggleSave }) {
             <span className="sr-only">{candidate.is_saved ? 'Đã lưu' : 'Lưu'}</span>
           </Button>
 
-          <Button asChild variant="outline" className="h-9 rounded-lg border-slate-200 px-3 text-xs font-bold text-slate-700 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700">
+          <Button
+            asChild
+            variant="outline"
+            className="h-9 rounded-lg border-slate-200 px-3 text-xs font-bold text-slate-700 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
+          >
             <Link to={detailPath}>
               Chi tiết
               <ArrowRight className="ml-1 h-3.5 w-3.5" />
@@ -382,7 +390,7 @@ export default function SearchCandidatesPage() {
     setLocationQuery('');
     setSelectedLevel('all');
     setSalaryRange('all');
-    setSortBy('match');
+    setSortBy('recent');
     setPage(1);
     setSearchParams({});
   };
@@ -435,10 +443,12 @@ export default function SearchCandidatesPage() {
   };
 
   const totalPages = Math.max(1, Number(pagination.totalPages) || 1);
-  const priorityCount = candidates.filter((candidate) => Array.isArray(candidate.skills) && candidate.skills.length >= 5).length;
-  const currentPageSavedCount = candidates.filter((candidate) => Boolean(candidate.is_saved)).length;
+  const currentPageSavedCount = candidates.filter((candidate) =>
+    Boolean(candidate.is_saved)
+  ).length;
   const visiblePublicCount = Number(stats.visibleCandidates || pagination.total || 0);
-  const sortLabel = SORT_OPTIONS.find((option) => option.value === sortBy)?.label || SORT_OPTIONS[0].label;
+  const sortLabel =
+    SORT_OPTIONS.find((option) => option.value === sortBy)?.label || SORT_OPTIONS[0].label;
   const selectedLevelLabel =
     LEVEL_OPTIONS.find((option) => option.value === selectedLevel)?.label || LEVEL_OPTIONS[0].label;
   const salaryLabel =
@@ -454,14 +464,14 @@ export default function SearchCandidatesPage() {
   const resultHeading = keyword.trim()
     ? `Kết quả cho "${keyword.trim()}"`
     : activeFilterCount
-      ? 'Ứng viên phù hợp bộ lọc'
+      ? 'Ứng viên theo bộ lọc'
       : 'Danh sách ứng viên công khai';
 
   const insightHeader = useMemo(() => {
     if (loading) {
       return {
         title: 'Đang đồng bộ nguồn ứng viên',
-        description: 'Hệ thống đang rà lại hồ sơ công khai để cập nhật các gợi ý phù hợp nhất.',
+        description: 'Hệ thống đang rà lại hồ sơ công khai để cập nhật dữ liệu mới nhất.',
       };
     }
 
@@ -475,33 +485,29 @@ export default function SearchCandidatesPage() {
     if (!pagination.total) {
       return {
         title: 'Bộ lọc hiện chưa tạo ra kết quả',
-        description: 'Thử nới rộng kỹ năng, khu vực hoặc mức lương để mở thêm nguồn ứng viên công khai.',
-      };
-    }
-
-    if (priorityCount >= Math.max(2, Math.ceil(candidates.length / 3))) {
-      return {
-        title: 'Nguồn ứng viên đang tích cực',
-        description: `Có ${formatNumber(priorityCount)} hồ sơ nên xem trước trong tập kết quả hiện tại.`,
+        description:
+          'Thử nới rộng kỹ năng, khu vực hoặc mức lương để mở thêm nguồn ứng viên công khai.',
       };
     }
 
     if (activeFilterCount >= 3) {
       return {
         title: 'Bộ lọc đang khá tập trung',
-        description: 'Giữ bộ lọc này nếu bạn cần danh sách rút gọn chính xác, hoặc nới nhẹ để mở thêm nguồn.',
+        description:
+          'Giữ bộ lọc này nếu bạn cần danh sách rút gọn chính xác, hoặc nới nhẹ để mở thêm nguồn.',
       };
     }
 
     return {
       title: 'Tập hồ sơ đang cân bằng',
-      description: 'Bạn có thể tiếp tục lưu hồ sơ tốt vào kho ứng viên và nhắn tin với các ứng viên phù hợp trước.',
+      description:
+        'Bạn có thể tiếp tục lưu hồ sơ vào kho ứng viên và nhắn tin với các ứng viên cần trao đổi.',
     };
-  }, [activeFilterCount, candidates.length, error, priorityCount, loading, pagination.total]);
+  }, [activeFilterCount, error, loading, pagination.total]);
 
   return (
-    <div className="min-h-screen bg-slate-50/40 pb-16 animate-fade-in">
-      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
+    <div className="min-h-screen bg-transparent pb-16 animate-fade-in">
+      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-transparent">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
           style={{
@@ -531,7 +537,7 @@ export default function SearchCandidatesPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <EmployerStatCard
               icon={Search}
               label="Kết quả hiện tại"
@@ -554,14 +560,6 @@ export default function SearchCandidatesPage() {
               value={formatNumber(stats.savedCandidates)}
               helper="Hồ sơ đã lưu"
               tone="violet"
-              loading={loading}
-            />
-            <EmployerStatCard
-              icon={Target}
-              label="Ưu tiên cao"
-              value={formatNumber(priorityCount)}
-              helper="Nên xem trước"
-              tone="amber"
               loading={loading}
             />
           </div>
@@ -622,7 +620,11 @@ export default function SearchCandidatesPage() {
                 </SelectTrigger>
                 <SelectContent className="rounded-lg border-slate-200 shadow-xl">
                   {LEVEL_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value} className="text-sm font-medium">
+                    <SelectItem
+                      key={option.value}
+                      value={option.value}
+                      className="text-sm font-medium"
+                    >
                       {option.label}
                     </SelectItem>
                   ))}
@@ -640,7 +642,11 @@ export default function SearchCandidatesPage() {
                 </SelectTrigger>
                 <SelectContent className="rounded-lg border-slate-200 shadow-xl">
                   {SALARY_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value} className="text-sm font-medium">
+                    <SelectItem
+                      key={option.value}
+                      value={option.value}
+                      className="text-sm font-medium"
+                    >
                       {option.label}
                     </SelectItem>
                   ))}
@@ -658,7 +664,11 @@ export default function SearchCandidatesPage() {
                 </SelectTrigger>
                 <SelectContent className="rounded-lg border-slate-200 shadow-xl">
                   {SORT_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value} className="text-sm font-medium">
+                    <SelectItem
+                      key={option.value}
+                      value={option.value}
+                      className="text-sm font-medium"
+                    >
                       {option.label}
                     </SelectItem>
                   ))}
@@ -676,12 +686,13 @@ export default function SearchCandidatesPage() {
 
             <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
               <span>
-                Hiển thị <strong className="text-slate-700">{formatNumber(pagination.total || 0)}</strong> ứng viên ·{' '}
-                {resultHeading}
+                Hiển thị{' '}
+                <strong className="text-slate-700">{formatNumber(pagination.total || 0)}</strong>{' '}
+                ứng viên · {resultHeading}
               </span>
               <span>
-                <strong className="text-slate-700">{formatNumber(currentPageSavedCount)}</strong> đã lưu trong trang ·{' '}
-                <strong className="text-slate-700">{formatNumber(priorityCount)}</strong> ưu tiên cao
+                <strong className="text-slate-700">{formatNumber(currentPageSavedCount)}</strong> đã
+                lưu trong trang
               </span>
               {activeFilterCount > 0 ? (
                 <span className="rounded-full border border-slate-200 bg-white px-2.5 py-0.5 text-xs font-semibold text-slate-600">
@@ -705,7 +716,8 @@ export default function SearchCandidatesPage() {
                 </span>
               )}
               <span className="rounded-full border border-slate-200 bg-white px-2.5 py-0.5 text-xs font-semibold text-slate-600">
-                {sortLabel} · {salaryLabel} · {selectedLevel !== 'all' ? selectedLevelLabel : 'Tất cả cấp độ'}
+                {sortLabel} · {salaryLabel} ·{' '}
+                {selectedLevel !== 'all' ? selectedLevelLabel : 'Tất cả cấp độ'}
               </span>
               {activeFilterCount ? (
                 <Button
@@ -733,7 +745,9 @@ export default function SearchCandidatesPage() {
               <div className="flex items-center gap-2">
                 <UserRoundSearch className="h-4 w-4 text-emerald-600" />
                 <span className="text-sm font-bold text-slate-700">
-                  {loading ? 'Đang đồng bộ ứng viên' : `${formatNumber(pagination.total || 0)} ứng viên`}
+                  {loading
+                    ? 'Đang đồng bộ ứng viên'
+                    : `${formatNumber(pagination.total || 0)} ứng viên`}
                 </span>
               </div>
               {totalPages > 1 ? (
@@ -750,10 +764,10 @@ export default function SearchCandidatesPage() {
                 <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-lg bg-slate-50 text-slate-400 shadow-sm ring-1 ring-inset ring-slate-200">
                   <Search className="h-8 w-8" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-950">Không tìm thấy ứng viên phù hợp</h3>
+                <h3 className="text-xl font-bold text-slate-950">Không tìm thấy ứng viên</h3>
                 <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-500">
-                  Thử mở rộng từ khóa, bỏ bớt kỹ năng hoặc chọn lại khu vực để lấy thêm nhiều hồ sơ hơn
-                  từ hệ thống.
+                  Thử mở rộng từ khóa, bỏ bớt kỹ năng hoặc chọn lại khu vực để lấy thêm nhiều hồ sơ
+                  hơn từ hệ thống.
                 </p>
                 <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
                   <Button

@@ -18,6 +18,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import StatCard from '@/components/common/StatCard';
 import { Card, CardContent } from '@/components/ui/card';
 import { useNotification } from '@/context/NotificationContext';
 import { applicationService } from '@/services';
@@ -107,19 +108,24 @@ function getInterviewTypeMeta(type) {
 }
 
 function normalizeInterview(interview) {
-  const scheduledAt = interview.scheduled_at || interview.interview_scheduled_at || interview.interview_date;
+  const scheduledAt =
+    interview.scheduled_at || interview.interview_scheduled_at || interview.interview_date;
   return {
     ...interview,
     application_id: interview.application_id || interview.id,
     job_id: interview.job_id,
     job_title: interview.job_title || interview.job?.title || 'Vị trí đang cập nhật',
     company_name:
-      interview.company_name || interview.company?.name || interview.job?.company_name || 'Công ty đang cập nhật',
+      interview.company_name ||
+      interview.company?.name ||
+      interview.job?.company_name ||
+      'Công ty đang cập nhật',
     company_logo: interview.company_logo || interview.company?.logo || interview.job?.company_logo,
     status: interview.status || 'scheduled',
     interview_date: scheduledAt,
     interview_time:
-      interview.interview_time || (scheduledAt && String(scheduledAt).includes('T') ? String(scheduledAt).slice(11, 16) : ''),
+      interview.interview_time ||
+      (scheduledAt && String(scheduledAt).includes('T') ? String(scheduledAt).slice(11, 16) : ''),
     interview_type: interview.interview_type || (interview.meeting_link ? 'online' : 'offline'),
     location:
       interview.interview_type === 'online'
@@ -139,9 +145,10 @@ function parseInterviewDateTime(interview) {
   const direct = new Date(rawDate);
   if (rawDate.includes('T') && !Number.isNaN(direct.getTime())) return direct;
 
-  const time = interview.interview_time && /^\d{1,2}:\d{2}/.test(interview.interview_time)
-    ? interview.interview_time
-    : '00:00';
+  const time =
+    interview.interview_time && /^\d{1,2}:\d{2}/.test(interview.interview_time)
+      ? interview.interview_time
+      : '00:00';
   const composed = new Date(`${rawDate.slice(0, 10)}T${time}`);
   if (!Number.isNaN(composed.getTime())) return composed;
   return Number.isNaN(direct.getTime()) ? null : direct;
@@ -152,23 +159,6 @@ function isToday(date) {
   const today = new Date();
   return date.toDateString() === today.toDateString();
 }
-
-const StatCard = ({ icon: Icon, label, value, helper, tone }) => (
-  <Card className="rounded-lg border-slate-200 bg-white shadow-sm">
-    <CardContent className="p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="text-3xl font-bold leading-none text-slate-950">{value}</div>
-          <div className="mt-1 text-sm font-bold text-slate-700">{label}</div>
-          <div className="mt-0.5 text-xs font-medium text-slate-500">{helper}</div>
-        </div>
-        <div className={cn('flex h-10 w-10 items-center justify-center rounded-lg ring-1 ring-inset', tone)}>
-          <Icon size={18} />
-        </div>
-      </div>
-    </CardContent>
-  </Card>
-);
 
 const FilterTabs = ({ value, onChange, upcomingCount, pastCount }) => {
   const tabs = [
@@ -235,9 +225,18 @@ const InterviewCard = ({ interview }) => {
       <div className="p-5 pl-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="flex min-w-0 gap-4">
-            <div className={cn('flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg ring-1 ring-inset', statusConfig.iconBox)}>
+            <div
+              className={cn(
+                'flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg ring-1 ring-inset',
+                statusConfig.iconBox
+              )}
+            >
               {interview.company_logo ? (
-                <img src={interview.company_logo} alt={interview.company_name} className="h-full w-full object-cover" />
+                <img
+                  src={interview.company_logo}
+                  alt={interview.company_name}
+                  className="h-full w-full object-cover"
+                />
               ) : (
                 <CalendarDays className="h-6 w-6" />
               )}
@@ -245,7 +244,12 @@ const InterviewCard = ({ interview }) => {
 
             <div className="min-w-0">
               <div className="flex flex-wrap gap-2">
-                <span className={cn('inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-bold ring-1 ring-inset', statusConfig.badge)}>
+                <span
+                  className={cn(
+                    'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-bold ring-1 ring-inset',
+                    statusConfig.badge
+                  )}
+                >
                   <StatusIcon size={13} />
                   {statusConfig.label}
                 </span>
@@ -269,14 +273,18 @@ const InterviewCard = ({ interview }) => {
                     <CalendarDays size={14} />
                     Ngày phỏng vấn
                   </div>
-                  <p className="mt-1 text-sm font-bold text-slate-800">{formatDate(interview.interview_date)}</p>
+                  <p className="mt-1 text-sm font-bold text-slate-800">
+                    {formatDate(interview.interview_date)}
+                  </p>
                 </div>
                 <div className="rounded-lg bg-slate-50 p-3 ring-1 ring-inset ring-slate-100">
                   <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
                     <Clock size={14} />
                     Thời gian
                   </div>
-                  <p className="mt-1 text-sm font-bold text-slate-800">{formatTime(interview.interview_time)}</p>
+                  <p className="mt-1 text-sm font-bold text-slate-800">
+                    {formatTime(interview.interview_time)}
+                  </p>
                 </div>
               </div>
 
@@ -297,7 +305,10 @@ const InterviewCard = ({ interview }) => {
 
           <div className="flex shrink-0 flex-wrap gap-2 lg:flex-col lg:items-end">
             {interview.meeting_link && (
-              <Button asChild className="h-10 rounded-lg bg-emerald-600 px-4 text-sm font-bold text-white hover:bg-emerald-700">
+              <Button
+                asChild
+                className="h-10 rounded-lg bg-emerald-600 px-4 text-sm font-bold text-white hover:bg-emerald-700"
+              >
                 <a href={interview.meeting_link} target="_blank" rel="noopener noreferrer">
                   <Video className="mr-2 h-4 w-4" />
                   Vào phòng
@@ -325,7 +336,9 @@ const EmptyState = ({ filter }) => (
         <Calendar className="h-8 w-8 text-slate-400" />
       </div>
       <h3 className="text-xl font-bold text-slate-800">
-        {filter === 'upcoming' ? 'Không có lịch phỏng vấn sắp tới' : 'Không có lịch phỏng vấn đã qua'}
+        {filter === 'upcoming'
+          ? 'Không có lịch phỏng vấn sắp tới'
+          : 'Không có lịch phỏng vấn đã qua'}
       </h3>
       <p className="mx-auto mt-2 max-w-xl text-sm font-medium leading-relaxed text-slate-500">
         {filter === 'upcoming'
@@ -333,7 +346,10 @@ const EmptyState = ({ filter }) => (
           : 'Các lịch phỏng vấn đã hoàn thành hoặc đã qua thời gian sẽ được lưu tại đây.'}
       </p>
       <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
-        <Button asChild className="rounded-lg bg-emerald-600 px-5 font-bold text-white hover:bg-emerald-700">
+        <Button
+          asChild
+          className="rounded-lg bg-emerald-600 px-5 font-bold text-white hover:bg-emerald-700"
+        >
           <Link to="/candidate/jobs">Tìm việc ngay</Link>
         </Button>
         <Button asChild variant="outline" className="rounded-lg px-5 font-bold">
@@ -353,7 +369,9 @@ const PrepChecklist = () => (
         </div>
         <div>
           <h2 className="text-base font-bold text-slate-950">Checklist chuẩn bị nhanh</h2>
-          <p className="mt-1 text-sm font-medium text-slate-500">Một vài việc nên hoàn tất trước buổi phỏng vấn.</p>
+          <p className="mt-1 text-sm font-medium text-slate-500">
+            Một vài việc nên hoàn tất trước buổi phỏng vấn.
+          </p>
         </div>
       </div>
 
@@ -364,7 +382,10 @@ const PrepChecklist = () => (
           'Kiểm tra camera, micro và đường truyền trước 15 phút.',
           'Ghi lại câu hỏi muốn trao đổi với nhà tuyển dụng.',
         ].map((item, index) => (
-          <div key={item} className="flex gap-3 rounded-lg bg-slate-50 p-3 ring-1 ring-inset ring-slate-100">
+          <div
+            key={item}
+            className="flex gap-3 rounded-lg bg-slate-50 p-3 ring-1 ring-inset ring-slate-100"
+          >
             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-emerald-100 text-xs font-bold text-emerald-700">
               {index + 1}
             </span>
@@ -433,17 +454,22 @@ const InterviewSchedulePage = () => {
   }, [interviews]);
 
   const filteredInterviews = filter === 'upcoming' ? upcomingInterviews : pastInterviews;
-  const todayCount = upcomingInterviews.filter((interview) => isToday(parseInterviewDateTime(interview))).length;
-  const onlineCount = upcomingInterviews.filter((interview) => interview.interview_type === 'online').length;
+  const todayCount = upcomingInterviews.filter((interview) =>
+    isToday(parseInterviewDateTime(interview))
+  ).length;
+  const onlineCount = upcomingInterviews.filter(
+    (interview) => interview.interview_type === 'online'
+  ).length;
   const nextInterview = upcomingInterviews[0];
 
   return (
-    <div className="min-h-screen bg-slate-50/40 pb-16">
-      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
+    <div className="min-h-screen bg-transparent pb-16">
+      <div className="relative overflow-hidden border-b border-emerald-100/70 bg-transparent">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
           style={{
-            backgroundImage: 'linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px)',
+            backgroundImage:
+              'linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px)',
             backgroundSize: '32px 32px',
           }}
         />
@@ -458,9 +484,12 @@ const InterviewSchedulePage = () => {
                 <span className="inline-flex rounded-full bg-white/80 px-3 py-1 text-xs font-bold uppercase text-emerald-700 ring-1 ring-inset ring-emerald-100">
                   Trung tâm phỏng vấn
                 </span>
-                <h1 className="mt-3 text-2xl font-bold tracking-normal text-slate-950 sm:text-3xl">Lịch phỏng vấn</h1>
+                <h1 className="mt-3 text-2xl font-bold tracking-normal text-slate-950 sm:text-3xl">
+                  Lịch phỏng vấn
+                </h1>
                 <p className="mt-1 max-w-2xl text-sm font-medium text-slate-600">
-                  Theo dõi các buổi phỏng vấn đã được nhà tuyển dụng sắp xếp và chuẩn bị đúng thời điểm.
+                  Theo dõi các buổi phỏng vấn đã được nhà tuyển dụng sắp xếp và chuẩn bị đúng thời
+                  điểm.
                 </p>
               </div>
             </div>
@@ -473,7 +502,9 @@ const InterviewSchedulePage = () => {
                     {nextInterview ? nextInterview.job_title : 'Chưa có lịch mới'}
                   </p>
                   <p className="mt-0.5 text-xs font-medium text-slate-500">
-                    {nextInterview ? `${formatShortDate(nextInterview.interview_date)} · ${formatTime(nextInterview.interview_time)}` : 'Pipeline sẽ cập nhật khi có lời mời'}
+                    {nextInterview
+                      ? `${formatShortDate(nextInterview.interview_date)} · ${formatTime(nextInterview.interview_time)}`
+                      : 'Pipeline sẽ cập nhật khi có lời mời'}
                   </p>
                 </div>
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100">
@@ -544,7 +575,10 @@ const InterviewSchedulePage = () => {
           <div className="space-y-4">
             {filteredInterviews.map((interview) => (
               <InterviewCard
-                key={interview.id || `${interview.application_id}-${interview.interview_date}-${interview.interview_time}`}
+                key={
+                  interview.id ||
+                  `${interview.application_id}-${interview.interview_date}-${interview.interview_time}`
+                }
                 interview={interview}
               />
             ))}

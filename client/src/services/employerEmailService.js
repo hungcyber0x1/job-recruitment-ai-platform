@@ -5,7 +5,6 @@
 import api from './api';
 
 const employerEmailService = {
-
   // ─── Email Templates ────────────────────────────────────────────────────
   getTemplates: () => api.get('employers/communications/templates'),
 

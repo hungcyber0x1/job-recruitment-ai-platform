@@ -17,7 +17,7 @@ const getApplicationAudit = catchAsync(async (req, res) => {
   }
 
   if (!isAdmin && !hasCompanyPermission(req.user, 'can_view_applications')) {
-    return ApiResponse.forbidden(res, 'Báº¡n khÃ´ng cÃ³ quyá»n xem audit há»“ sÆ¡');
+    return ApiResponse.forbidden(res, 'Bạn không có quyền xem nhật ký kiểm toán hồ sơ');
   }
 
   const audit = await AuditLogRepository.getApplicationAudit(

@@ -1,11 +1,6 @@
 import { AlertCircle, Briefcase, CheckCircle, Clock, ShieldAlert } from 'lucide-react';
 
-import {
-  JOB_STATUS_LABELS,
-  JOB_TYPE_LABELS,
-  getDomainLabel,
-  normalizeJobEntity,
-} from '@/utils';
+import { JOB_STATUS_LABELS, JOB_TYPE_LABELS, getDomainLabel, normalizeJobEntity } from '@/utils';
 
 export const ADMIN_JOB_FILTER_OPTIONS = [
   { value: 'all', label: 'Tất cả trạng thái' },
@@ -45,7 +40,9 @@ export function normalizeAdminJob(rawJob = {}) {
       .trim()
       .replace(/_/g, '-')
       .toLowerCase(),
-    status: String(rawJob?.status ?? 'draft').trim().toLowerCase(),
+    status: String(rawJob?.status ?? 'draft')
+      .trim()
+      .toLowerCase(),
   });
 
   return {
@@ -105,9 +102,16 @@ export function getAdminJobStatusMeta(job = {}) {
 export function getAdminJobHealthNote(jobs = []) {
   const unknownStatuses = jobs.filter(
     (job) =>
-      !['draft', 'pending_review', 'approved', 'published', 'expired', 'closed', 'rejected', 'suspended'].includes(
-        String(job.status || '').toLowerCase()
-      )
+      ![
+        'draft',
+        'pending_review',
+        'approved',
+        'published',
+        'expired',
+        'closed',
+        'rejected',
+        'suspended',
+      ].includes(String(job.status || '').toLowerCase())
   ).length;
 
   if (!unknownStatuses) return null;

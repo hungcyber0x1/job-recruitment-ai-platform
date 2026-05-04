@@ -17,17 +17,37 @@ router.get('/me', protect, authorize('candidate'), CandidateController.getProfil
 router.put('/profile', protect, authorize('candidate'), CandidateController.updateProfile);
 router.get('/privacy', protect, authorize('candidate'), CandidateController.getPrivacySettings);
 router.put('/privacy', protect, authorize('candidate'), CandidateController.updatePrivacySettings);
-router.put('/privacy/fields', protect, authorize('candidate'), CandidateController.updatePrivacyFields);
+router.put(
+  '/privacy/fields',
+  protect,
+  authorize('candidate'),
+  CandidateController.updatePrivacyFields
+);
 router.get('/cv-access-logs', protect, authorize('candidate'), CandidateController.getCvAccessLogs);
 router.get('/saved-jobs', protect, authorize('candidate'), CandidateController.getSavedJobs);
 router.post('/saved-jobs', protect, authorize('candidate'), CandidateController.saveJob);
 router.delete('/saved-jobs/:jobId', protect, authorize('candidate'), CandidateController.unsaveJob);
 
 // ─── Saved Companies ─────────────────────────────────────────────────────────
-router.get('/saved-companies', protect, authorize('candidate'), CandidateController.getSavedCompanies);
+router.get(
+  '/saved-companies',
+  protect,
+  authorize('candidate'),
+  CandidateController.getSavedCompanies
+);
 router.post('/saved-companies', protect, authorize('candidate'), CandidateController.saveCompany);
-router.delete('/saved-companies/:companyId', protect, authorize('candidate'), CandidateController.unsaveCompany);
-router.get('/saved-companies/:companyId/check', protect, authorize('candidate'), CandidateController.checkCompanySaved);
+router.delete(
+  '/saved-companies/:companyId',
+  protect,
+  authorize('candidate'),
+  CandidateController.unsaveCompany
+);
+router.get(
+  '/saved-companies/:companyId/check',
+  protect,
+  authorize('candidate'),
+  CandidateController.checkCompanySaved
+);
 
 router.post(
   '/upload-resume',
@@ -74,19 +94,49 @@ router.delete('/skills/:skillId', protect, authorize('candidate'), CandidateCont
 
 router.get('/education', protect, authorize('candidate'), CandidateController.getEducation);
 router.post('/education', protect, authorize('candidate'), CandidateController.addEducationItem);
-router.put('/education/:eduId', protect, authorize('candidate'), CandidateController.updateEducationItem);
-router.delete('/education/:eduId', protect, authorize('candidate'), CandidateController.deleteEducationItem);
+router.put(
+  '/education/:eduId',
+  protect,
+  authorize('candidate'),
+  CandidateController.updateEducationItem
+);
+router.delete(
+  '/education/:eduId',
+  protect,
+  authorize('candidate'),
+  CandidateController.deleteEducationItem
+);
 
 // ─── Phase 1.1: Experience ────────────────────────────────────────────────────
 
 router.get('/experience', protect, authorize('candidate'), CandidateController.getExperience);
 router.post('/experience', protect, authorize('candidate'), CandidateController.addExperienceItem);
-router.put('/experience/:expId', protect, authorize('candidate'), CandidateController.updateExperienceItem);
-router.delete('/experience/:expId', protect, authorize('candidate'), CandidateController.deleteExperienceItem);
+router.put(
+  '/experience/:expId',
+  protect,
+  authorize('candidate'),
+  CandidateController.updateExperienceItem
+);
+router.delete(
+  '/experience/:expId',
+  protect,
+  authorize('candidate'),
+  CandidateController.deleteExperienceItem
+);
 
 // ─── Phase 1.1: Dashboard Stats ───────────────────────────────────────────────
 
-router.get('/dashboard-stats', protect, authorize('candidate'), CandidateController.getDashboardStats);
-router.get('/analytics/dashboard', protect, authorize('candidate'), CandidateController.getProfileAnalyticsDashboard);
+router.get(
+  '/dashboard-stats',
+  protect,
+  authorize('candidate'),
+  CandidateController.getDashboardStats
+);
+router.get(
+  '/analytics/dashboard',
+  protect,
+  authorize('candidate'),
+  CandidateController.getProfileAnalyticsDashboard
+);
 
 module.exports = router;

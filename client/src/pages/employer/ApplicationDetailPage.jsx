@@ -137,10 +137,7 @@ const ApplicationDetailPage = () => {
         ]);
 
         if (applicationResponse.data.success) {
-          applyApplicationSnapshot(
-            applicationResponse.data.data,
-            historyResponse.data?.data || []
-          );
+          applyApplicationSnapshot(applicationResponse.data.data, historyResponse.data?.data || []);
         } else {
           applyApplicationSnapshot(null, historyResponse.data?.data || []);
         }
@@ -223,8 +220,7 @@ const ApplicationDetailPage = () => {
       return true;
     } catch (error) {
       console.error('Update status failed', error);
-      const message =
-        error.response?.data?.message || 'Cập nhật trạng thái không thành công.';
+      const message = error.response?.data?.message || 'Cập nhật trạng thái không thành công.';
       showNotification(message, 'error');
       setStatus(currentStatus);
       return false;
@@ -601,23 +597,26 @@ const ApplicationDetailPage = () => {
 
               {/* Reject action */}
               {currentStatus !== APPLICATION_STATUS.REJECTED &&
-               currentStatus !== APPLICATION_STATUS.HIRED &&
-               currentStatus !== APPLICATION_STATUS.WITHDRAWN && (
-                <Button
-                  variant="outline"
-                  className="w-full h-14 rounded-xl border-rose-200 text-rose-500 hover:bg-rose-50 hover:border-rose-300 font-bold shadow-sm transition-all"
-                  onClick={() => {
-                    const reason = window.prompt(
-                      `Từ chối ứng viên "${candidate.name}"?\n\nNhập lý do từ chối (không bắt buộc, nhấn OK để xác nhận):`
-                    );
-                    if (reason !== null) {
-                      handleStatusUpdate(APPLICATION_STATUS.REJECTED, reason || 'Không đạt yêu cầu');
-                    }
-                  }}
-                >
-                  <XCircle size={18} className="mr-2" /> TỪ CHỐI ỨNG VIÊN
-                </Button>
-              )}
+                currentStatus !== APPLICATION_STATUS.HIRED &&
+                currentStatus !== APPLICATION_STATUS.WITHDRAWN && (
+                  <Button
+                    variant="outline"
+                    className="w-full h-14 rounded-xl border-rose-200 text-rose-500 hover:bg-rose-50 hover:border-rose-300 font-bold shadow-sm transition-all"
+                    onClick={() => {
+                      const reason = window.prompt(
+                        `Từ chối ứng viên "${candidate.name}"?\n\nNhập lý do từ chối (không bắt buộc, nhấn OK để xác nhận):`
+                      );
+                      if (reason !== null) {
+                        handleStatusUpdate(
+                          APPLICATION_STATUS.REJECTED,
+                          reason || 'Không đạt yêu cầu'
+                        );
+                      }
+                    }}
+                  >
+                    <XCircle size={18} className="mr-2" /> TỪ CHỐI ỨNG VIÊN
+                  </Button>
+                )}
 
               <Button
                 onClick={() =>
@@ -632,7 +631,9 @@ const ApplicationDetailPage = () => {
 
               {/* Communication Actions */}
               <div className="space-y-2 pt-2">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-normal">Liên lạc nhanh</p>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-normal">
+                  Liên lạc nhanh
+                </p>
                 <div className="grid grid-cols-2 gap-2">
                   <Button
                     size="sm"
@@ -780,9 +781,7 @@ const ApplicationDetailPage = () => {
               <Mail className="h-5 w-5 text-emerald-600" />
               Gửi email cho {candidate.name}
             </DialogTitle>
-            <DialogDescription>
-              Sử dụng mẫu có sẵn hoặc viết email tùy chỉnh
-            </DialogDescription>
+            <DialogDescription>Sử dụng mẫu có sẵn hoặc viết email tùy chỉnh</DialogDescription>
           </DialogHeader>
           <CommunicationCenter
             applicationId={id}

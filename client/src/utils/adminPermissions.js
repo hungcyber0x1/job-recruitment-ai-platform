@@ -21,11 +21,6 @@ export const ADMIN_PERMISSIONS = Object.freeze({
   BACKUP_MANAGE: 'backup:manage',
 });
 
-export const SUPER_ADMIN_EMAILS = new Set([
-  'superadmin@hirebot.vn',
-  'superadmin@hireai.vn',
-]);
-
 const PERMISSION_ALIASES = Object.freeze({
   users: [ADMIN_PERMISSIONS.USERS_READ, ADMIN_PERMISSIONS.USERS_MANAGE],
   jobs: [ADMIN_PERMISSIONS.JOBS_MANAGE],
@@ -41,21 +36,7 @@ const PERMISSION_ALIASES = Object.freeze({
 });
 
 export const ADMIN_PRESETS = Object.freeze({
-  super_admin: Object.freeze([ADMIN_PERMISSIONS.ALL]),
-  admin: Object.freeze([
-    ADMIN_PERMISSIONS.DASHBOARD,
-    ADMIN_PERMISSIONS.USERS_READ,
-    ADMIN_PERMISSIONS.USERS_MANAGE,
-    ADMIN_PERMISSIONS.COMPANIES_MANAGE,
-    ADMIN_PERMISSIONS.JOBS_MANAGE,
-    ADMIN_PERMISSIONS.APPLICATIONS_MANAGE,
-    ADMIN_PERMISSIONS.CONTENT_MANAGE,
-    ADMIN_PERMISSIONS.TAXONOMY_MANAGE,
-    ADMIN_PERMISSIONS.AI_MANAGE,
-    ADMIN_PERMISSIONS.SUPPORT_MANAGE,
-    ADMIN_PERMISSIONS.ANALYTICS_READ,
-    ADMIN_PERMISSIONS.AUDIT_READ,
-  ]),
+  admin: Object.freeze([ADMIN_PERMISSIONS.ALL]),
 });
 
 const ADMIN_PERMISSION_IDS = Object.values(ADMIN_PERMISSIONS);
@@ -80,7 +61,9 @@ function parsePermissionValue(value) {
 export function normalizeAdminPermissions(value) {
   const result = new Set();
   parsePermissionValue(value).forEach((item) => {
-    const key = String(item ?? '').trim().toLowerCase();
+    const key = String(item ?? '')
+      .trim()
+      .toLowerCase();
     if (!key) return;
     if (key === ADMIN_PERMISSIONS.ALL) {
       result.add(ADMIN_PERMISSIONS.ALL);
@@ -96,18 +79,9 @@ export function normalizeAdminPermissions(value) {
   return Array.from(result);
 }
 
-export function isSuperAdmin(user = {}) {
-  if (String(user.role ?? '').toLowerCase() !== 'admin') return false;
-  const email = String(user.email ?? '').trim().toLowerCase();
-  if (SUPER_ADMIN_EMAILS.has(email)) return true;
-  return normalizeAdminPermissions(user.permissions).includes(ADMIN_PERMISSIONS.ALL);
-}
-
 export function getEffectiveAdminPermissions(user = {}) {
   if (String(user.role ?? '').toLowerCase() !== 'admin') return [];
-  if (isSuperAdmin(user)) return [...ADMIN_PRESETS.super_admin];
-  const explicitPermissions = normalizeAdminPermissions(user.permissions);
-  return explicitPermissions.length ? explicitPermissions : [...ADMIN_PRESETS.admin];
+  return [...ADMIN_PRESETS.admin];
 }
 
 export function hasAdminPermission(user = {}, requiredPermission) {
@@ -119,5 +93,5 @@ export function hasAdminPermission(user = {}, requiredPermission) {
 
 export function getAdminPresetLabel(user = {}) {
   if (String(user.role ?? '').toLowerCase() !== 'admin') return '';
-  return isSuperAdmin(user) ? 'SUPER ADMIN' : 'ADMIN VẬN HÀNH';
+  return 'Admin';
 }

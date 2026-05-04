@@ -4,7 +4,7 @@
  * ⚠️   TABLE: Sử dụng `candidate_profiles`
  */
 const CandidateService = require('../services/candidate');
-const UserRepository = require('../models/User');
+const UserService = require('../services/user');
 const { ApiResponse } = require('../utils/ApiResponse');
 const catchAsync = require('../utils/catchAsync');
 
@@ -142,8 +142,12 @@ const CandidateController = {
       return ApiResponse.error(res, 400, 'No file uploaded');
     }
     const avatarUrl = `/uploads/avatars/${req.file.filename}`;
-    await UserRepository.update(req.user.id, { avatar_url: avatarUrl });
-    return ApiResponse.success(res, { avatar_url: avatarUrl }, { message: 'Avatar uploaded successfully' });
+    const user = await UserService.updateUserAvatar(req.user.id, avatarUrl);
+    return ApiResponse.success(
+      res,
+      { avatar_url: user.avatar_url },
+      { message: 'Avatar uploaded successfully' }
+    );
   }),
 
   uploadProjectImage: catchAsync(async (req, res) => {
@@ -151,13 +155,19 @@ const CandidateController = {
       return ApiResponse.error(res, 400, 'No file uploaded');
     }
     const imageUrl = `/uploads/projects/${req.file.filename}`;
-    return ApiResponse.success(res, { url: imageUrl }, { message: 'Project image uploaded successfully' });
+    return ApiResponse.success(
+      res,
+      { url: imageUrl },
+      { message: 'Project image uploaded successfully' }
+    );
   }),
 
   syncAIProfile: catchAsync(async (req, res) => {
     const { skills, role_level } = req.body;
     const result = await CandidateService.syncAIProfile(req.user.id, { skills, role_level });
-    return ApiResponse.success(res, result, { message: 'Profile synced with AI analysis successfully' });
+    return ApiResponse.success(res, result, {
+      message: 'Profile synced with AI analysis successfully',
+    });
   }),
 
   getSavedJobs: catchAsync(async (req, res) => {

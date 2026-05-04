@@ -287,6 +287,5 @@ const USER_STATUSES = ['active', 'pending', 'inactive', 'banned', 'locked'];
  * @property {Partial<Record<keyof T, string>>} errors - Field errors
  */
 
-
 // Legacy type aliases (backward compat) — prefer Canonical* from models/index.js
 export { APPLICATION_STATUSES, JOB_STATUSES, JOB_TYPES, USER_STATUSES };

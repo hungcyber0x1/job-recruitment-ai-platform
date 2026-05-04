@@ -1,5 +1,8 @@
 const JOB_TITLE_PAIRS = [
-  ['Senior Full-stack Developer (React + Node.js)', 'Lap trinh vien toan trinh cao cap (React + Node.js)'],
+  [
+    'Senior Full-stack Developer (React + Node.js)',
+    'Lap trinh vien toan trinh cao cap (React + Node.js)',
+  ],
   ['Senior Full-Stack Developer', 'Lap trinh vien toan trinh cao cap'],
   ['DevOps Engineer (AWS / Kubernetes)', 'Ky su DevOps (AWS / Kubernetes)'],
   ['DevOps Engineer', 'Ky su DevOps'],
@@ -59,7 +62,10 @@ const CANONICAL_ENGLISH_TITLES = new Map(
   JOB_TITLE_PAIRS.map(([englishTitle]) => [normalizeJobTitle(englishTitle), englishTitle])
 );
 const VIETNAMESE_TO_ENGLISH = new Map(
-  JOB_TITLE_PAIRS.map(([englishTitle, vietnameseTitle]) => [normalizeJobTitle(vietnameseTitle), englishTitle])
+  JOB_TITLE_PAIRS.map(([englishTitle, vietnameseTitle]) => [
+    normalizeJobTitle(vietnameseTitle),
+    englishTitle,
+  ])
 );
 
 function localizeJobTitle(title) {

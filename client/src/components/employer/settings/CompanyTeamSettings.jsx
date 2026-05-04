@@ -74,11 +74,11 @@ const MemberRow = ({ member, currentUserId, onUpdateRole, onUpdatePermissions, o
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <p className="font-bold text-slate-900 truncate">
-              {member.first_name ? `${member.first_name} ${member.last_name || ''}`.trim() : 'Thành viên'}
+              {member.first_name
+                ? `${member.first_name} ${member.last_name || ''}`.trim()
+                : 'Thành viên'}
             </p>
-            {member.role === 'owner' && (
-              <Crown className="h-3.5 w-3.5 text-amber-500 shrink-0" />
-            )}
+            {member.role === 'owner' && <Crown className="h-3.5 w-3.5 text-amber-500 shrink-0" />}
           </div>
           <p className="text-sm text-slate-500 truncate">{member.email}</p>
         </div>
@@ -92,7 +92,9 @@ const MemberRow = ({ member, currentUserId, onUpdateRole, onUpdatePermissions, o
               {new Date(member.joined_at).toLocaleDateString('vi-VN')}
             </span>
           )}
-          <ChevronDown className={cn('h-4 w-4 text-slate-400 transition-transform', expanded && 'rotate-180')} />
+          <ChevronDown
+            className={cn('h-4 w-4 text-slate-400 transition-transform', expanded && 'rotate-180')}
+          />
         </div>
       </div>
 
@@ -104,7 +106,7 @@ const MemberRow = ({ member, currentUserId, onUpdateRole, onUpdatePermissions, o
               Quyền hạn
             </p>
             <div className="grid grid-cols-2 gap-2">
-              {employerTeamService.getPermissionFields().map(field => (
+              {employerTeamService.getPermissionFields().map((field) => (
                 <div key={field.key} className="flex items-center gap-2">
                   <Switch
                     checked={!!member[field.key]}
@@ -293,9 +295,12 @@ const CompanyTeamSettings = () => {
               <Shield className="h-5 w-5 text-emerald-600" />
             </div>
             <div>
-              <p className="text-sm font-bold text-emerald-700">Vai trò của bạn: {myPermissions.roleLabel}</p>
+              <p className="text-sm font-bold text-emerald-700">
+                Vai trò của bạn: {myPermissions.roleLabel}
+              </p>
               <p className="text-xs text-emerald-600 mt-0.5">
-                {Object.entries(myPermissions.permissions).filter(([,v]) => v).length} quyền được kích hoạt
+                {Object.entries(myPermissions.permissions).filter(([, v]) => v).length} quyền được
+                kích hoạt
               </p>
             </div>
           </CardContent>
@@ -309,7 +314,7 @@ const CompanyTeamSettings = () => {
         </div>
       ) : (
         <div className="space-y-3">
-          {members.map(member => (
+          {members.map((member) => (
             <MemberRow
               key={member.id}
               member={member}
@@ -330,9 +335,7 @@ const CompanyTeamSettings = () => {
               <Plus className="h-5 w-5 text-emerald-500" />
               Mời thành viên mới
             </DialogTitle>
-            <DialogDescription>
-              Thêm recruiter vào nhóm tuyển dụng của bạn
-            </DialogDescription>
+            <DialogDescription>Thêm recruiter vào nhóm tuyển dụng của bạn</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
@@ -340,7 +343,7 @@ const CompanyTeamSettings = () => {
               <Input
                 type="email"
                 value={inviteForm.email}
-                onChange={e => setInviteForm(prev => ({ ...prev, email: e.target.value }))}
+                onChange={(e) => setInviteForm((prev) => ({ ...prev, email: e.target.value }))}
                 placeholder="recruiter@company.com"
                 className="rounded-xl h-11"
               />
@@ -349,7 +352,7 @@ const CompanyTeamSettings = () => {
               <label className="text-sm font-bold text-slate-700 mb-1 block">Vai trò</label>
               <Select
                 value={inviteForm.role}
-                onValueChange={val => setInviteForm(prev => ({ ...prev, role: val }))}
+                onValueChange={(val) => setInviteForm((prev) => ({ ...prev, role: val }))}
               >
                 <SelectTrigger className="rounded-xl h-11">
                   <SelectValue />
@@ -363,7 +366,9 @@ const CompanyTeamSettings = () => {
             <div className="rounded-xl bg-slate-50 border border-slate-100 p-4">
               <p className="text-xs font-bold text-slate-500 mb-2">Quyền mặc định:</p>
               {inviteForm.role === 'admin' ? (
-                <p className="text-xs text-slate-600">Đăng tin, sửa tin, quản lý ứng viên, gửi email</p>
+                <p className="text-xs text-slate-600">
+                  Đăng tin, sửa tin, quản lý ứng viên, gửi email
+                </p>
               ) : (
                 <p className="text-xs text-slate-600">Đăng tin, xem và quản lý ứng viên</p>
               )}
@@ -373,8 +378,16 @@ const CompanyTeamSettings = () => {
             <Button variant="outline" onClick={() => setInviteOpen(false)} className="rounded-xl">
               Hủy
             </Button>
-            <Button onClick={handleInvite} disabled={inviting} className="rounded-xl bg-emerald-500 hover:bg-emerald-600">
-              {inviting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Mail className="h-4 w-4 mr-2" />}
+            <Button
+              onClick={handleInvite}
+              disabled={inviting}
+              className="rounded-xl bg-emerald-500 hover:bg-emerald-600"
+            >
+              {inviting ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <Mail className="h-4 w-4 mr-2" />
+              )}
               Gửi lời mời
             </Button>
           </DialogFooter>

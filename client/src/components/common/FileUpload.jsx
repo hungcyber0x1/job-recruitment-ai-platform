@@ -74,12 +74,13 @@ const FileUpload = ({ onFileSelect, accept = '.pdf,.doc,.docx', maxSize = 5 }) =
   return (
     <div className="w-full">
       <div
-        className={`relative border-2 border-dashed rounded-xl p-8 transition-all duration-300 text-center ${dragActive
+        className={`relative border-2 border-dashed rounded-xl p-8 transition-all duration-300 text-center ${
+          dragActive
             ? 'border-primary-500 bg-primary-50'
             : file
               ? 'border-green-500 bg-green-50'
               : 'border-slate-300 hover:border-primary-400'
-          }`}
+        }`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}

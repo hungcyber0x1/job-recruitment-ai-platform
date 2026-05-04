@@ -6,7 +6,6 @@ import {
   MapPin,
   ArrowRight,
   DollarSign,
-
   Building2,
   Check,
   ChevronDown,
@@ -14,13 +13,16 @@ import {
   Bookmark,
   Calendar,
   Users,
+  Briefcase,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   cn,
   filterJobLocationOptions,
+  getInitials,
   getJobLocationDisplayLabel,
   resolveJobLocationValue,
+  resolveMediaUrl,
 } from '@/utils';
 import { useRef } from 'react';
 import { jobService, categoryService } from '@/services';
@@ -29,94 +31,8 @@ import { renderCategoryIcon, unwrapCategoryListResponse } from '@/utils';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { candidateService } from '../../services';
-import {
-  isJobApplicationDeadlinePassed,
-} from '@/utils/jobDeadline';
+import { isJobApplicationDeadlinePassed } from '@/utils/jobDeadline';
 import { getJobSalaryCardLabel } from '@/utils/jobSalary';
-
-/* ─── Mock data để đảm bảo luôn đủ 8 cards (2 hàng 4 cột) ─── */
-const MOCK_JOBS = [
-  {
-    id: 101,
-    title: 'Lập trình viên full-stack cấp cao (React + Node.js)',
-    company_name: 'TechCorp Việt Nam',
-    location: 'Quận 1, TP. HCM',
-    salary_range: '25 triệu - 45 triệu / tháng',
-    type: 'Toàn thời gian',
-    skills: ['React', 'Node.js', 'MongoDB'],
-    deadline: '2026-05-15',
-  },
-  {
-    id: 102,
-    title: 'Kỹ sư AI/ML',
-    company_name: 'TechCorp Việt Nam',
-    location: 'Quận 3, TP. HCM',
-    salary_range: '30 triệu - 55 triệu / tháng',
-    type: 'Toàn thời gian',
-    skills: ['Python', 'PyTorch', 'LLM'],
-    deadline: '2026-05-20',
-  },
-  {
-    id: 103,
-    title: 'Lập trình viên Java cấp cao (Nhật Bản)',
-    company_name: 'Nextech Solutions',
-    location: 'Tokyo, Nhật Bản (Từ xa)',
-    salary_range: '30 triệu - 50 triệu / tháng',
-    type: 'Toàn thời gian',
-    skills: ['Java', 'Spring Boot', 'AWS'],
-    deadline: '2026-06-10',
-  },
-  {
-    id: 104,
-    title: 'Quản lý marketing hiệu suất',
-    company_name: 'GreenLeaf Digital Agency',
-    location: 'Quận 7, TP. HCM',
-    salary_range: '20 triệu - 35 triệu / tháng',
-    type: 'Toàn thời gian',
-    skills: ['Quảng cáo Facebook', 'Quảng cáo Google', 'SEO'],
-    deadline: '2026-05-12',
-  },
-  {
-    id: 105,
-    title: 'Chuyên viên thiết kế học liệu',
-    company_name: 'EduFirst Việt Nam',
-    location: 'Quận 10, TP. HCM',
-    salary_range: '15 triệu - 22 triệu / tháng',
-    type: 'Toàn thời gian',
-    skills: ['Học trực tuyến', 'Articulate Storyline'],
-    deadline: '2026-05-30',
-  },
-  {
-    id: 106,
-    title: 'Nhà thiết kế UI/UX cấp cao',
-    company_name: 'GreenLeaf Digital Agency',
-    location: 'Quận 1, TP. HCM',
-    salary_range: '18 triệu - 28 triệu / tháng',
-    type: 'Toàn thời gian',
-    skills: ['Figma', 'Nghiên cứu người dùng', 'Tạo mẫu'],
-    deadline: '2026-05-25',
-  },
-  {
-    id: 107,
-    title: 'Kỹ sư DevOps (AWS / Kubernetes)',
-    company_name: 'TechCorp Việt Nam',
-    location: 'Quận 1, TP. HCM',
-    salary_range: '22 triệu - 38 triệu / tháng',
-    type: 'Toàn thời gian',
-    skills: ['AWS', 'Docker', 'Kubernetes'],
-    deadline: '2026-05-18',
-  },
-  {
-    id: 108,
-    title: 'Lập trình viên giao diện (Vue.js)',
-    company_name: 'TechCorp Việt Nam',
-    location: 'Tân Bình, TP. HCM',
-    salary_range: '15 triệu - 25 triệu / tháng',
-    type: 'Toàn thời gian',
-    skills: ['Vue.js', 'Vuex', 'Tailwind'],
-    deadline: '2026-04-30',
-  },
-];
 
 function avatarBg(name) {
   const palette = ['0d9488', '059669', '0f766e', '047857', '0e7490', '155e75', '0891b2', '10b981'];
@@ -126,21 +42,75 @@ function avatarBg(name) {
   return palette[Math.abs(h) % palette.length];
 }
 
+const JOB_TYPE_LABELS = {
+  full_time: 'Toàn thời gian',
+  part_time: 'Bán thời gian',
+  contract: 'Hợp đồng',
+  internship: 'Thực tập',
+  freelance: 'Freelance',
+  remote: 'Từ xa',
+  temporary: 'Thời vụ',
+  intern: 'Thực tập sinh',
+  entry: 'Entry level',
+  junior: 'Junior',
+  mid: 'Middle',
+  senior: 'Senior',
+  lead: 'Lead',
+  manager: 'Manager',
+  director: 'Director',
+  executive: 'Executive',
+};
+
+const getJobTypeLabel = (job = {}) => {
+  const rawValue =
+    job.employment_type || job.job_type || job.type || job.experience_level || job.level;
+  if (!rawValue) return null;
+  const normalizedValue = String(rawValue).trim();
+  return JOB_TYPE_LABELS[normalizedValue] || normalizedValue.replace(/_/g, ' ');
+};
+
 /* ─── Vertical Job Card chuyên nghiệp cho Landing Page ─── */
 const LandingJobCard = ({ job, index }) => {
   const { isAuthenticated, user } = useAuth();
   const { showNotification } = useNotification();
   const [isSaved, setIsSaved] = useState(job.is_saved || false);
   const [saving, setSaving] = useState(false);
+  const [logoFailed, setLogoFailed] = useState(false);
+  const companyName = job.company_name || job.company?.name || 'Công ty';
 
   const logoSrc = useMemo(() => {
-    if (job.company_logo) return job.company_logo;
-    const name = encodeURIComponent(job.company_name || 'C');
-    const bg = avatarBg(job.company_name);
-    return `https://ui-avatars.com/api/?name=${name}&background=${bg}&color=fff&size=128&bold=true`;
-  }, [job.company_logo, job.company_name]);
+    const rawLogo =
+      job.company_logo ||
+      job.logo ||
+      job.company?.company_logo ||
+      job.company?.logo ||
+      job.company?.logo_url ||
+      '';
+    return resolveMediaUrl(rawLogo);
+  }, [
+    job.company?.company_logo,
+    job.company?.logo,
+    job.company?.logo_url,
+    job.company_logo,
+    job.logo,
+  ]);
+
+  useEffect(() => {
+    setLogoFailed(false);
+  }, [job.id, logoSrc]);
+
+  const logoInitials = useMemo(() => getInitials(companyName).slice(0, 2), [companyName]);
+  const logoBg = useMemo(() => avatarBg(companyName), [companyName]);
 
   const salary = useMemo(() => getJobSalaryCardLabel(job), [job]);
+  const jobLocation =
+    job.address ||
+    job.location ||
+    job.location_name ||
+    job.company_location ||
+    job.company?.location ||
+    'Liên hệ để biết địa chỉ';
+  const jobTypeLabel = getJobTypeLabel(job);
   const vacancies = Number.parseInt(job.vacancies, 10);
   const vacanciesLabel = Number.isFinite(vacancies) && vacancies > 0 ? `${vacancies} người` : null;
 
@@ -158,6 +128,7 @@ const LandingJobCard = ({ job, index }) => {
       return null;
     }
   }, [job.deadline]);
+  const detailUrl = useMemo(() => `/jobs/${job.id}`, [job.id]);
 
   const handleToggleSave = async (e) => {
     e.preventDefault();
@@ -196,49 +167,57 @@ const LandingJobCard = ({ job, index }) => {
       className="h-full"
     >
       <div className="card-premium-hover group flex flex-col items-center text-center h-full rounded-xl border border-border/60 bg-white p-6 relative overflow-hidden">
-
         {/* Logo Section */}
         <Link
-          to={`/jobs/${job.id}`}
+          to={detailUrl}
           className="mb-4 relative no-underline"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="size-16 rounded-xl bg-muted/30 flex items-center justify-center border border-border/50 group-hover:border-primary/20 group-hover:bg-primary/5 transition-colors overflow-hidden">
-            <img
-              src={logoSrc}
-              alt=""
-              className="size-full object-cover group-hover:scale-110 transition-transform duration-500"
-            />
+          <div
+            className="size-16 rounded-xl bg-muted/30 flex items-center justify-center border border-border/50 group-hover:border-primary/20 group-hover:bg-primary/5 transition-colors overflow-hidden"
+            style={!logoSrc || logoFailed ? { backgroundColor: `#${logoBg}` } : undefined}
+          >
+            {logoSrc && !logoFailed ? (
+              <img
+                key={logoSrc}
+                src={logoSrc}
+                alt={`${companyName} logo`}
+                className="size-full object-cover group-hover:scale-110 transition-transform duration-500"
+                onError={() => setLogoFailed(true)}
+              />
+            ) : (
+              <span className="select-none text-lg font-black text-white">{logoInitials}</span>
+            )}
           </div>
         </Link>
 
         {/* Content Section */}
         <div className="flex-1 w-full space-y-2">
-          <Link
-            to={`/jobs/${job.id}`}
-            className="no-underline block"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <Link to={detailUrl} className="no-underline block" onClick={(e) => e.stopPropagation()}>
             <h4 className="text-base font-bold text-foreground leading-tight line-clamp-2 group-hover:text-primary transition-colors min-h-[2.5rem]">
               {job.title}
             </h4>
           </Link>
           <p className="text-base font-medium text-muted-foreground truncate w-full flex items-center justify-center gap-1.5">
             <Building2 size={12} className="opacity-60" />
-            {job.company_name}
+            {companyName}
           </p>
 
           <div className="flex flex-col items-center gap-1.5 pt-3">
             <div className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
               <MapPin size={12} className="text-primary/70" />
-              <span className="truncate max-w-[180px]">
-                {job.address || (job.location && job.location !== '—' ? job.location : 'Liên hệ để biết địa chỉ')}
-              </span>
+              <span className="truncate max-w-[180px]">{jobLocation}</span>
             </div>
             <div className="flex items-center gap-1.5 text-sm font-bold text-foreground/80">
               <DollarSign size={12} className="text-primary" />
               <span>{salary}</span>
             </div>
+            {jobTypeLabel && (
+              <div className="flex items-center gap-1.5 text-sm font-bold text-emerald-700">
+                <Briefcase size={12} className="text-emerald-500" />
+                <span>{jobTypeLabel}</span>
+              </div>
+            )}
             {vacanciesLabel && (
               <div className="flex items-center gap-1.5 text-sm font-bold text-sky-700">
                 <Users size={12} className="text-sky-500" />
@@ -252,10 +231,11 @@ const LandingJobCard = ({ job, index }) => {
                   deadlinePassed ? 'text-destructive' : 'text-muted-foreground/80'
                 )}
               >
-                <Calendar size={12} className={deadlinePassed ? 'text-destructive' : 'text-primary/60'} />
-                <span>
-                  {deadlinePassed ? 'Đã hết hạn' : `Hạn ứng tuyển: ${formattedDeadline}`}
-                </span>
+                <Calendar
+                  size={12}
+                  className={deadlinePassed ? 'text-destructive' : 'text-primary/60'}
+                />
+                <span>{deadlinePassed ? 'Đã hết hạn' : `Hạn ứng tuyển: ${formattedDeadline}`}</span>
               </div>
             )}
           </div>
@@ -292,7 +272,7 @@ const LandingJobCard = ({ job, index }) => {
             <Bookmark size={16} className={isSaved ? 'fill-current' : ''} />
           </button>
           <Link
-            to={`/jobs/${job.id}`}
+            to={detailUrl}
             className="inline-flex items-center gap-1.5 text-sm font-bold text-primary hover:gap-2.5 transition-all flex-1 justify-center no-underline"
           >
             Xem chi tiết
@@ -304,68 +284,7 @@ const LandingJobCard = ({ job, index }) => {
   );
 };
 
-const LOCATION_OPTIONS = [
-  { value: 'all', label: 'Tất cả địa điểm' },
-  { value: 'Ha Noi', label: 'Hà Nội' },
-  { value: 'Ho Chi Minh', label: 'TP. Hồ Chí Minh' },
-  { value: 'Da Nang', label: 'Đà Nẵng' },
-  { value: 'Can Tho', label: 'Cần Thơ' },
-];
-
-const getLocationOption = (value = '') =>
-  LOCATION_OPTIONS.find((option) => option.value.toLowerCase() === String(value).trim().toLowerCase());
-
-const getLocationDisplayLabel = (value = '') => {
-  const normalizedValue = String(value || '').trim();
-  if (!normalizedValue) return '';
-  return getLocationOption(normalizedValue)?.label || normalizedValue;
-};
-
-const resolveLocationValue = (value = '') => {
-  const normalizedValue = String(value || '').trim();
-  if (!normalizedValue) return '';
-
-  const normalizedQuery = normalizedValue.toLowerCase();
-  const matchedOption = LOCATION_OPTIONS.find(
-    (option) =>
-      option.label.toLowerCase() === normalizedQuery || option.value.toLowerCase() === normalizedQuery
-  );
-
-  return matchedOption ? (matchedOption.value === 'all' ? '' : matchedOption.value) : normalizedValue;
-};
-
 const PREVIEW_LIMIT = 8;
-
-const normalizeSuggestionText = (value = '') =>
-  String(value)
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim();
-
-const jobMatchesKeyword = (job, keyword = '') => {
-  const normalizedKeyword = normalizeSuggestionText(keyword);
-  if (!normalizedKeyword) return true;
-
-  const searchableFields = [
-    job.title,
-    job.company_name,
-    job.location,
-    job.address,
-    ...(Array.isArray(job.skills) ? job.skills : []),
-  ];
-
-  return searchableFields.some((field) => normalizeSuggestionText(field).includes(normalizedKeyword));
-};
-
-const jobMatchesLocation = (job, location = '') => {
-  const normalizedLocation = normalizeSuggestionText(location);
-  if (!normalizedLocation) return true;
-
-  return [job.location, job.address].some((field) =>
-    normalizeSuggestionText(field).includes(normalizedLocation)
-  );
-};
 
 const LandingJobSearchSection = () => {
   const { isAuthenticated, user } = useAuth();
@@ -376,13 +295,17 @@ const LandingJobSearchSection = () => {
   const locationRef = useRef(null);
   const [previewJobs, setPreviewJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchMode, setSearchMode] = useState(false);
   const [featuredCategories, setFeaturedCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
 
   const visibleFeaturedCategories = useMemo(() => {
     return [...featuredCategories]
-      .sort((a, b) => b.jobCount - a.jobCount || a.sortOrder - b.sortOrder || a.name.localeCompare(b.name, 'vi'))
+      .sort(
+        (a, b) =>
+          b.jobCount - a.jobCount || a.sortOrder - b.sortOrder || a.name.localeCompare(b.name, 'vi')
+      )
       .slice(0, 6);
   }, [featuredCategories]);
 
@@ -401,6 +324,7 @@ const LandingJobSearchSection = () => {
 
   const fetchPreview = useCallback(async ({ search, loc } = {}) => {
     setLoading(true);
+    setError(null);
     try {
       const params = {
         limit: PREVIEW_LIMIT,
@@ -408,17 +332,19 @@ const LandingJobSearchSection = () => {
         search: search?.trim() || undefined,
         location: loc?.trim() || undefined,
       };
-      const res = await jobService.getJobs(params);
+      const res = await jobService.getRecentInterestedJobs(params);
       const payload = res.data;
       if (payload && payload.success === false) {
         setPreviewJobs([]);
+        setError(payload.message || 'Không thể tải danh sách việc làm từ hệ thống.');
         return;
       }
       const list = Array.isArray(payload?.data) ? payload.data : [];
-      setPreviewJobs(list);
+      setPreviewJobs(list.slice(0, PREVIEW_LIMIT));
     } catch (err) {
       console.warn('Landing job preview error:', err?.message);
       setPreviewJobs([]);
+      setError('Không thể kết nối tới API việc làm. Vui lòng thử lại sau.');
     } finally {
       setLoading(false);
     }
@@ -459,7 +385,9 @@ const LandingJobSearchSection = () => {
     e.preventDefault();
     const nextLocation = resolveJobLocationValue(locationQuery || location);
     setLocation(nextLocation);
-    setLocationQuery(getJobLocationDisplayLabel(nextLocation) || String(locationQuery || '').trim());
+    setLocationQuery(
+      getJobLocationDisplayLabel(nextLocation) || String(locationQuery || '').trim()
+    );
     setIsLocationOpen(false);
     setSearchMode(true);
     fetchPreview({ search: keyword, loc: nextLocation });
@@ -473,19 +401,7 @@ const LandingJobSearchSection = () => {
     return qs ? `/jobs?${qs}` : '/jobs';
   })();
 
-  const contextualMockJobs = useMemo(() => {
-    return MOCK_JOBS.filter((job) => jobMatchesKeyword(job, keyword) && jobMatchesLocation(job, location));
-  }, [keyword, location]);
-
-  const suggestedJobs = useMemo(() => {
-    if (searchMode) return previewJobs;
-    if (previewJobs.length >= 8) return previewJobs.slice(0, 8);
-
-    const remainingCount = 8 - previewJobs.length;
-    const existingIds = new Set(previewJobs.map((job) => String(job.id)));
-    const fallbackJobs = contextualMockJobs.filter((job) => !existingIds.has(String(job.id)));
-    return [...previewJobs, ...fallbackJobs.slice(0, remainingCount)];
-  }, [contextualMockJobs, previewJobs, searchMode]);
+  const suggestedJobs = useMemo(() => previewJobs.slice(0, PREVIEW_LIMIT), [previewJobs]);
 
   const searchSummary = useMemo(() => {
     const parts = [];
@@ -512,13 +428,15 @@ const LandingJobSearchSection = () => {
     if (isAuthenticated && user?.role === 'candidate') {
       return {
         title: 'Cơ hội đáng chú ý cho bạn',
-        description: 'Ưu tiên tin mới, mức lương rõ ràng và địa điểm đang có nhu cầu tuyển dụng cao.',
+        description:
+          'Ưu tiên tin mới, mức lương rõ ràng và địa điểm đang có nhu cầu tuyển dụng cao.',
       };
     }
 
     return {
       title: 'Việc làm được quan tâm gần đây',
-      description: 'Chọn nhanh các vị trí đang mở, có thông tin rõ ràng và phù hợp để bắt đầu khám phá.',
+      description:
+        'Chọn nhanh các vị trí đang mở, có thông tin rõ ràng và phù hợp để bắt đầu khám phá.',
     };
   }, [isAuthenticated, searchMode, searchSummary, suggestedJobs.length, user?.role]);
 
@@ -669,7 +587,9 @@ const LandingJobSearchSection = () => {
                 </div>
                 {suggestionContent.title}
               </div>
-              <h3 className="sr-only">{searchMode ? 'Kết quả tìm được' : 'Gợi ý dành riêng cho bạn'}</h3>
+              <h3 className="sr-only">
+                {searchMode ? 'Kết quả tìm được' : 'Gợi ý dành riêng cho bạn'}
+              </h3>
               <p className="text-sm font-medium leading-6 text-muted-foreground md:text-base">
                 {suggestionContent.description}
               </p>
@@ -696,17 +616,27 @@ const LandingJobSearchSection = () => {
                 </div>
               ))}
             </div>
+          ) : error ? (
+            <div className="rounded-2xl border border-destructive/20 bg-destructive/5 px-6 py-12 text-center">
+              <p className="text-lg font-bold text-destructive">Không thể tải dữ liệu việc làm</p>
+              <p className="mt-2 text-sm font-medium leading-6 text-muted-foreground md:text-base">
+                {error}
+              </p>
+            </div>
           ) : suggestedJobs.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {suggestedJobs.map((job, i) => (
-                <LandingJobCard key={job.id} job={job} index={i} />
+                <LandingJobCard key={`job-${job.id}`} job={job} index={i} />
               ))}
             </div>
           ) : (
             <div className="rounded-2xl border border-dashed border-border/60 bg-white px-6 py-12 text-center">
-              <p className="text-lg font-bold text-foreground">Chưa có gợi ý phù hợp để hiển thị</p>
+              <p className="text-lg font-bold text-foreground">
+                Chưa có việc làm phù hợp để hiển thị
+              </p>
               <p className="mt-2 text-sm font-medium leading-6 text-muted-foreground md:text-base">
-                Thử đổi từ khóa, mở rộng khu vực hoặc chuyển sang trang tất cả việc làm để xem thêm cơ hội.
+                Database hiện chưa có job công khai phù hợp với bộ lọc này. Vui lòng xem lại dữ liệu
+                tuyển dụng thật trong hệ thống.
               </p>
             </div>
           )}
@@ -719,10 +649,7 @@ const LandingJobSearchSection = () => {
           {categoriesLoading ? (
             <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-6">
               {Array.from({ length: 6 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="h-40 rounded-xl border border-border/60 bg-white p-8"
-                >
+                <div key={index} className="h-40 rounded-xl border border-border/60 bg-white p-8">
                   <Skeleton className="mx-auto h-14 w-14 rounded-xl" />
                   <Skeleton className="mx-auto mt-5 h-5 w-24" />
                   <Skeleton className="mx-auto mt-3 h-4 w-20" />

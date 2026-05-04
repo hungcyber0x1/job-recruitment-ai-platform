@@ -6,19 +6,16 @@ import api from './api';
 const auditService = {
   // ─── Application Audit ─────────────────────────────────────────────────
   getApplicationAudit: (applicationId, params) =>
-    api.get(`employer/audit/application/${applicationId}`, { params }),
+    api.get(`employers/audit/application/${applicationId}`, { params }),
 
   // ─── Job Audit ────────────────────────────────────────────────────────
-  getJobAudit: (jobId, params) =>
-    api.get(`employer/audit/job/${jobId}`, { params }),
+  getJobAudit: (jobId, params) => api.get(`employers/audit/job/${jobId}`, { params }),
 
   // ─── Communication Audit ────────────────────────────────────────────────
-  getCommunicationAudit: (params) =>
-    api.get('employer/audit/communications', { params }),
+  getCommunicationAudit: (params) => api.get('employers/audit/communications', { params }),
 
   // ─── Full Audit Trail ─────────────────────────────────────────────────
-  getAuditTrail: (params) =>
-    api.get('employer/audit/trail', { params }),
+  getAuditTrail: (params) => api.get('employers/audit/trail', { params }),
 
   // ─── Action Labels (mirrors server constants) ─────────────────────────
   getActionLabels: () => ({

@@ -45,7 +45,11 @@ ClockIcon.defaultProps = {
 
 const defaultSuggestions = [
   { icon: <Briefcase size={16} />, text: 'Gợi ý việc làm React tại Hà Nội', key: 's1' },
-  { icon: <FileText size={16} />, text: 'Cách viết CV cho lập trình viên giao diện cấp cao', key: 's2' },
+  {
+    icon: <FileText size={16} />,
+    text: 'Cách viết CV cho lập trình viên giao diện cấp cao',
+    key: 's2',
+  },
   { icon: <Zap size={16} />, text: 'Dự báo lương ngành IT năm 2026', key: 's3' },
 ];
 
@@ -87,13 +91,13 @@ const ChatPage = () => {
   const suggestionItems =
     suggestedQuestions?.length > 0
       ? suggestedQuestions.slice(0, 3).map((q, index) => {
-        const text = typeof q === 'string' ? q : (q?.content ?? q?.title ?? String(q));
-        return {
-          icon: defaultSuggestions[index]?.icon || <Sparkles size={16} />,
-          text,
-          key: typeof q === 'object' && q?.title ? q.title : text || index,
-        };
-      })
+          const text = typeof q === 'string' ? q : (q?.content ?? q?.title ?? String(q));
+          return {
+            icon: defaultSuggestions[index]?.icon || <Sparkles size={16} />,
+            text,
+            key: typeof q === 'object' && q?.title ? q.title : text || index,
+          };
+        })
       : defaultSuggestions;
 
   if (!chatbotEnabled) {
@@ -156,10 +160,11 @@ const ChatPage = () => {
                   <button
                     key={conversation.id}
                     onClick={() => switchConversation(conversation.id)}
-                    className={`flex w-full items-center gap-3 rounded-xl p-4 text-left text-sm font-medium transition-colors ${activeConversation === conversation.id
+                    className={`flex w-full items-center gap-3 rounded-xl p-4 text-left text-sm font-medium transition-colors ${
+                      activeConversation === conversation.id
                         ? 'bg-slate-100 text-slate-900'
                         : 'text-slate-500 hover:bg-muted/35'
-                      }`}
+                    }`}
                   >
                     <ClockIcon size={16} />
                     <span className="line-clamp-1">{conversation.title || 'Hội thoại mới'}</span>
@@ -200,7 +205,9 @@ const ChatPage = () => {
                 <Sparkles size={24} />
               </div>
               <div>
-                <h3 className="leading-tight text-slate-900 font-bold">Trợ lý thông minh HireBOT</h3>
+                <h3 className="leading-tight text-slate-900 font-bold">
+                  Trợ lý thông minh HireBOT
+                </h3>
                 <div className="flex items-center gap-2">
                   <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-500" />
                   <span className="text-sm font-bold uppercase tracking-normal text-slate-400">
@@ -265,10 +272,11 @@ const ChatPage = () => {
                   </div>
                 )}
                 <div
-                  className={`max-w-[min(100%,42rem)] rounded-[28px] shadow-sm md:text-base ${message.isAi
+                  className={`max-w-[min(100%,42rem)] rounded-[28px] shadow-sm md:text-base ${
+                    message.isAi
                       ? 'rounded-tl-none border border-slate-100 bg-white p-6 text-slate-700'
                       : 'rounded-tr-none bg-primary p-6 text-sm font-medium leading-relaxed text-white'
-                    }`}
+                  }`}
                 >
                   {message.isAi ? <AiMessageMarkdown text={message.text} /> : message.text}
                 </div>

@@ -10,11 +10,6 @@ const router = express.Router();
  * @desc    Generate a job description using AI
  * @access  Private (Authenticated users)
  */
-router.post(
-  '/generate-jd',
-  authenticate,
-  aiLimiter,
-  AIController.generateJD.bind(AIController)
-);
+router.post('/generate-jd', authenticate, aiLimiter, AIController.generateJD.bind(AIController));
 
 module.exports = router;

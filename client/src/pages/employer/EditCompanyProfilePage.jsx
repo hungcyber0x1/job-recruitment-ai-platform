@@ -1,16 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Building2,
-  Camera,
-  ChevronRight,
-  FileText,
-  Globe,
-  Mail,
-  MapPin,
-  Save,
-  Sparkles,
-} from 'lucide-react';
+import { Building2, Camera, FileText, Globe, Mail, MapPin, Save, Sparkles } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -185,8 +175,8 @@ const EditCompanyProfilePage = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="min-h-screen bg-slate-50/40 pb-16 animate-fade-in">
-      <section className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
+    <form onSubmit={handleSubmit} className="min-h-screen bg-transparent pb-16 animate-fade-in">
+      <section className="relative overflow-hidden border-b border-emerald-100/70 bg-transparent">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
           style={{
@@ -456,38 +446,6 @@ const EditCompanyProfilePage = () => {
                 addressFieldName="location"
                 className="gap-x-4 gap-y-4"
               />
-            </div>
-          </Card>
-
-          <Card className="group relative overflow-hidden rounded-lg border border-emerald-100 bg-emerald-50/40 p-5 shadow-sm sm:p-6">
-            <div className="absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-emerald-500 opacity-10 blur-3xl transition-transform duration-700 group-hover:scale-125" />
-            <div className="relative z-10">
-              <div className="mb-5 flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 ring-1 ring-inset ring-emerald-200">
-                  <Sparkles size={16} />
-                </div>
-                <h3 className="text-base font-bold tracking-normal text-slate-950">
-                  Checklist đồng nhất dữ liệu
-                </h3>
-              </div>
-
-              <ul className="space-y-3">
-                {[
-                  'Tên công ty, website và email đều dùng cấu trúc chung.',
-                  'Người đại diện dùng tên và họ khớp với tài khoản cá nhân.',
-                  'Địa điểm, số điện thoại và mô tả đều được lưu trữ đầy đủ.',
-                ].map((tip) => (
-                  <li
-                    key={tip}
-                    className="flex items-start gap-3 text-sm font-medium leading-6 text-slate-600"
-                  >
-                    <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-emerald-500/20 bg-emerald-500/10">
-                      <ChevronRight size={12} className="text-emerald-600" />
-                    </div>
-                    {tip}
-                  </li>
-                ))}
-              </ul>
             </div>
           </Card>
         </div>

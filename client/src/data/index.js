@@ -1,5 +1,4 @@
 /**
- * Dữ liệu tĩnh / fallback (blog offline, công ty mẫu).
+ * Data barrel kept intentionally empty.
+ * Runtime UI data is loaded through API services, not local mock datasets.
  */
-export { MOCK_COMPANIES, getMockCompanyById } from './mockCompanies';
-export { OFFLINE_BLOG_LIST, buildOfflinePostDetail } from './blogOfflineFallback';

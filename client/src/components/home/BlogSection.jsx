@@ -1,68 +1,38 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  Calendar,
+  ArrowRight,
+  ArrowUpRight,
+  ChevronLeft,
+  ChevronRight,
+  AlertCircle,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { blogService, unwrapBlogListResponse } from '@/services';
-
-const FALLBACK_POSTS = [
-  {
-    id: 1,
-    slug: 'top-5-ky-nang-ai-cho-developer-nam-2026',
-    title: 'Top kỹ năng AI được săn đón nhất năm 2026',
-    excerpt:
-      'Những công cụ và framework đang được nhà tuyển dụng ưu tiên khi tuyển kỹ sư và chuyên viên dữ liệu.',
-    date: '15/03/2026',
-    category: 'Thị trường',
-    readTime: '6 phút đọc',
-    image: null,
-  },
-  {
-    id: 2,
-    slug: 'viet-cv-chuan-ats-bi-quyet-vuot-qua-vong-loc-ho-so-tu-dong',
-    title: 'Cách viết CV vượt qua bộ lọc AI',
-    excerpt:
-      'Cấu trúc CV, từ khóa và định dạng giúp hồ sơ được chấm điểm cao trước khi đến tay nhà tuyển dụng.',
-    date: '12/03/2026',
-    category: 'Kỹ năng',
-    readTime: '4 phút đọc',
-    image: null,
-  },
-  {
-    id: 3,
-    slug: 'phong-van-hanh-vi-star-method',
-    title: 'Review quy trình phỏng vấn tại tập đoàn lớn',
-    excerpt:
-      'Trải nghiệm thực tế từ ứng viên đã vượt qua nhiều vòng: bài test, case study và phỏng vấn hành vi.',
-    date: '08/03/2026',
-    category: 'Phỏng vấn',
-    readTime: '5 phút đọc',
-    image: null,
-  },
-];
-
-const PLACEHOLDER_IMAGES = [
-  'https://picsum.photos/seed/blog1/400/240',
-  'https://picsum.photos/seed/blog2/400/240',
-  'https://picsum.photos/seed/blog3/400/240',
-];
 
 function estimateReadLabel(excerpt, title) {
   const n = `${title || ''} ${excerpt || ''}`.trim().split(/\s+/).filter(Boolean).length;
   return `${Math.max(1, Math.round(n / 220))} phút đọc`;
 }
 
-const BlogCard = ({ post, index }) => (
+const BlogCard = ({ post }) => (
   <Link
-    to={`/blog/${post.slug}`}
+    to={`/blog/${post.slug || post.id}`}
     className="group block h-full w-[min(85vw,320px)] shrink-0 snap-center sm:w-[360px] lg:w-full lg:min-w-0 lg:shrink"
   >
     <div className="bg-white rounded-xl overflow-hidden h-full flex flex-col border border-border/45 card-premium-hover">
       <div className="aspect-[5/3] bg-muted/40 relative overflow-hidden shrink-0">
-        <img
-          src={post.image || PLACEHOLDER_IMAGES[index] || PLACEHOLDER_IMAGES[0]}
-          alt=""
-          className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
-        />
+        {post.image ? (
+          <img
+            src={post.image}
+            alt=""
+            className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
+            onError={(event) => {
+              event.currentTarget.remove();
+            }}
+          />
+        ) : null}
         <span className="absolute top-3 left-3 px-2.5 py-1 bg-background/90 backdrop-blur-sm text-foreground rounded-md text-sm font-semibold border border-border/40">
           {post.category}
         </span>
@@ -94,7 +64,8 @@ const AUTO_SCROLL_INTERVAL = 5000;
 
 const BlogSection = () => {
   const scrollRef = useRef(null);
-  const [posts, setPosts] = useState(FALLBACK_POSTS);
+  const [posts, setPosts] = useState([]);
+  const [loadState, setLoadState] = useState('loading');
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [isPaused, setIsPaused] = useState(false);
@@ -102,11 +73,12 @@ const BlogSection = () => {
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      setLoadState('loading');
       try {
         const res = await blogService.listPublic({ sort: 'newest' });
         const rows = unwrapBlogListResponse(res);
-        const top = Array.isArray(rows) ? rows.slice(0, 3) : [];
-        if (!cancelled && top.length > 0) {
+        const top = rows.slice(0, 3);
+        if (!cancelled) {
           setPosts(
             top.map((p) => ({
               id: p.id,
@@ -119,9 +91,13 @@ const BlogSection = () => {
               image: p.image || null,
             }))
           );
+          setLoadState('ready');
         }
       } catch {
-        /* giữ FALLBACK_POSTS */
+        if (!cancelled) {
+          setPosts([]);
+          setLoadState('error');
+        }
       }
     })();
     return () => {
@@ -149,7 +125,7 @@ const BlogSection = () => {
   }, [posts]);
 
   useEffect(() => {
-    if (isPaused) return;
+    if (isPaused || posts.length === 0) return;
     const timer = setInterval(() => {
       const el = scrollRef.current;
       if (!el) return;
@@ -163,7 +139,7 @@ const BlogSection = () => {
       }
     }, AUTO_SCROLL_INTERVAL);
     return () => clearInterval(timer);
-  }, [isPaused]);
+  }, [isPaused, posts.length]);
 
   const scrollTo = (dir) => {
     const el = scrollRef.current;
@@ -191,7 +167,7 @@ const BlogSection = () => {
 
           <div className="flex items-center gap-4 shrink-0">
             <Link
-              to="/public/blog"
+              to="/blog"
               className="hidden sm:flex items-center gap-2 text-base font-semibold text-muted-foreground hover:text-foreground transition-colors"
             >
               Xem tất cả <ArrowRight size={14} strokeWidth={2} />
@@ -219,16 +195,31 @@ const BlogSection = () => {
           </div>
         </div>
 
-        <div
-          ref={scrollRef}
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
-          className="flex snap-x snap-mandatory items-stretch gap-6 overflow-x-auto scroll-smooth scrollbar-hide pb-2 lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible lg:pb-0 xl:gap-8"
-        >
-          {posts.map((post, i) => (
-            <BlogCard key={post.id} post={post} index={i} />
-          ))}
-        </div>
+        {loadState === 'loading' ? (
+          <div className="rounded-xl border border-border/45 bg-white p-8 text-base font-semibold text-muted-foreground">
+            Đang tải bản tin từ cơ sở dữ liệu…
+          </div>
+        ) : loadState === 'error' ? (
+          <div className="flex items-start gap-3 rounded-xl border border-red-100 bg-white p-8 text-base font-semibold text-red-700">
+            <AlertCircle className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+            <span>Không thể tải bản tin từ API backend.</span>
+          </div>
+        ) : posts.length === 0 ? (
+          <div className="rounded-xl border border-border/45 bg-white p-8 text-base font-semibold text-muted-foreground">
+            Chưa có bản tin công khai.
+          </div>
+        ) : (
+          <div
+            ref={scrollRef}
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+            className="flex snap-x snap-mandatory items-stretch gap-6 overflow-x-auto scroll-smooth scrollbar-hide pb-2 lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible lg:pb-0 xl:gap-8"
+          >
+            {posts.map((post) => (
+              <BlogCard key={post.slug || post.id} post={post} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

@@ -32,9 +32,7 @@ const CareerGuidance = () => {
           <h3 className="text-xl font-bold text-foreground leading-tight group-hover/guidance:text-primary transition-colors">
             Định hướng nghề nghiệp
           </h3>
-          <p className="text-base text-muted-foreground font-medium mt-0.5">
-            Trao đổi cùng AI
-          </p>
+          <p className="text-base text-muted-foreground font-medium mt-0.5">Trao đổi cùng AI</p>
         </div>
       </div>
 

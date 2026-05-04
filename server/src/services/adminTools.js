@@ -11,7 +11,8 @@ const ADMIN_TOOLS = [
   // ── READ ONLY: Dashboard & Analytics ───────────────────────────────
   {
     name: 'get_dashboard_stats',
-    description: 'Lấy thống kê tổng quan platform: tổng users, jobs, applications, companies. Dùng làm dashboard overview.',
+    description:
+      'Lấy thống kê tổng quan platform: tổng users, jobs, applications, companies. Dùng làm dashboard overview.',
     parameters: {
       type: 'object',
       properties: {},
@@ -19,7 +20,8 @@ const ADMIN_TOOLS = [
   },
   {
     name: 'get_chart_stats',
-    description: 'Lấy dữ liệu biểu đồ: user growth (12 tháng), job stats, application distribution by job type, weekly UV/PV.',
+    description:
+      'Lấy dữ liệu biểu đồ: user growth (12 tháng), job stats, application distribution by job type, weekly UV/PV.',
     parameters: {
       type: 'object',
       properties: {},
@@ -27,7 +29,8 @@ const ADMIN_TOOLS = [
   },
   {
     name: 'get_platform_health',
-    description: 'Kiểm tra sức khỏe platform: active users, pending approvals, flagged content, recent errors.',
+    description:
+      'Kiểm tra sức khỏe platform: active users, pending approvals, flagged content, recent errors.',
     parameters: {
       type: 'object',
       properties: {},
@@ -37,13 +40,22 @@ const ADMIN_TOOLS = [
   // ── READ ONLY: Users ──────────────────────────────────────────────
   {
     name: 'list_users',
-    description: 'Liệt kê danh sách users với filter: search, role (candidate/recruiter/admin), status (active/inactive/banned/pending), date range.',
+    description:
+      'Liệt kê danh sách users với filter: search, role (candidate/recruiter/admin), status (active/inactive/banned/pending), date range.',
     parameters: {
       type: 'object',
       properties: {
         search: { type: 'string', description: 'Search by name, email, phone' },
-        role: { type: 'string', enum: ['candidate', 'recruiter', 'admin', ''], description: "Filter by role" },
-        status: { type: 'string', enum: ['active', 'inactive', 'banned', 'locked', 'pending', 'suspended', ''], description: "Filter by status" },
+        role: {
+          type: 'string',
+          enum: ['candidate', 'recruiter', 'admin', ''],
+          description: 'Filter by role',
+        },
+        status: {
+          type: 'string',
+          enum: ['active', 'inactive', 'banned', 'locked', 'pending', 'suspended', ''],
+          description: 'Filter by status',
+        },
         page: { type: 'integer', description: 'Page number (default: 1)', default: 1 },
         limit: { type: 'integer', description: 'Items per page (default: 20)', default: 20 },
       },
@@ -82,7 +94,11 @@ const ADMIN_TOOLS = [
       type: 'object',
       properties: {
         user_id: { type: 'integer', description: 'User ID' },
-        status: { type: 'string', enum: ['active', 'inactive', 'suspended', 'banned'], description: 'New status' },
+        status: {
+          type: 'string',
+          enum: ['active', 'inactive', 'suspended', 'banned'],
+          description: 'New status',
+        },
         reason: { type: 'string', description: 'Lý do thay đổi (ghi vào audit log)' },
       },
       required: ['user_id', 'status'],
@@ -115,7 +131,8 @@ const ADMIN_TOOLS = [
   // ── READ ONLY: Jobs ───────────────────────────────────────────────
   {
     name: 'list_jobs',
-    description: 'Liệt kê tất cả jobs với filter: search, status, job_type, flagged, company. Dùng để review jobs.',
+    description:
+      'Liệt kê tất cả jobs với filter: search, status, job_type, flagged, company. Dùng để review jobs.',
     parameters: {
       type: 'object',
       properties: {
@@ -171,12 +188,25 @@ const ADMIN_TOOLS = [
   // ── READ ONLY: Applications ──────────────────────────────────────
   {
     name: 'list_applications',
-    description: 'Liệt kê applications với filter: status, search. Dùng để theo dõi recruitment pipeline.',
+    description:
+      'Liệt kê applications với filter: status, search. Dùng để theo dõi recruitment pipeline.',
     parameters: {
       type: 'object',
       properties: {
         search: { type: 'string' },
-        status: { type: 'string', enum: ['submitted', 'shortlisted', 'interview_scheduled', 'interviewed', 'offered', 'hired', 'rejected', ''] },
+        status: {
+          type: 'string',
+          enum: [
+            'submitted',
+            'shortlisted',
+            'interview_scheduled',
+            'interviewed',
+            'offered',
+            'hired',
+            'rejected',
+            '',
+          ],
+        },
         page: { type: 'integer', default: 1 },
         limit: { type: 'integer', default: 20 },
       },
@@ -283,7 +313,8 @@ const ADMIN_TOOLS = [
   // ── READ ONLY: Chatbot Analytics ────────────────────────────────
   {
     name: 'get_chatbot_analytics',
-    description: 'Lấy chatbot analytics: conversations count, messages, active users, satisfaction, top intents.',
+    description:
+      'Lấy chatbot analytics: conversations count, messages, active users, satisfaction, top intents.',
     parameters: {
       type: 'object',
       properties: {},
@@ -331,11 +362,15 @@ const ADMIN_TOOLS = [
   },
   {
     name: 'update_chatbot_config',
-    description: 'Cập nhật chatbot configuration: feature flags, limits, model. Ví dụ: bật/tắt features, thay đổi daily limit.',
+    description:
+      'Cập nhật chatbot configuration: feature flags, limits, model. Ví dụ: bật/tắt features, thay đổi daily limit.',
     parameters: {
       type: 'object',
       properties: {
-        config_key: { type: 'string', description: 'Config key cần update (ví dụ: ai_chatbot_daily_limit)' },
+        config_key: {
+          type: 'string',
+          description: 'Config key cần update (ví dụ: ai_chatbot_daily_limit)',
+        },
         config_value: { type: 'string', description: 'Giá trị mới' },
         reason: { type: 'string', description: 'Lý do thay đổi' },
       },
@@ -390,26 +425,60 @@ const TOOL_EXECUTORS = {
   get_user_detail: { service: 'UserRepository', method: 'findByIdWithDetails', readOnly: true },
   get_user_activity: { service: 'ActivityLogRepository', method: 'findAll', readOnly: true },
   // Users (write) - adminId được inject tự động
-  update_user_status: { service: 'AdminService', method: 'updateUserStatus', readOnly: false, args: ['adminId'] },
+  update_user_status: {
+    service: 'AdminService',
+    method: 'updateUserStatus',
+    readOnly: false,
+    args: ['adminId'],
+  },
   lock_user: { service: 'AdminService', method: 'lockUser', readOnly: false, args: ['adminId'] },
-  unlock_user: { service: 'AdminService', method: 'unlockUser', readOnly: false, args: ['adminId'] },
+  unlock_user: {
+    service: 'AdminService',
+    method: 'unlockUser',
+    readOnly: false,
+    args: ['adminId'],
+  },
 
   // Jobs (read)
   list_jobs: { service: 'JobRepository', method: 'findWithDetails', readOnly: true },
   get_job_detail: { service: 'JobRepository', method: 'findByIdWithDetails', readOnly: true },
   // Jobs (write)
-  update_job_status: { service: 'AdminService', method: 'updateJobStatus', readOnly: false, args: ['adminId'] },
-  flag_job: { service: 'AdminService', method: 'updateJobFlag', readOnly: false, args: ['adminId'] },
+  update_job_status: {
+    service: 'AdminService',
+    method: 'updateJobStatus',
+    readOnly: false,
+    args: ['adminId'],
+  },
+  flag_job: {
+    service: 'AdminService',
+    method: 'updateJobFlag',
+    readOnly: false,
+    args: ['adminId'],
+  },
 
   // Applications (read)
   list_applications: { service: 'ApplicationRepository', method: 'findAll', readOnly: true },
-  get_application_detail: { service: 'ApplicationRepository', method: 'findByIdWithDetails', readOnly: true },
+  get_application_detail: {
+    service: 'ApplicationRepository',
+    method: 'findByIdWithDetails',
+    readOnly: true,
+  },
 
   // Companies (read)
   list_companies: { service: 'CompanyRepository', method: 'findAllWithFilters', readOnly: true },
   // Companies (write)
-  verify_company: { service: 'AdminService', method: 'verifyCompany', readOnly: false, args: ['adminId'] },
-  flag_company: { service: 'AdminService', method: 'updateCompanyFlag', readOnly: false, args: ['adminId'] },
+  verify_company: {
+    service: 'AdminService',
+    method: 'verifyCompany',
+    readOnly: false,
+    args: ['adminId'],
+  },
+  flag_company: {
+    service: 'AdminService',
+    method: 'updateCompanyFlag',
+    readOnly: false,
+    args: ['adminId'],
+  },
 
   // Logs (read)
   get_activity_logs: { service: 'ActivityLogRepository', method: 'findAll', readOnly: true },
@@ -420,11 +489,28 @@ const TOOL_EXECUTORS = {
 
   // Chatbot (read) - qua AdminChatbotService
   get_chatbot_analytics: { service: 'AdminChatbotService', method: 'getAnalytics', readOnly: true },
-  get_chatbot_conversations: { service: 'AdminChatbotService', method: 'getConversations', readOnly: true },
-  get_conversation_detail: { service: 'AdminChatbotService', method: 'getConversationDetail', readOnly: true },
+  get_chatbot_conversations: {
+    service: 'AdminChatbotService',
+    method: 'getConversations',
+    readOnly: true,
+  },
+  get_conversation_detail: {
+    service: 'AdminChatbotService',
+    method: 'getConversationDetail',
+    readOnly: true,
+  },
   get_chatbot_templates: { service: 'AdminChatbotService', method: 'getTemplates', readOnly: true },
-  get_chatbot_config: { service: 'AdminChatbotService', method: 'getConfigurations', readOnly: true },
-  update_chatbot_config: { service: 'AdminChatbotService', method: 'updateConfigurations', readOnly: false, args: ['adminId'] },
+  get_chatbot_config: {
+    service: 'AdminChatbotService',
+    method: 'getConfigurations',
+    readOnly: true,
+  },
+  update_chatbot_config: {
+    service: 'AdminChatbotService',
+    method: 'updateConfigurations',
+    readOnly: false,
+    args: ['adminId'],
+  },
 
   // Settings & Content (read)
   get_system_settings: { service: 'SystemSettingsRepository', method: 'findAll', readOnly: true },

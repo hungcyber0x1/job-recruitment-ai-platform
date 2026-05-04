@@ -28,7 +28,7 @@ export const renderLazyPage = (Component) => (
   </Suspense>
 );
 
-/** Trang cần đăng nhập (mọi role) — không giới hạn candidate/employer/admin. */
+/** Trang cần đăng nhập (mọi role) — không giới hạn candidate/recruiter/admin. */
 export const renderAuthLazyPage = (Component) => (
   <PrivateRoute>
     <Suspense fallback={routeLoadingFallback}>
@@ -48,7 +48,7 @@ export const renderCandidatePage = (Component) => (
 );
 
 export const renderRecruiterPage = (Component) => (
-  <PrivateRoute roles={['recruiter', 'employer']}>
+  <PrivateRoute roles={['recruiter']}>
     <EmployerLayout>
       <Suspense fallback={dashboardContentLoadingFallback}>
         <Component />

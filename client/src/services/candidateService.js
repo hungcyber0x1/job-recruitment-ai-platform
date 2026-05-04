@@ -22,7 +22,6 @@ const candidateService = {
   unsaveCompany: (companyId) => api.delete(`candidates/saved-companies/${companyId}`),
   checkCompanySaved: (companyId) => api.get(`candidates/saved-companies/${companyId}/check`),
 
-
   // ─── Phase 1.1: Full Profile ───────────────────────────────────────────────
   getFullProfile: () => api.get('candidates/full-profile'),
 

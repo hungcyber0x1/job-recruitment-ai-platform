@@ -57,7 +57,9 @@ function validateAndSanitizeResponse(response) {
 
   // 1. Kiểm tra độ dài
   if (text.length > AI_RESPONSE_LIMITS.maxLength) {
-    text = text.substring(0, AI_RESPONSE_LIMITS.maxLength) + '...\n\n[Lưu ý: Phản hồi đã bị cắt ngắn do quá dài.]';
+    text =
+      text.substring(0, AI_RESPONSE_LIMITS.maxLength) +
+      '...\n\n[Lưu ý: Phản hồi đã bị cắt ngắn do quá dài.]';
     warnings.push('Response truncated due to length');
   }
 
@@ -79,8 +81,9 @@ function validateAndSanitizeResponse(response) {
 
   // 4. Thêm disclaimer nếu cần
   if (flagged || warnings.length > 0) {
-    const disclaimer = '\n\n---\n⚠️ **Lưu ý quan trọng**: Tôi chỉ là trợ lý tư vấn nghề nghiệp, không thể thay thế tư vấn chuyên gia (pháp lý, tài chính). Mọi quyết định cuối cùng là của bạn.';
-    
+    const disclaimer =
+      '\n\n---\n⚠️ **Lưu ý quan trọng**: Tôi chỉ là trợ lý tư vấn nghề nghiệp, không thể thay thế tư vấn chuyên gia (pháp lý, tài chính). Mọi quyết định cuối cùng là của bạn.';
+
     if (!text.includes(disclaimer)) {
       text = text.trim() + disclaimer;
     }
@@ -107,8 +110,9 @@ class ChatbotService {
   async _ensureSchema() {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS conversations (
-        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        user_id INT UNSIGNED NOT NULL,
+        id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        user_id BIGINT UNSIGNED NOT NULL,
+        owner_user_id BIGINT UNSIGNED NULL,
         title VARCHAR(255) DEFAULT 'New Conversation',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -117,11 +121,25 @@ class ChatbotService {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
 
+    await this._ensureColumn(
+      'conversations',
+      'user_id',
+      'ALTER TABLE conversations ADD COLUMN user_id BIGINT UNSIGNED NULL AFTER id'
+    );
+    await pool.query(
+      'UPDATE conversations SET user_id = COALESCE(user_id, owner_user_id) WHERE user_id IS NULL'
+    );
+    await this._ensureColumn(
+      'conversations',
+      'title',
+      "ALTER TABLE conversations ADD COLUMN title VARCHAR(255) DEFAULT 'New Conversation' AFTER user_id"
+    );
+
     await pool.query(`
       CREATE TABLE IF NOT EXISTS chat_messages (
-        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        sender_id INT UNSIGNED NULL,
-        conversation_id INT UNSIGNED NOT NULL,
+        id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        sender_id BIGINT UNSIGNED NULL,
+        conversation_id BIGINT UNSIGNED NOT NULL,
         message TEXT NOT NULL,
         is_ai BOOLEAN DEFAULT FALSE,
         attachment_url VARCHAR(255) NULL,
@@ -144,12 +162,12 @@ class ChatbotService {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS chatbot_analytics_events (
         id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        conversation_id INT UNSIGNED NULL,
+        conversation_id BIGINT UNSIGNED NULL,
         session_id VARCHAR(64) NULL,
-        user_id INT UNSIGNED NOT NULL,
+        user_id BIGINT UNSIGNED NOT NULL,
         event_type VARCHAR(50) NOT NULL,
         event_data JSON NULL,
-        message_id INT UNSIGNED NULL,
+        message_id BIGINT UNSIGNED NULL,
         ip_address VARCHAR(45) NULL,
         user_agent VARCHAR(512) NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -163,8 +181,8 @@ class ChatbotService {
 
     await pool.query(`
       CREATE TABLE IF NOT EXISTS chatbot_daily_quotas (
-        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        user_id INT UNSIGNED NOT NULL,
+        id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        user_id BIGINT UNSIGNED NOT NULL,
         quota_date DATE NOT NULL,
         messages_used INT UNSIGNED DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -245,7 +263,7 @@ class ChatbotService {
         const adminIntents = detectAdminIntents(message);
 
         if (adminIntents.length > 0) {
-          logger.info(`Admin tool intent detected: ${adminIntents.map(i => i.tool).join(', ')}`, {
+          logger.info(`Admin tool intent detected: ${adminIntents.map((i) => i.tool).join(', ')}`, {
             userId,
             conversationId,
           });
@@ -304,10 +322,10 @@ class ChatbotService {
               targetType: 'chatbot',
               targetId: conversationId,
               newValues: {
-                toolsExecuted: adminToolResults.map(r => r.executedTool),
-                success: adminToolResults.every(r => r.success),
+                toolsExecuted: adminToolResults.map((r) => r.executedTool),
+                success: adminToolResults.every((r) => r.success),
               },
-              notes: `Admin used chatbot tools: ${adminToolResults.map(r => r.executedTool).join(', ')}`,
+              notes: `Admin used chatbot tools: ${adminToolResults.map((r) => r.executedTool).join(', ')}`,
               ip: null,
               userAgent: null,
             });
@@ -322,13 +340,21 @@ class ChatbotService {
       if (onChunk && typeof onChunk === 'function') {
         // Stream response chunks for real-time display
         const chunks = [];
-        for await (const chunk of AIService.streamCareerAdvice(userRow, enrichedMessage, historyForAi)) {
+        for await (const chunk of AIService.streamCareerAdvice(
+          userRow,
+          enrichedMessage,
+          historyForAi
+        )) {
           chunks.push(chunk);
           onChunk(chunk);
         }
         aiResponseRaw = chunks.join('');
       } else {
-        aiResponseRaw = await AIService.generateCareerAdvice(userRow, enrichedMessage, historyForAi);
+        aiResponseRaw = await AIService.generateCareerAdvice(
+          userRow,
+          enrichedMessage,
+          historyForAi
+        );
       }
 
       // 5. Validate and sanitize AI response (guardrails)
@@ -423,8 +449,8 @@ class ChatbotService {
     await this.ensureSchema();
     try {
       const [result] = await pool.query(
-        'INSERT INTO conversations (user_id, title) VALUES (?, ?)',
-        [userId, title]
+        'INSERT INTO conversations (user_id, owner_user_id, title) VALUES (?, ?, ?)',
+        [userId, userId, title]
       );
 
       // Track analytics
@@ -495,7 +521,10 @@ class ChatbotService {
         [conversationId]
       );
       // Delete analytics events directly linked to conversation (no message_id)
-      await pool.query('DELETE FROM chatbot_analytics_events WHERE conversation_id = ? AND message_id IS NULL', [conversationId]);
+      await pool.query(
+        'DELETE FROM chatbot_analytics_events WHERE conversation_id = ? AND message_id IS NULL',
+        [conversationId]
+      );
       // Delete messages
       await pool.query('DELETE FROM chat_messages WHERE conversation_id = ?', [conversationId]);
       // Delete conversation
@@ -569,7 +598,7 @@ class ChatbotService {
       );
 
       // Format templates for display
-      const templateQuestions = templates.map(t => ({
+      const templateQuestions = templates.map((t) => ({
         id: t.prompt_key,
         title: this._getPromptTitle(t.prompt_key, t.prompt_type),
         content: t.prompt_template,
@@ -593,12 +622,12 @@ class ChatbotService {
   // Convert prompt key to friendly title
   _getPromptTitle(key, type) {
     const titles = {
-      'chatbot_greeting': 'Tìm việc làm phù hợp',
-      'interview_prep': 'Chuẩn bị phỏng vấn',
-      'salary_negotiation': 'Đàm phán lương hiệu quả',
-      'career_advice': 'Tư vấn lộ trình nghề',
-      'skill_gap': 'Phân tích kỹ năng',
-      'default': 'Hỏi về nghề nghiệp'
+      chatbot_greeting: 'Tìm việc làm phù hợp',
+      interview_prep: 'Chuẩn bị phỏng vấn',
+      salary_negotiation: 'Đàm phán lương hiệu quả',
+      career_advice: 'Tư vấn lộ trình nghề',
+      skill_gap: 'Phân tích kỹ năng',
+      default: 'Hỏi về nghề nghiệp',
     };
     return titles[key] || titles[type] || titles['default'];
   }
@@ -705,17 +734,18 @@ Trả lời CHỈ bằng tiếng Việt, tối đa 200 ký tự.`;
       const messageIds = olderMessages.map((m) => m.id);
       if (messageIds.length > 0) {
         // Delete analytics events for messages being deleted (prevents orphaned records)
-        await pool.query(
-          'DELETE FROM chatbot_analytics_events WHERE message_id IN (?)',
-          [messageIds]
-        );
-        await pool.query(
-          `DELETE FROM chat_messages WHERE conversation_id = ? AND id NOT IN (?)`,
-          [conversationId, recentMessages.map((m) => m.id)]
-        );
+        await pool.query('DELETE FROM chatbot_analytics_events WHERE message_id IN (?)', [
+          messageIds,
+        ]);
+        await pool.query(`DELETE FROM chat_messages WHERE conversation_id = ? AND id NOT IN (?)`, [
+          conversationId,
+          recentMessages.map((m) => m.id),
+        ]);
       }
 
-      logger.info(`Conversation ${conversationId} summarized: ${olderMessages.length} messages condensed`);
+      logger.info(
+        `Conversation ${conversationId} summarized: ${olderMessages.length} messages condensed`
+      );
       return summary;
     } catch (error) {
       logger.error('Error summarizing conversation:', error);
@@ -745,9 +775,10 @@ Trả lời CHỈ bằng tiếng Việt, tối đa 200 ký tự.`;
 
   // Helper: Verify conversation ownership
   async _verifyConversationOwnership(userId, conversationId) {
-    const [rows] = await pool.query('SELECT user_id FROM conversations WHERE id = ?', [
-      conversationId,
-    ]);
+    const [rows] = await pool.query(
+      'SELECT COALESCE(user_id, owner_user_id) AS user_id FROM conversations WHERE id = ?',
+      [conversationId]
+    );
 
     if (rows.length === 0) {
       throw new Error('Conversation not found');
@@ -780,7 +811,7 @@ Trả lời CHỈ bằng tiếng Việt, tối đa 200 ký tự.`;
     try {
       // Verify message ownership
       const [messages] = await pool.query(
-        `SELECT cm.*, c.user_id FROM chat_messages cm
+        `SELECT cm.*, COALESCE(c.user_id, c.owner_user_id) AS user_id FROM chat_messages cm
          JOIN conversations c ON cm.conversation_id = c.id
          WHERE cm.id = ?`,
         [messageId]
@@ -803,10 +834,10 @@ Trả lời CHỈ bằng tiếng Việt, tối đa 200 ký tự.`;
 
       // If there's a feedback column, update it
       try {
-        await pool.query(
-          'UPDATE chat_messages SET feedback = ? WHERE id = ?',
-          [isPositive ? 'positive' : 'negative', messageId]
-        );
+        await pool.query('UPDATE chat_messages SET feedback = ? WHERE id = ?', [
+          isPositive ? 'positive' : 'negative',
+          messageId,
+        ]);
       } catch (_) {
         // Column may not exist yet, ignore
       }

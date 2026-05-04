@@ -13,10 +13,7 @@ const ChatWidgetGate = () => {
   const { pathname } = useLocation();
 
   const hireAi = isEnabled('ai_chatbot');
-  const isDedicatedChatSurface =
-    pathname === '/chat' ||
-    pathname === '/candidate/chat' ||
-    pathname.startsWith('/admin/chatbot');
+  const isDedicatedChatSurface = pathname === '/chat' || pathname === '/candidate/chat';
 
   if (loading || !isAuthenticated || !hireAi) {
     return null;

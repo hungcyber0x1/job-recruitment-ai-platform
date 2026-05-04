@@ -38,7 +38,16 @@
  * @property {string} updated_at - ISO timestamp
  */
 
-const JOB_STATUSES = ['draft', 'pending_review', 'approved', 'rejected', 'published', 'expired', 'closed', 'suspended'];
+const JOB_STATUSES = [
+  'draft',
+  'pending_review',
+  'approved',
+  'rejected',
+  'published',
+  'expired',
+  'closed',
+  'suspended',
+];
 const JOB_TYPES = ['full_time', 'part_time', 'contract', 'internship', 'freelance', 'remote'];
 const TABLE_NAME = 'jobs';
 const JOB_TYPE_ALIASES = {
@@ -68,28 +77,71 @@ class JobRepository extends BaseRepository {
     super('jobs');
   }
 
+  async cleanupUnavailableCompanyJobs() {
+    try {
+      const [result] = await this.pool.query(
+        `UPDATE jobs j
+         LEFT JOIN company_profiles cp ON j.company_id = cp.id
+            SET j.deleted_at = NOW(),
+                j.status = 'closed',
+                j.updated_at = NOW()
+          WHERE (cp.id IS NULL OR cp.deleted_at IS NOT NULL)
+            AND j.deleted_at IS NULL`
+      );
+      return Number(result?.affectedRows || 0);
+    } catch (err) {
+      logger.warn('[JobRepository] Cleanup unavailable-company jobs failed:', err.message);
+      return 0;
+    }
+  }
+
   buildFilterClauses(filters = {}) {
     const whereClauses = ['1=1'];
     const params = [];
+
+    const hasTextFilter = (value) => String(value ?? '').trim().length > 0;
 
     if (!filters.include_deleted) {
       whereClauses.push('j.deleted_at IS NULL');
       whereClauses.push('cp.deleted_at IS NULL');
     }
 
-    if (filters.status && filters.status !== 'all') {
+    if (filters.publicOnly) {
+      const requestedStatus = String(filters.status || '')
+        .trim()
+        .toLowerCase();
+      if (requestedStatus && !['all', 'published'].includes(requestedStatus)) {
+        whereClauses.push('1=0');
+      } else {
+        whereClauses.push("j.status = 'published'");
+        whereClauses.push('COALESCE(cp.is_verified, 0) = 1');
+        whereClauses.push('COALESCE(cp.flagged, 0) = 0');
+        whereClauses.push("COALESCE(ru.status, 'active') = 'active'");
+        whereClauses.push('(j.deadline IS NULL OR j.deadline >= CURDATE())');
+      }
+    } else if (filters.status && filters.status !== 'all') {
       whereClauses.push('j.status = ?');
       params.push(filters.status);
     } else if (!filters.status) {
-      // Public listing: chỉ hiển thị jobs đang published và chưa hết hạn
+      // Public listing: chỉ hiển thị jobs đang published, chưa hết hạn,
+      // thuộc doanh nghiệp đã xác minh và không bị khóa/gắn cờ.
       whereClauses.push("j.status = 'published'");
+      whereClauses.push('COALESCE(cp.is_verified, 0) = 1');
+      whereClauses.push('COALESCE(cp.flagged, 0) = 0');
+      whereClauses.push("COALESCE(ru.status, 'active') = 'active'");
       // Tự động đóng job đã hết deadline
       whereClauses.push('(j.deadline IS NULL OR j.deadline >= CURDATE())');
     }
 
-    if (filters.category_id) {
+    const categoryId = filters.category_id || filters.categoryId;
+    if (categoryId) {
       whereClauses.push('j.category_id = ?');
-      params.push(filters.category_id);
+      params.push(categoryId);
+    }
+
+    if (filters.industry) {
+      whereClauses.push('(cp.industry LIKE ? OR c.name LIKE ?)');
+      params.push(`%${filters.industry}%`, `%${filters.industry}%`);
     }
 
     const companyId = filters.company_id || filters.companyId;
@@ -104,9 +156,10 @@ class JobRepository extends BaseRepository {
       params.push(recruiterId);
     }
 
-    if (filters.job_type) {
+    const jobType = filters.job_type || filters.type || filters.employment_type;
+    if (jobType) {
       whereClauses.push('j.job_type = ?');
-      params.push(normalizeJobTypeFilter(filters.job_type));
+      params.push(normalizeJobTypeFilter(jobType));
     }
 
     if (filters.search) {
@@ -114,9 +167,18 @@ class JobRepository extends BaseRepository {
       params.push(`%${filters.search}%`, `%${filters.search}%`);
     }
 
-    if (filters.location_id) {
+    const locationId = filters.location_id || filters.locationId;
+    if (locationId) {
       whereClauses.push('j.location_id = ?');
-      params.push(filters.location_id);
+      params.push(locationId);
+    }
+
+    if (hasTextFilter(filters.location)) {
+      const locationTerm = `%${String(filters.location).trim()}%`;
+      whereClauses.push(
+        '(j.location LIKE ? OR j.address LIKE ? OR l.name LIKE ? OR cp.location LIKE ?)'
+      );
+      params.push(locationTerm, locationTerm, locationTerm, locationTerm);
     }
 
     if (filters.flagged) {
@@ -148,20 +210,24 @@ class JobRepository extends BaseRepository {
     return { whereSql: whereClauses.join(' AND '), params };
   }
 
-  async findWithDetails(filters = {}) {
-    try {
-      await this.pool.query(
-        `UPDATE jobs j
+  async findById(id) {
+    await this.cleanupUnavailableCompanyJobs();
+
+    const [rows] = await this.pool.query(
+      `SELECT j.*
+         FROM jobs j
          JOIN company_profiles cp ON j.company_id = cp.id
-            SET j.deleted_at = NOW(),
-                j.status = 'closed',
-                j.updated_at = NOW()
-          WHERE cp.deleted_at IS NOT NULL
-            AND j.deleted_at IS NULL`
-      );
-    } catch (err) {
-      logger.warn('[JobRepository] Cleanup deleted-company jobs failed:', err.message);
-    }
+        WHERE j.id = ?
+          AND j.deleted_at IS NULL
+          AND cp.deleted_at IS NULL`,
+      [id]
+    );
+    return rows[0];
+  }
+
+  async findWithDetails(filters = {}) {
+    await this.cleanupUnavailableCompanyJobs();
+
     // Tự động đóng jobs đã hết hạn (deadline < hôm nay)
     try {
       await this.pool.query(
@@ -190,6 +256,7 @@ class JobRepository extends BaseRepository {
              c.name as category_name,
              l.name as location_name,
              (SELECT COUNT(*) FROM applications a WHERE a.job_id = j.id) AS applicant_count,
+             (SELECT COUNT(*) FROM saved_jobs sj WHERE sj.job_id = j.id) AS saved_count,
              (
                SELECT GROUP_CONCAT(DISTINCT s.name ORDER BY s.name SEPARATOR '||')
                FROM job_skills js
@@ -198,17 +265,28 @@ class JobRepository extends BaseRepository {
              ) AS skill_names
       FROM jobs j
       JOIN company_profiles cp ON j.company_id = cp.id
+      LEFT JOIN users ru ON ru.id = COALESCE(j.recruiter_id, cp.user_id)
       LEFT JOIN categories c ON j.category_id = c.id
       LEFT JOIN locations l ON j.location_id = l.id
       WHERE ${whereSql}
     `;
 
     // Sorting
-    const allowedSortFields = ['created_at', 'title', 'status', 'featured', 'ai_risk', 'applicant_count'];
+    const allowedSortFields = [
+      'created_at',
+      'title',
+      'status',
+      'featured',
+      'ai_risk',
+      'applicant_count',
+      'recent_interested',
+    ];
     const sortBy = allowedSortFields.includes(filters.sortBy) ? filters.sortBy : 'created_at';
     const order = filters.order === 'ASC' ? 'ASC' : 'DESC';
-    
-    if (sortBy === 'applicant_count') {
+
+    if (sortBy === 'recent_interested') {
+      query += ` ORDER BY j.featured DESC, saved_count DESC, COALESCE(j.applications_count, 0) DESC, applicant_count DESC, j.created_at DESC`;
+    } else if (sortBy === 'applicant_count') {
       query += ` ORDER BY applicant_count ${order}, j.featured DESC, j.created_at DESC`;
     } else if (sortBy === 'title') {
       query += ` ORDER BY j.title ${order}, j.featured DESC, j.created_at DESC`;
@@ -238,7 +316,9 @@ class JobRepository extends BaseRepository {
       SELECT COUNT(*) as total
       FROM jobs j
       JOIN company_profiles cp ON j.company_id = cp.id
+      LEFT JOIN users ru ON ru.id = COALESCE(j.recruiter_id, cp.user_id)
       LEFT JOIN categories c ON j.category_id = c.id
+      LEFT JOIN locations l ON j.location_id = l.id
       WHERE ${whereSql}
     `;
     const [countResult] = await this.pool.query(countQuery, params);
@@ -247,8 +327,36 @@ class JobRepository extends BaseRepository {
     return { data: rows, total };
   }
 
-  async findByIdWithDetails(id, { includeDeleted = false } = {}) {
-    const deletedClause = includeDeleted ? '' : ' AND j.deleted_at IS NULL AND cp.deleted_at IS NULL';
+  async findRecentInterested(filters = {}) {
+    return this.findWithDetails({
+      ...filters,
+      publicOnly: true,
+      sortBy: 'recent_interested',
+      order: 'DESC',
+    });
+  }
+
+  async findByIdWithDetails(id, { includeDeleted = false, publicOnly = false } = {}) {
+    await this.cleanupUnavailableCompanyJobs();
+
+    const visibilityClauses = [];
+
+    if (!includeDeleted) {
+      visibilityClauses.push('j.deleted_at IS NULL');
+      visibilityClauses.push('cp.deleted_at IS NULL');
+    }
+
+    if (publicOnly) {
+      visibilityClauses.push("j.status = 'published'");
+      visibilityClauses.push('COALESCE(cp.is_verified, 0) = 1');
+      visibilityClauses.push('COALESCE(cp.flagged, 0) = 0');
+      visibilityClauses.push("COALESCE(u.status, 'active') = 'active'");
+      visibilityClauses.push('(j.deadline IS NULL OR j.deadline >= CURDATE())');
+    }
+
+    const visibilityClause = visibilityClauses.length
+      ? ` AND ${visibilityClauses.join(' AND ')}`
+      : '';
     const query = `
       SELECT j.*,
              cp.id AS company_id,
@@ -273,14 +381,16 @@ class JobRepository extends BaseRepository {
       JOIN company_profiles cp ON j.company_id = cp.id
       LEFT JOIN categories c ON j.category_id = c.id
       LEFT JOIN locations l ON j.location_id = l.id
-      LEFT JOIN users u ON j.recruiter_id = u.id
-      WHERE j.id = ?${deletedClause}
+      LEFT JOIN users u ON u.id = COALESCE(j.recruiter_id, cp.user_id)
+      WHERE j.id = ?${visibilityClause}
     `;
     const [rows] = await this.pool.query(query, [id]);
     return rows[0];
   }
 
   async findByCompany(companyId) {
+    await this.cleanupUnavailableCompanyJobs();
+
     const query = `
       SELECT j.*,
              cp.id AS company_id,
@@ -310,6 +420,8 @@ class JobRepository extends BaseRepository {
   }
 
   async findByRecruiter(recruiterId) {
+    await this.cleanupUnavailableCompanyJobs();
+
     const query = `
       SELECT j.*,
              cp.id AS company_id,
@@ -328,6 +440,8 @@ class JobRepository extends BaseRepository {
   }
 
   async countAll() {
+    await this.cleanupUnavailableCompanyJobs();
+
     const [rows] = await this.pool.query(
       `SELECT COUNT(*) as total
          FROM jobs j
@@ -339,6 +453,8 @@ class JobRepository extends BaseRepository {
   }
 
   async countByStatus(status) {
+    await this.cleanupUnavailableCompanyJobs();
+
     const [rows] = await this.pool.query(
       `SELECT COUNT(*) as total
          FROM jobs j
@@ -352,6 +468,8 @@ class JobRepository extends BaseRepository {
   }
 
   async countFlagged() {
+    await this.cleanupUnavailableCompanyJobs();
+
     const [rows] = await this.pool.query(
       `SELECT COUNT(*) as total
          FROM jobs j
@@ -376,7 +494,7 @@ class JobRepository extends BaseRepository {
     const params = [status];
 
     if (status === 'published') {
-      fields.push('published_at = NOW()');
+      fields.push('published_at = COALESCE(published_at, NOW())');
       fields.push('rejection_reason = NULL');
     } else if (status === 'rejected') {
       fields.push('rejection_reason = ?');
@@ -403,12 +521,12 @@ class JobRepository extends BaseRepository {
 
   async bulkUpdateStatus(ids, status, rejectionReason = null) {
     if (!Array.isArray(ids) || ids.length === 0) return 0;
-    
+
     const fields = ['status = ?'];
     const params = [status];
 
     if (status === 'published') {
-      fields.push('published_at = NOW()');
+      fields.push('published_at = COALESCE(published_at, NOW())');
       fields.push('rejection_reason = NULL');
     } else if (status === 'rejected') {
       fields.push('rejection_reason = ?');
@@ -416,7 +534,7 @@ class JobRepository extends BaseRepository {
     }
 
     fields.push('updated_at = NOW()');
-    
+
     const query = `UPDATE jobs SET ${fields.join(', ')} WHERE id IN (?) AND deleted_at IS NULL`;
     const [result] = await this.pool.query(query, [...params, ids]);
     return result.affectedRows;
@@ -442,35 +560,38 @@ class JobRepository extends BaseRepository {
     const job = await this.findById(id);
     if (!job) return null;
 
-    const { 
-      id: _, 
-      created_at: __, 
-      updated_at: ___, 
+    const {
+      id: _,
+      created_at: __,
+      updated_at: ___,
       views: ____,
       applications_count: _____,
-      ...jobData 
+      ...jobData
     } = job;
 
     jobData.title = `${jobData.title} (Copy)`;
     jobData.status = 'draft';
     jobData.slug = `${jobData.slug}-copy-${Date.now()}`;
 
-    const result = await this.create(jobData);
-    
+    const duplicatedJobId = await this.create(jobData);
+
     try {
       const [skills] = await this.pool.query('SELECT * FROM job_skills WHERE job_id = ?', [id]);
       if (skills && skills.length > 0) {
-        const skillValues = skills.map(s => [result.id, s.skill_id, s.is_required]);
-        await this.pool.query(
-          'INSERT INTO job_skills (job_id, skill_id, is_required) VALUES ?',
-          [skillValues]
-        );
+        const skillValues = skills.map((skill) => [
+          duplicatedJobId,
+          skill.skill_id,
+          skill.is_required ?? skill.requirement_type ?? null,
+        ]);
+        await this.pool.query('INSERT INTO job_skills (job_id, skill_id, is_required) VALUES ?', [
+          skillValues,
+        ]);
       }
     } catch (err) {
-      console.error('[JobRepository] Error copying skills during duplication:', err);
+      logger.warn('[JobRepository] Error copying skills during duplication:', err.message);
     }
 
-    return result;
+    return this.findById(duplicatedJobId);
   }
 }
 

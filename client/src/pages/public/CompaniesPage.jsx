@@ -29,7 +29,16 @@ const INDUSTRIES = [
 const INDUSTRY_KEYWORDS = {
   it: ['it', 'software', 'technology', 'information technology', 'công nghệ', 'phan mem'],
   marketing: ['marketing', 'media', 'truyền thông', 'truyen thong', 'content', 'brand'],
-  finance: ['finance', 'bank', 'banking', 'fintech', 'tài chính', 'tai chinh', 'ngân hàng', 'ngan hang'],
+  finance: [
+    'finance',
+    'bank',
+    'banking',
+    'fintech',
+    'tài chính',
+    'tai chinh',
+    'ngân hàng',
+    'ngan hang',
+  ],
   sales: ['sales', 'business', 'kinh doanh', 'ban hang', 'bán hàng', 'bd'],
 };
 
@@ -178,17 +187,17 @@ const CompaniesPage = () => {
 
               <div className="flex flex-1 items-center rounded-xl border border-transparent bg-muted/35 transition-[border-color,background-color,box-shadow] duration-200 hover:bg-muted/45 focus-within:border-primary/15 focus-within:bg-white focus-within:shadow-sm dark:bg-slate-800/80 dark:hover:bg-slate-800 dark:focus-within:border-emerald-500/20 dark:focus-within:bg-slate-900">
                 <Briefcase className="ml-4 size-5 shrink-0 text-slate-400" aria-hidden />
-                <Select name="industry" value={selectedIndustry} onValueChange={setSelectedIndustry}>
+                <Select
+                  name="industry"
+                  value={selectedIndustry}
+                  onValueChange={setSelectedIndustry}
+                >
                   <SelectTrigger className="h-14 w-full border-0 bg-transparent pl-3 pr-4 text-base font-semibold text-slate-700 shadow-none outline-none focus:ring-0 data-[placeholder]:text-slate-400/90 dark:text-slate-200">
                     <SelectValue placeholder="Tất cả ngành nghề" />
                   </SelectTrigger>
                   <SelectContent>
                     {INDUSTRIES.map((option) => (
-                      <SelectItem
-                        key={option.value}
-                        value={option.value}
-                        className="text-base"
-                      >
+                      <SelectItem key={option.value} value={option.value} className="text-base">
                         {option.label}
                       </SelectItem>
                     ))}
@@ -216,7 +225,9 @@ const CompaniesPage = () => {
               ) : (
                 <>
                   Hiển thị{' '}
-                  <span className="font-bold tabular-nums text-foreground">{visibleList.length}</span>{' '}
+                  <span className="font-bold tabular-nums text-foreground">
+                    {visibleList.length}
+                  </span>{' '}
                   / <span className="tabular-nums">{filteredCompanies.length}</span> công ty
                   {filteredCompanies.length !== companies.length && (
                     <span className="text-muted-foreground/80">
@@ -254,19 +265,22 @@ const CompaniesPage = () => {
               </div>
             )}
 
-            {!loading && !error && filteredCompanies.length > 0 && visibleCount < filteredCompanies.length && (
-              <div className="mt-12 flex justify-center">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="lg"
-                  className="rounded-xl border-border/60 px-8 text-base font-bold"
-                  onClick={loadMore}
-                >
-                  Xem thêm công ty
-                </Button>
-              </div>
-            )}
+            {!loading &&
+              !error &&
+              filteredCompanies.length > 0 &&
+              visibleCount < filteredCompanies.length && (
+                <div className="mt-12 flex justify-center">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="lg"
+                    className="rounded-xl border-border/60 px-8 text-base font-bold"
+                    onClick={loadMore}
+                  >
+                    Xem thêm công ty
+                  </Button>
+                </div>
+              )}
           </div>
         </div>
       </div>

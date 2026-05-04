@@ -1,13 +1,14 @@
 /**
- * Điều hướng theo vai trò (admin / employer / candidate) để tránh lẫn khu vực.
+ * Điều hướng theo vai trò (admin / recruiter / candidate) để tránh lẫn khu vực.
  */
 
 /** Lưu trước khi redirect OAuth; OAuthCallback đọc để quay lại đúng trang. */
 export const OAUTH_POST_LOGIN_REDIRECT_KEY = 'oauth_post_login_redirect';
 
 export function normalizeAuthRole(role) {
-  const normalizedRole = String(role ?? '').trim().toLowerCase();
-  return normalizedRole === 'employer' ? 'recruiter' : normalizedRole;
+  return String(role ?? '')
+    .trim()
+    .toLowerCase();
 }
 
 /** URL dashboard mặc định theo role sau đăng nhập. */

@@ -350,11 +350,11 @@
  * @property {string} scheduled_at
  * @property {string} [end_time]
  * @property {number} [duration_minutes]
- * @property {'scheduled'|'completed'|'cancelled'|'rescheduled'} status
+ * @property {'scheduled'|'in_progress'|'completed'|'cancelled'|'rescheduled'|'no_show'} status
  * @property {string} [meeting_link]
  * @property {string} [notes]
  * @property {string} [location]
- * @property {string} [interview_type]  — 'video'|'phone'|'onsite'
+ * @property {string} [interview_type]  — 'online'|'offline'|'phone'
  * @property {string} [interviewer_name]
  * @property {string} [created_at]
  */

@@ -20,18 +20,58 @@ class BlogRepository {
     };
   }
 
-  async findPublished({ category, search, sort = 'newest', limit = 500, offset = 0 }) {
+  _publicVisibilityClause() {
+    return `bp.status = 'published'
+      AND (bp.deleted_at IS NULL)
+      AND (bp.scheduled_at IS NULL OR bp.scheduled_at <= NOW())`;
+  }
+
+  _publicPublishedAtExpression() {
+    return 'COALESCE(bp.published_at, bp.updated_at, bp.created_at)';
+  }
+
+  _parseTags(value) {
+    if (!value) return [];
+    let parsed = value;
+    if (typeof parsed === 'string') {
+      try {
+        parsed = JSON.parse(parsed);
+      } catch {
+        parsed = parsed.split(',');
+      }
+    }
+    if (!Array.isArray(parsed)) return [];
+    return [...new Set(parsed.map((tag) => String(tag || '').trim()).filter(Boolean))];
+  }
+
+  _normalizeBooleanFilter(value) {
+    return value === true || value === 1 || value === '1' || value === 'true';
+  }
+
+  async findPublished({
+    category,
+    tag,
+    search,
+    sort = 'newest',
+    featured,
+    limit = 500,
+    offset = 0,
+  }) {
+    const publicPublishedAt = this._publicPublishedAtExpression();
     let sql = `
-      SELECT bp.id, bp.slug, bp.title, bp.excerpt, bp.thumbnail_url, bp.view_count,
-             bp.status, bp.published_at, bp.author_type,
+      SELECT bp.id, bp.slug, bp.title, bp.excerpt, bp.thumbnail_url, bp.featured_image, bp.view_count,
+             bp.is_featured, bp.tags, bp.status, bp.published_at,
+             ${publicPublishedAt} AS public_published_at, bp.author_type,
              TRIM(CONCAT(COALESCE(u.first_name,''), ' ', COALESCE(u.last_name,''))) AS author_name,
+             u.avatar_url AS author_avatar,
              cp.company_name AS company_name,
-             c.name as category_name
+             c.name AS category_name,
+             c.slug AS category_slug
       FROM blog_posts bp
       LEFT JOIN users u ON u.id = bp.author_id
       LEFT JOIN company_profiles cp ON bp.author_type = 'recruiter' AND cp.user_id = bp.author_id
       LEFT JOIN categories c ON c.id = bp.category_id
-      WHERE bp.status = 'published' AND bp.published_at IS NOT NULL
+      WHERE ${this._publicVisibilityClause()}
     `;
     const params = [];
 
@@ -39,17 +79,26 @@ class BlogRepository {
       sql += ' AND (c.slug = ? OR c.name = ?)';
       params.push(category, category);
     }
+    if (tag && tag.trim()) {
+      sql += ' AND JSON_CONTAINS(bp.tags, JSON_QUOTE(?))';
+      params.push(tag.trim());
+    }
+    if (this._normalizeBooleanFilter(featured)) {
+      sql += ' AND bp.is_featured = 1';
+    }
     if (search && search.trim()) {
       sql += ' AND (bp.title LIKE ? OR bp.excerpt LIKE ?)';
       const t = `%${search.trim()}%`;
       params.push(t, t);
     }
     if (sort === 'popular') {
-      sql += ' ORDER BY bp.view_count DESC, bp.published_at DESC';
+      sql += ` ORDER BY bp.view_count DESC, ${publicPublishedAt} DESC`;
     } else if (sort === 'oldest') {
-      sql += ' ORDER BY bp.published_at ASC';
+      sql += ` ORDER BY ${publicPublishedAt} ASC`;
+    } else if (sort === 'featured') {
+      sql += ` ORDER BY bp.is_featured DESC, ${publicPublishedAt} DESC`;
     } else {
-      sql += ' ORDER BY bp.published_at DESC';
+      sql += ` ORDER BY ${publicPublishedAt} DESC`;
     }
     sql += ' LIMIT ? OFFSET ?';
     params.push(limit, offset);
@@ -59,17 +108,20 @@ class BlogRepository {
   }
 
   async findBySlugForPublic(slug) {
+    const publicPublishedAt = this._publicPublishedAtExpression();
     const [rows] = await pool.query(
       `SELECT bp.*,
+              ${publicPublishedAt} AS public_published_at,
               TRIM(CONCAT(COALESCE(u.first_name,''), ' ', COALESCE(u.last_name,''))) AS author_name,
               u.avatar_url AS author_avatar,
               cp.company_name AS company_name,
-              c.name as category_name
+              c.name AS category_name,
+              c.slug AS category_slug
        FROM blog_posts bp
        LEFT JOIN users u ON u.id = bp.author_id
        LEFT JOIN company_profiles cp ON bp.author_type = 'recruiter' AND cp.user_id = bp.author_id
        LEFT JOIN categories c ON c.id = bp.category_id
-       WHERE bp.slug = ? AND bp.status = 'published' AND bp.published_at IS NOT NULL`,
+       WHERE bp.slug = ? AND ${this._publicVisibilityClause()}`,
       [slug]
     );
     return this._row(rows[0]);
@@ -88,16 +140,23 @@ class BlogRepository {
     return this._row(rows[0]);
   }
 
-  async countPublished({ category, search }) {
+  async countPublished({ category, tag, search, featured }) {
     let sql = `
       SELECT COUNT(*) AS c FROM blog_posts bp
       LEFT JOIN categories c ON c.id = bp.category_id
-      WHERE bp.status = 'published' AND bp.published_at IS NOT NULL
+      WHERE ${this._publicVisibilityClause()}
     `;
     const params = [];
     if (category && category !== 'Tất cả' && category !== 'all') {
       sql += ' AND (c.slug = ? OR c.name = ?)';
       params.push(category, category);
+    }
+    if (tag && tag.trim()) {
+      sql += ' AND JSON_CONTAINS(bp.tags, JSON_QUOTE(?))';
+      params.push(tag.trim());
+    }
+    if (this._normalizeBooleanFilter(featured)) {
+      sql += ' AND bp.is_featured = 1';
     }
     if (search && search.trim()) {
       sql += ' AND (bp.title LIKE ? OR bp.excerpt LIKE ?)';
@@ -209,6 +268,39 @@ class BlogRepository {
     return rows.map((r) => this._row(r));
   }
 
+  async findPublicTaxonomy() {
+    const [categoryRows] = await pool.query(`
+      SELECT DISTINCT c.id, c.name, c.slug
+      FROM blog_posts bp
+      JOIN categories c ON c.id = bp.category_id
+      WHERE ${this._publicVisibilityClause()}
+        AND c.is_active = 1
+        AND c.deleted_at IS NULL
+      ORDER BY c.name ASC
+    `);
+
+    const [tagRows] = await pool.query(`
+      SELECT bp.tags
+      FROM blog_posts bp
+      WHERE ${this._publicVisibilityClause()}
+        AND bp.tags IS NOT NULL
+    `);
+
+    const tagCounts = new Map();
+    for (const row of tagRows) {
+      for (const tag of this._parseTags(row.tags)) {
+        tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+      }
+    }
+
+    return {
+      categories: categoryRows.map((row) => this._row(row)),
+      tags: [...tagCounts.entries()]
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'vi')),
+    };
+  }
+
   async countAll() {
     const [rows] = await pool.query('SELECT COUNT(*) as total FROM blog_posts');
     return rows[0].total;
@@ -286,6 +378,10 @@ class BlogRepository {
   }
 
   async update(id, data) {
+    if (data.image_url !== undefined && data.thumbnail_url === undefined) {
+      data.thumbnail_url = data.image_url;
+    }
+
     const fields = [];
     const vals = [];
     const map = [
@@ -295,7 +391,6 @@ class BlogRepository {
       'content',
       'thumbnail_url',
       'featured_image',
-      'image_url',
       'category_id',
       'company_id',
       'status',
@@ -314,7 +409,8 @@ class BlogRepository {
         fields.push(`${k} = ?`);
         const v = data[k];
         if (k === 'tags') vals.push(v ? JSON.stringify(v) : null);
-        else if (k === 'is_published' || k === 'is_featured' || k === 'is_flagged') vals.push(v ? 1 : 0);
+        else if (k === 'is_published' || k === 'is_featured' || k === 'is_flagged')
+          vals.push(v ? 1 : 0);
         else vals.push(v);
       }
     }
@@ -333,7 +429,9 @@ class BlogRepository {
   }
 
   async softDelete(id) {
-    const [result] = await pool.query('UPDATE blog_posts SET deleted_at = NOW() WHERE id = ?', [id]);
+    const [result] = await pool.query('UPDATE blog_posts SET deleted_at = NOW() WHERE id = ?', [
+      id,
+    ]);
     return result.affectedRows;
   }
 

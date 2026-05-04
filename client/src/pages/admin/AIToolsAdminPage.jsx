@@ -16,6 +16,7 @@ import {
   XCircle,
 } from 'lucide-react';
 
+import StatCard from '@/components/common/StatCard';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import { useNotification } from '../../context/NotificationContext';
@@ -42,8 +43,7 @@ const TOOL_BLUEPRINTS = [
     name: 'AI Resume Analysis',
     category: 'CV',
     audience: 'Ứng viên',
-    description:
-      'Phân tích CV tự động, tổng hợp điểm mạnh và gợi ý điều chỉnh hồ sơ rõ ràng hơn.',
+    description: 'Phân tích CV tự động, tổng hợp điểm mạnh và gợi ý điều chỉnh hồ sơ rõ ràng hơn.',
     usageCount: 8932,
     icon: FileText,
     tone: 'blue',
@@ -118,7 +118,9 @@ function formatNumber(value) {
 }
 
 function formatProvider(value) {
-  const normalized = String(value || 'gemini').trim().toLowerCase();
+  const normalized = String(value || 'gemini')
+    .trim()
+    .toLowerCase();
   if (normalized === 'openai') return 'OpenAI';
   if (normalized === 'poe') return 'Poe';
   return 'Gemini';
@@ -128,9 +130,7 @@ function formatModel(value) {
   const raw = String(value || 'gemini-2.5-flash').trim();
   if (!raw) return 'gemini-2.5-flash';
 
-  return raw
-    .replace(/[-_]/g, ' ')
-    .replace(/\b\w/g, (char) => char.toUpperCase());
+  return raw.replace(/[-_]/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 function formatTemperature(value) {
@@ -150,29 +150,7 @@ function getSettingValue(settingsMap, keys, fallback = '') {
 }
 
 function HeroStatCard({ icon: Icon, label, value, helper, tone = 'emerald' }) {
-  const toneStyle = TONE_STYLES[tone] || TONE_STYLES.emerald;
-
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-            {label}
-          </p>
-          <p className="mt-3 text-3xl font-bold tracking-tight text-slate-950">{value}</p>
-          <p className="mt-2 text-sm leading-6 text-slate-500">{helper}</p>
-        </div>
-        <div
-          className={cn(
-            'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ring-1 ring-inset',
-            toneStyle.icon
-          )}
-        >
-          <Icon className="h-5 w-5" />
-        </div>
-      </div>
-    </div>
-  );
+  return <StatCard title={label} value={value} subtitle={helper} icon={Icon} type={tone} />;
 }
 
 function SectionShell({ icon: Icon, title, description, action, children }) {
@@ -226,13 +204,7 @@ function FilterPill({ active, label, count, onClick, tone = 'emerald' }) {
 }
 
 function RuntimeMetric({ label, value, helper }) {
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">{label}</p>
-      <p className="mt-2 text-base font-semibold text-slate-950">{value}</p>
-      <p className="mt-1 text-sm leading-6 text-slate-500">{helper}</p>
-    </div>
-  );
+  return <StatCard title={label} value={value} subtitle={helper} icon={Settings} type="neutral" />;
 }
 
 function ToolCard({ tool, onToggle, busy }) {
@@ -276,7 +248,9 @@ function ToolCard({ tool, onToggle, busy }) {
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <span className={cn('rounded-full border px-3 py-1 text-xs font-semibold', toneStyle.badge)}>
+        <span
+          className={cn('rounded-full border px-3 py-1 text-xs font-semibold', toneStyle.badge)}
+        >
           {tool.audience}
         </span>
         <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
@@ -374,7 +348,9 @@ const AIToolsAdminPage = () => {
   const runtimeProfile = useMemo(
     () => ({
       provider: formatProvider(getSettingValue(settingsMap, ['ai_provider', 'provider'], 'gemini')),
-      model: formatModel(getSettingValue(settingsMap, ['ai_model', 'chatbot_model'], 'gemini-2.5-flash')),
+      model: formatModel(
+        getSettingValue(settingsMap, ['ai_model', 'chatbot_model'], 'gemini-2.5-flash')
+      ),
       temperature: formatTemperature(
         getSettingValue(settingsMap, ['chatbot_temperature', 'temperature'], '0.7')
       ),
@@ -385,8 +361,18 @@ const AIToolsAdminPage = () => {
 
   const runtimeConfigured = useMemo(
     () =>
-      ['ai_provider', 'provider', 'ai_model', 'chatbot_model', 'chatbot_temperature', 'temperature', 'max_tokens']
-        .some((key) => settingsMap[key] !== undefined && settingsMap[key] !== null && settingsMap[key] !== ''),
+      [
+        'ai_provider',
+        'provider',
+        'ai_model',
+        'chatbot_model',
+        'chatbot_temperature',
+        'temperature',
+        'max_tokens',
+      ].some(
+        (key) =>
+          settingsMap[key] !== undefined && settingsMap[key] !== null && settingsMap[key] !== ''
+      ),
     [settingsMap]
   );
 
@@ -467,7 +453,7 @@ const AIToolsAdminPage = () => {
 
   return (
     <>
-      <section className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#effcf6_0%,#f8fffb_48%,#ffffff_100%)]">
+      <section className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.8]"
           style={{
@@ -495,14 +481,16 @@ const AIToolsAdminPage = () => {
                 </div>
 
                 <div className="max-w-4xl">
-                  <p className="text-sm font-semibold text-emerald-600">Điều phối công cụ AI trong hệ thống</p>
+                  <p className="text-sm font-semibold text-emerald-600">
+                    Điều phối công cụ AI trong hệ thống
+                  </p>
                   <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl lg:text-[2.8rem]">
                     Công cụ AI
                   </h1>
                   <p className="mt-4 max-w-3xl text-sm font-medium leading-7 text-slate-600 sm:text-base">
-                    Gom toàn bộ module AI đang phục vụ ứng viên, recruiter và lớp điều phối thành một
-                    workspace ngắn gọn hơn. Trang này đọc cùng nguồn system settings với khu chatbot và
-                    settings admin để giữ đồng nhất giao diện và logic vận hành.
+                    Gom toàn bộ module AI đang phục vụ ứng viên, recruiter và lớp điều phối thành
+                    một workspace ngắn gọn hơn. Trang này đọc cùng nguồn system settings với khu
+                    chatbot và settings admin để giữ đồng nhất giao diện và logic vận hành.
                   </p>
                 </div>
 
@@ -546,7 +534,8 @@ const AIToolsAdminPage = () => {
                     </p>
                     <p className="mt-1 text-2xl font-bold text-slate-950">Điều phối AI</p>
                     <p className="mt-2 text-sm leading-6 text-slate-600">
-                      Tìm module theo tên, đổi nhanh view và theo dõi runtime mặc định đang được áp dụng.
+                      Tìm module theo tên, đổi nhanh view và theo dõi runtime mặc định đang được áp
+                      dụng.
                     </p>
                   </div>
                   <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-3 py-2 text-right">
@@ -587,7 +576,9 @@ const AIToolsAdminPage = () => {
                     <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
                       Runtime đang dùng
                     </p>
-                    <p className="mt-1 text-sm font-semibold text-slate-950">{runtimeProfile.provider}</p>
+                    <p className="mt-1 text-sm font-semibold text-slate-950">
+                      {runtimeProfile.provider}
+                    </p>
                   </div>
                 </div>
 
@@ -598,15 +589,21 @@ const AIToolsAdminPage = () => {
                   <div className="mt-2 space-y-2 text-sm text-slate-600">
                     <div className="flex items-center justify-between gap-3">
                       <span>Model mặc định</span>
-                      <span className="text-right font-semibold text-slate-950">{runtimeProfile.model}</span>
+                      <span className="text-right font-semibold text-slate-950">
+                        {runtimeProfile.model}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between gap-3">
                       <span>Nhiệt độ</span>
-                      <span className="font-semibold text-slate-950">{runtimeProfile.temperature}</span>
+                      <span className="font-semibold text-slate-950">
+                        {runtimeProfile.temperature}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between gap-3">
                       <span>Max tokens</span>
-                      <span className="font-semibold text-slate-950">{runtimeProfile.maxTokens}</span>
+                      <span className="font-semibold text-slate-950">
+                        {runtimeProfile.maxTokens}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -637,7 +634,6 @@ const AIToolsAdminPage = () => {
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </section>
@@ -746,10 +742,12 @@ const AIToolsAdminPage = () => {
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">
                     Hồ sơ runtime hiện tại
                   </p>
-                  <h3 className="mt-2 text-lg font-bold text-slate-950">Thông số AI đang được áp dụng trên trang</h3>
+                  <h3 className="mt-2 text-lg font-bold text-slate-950">
+                    Thông số AI đang được áp dụng trên trang
+                  </h3>
                   <p className="mt-2 text-sm leading-6 text-slate-500">
-                    Giá trị bên dưới được lấy từ system settings, cùng logic với khu chatbot admin và
-                    các flow AI đang chạy trong dự án.
+                    Giá trị bên dưới được lấy từ system settings, cùng logic với khu chatbot admin
+                    và các flow AI đang chạy trong dự án.
                   </p>
 
                   <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -776,8 +774,9 @@ const AIToolsAdminPage = () => {
                   </div>
 
                   <div className="mt-5 rounded-2xl border border-emerald-200 bg-white px-4 py-4 text-sm leading-6 text-slate-600 shadow-sm">
-                    Mục đích của trang này là điều phối module. Việc bật tắt từng công cụ sẽ được lưu cùng
-                    cơ chế với <span className="font-semibold text-slate-950">/admin/settings</span> để tránh
+                    Mục đích của trang này là điều phối module. Việc bật tắt từng công cụ sẽ được
+                    lưu cùng cơ chế với{' '}
+                    <span className="font-semibold text-slate-950">/admin/settings</span> để tránh
                     lệch cấu hình giữa các màn quản trị.
                   </div>
                 </div>
@@ -788,25 +787,30 @@ const AIToolsAdminPage = () => {
                   </p>
                   <div className="mt-4 space-y-3">
                     <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
-                      <p className="text-sm font-semibold text-slate-950">Bật tắt theo từng module</p>
+                      <p className="text-sm font-semibold text-slate-950">
+                        Bật tắt theo từng module
+                      </p>
                       <p className="mt-1 text-sm leading-6 text-slate-500">
-                        Mỗi toggle cập nhật trực tiếp một setting key, giúp chatbot, screening và các flow
-                        public thừa hưởng trạng thái ngay sau khi admin điều chỉnh.
+                        Mỗi toggle cập nhật trực tiếp một setting key, giúp chatbot, screening và
+                        các flow public thừa hưởng trạng thái ngay sau khi admin điều chỉnh.
                       </p>
                     </div>
                     <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
-                      <p className="text-sm font-semibold text-slate-950">Ưu tiên sự đồng nhất hệ thống</p>
+                      <p className="text-sm font-semibold text-slate-950">
+                        Ưu tiên sự đồng nhất hệ thống
+                      </p>
                       <p className="mt-1 text-sm leading-6 text-slate-500">
-                        Runtime provider, model, nhiệt độ và max tokens được đọc cùng nguồn với trang
-                        chatbot admin thay vì hardcode trên riêng trang này.
+                        Runtime provider, model, nhiệt độ và max tokens được đọc cùng nguồn với
+                        trang chatbot admin thay vì hardcode trên riêng trang này.
                       </p>
                     </div>
                     <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
                       <p className="text-sm font-semibold text-slate-950">Bảo toàn flow hiện có</p>
                       <p className="mt-1 text-sm leading-6 text-slate-500">
-                        Công cụ interview prep ưu tiên đọc key <span className="font-semibold text-slate-950">ai_interview_prep</span>.
-                        Nếu dự án chưa khai báo key này trong settings, trang sẽ giữ fallback bật để không
-                        vô tình chặn luồng nghiệp vụ hiện tại.
+                        Công cụ interview prep ưu tiên đọc key{' '}
+                        <span className="font-semibold text-slate-950">ai_interview_prep</span>. Nếu
+                        dự án chưa khai báo key này trong settings, trang sẽ giữ fallback bật để
+                        không vô tình chặn luồng nghiệp vụ hiện tại.
                       </p>
                     </div>
                   </div>

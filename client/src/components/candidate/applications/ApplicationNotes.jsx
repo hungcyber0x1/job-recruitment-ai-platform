@@ -9,18 +9,10 @@ import {
   AlertCircle,
   StickyNote,
 } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import applicationNoteService from '../../../services/applicationNoteService';
 import { useNotification } from '../../../context/NotificationContext';
-import { formatDate } from '../../../utils/formatters';
-import { cn } from '../../../utils/cn';
 
 const ApplicationNotes = ({ applicationId, initialNote = '', onNoteSaved }) => {
   const { showNotification } = useNotification();
@@ -31,8 +23,27 @@ const ApplicationNotes = ({ applicationId, initialNote = '', onNoteSaved }) => {
   const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
-    setNote(initialNote);
-    setHasNote(Boolean(initialNote));
+    let cancelled = false;
+
+    const loadNote = async () => {
+      try {
+        const response = await applicationNoteService.getNote(applicationId);
+        if (cancelled) return;
+        const storedNote = response.data?.data?.note;
+        const nextNote = storedNote || initialNote || '';
+        setNote(nextNote);
+        setHasNote(Boolean(nextNote));
+      } catch {
+        if (cancelled) return;
+        setNote(initialNote);
+        setHasNote(Boolean(initialNote));
+      }
+    };
+
+    loadNote();
+    return () => {
+      cancelled = true;
+    };
   }, [initialNote, applicationId]);
 
   const handleSave = async () => {
@@ -86,7 +97,11 @@ const ApplicationNotes = ({ applicationId, initialNote = '', onNoteSaved }) => {
             onClick={() => setShowForm(true)}
             className="h-8 rounded-lg text-xs font-bold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 gap-1"
           >
-            {hasNote ? <Edit2 className="h-3.5 w-3.5" /> : <MessageSquare className="h-3.5 w-3.5" />}
+            {hasNote ? (
+              <Edit2 className="h-3.5 w-3.5" />
+            ) : (
+              <MessageSquare className="h-3.5 w-3.5" />
+            )}
             {hasNote ? 'Sửa ghi chú' : 'Thêm ghi chú'}
           </Button>
         )}
@@ -111,7 +126,7 @@ const ApplicationNotes = ({ applicationId, initialNote = '', onNoteSaved }) => {
           </div>
           <Textarea
             value={note}
-            onChange={e => setNote(e.target.value)}
+            onChange={(e) => setNote(e.target.value)}
             placeholder="VD: Đây là công ty mơ ước, nhớ follow up sau 3 ngày. Đã research kỹ về tech stack..."
             rows={4}
             className="resize-none rounded-lg border-amber-200 bg-white text-sm focus:border-amber-400 focus:ring-amber-100"
@@ -148,7 +163,11 @@ const ApplicationNotes = ({ applicationId, initialNote = '', onNoteSaved }) => {
                 disabled={saving || !note.trim()}
                 className="h-8 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-600 gap-1"
               >
-                {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                {saving ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Save className="h-3.5 w-3.5" />
+                )}
                 Lưu ghi chú
               </Button>
             </div>

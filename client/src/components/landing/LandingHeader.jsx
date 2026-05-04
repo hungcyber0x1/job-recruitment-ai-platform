@@ -180,7 +180,7 @@ const LandingHeader = () => {
                       className="flex items-center gap-3 py-3 rounded-xl cursor-pointer"
                     >
                       <AppIcon icon={LayoutDashboard} size={18} className="text-muted-foreground" />
-                      <span className="text-base font-bold">Bảng điều khiển</span>
+                      <span className="text-base font-bold">Tổng quan</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>

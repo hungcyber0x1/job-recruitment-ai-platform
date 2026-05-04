@@ -17,14 +17,11 @@ const { toUserContract } = require('../utils/user-contract');
 const { USER_STATUS } = require('../utils/constants');
 
 const REGISTER_ROLES = ['candidate', 'recruiter'];
-const LEGACY_ROLE_ALIASES = {
-  employer: 'recruiter',
-};
-let recruiterStorageRolePromise;
 
 function normalizeAuthRole(role) {
-  const normalizedRole = String(role ?? '').trim().toLowerCase();
-  return LEGACY_ROLE_ALIASES[normalizedRole] || normalizedRole;
+  return String(role ?? '')
+    .trim()
+    .toLowerCase();
 }
 
 class AuthService {
@@ -32,61 +29,25 @@ class AuthService {
     return normalizeAuthRole(role);
   }
 
-  async getStoredRole(role, queryable = pool) {
-    const normalizedRole = this.normalizeRole(role);
-    if (normalizedRole !== 'recruiter') {
-      return normalizedRole;
-    }
-
-    if (!recruiterStorageRolePromise) {
-      recruiterStorageRolePromise = queryable
-        .query("SHOW COLUMNS FROM users LIKE 'role'")
-        .then(([rows]) => {
-          const roleType = String(rows?.[0]?.Type ?? '').toLowerCase();
-          return roleType.includes('recruiter') ? 'recruiter' : 'employer';
-        })
-        .catch((error) => {
-          recruiterStorageRolePromise = null;
-          throw error;
-        });
-    }
-
-    return recruiterStorageRolePromise;
-  }
-
   async insertRoleProfile(connection, role, userId, companyName) {
     if (role === 'candidate') {
-      try {
-        await connection.query('INSERT INTO candidate_profiles (user_id) VALUES (?)', [userId]);
-      } catch (error) {
-        if (error?.code !== 'ER_NO_SUCH_TABLE') {
-          throw error;
-        }
-        await connection.query('INSERT INTO candidates (user_id) VALUES (?)', [userId]);
-      }
+      await connection.query('INSERT INTO candidate_profiles (user_id) VALUES (?)', [userId]);
       return;
     }
 
     if (role === 'recruiter') {
-      try {
-        await connection.query('INSERT INTO company_profiles (user_id, company_name) VALUES (?, ?)', [
-          userId,
-          companyName || 'Chưa cập nhật',
-        ]);
-      } catch (error) {
-        if (error?.code !== 'ER_NO_SUCH_TABLE') {
-          throw error;
-        }
-        await connection.query('INSERT INTO employers (user_id, company_name) VALUES (?, ?)', [
-          userId,
-          companyName || 'Chưa cập nhật',
-        ]);
-      }
+      await connection.query(
+        `INSERT INTO company_profiles (user_id, company_name, is_verified, verification_status)
+         VALUES (?, ?, 0, 'pending')`,
+        [userId, companyName || 'Chưa cập nhật']
+      );
     }
   }
 
   getEffectiveStatus(user = {}) {
-    const rawStatus = String(user.status || '').trim().toLowerCase();
+    const rawStatus = String(user.status || '')
+      .trim()
+      .toLowerCase();
 
     if (rawStatus) {
       return rawStatus;
@@ -137,24 +98,18 @@ class AuthService {
     await connection.beginTransaction();
 
     try {
-      // Determine initial status based on role
-      // Thay đổi: Cho phép nhà tuyển dụng active ngay lập tức
+      // Recruiter cần được admin duyệt hồ sơ doanh nghiệp trước khi đăng tuyển.
       const initialStatus =
         normalizedRole === 'recruiter' ? USER_STATUS.PENDING_VERIFICATION : USER_STATUS.ACTIVE;
-      const storedRole = await this.getStoredRole(normalizedRole, connection);
-
-      // Create the base user record
-      const [result] = await connection.query(
-        'INSERT INTO users (email, password, role, first_name, last_name, status) VALUES (?, ?, ?, ?, ?, ?)',
-        [
-          userData.email,
-          hashedPassword,
-          storedRole,
-          userData.first_name,
-          userData.last_name,
-          initialStatus,
-        ]
-      );
+      // Create the base user record. Support both legacy password_hash and runtime password schemas.
+      const result = await UserRepository.createAuthUser(connection, {
+        email: userData.email,
+        passwordHash: hashedPassword,
+        role: normalizedRole,
+        firstName: userData.first_name,
+        lastName: userData.last_name,
+        status: initialStatus,
+      });
       const userId = result.insertId;
 
       // Create role-specific profile
@@ -166,7 +121,7 @@ class AuthService {
       const user = await UserRepository.findById(userId);
       return {
         ...toUserContract(user),
-        has_local_password: Boolean(user?.password),
+        has_local_password: Boolean(user?.password || user?.password_hash),
       };
     } catch (error) {
       await connection.rollback();
@@ -190,7 +145,10 @@ class AuthService {
       throw new AppError('Email hoặc mật khẩu không đúng', 401, 'INVALID_CREDENTIALS');
     }
 
-    if (role === 'recruiter' && [USER_STATUS.PENDING_VERIFICATION, 'pending'].includes(effectiveStatus)) {
+    if (
+      role === 'recruiter' &&
+      [USER_STATUS.PENDING_VERIFICATION, 'pending'].includes(effectiveStatus)
+    ) {
       throw new AppError(
         'Tai khoan nha tuyen dung dang cho quan tri vien phe duyet',
         403,
@@ -211,12 +169,14 @@ class AuthService {
       throw new AppError('Email hoặc mật khẩu không đúng', 401, 'INVALID_CREDENTIALS');
     }
 
+    await UserRepository.recordSuccessfulLogin(user.id);
+
     const userContract = {
       ...toUserContract({
         ...user,
         role,
       }),
-      has_local_password: Boolean(user?.password),
+      has_local_password: Boolean(user?.password || user?.password_hash),
     };
     const token = this.generateToken({ ...user, role });
     return {
@@ -268,11 +228,9 @@ class AuthService {
   }
 
   generateToken(user) {
-    return jwt.sign(
-      { id: user.id, role: this.normalizeRole(user?.role) },
-      jwtConfig.secret,
-      { expiresIn: jwtConfig.expiresIn }
-    );
+    return jwt.sign({ id: user.id, role: this.normalizeRole(user?.role) }, jwtConfig.secret, {
+      expiresIn: jwtConfig.expiresIn,
+    });
   }
 }
 

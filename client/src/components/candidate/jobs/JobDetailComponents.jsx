@@ -62,12 +62,21 @@ const InfoTile = ({ icon: Icon, label, value, tone = 'emerald' }) => {
   return (
     <div className="flex min-h-[92px] flex-col rounded-lg border border-slate-200 bg-white/95 px-3 py-3">
       <div className="flex items-center gap-2.5">
-        <div className={cn('flex size-9 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset', toneClass)}>
+        <div
+          className={cn(
+            'flex size-9 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset',
+            toneClass
+          )}
+        >
           <Icon className="h-4 w-4" />
         </div>
-        <p className="min-w-0 truncate text-[10px] font-bold uppercase tracking-[0.08em] text-slate-400">{label}</p>
+        <p className="min-w-0 truncate text-[10px] font-bold uppercase tracking-[0.08em] text-slate-400">
+          {label}
+        </p>
       </div>
-      <p className="mt-3 break-words text-[15px] font-bold leading-5 text-slate-950">{valueOrFallback(value)}</p>
+      <p className="mt-3 break-words text-[15px] font-bold leading-5 text-slate-950">
+        {valueOrFallback(value)}
+      </p>
     </div>
   );
 };
@@ -231,7 +240,9 @@ JobDetailHeader.propTypes = {
 };
 
 const InfoLine = ({ icon: Icon, value, href }) => {
-  const content = <span className="min-w-0 truncate text-sm font-semibold text-slate-700">{value}</span>;
+  const content = (
+    <span className="min-w-0 truncate text-sm font-semibold text-slate-700">{value}</span>
+  );
 
   return (
     <div className="flex items-center gap-3 rounded-lg border border-slate-100 bg-slate-50 px-3 py-3">
@@ -380,7 +391,9 @@ const SectionBlock = ({ icon: Icon, title, html, tone = 'emerald' }) => {
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <div className="mb-4 flex items-center gap-3">
-        <div className={cn('flex h-10 w-10 items-center justify-center rounded-lg border', toneClass)}>
+        <div
+          className={cn('flex h-10 w-10 items-center justify-center rounded-lg border', toneClass)}
+        >
           <Icon className="h-5 w-5" />
         </div>
         <h2 className="text-lg font-bold text-slate-950">{title}</h2>

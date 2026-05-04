@@ -19,12 +19,12 @@ const getMyNotifications = catchAsync(async (req, res) => {
     limit: parseInt(limit, 10),
     offset: parseInt(offset, 10),
     type,
-    unreadOnly: unread_only === 'true'
+    unreadOnly: unread_only === 'true',
   };
 
   const [notifications, unreadCount] = await Promise.all([
     notificationService.getUserNotifications(userId, options),
-    notificationService.getUnreadCount(userId)
+    notificationService.getUnreadCount(userId),
   ]);
 
   return ApiResponse.success(res, {
@@ -33,8 +33,8 @@ const getMyNotifications = catchAsync(async (req, res) => {
     pagination: {
       limit: options.limit,
       offset: options.offset,
-      has_more: notifications.length === options.limit
-    }
+      has_more: notifications.length === options.limit,
+    },
   });
 });
 
@@ -51,7 +51,7 @@ const markAsRead = catchAsync(async (req, res) => {
   const { id } = req.params;
 
   const success = await notificationService.markAsRead(parseInt(id, 10), userId);
-  
+
   if (!success) {
     return ApiResponse.notFound(res, 'Không tìm thấy thông báo');
   }
@@ -63,9 +63,9 @@ const markAllAsRead = catchAsync(async (req, res) => {
   const userId = req.user.id;
   const count = await notificationService.markAllAsRead(userId);
 
-  return ApiResponse.success(res, { 
+  return ApiResponse.success(res, {
     message: 'Đã đánh dấu tất cả là đã đọc',
-    count 
+    count,
   });
 });
 
@@ -74,7 +74,7 @@ const deleteNotification = catchAsync(async (req, res) => {
   const { id } = req.params;
 
   const success = await notificationService.deleteNotification(parseInt(id, 10), userId);
-  
+
   if (!success) {
     return ApiResponse.notFound(res, 'Không tìm thấy thông báo');
   }
@@ -86,9 +86,9 @@ const clearReadNotifications = catchAsync(async (req, res) => {
   const userId = req.user.id;
   const count = await notificationService.clearReadNotifications(userId);
 
-  return ApiResponse.success(res, { 
+  return ApiResponse.success(res, {
     message: 'Đã xóa các thông báo đã đọc',
-    count 
+    count,
   });
 });
 
@@ -105,12 +105,12 @@ const getRecruiterNotifications = catchAsync(async (req, res) => {
     limit: parseInt(limit, 10),
     offset: parseInt(offset, 10),
     type,
-    unreadOnly: unread_only === 'true'
+    unreadOnly: unread_only === 'true',
   };
 
   const [notifications, unreadCount] = await Promise.all([
     notificationService.getUserNotifications(userId, options),
-    notificationService.getUnreadCount(userId)
+    notificationService.getUnreadCount(userId),
   ]);
 
   return ApiResponse.success(res, {
@@ -119,8 +119,8 @@ const getRecruiterNotifications = catchAsync(async (req, res) => {
     pagination: {
       limit: options.limit,
       offset: options.offset,
-      has_more: notifications.length === options.limit
-    }
+      has_more: notifications.length === options.limit,
+    },
   });
 });
 
@@ -137,13 +137,13 @@ const getAdminNotifications = catchAsync(async (req, res) => {
     limit: parseInt(limit, 10),
     offset: parseInt(offset, 10),
     type: type && type !== 'all' ? type : undefined,
-    unreadOnly: unread_only === 'true'
+    unreadOnly: unread_only === 'true',
   };
 
   const [notifications, unreadCount, stats] = await Promise.all([
     notificationService.getUserNotifications(userId, options),
     notificationService.getUnreadCount(userId),
-    notificationService.getNotificationStats(userId)
+    notificationService.getNotificationStats(userId),
   ]);
 
   // Lấy thêm số lượng pending items cho admin
@@ -163,8 +163,8 @@ const getAdminNotifications = catchAsync(async (req, res) => {
     pagination: {
       limit: options.limit,
       offset: options.offset,
-      has_more: notifications.length === options.limit
-    }
+      has_more: notifications.length === options.limit,
+    },
   });
 });
 
@@ -175,16 +175,11 @@ const sendBulkNotification = catchAsync(async (req, res) => {
     return res.status(400).json({ success: false, message: 'Title is required' });
   }
 
-  const count = await notificationService.sendBulkNotification(
-    user_ids,
-    title,
-    message,
-    data
-  );
+  const count = await notificationService.sendBulkNotification(user_ids, title, message, data);
 
-  return ApiResponse.success(res, { 
+  return ApiResponse.success(res, {
     message: 'Đã gửi thông báo',
-    count 
+    count,
   });
 });
 
@@ -197,5 +192,5 @@ module.exports = {
   clearReadNotifications,
   getRecruiterNotifications,
   getAdminNotifications,
-  sendBulkNotification
+  sendBulkNotification,
 };

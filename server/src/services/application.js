@@ -11,6 +11,41 @@ const { isDeadlinePassed } = require('../utils/deadline');
 const isDuplicateApplicationError = (error) =>
   error?.code === 'ER_DUP_ENTRY' || error?.errno === 1062;
 
+const CANDIDATE_WITHDRAWAL_TOKEN = Symbol('candidate_withdrawal');
+
+const parsePositiveInteger = (value) => {
+  if (typeof value === 'number') {
+    return Number.isInteger(value) && value > 0 ? value : null;
+  }
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (/^\d+$/.test(trimmed)) {
+      const parsed = Number.parseInt(trimmed, 10);
+      return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+    }
+  }
+
+  return null;
+};
+
+const normalizeOptionalText = (value, maxLength = 2000) => {
+  if (value == null) return null;
+  const normalized = String(value).trim();
+  return normalized ? normalized.slice(0, maxLength) : null;
+};
+
+const VALID_APPLICATION_TRANSITIONS = Object.freeze({
+  submitted: ['shortlisted', 'interview_scheduled', 'rejected', 'withdrawn'],
+  shortlisted: ['interview_scheduled', 'rejected', 'withdrawn'],
+  interview_scheduled: ['interview_scheduled', 'interviewed', 'rejected', 'withdrawn'],
+  interviewed: ['interview_scheduled', 'offered', 'rejected'],
+  offered: ['hired', 'rejected', 'withdrawn'],
+  hired: [],
+  rejected: [],
+  withdrawn: [],
+});
+
 /**
  * Application Service — Xử lý nghiệp vụ Application
  *
@@ -25,6 +60,10 @@ const isDuplicateApplicationError = (error) =>
  *  withdrawn          → gửi email notification recruiter
  */
 class ApplicationService {
+  canTransitionApplicationStatus(currentStatus, nextStatus) {
+    return (VALID_APPLICATION_TRANSITIONS[currentStatus] || []).includes(nextStatus);
+  }
+
   /**
    * Ứng viên nộp đơn vào một tin tuyển dụng đang mở.
    *
@@ -35,11 +74,11 @@ class ApplicationService {
    * - Lỗi unique key từ DB được chuẩn hoá thành lỗi validation thân thiện.
    */
   async applyToJob(candidateId, jobId, applicationData = {}) {
-    const numericCandidateId = Number.parseInt(candidateId, 10);
-    const numericJobId = Number.parseInt(jobId, 10);
+    const numericCandidateId = parsePositiveInteger(candidateId);
+    const numericJobId = parsePositiveInteger(jobId);
 
-    if (!Number.isInteger(numericCandidateId) || !Number.isInteger(numericJobId)) {
-      throw new AppError('Invalid candidate or job id', 400);
+    if (numericCandidateId == null || numericJobId == null) {
+      throw new AppError('ID ứng viên hoặc tin tuyển dụng không hợp lệ', 400);
     }
 
     const connection = await pool.getConnection();
@@ -52,24 +91,28 @@ class ApplicationService {
         `SELECT j.id, j.status, j.company_id, j.deadline, j.title, j.recruiter_id
          FROM jobs j
          JOIN company_profiles cp ON j.company_id = cp.id
+         LEFT JOIN users ru ON ru.id = COALESCE(j.recruiter_id, cp.user_id)
          WHERE j.id = ?
            AND j.deleted_at IS NULL
            AND cp.deleted_at IS NULL
+           AND COALESCE(cp.is_verified, 0) = 1
+           AND COALESCE(cp.flagged, 0) = 0
+           AND COALESCE(ru.status, 'active') = 'active'
          LIMIT 1`,
         [numericJobId]
       );
       const job = jobRows[0];
 
       if (!job) {
-        throw new AppError('Job not found', 404);
+        throw new AppError('Không tìm thấy tin tuyển dụng', 404);
       }
 
       if (job.status !== 'published') {
-        throw new AppError('Job is not open for applications', 400);
+        throw new AppError('Tin tuyển dụng không còn mở nhận hồ sơ', 400);
       }
 
       if (isDeadlinePassed(job.deadline)) {
-        throw new AppError('Application deadline has passed', 400);
+        throw new AppError('Hạn nộp hồ sơ đã kết thúc', 400);
       }
 
       const [existingRows] = await connection.query(
@@ -78,7 +121,7 @@ class ApplicationService {
       );
 
       if (existingRows.length > 0) {
-        throw new AppError('You have already applied to this job', 400);
+        throw new AppError('Bạn đã ứng tuyển tin tuyển dụng này', 400);
       }
 
       const [result] = await connection.query(
@@ -87,8 +130,8 @@ class ApplicationService {
         [
           numericCandidateId,
           numericJobId,
-          applicationData.cover_letter ?? applicationData.coverLetter ?? null,
-          applicationData.resume_url ?? applicationData.resumeUrl ?? null,
+          normalizeOptionalText(applicationData.cover_letter ?? applicationData.coverLetter, 2000),
+          normalizeOptionalText(applicationData.resume_url ?? applicationData.resumeUrl, 1000),
         ]
       );
 
@@ -102,7 +145,7 @@ class ApplicationService {
       }
 
       if (isDuplicateApplicationError(error)) {
-        throw new AppError('You have already applied to this job', 400);
+        throw new AppError('Bạn đã ứng tuyển tin tuyển dụng này', 400);
       }
 
       throw error;
@@ -155,24 +198,24 @@ Tin tuyển dụng:
 Trả về duy nhất JSON hợp lệ dạng: {"score": number, "summary": "tóm tắt ngắn bằng tiếng Việt"}`;
 
       const response = await AIService.generateContent(prompt);
-      const cleaned = typeof AIService.cleanJsonResponse === 'function'
-        ? AIService.cleanJsonResponse(response)
-        : response;
+      const cleaned =
+        typeof AIService.cleanJsonResponse === 'function'
+          ? AIService.cleanJsonResponse(response)
+          : response;
       const parsed = JSON.parse(cleaned);
       const rawScore = Number(parsed.score ?? parsed.ai_score);
-      const aiScore = Number.isFinite(rawScore)
-        ? Math.max(0, Math.min(100, rawScore))
-        : null;
+      const aiScore = Number.isFinite(rawScore) ? Math.max(0, Math.min(100, rawScore)) : null;
       const aiSummary = parsed.summary ? String(parsed.summary).slice(0, 2000) : null;
 
       if (aiScore == null && !aiSummary) {
         return null;
       }
 
-      await pool.query(
-        'UPDATE applications SET ai_score = ?, ai_summary = ? WHERE id = ?',
-        [aiScore, aiSummary, applicationId]
-      );
+      await pool.query('UPDATE applications SET ai_score = ?, ai_summary = ? WHERE id = ?', [
+        aiScore,
+        aiSummary,
+        applicationId,
+      ]);
 
       return { ai_score: aiScore, ai_summary: aiSummary };
     } catch (error) {
@@ -196,23 +239,37 @@ Trả về duy nhất JSON hợp lệ dạng: {"score": number, "summary": "tóm
    *   interview_scheduled: { interview_type, scheduled_at, duration_minutes?, location?, candidate_note? }
    *   offered:             { salary_offered?, response_deadline?, start_date?, benefits?, offer_letter_url? }
    */
-  async updateApplicationStatus(applicationId, companyId, userId, status, notes = null, isAdmin = false, metadata = {}) {
+  async updateApplicationStatus(
+    applicationId,
+    companyId,
+    userId,
+    status,
+    notes = null,
+    isAdmin = false,
+    metadata = {}
+  ) {
     if (!APP_STATUS_VALUES.includes(status)) {
-      throw new AppError(`Invalid application status. Must be one of: ${APP_STATUS_VALUES.join(', ')}`, 400);
+      throw new AppError(
+        `Trạng thái hồ sơ không hợp lệ. Giá trị hợp lệ: ${APP_STATUS_VALUES.join(', ')}`,
+        400
+      );
     }
 
     const application = await ApplicationRepository.findByIdWithDetails(applicationId);
-    if (!application) throw new AppError('Application not found', 404);
+    if (!application) throw new AppError('Không tìm thấy hồ sơ ứng tuyển', 404);
 
     const job = await JobRepository.findById(application.job_id);
-    if (!job) throw new AppError('Job not found', 404);
+    if (!job) throw new AppError('Không tìm thấy tin tuyển dụng', 404);
 
     if (!isAdmin && companyId == null) {
-      throw new AppError('Company profile is required to update this application', 403);
+      throw new AppError(
+        'Vui lòng hoàn thiện hồ sơ công ty trước khi cập nhật hồ sơ ứng tuyển',
+        403
+      );
     }
 
     if (!isAdmin && Number(job.company_id) !== Number(companyId)) {
-      throw new AppError('Not authorized to update this application', 403);
+      throw new AppError('Bạn không có quyền cập nhật hồ sơ ứng tuyển này', 403);
     }
 
     const oldStatus = application.status;
@@ -220,26 +277,15 @@ Trả về duy nhất JSON hợp lệ dạng: {"score": number, "summary": "tóm
     const isInterviewScheduling = status === 'interview_scheduled';
     const isInterviewReschedule = isInterviewScheduling && oldStatus === status;
 
-    const VALID_TRANSITIONS = {
-      submitted: ['shortlisted', 'interview_scheduled', 'rejected', 'withdrawn'],
-      shortlisted: ['interview_scheduled', 'rejected', 'withdrawn'],
-      interview_scheduled: ['interview_scheduled', 'interviewed', 'rejected', 'withdrawn'],
-      interviewed: ['interview_scheduled', 'offered', 'rejected'],
-      offered: ['hired', 'rejected', 'withdrawn'],
-      hired: [],
-      rejected: [],
-      withdrawn: [],
-    };
-
     // Cho phép recruiter lên lịch lại / thêm vòng phỏng vấn mới mà vẫn giữ status interview_scheduled.
     if (oldStatus === status && !isInterviewReschedule) {
       throw new AppError('Application is already in this status', 400);
     }
 
-    const allowedNext = VALID_TRANSITIONS[oldStatus];
+    const allowedNext = VALID_APPLICATION_TRANSITIONS[oldStatus];
     if (!allowedNext || !allowedNext.includes(status)) {
       throw new AppError(
-        `Không thể chuyển từ trạng thái "${oldStatus}" sang "${status}". Trình tự hợp lệ: submitted → shortlisted → interview_scheduled → interviewed → offered → hired (hoặc rejected từ bất kỳ bước nào).`,
+        `Không thể chuyển từ trạng thái "${oldStatus}" sang "${status}". Trình tự hợp lệ: submitted → shortlisted → interview_scheduled → interviewed → offered → hired; rejected/withdrawn là các nhánh kết thúc hợp lệ theo ngữ cảnh.`,
         400
       );
     }
@@ -251,7 +297,15 @@ Trả về duy nhất JSON hợp lệ dạng: {"score": number, "summary": "tóm
     await ApplicationRepository.updateStatus(applicationId, status, userId, notes, {});
 
     // Gửi email & notification theo stage
-    await this._sendStatusNotifications(applicationId, oldStatus, status, notes, application, job, metadata).catch(err => {
+    await this._sendStatusNotifications(
+      applicationId,
+      oldStatus,
+      status,
+      notes,
+      application,
+      job,
+      metadata
+    ).catch((err) => {
       logger.error('Failed to send status notifications:', err);
     });
 
@@ -263,9 +317,13 @@ Trả về duy nhất JSON hợp lệ dạng: {"score": number, "summary": "tóm
    */
   async _handleStageSideEffects(applicationId, newStatus, userId, metadata, application, job) {
     switch (newStatus) {
-
       case 'interview_scheduled': {
-        const scheduleableStatuses = ['submitted', 'shortlisted', 'interview_scheduled', 'interviewed'];
+        const scheduleableStatuses = [
+          'submitted',
+          'shortlisted',
+          'interview_scheduled',
+          'interviewed',
+        ];
         if (!scheduleableStatuses.includes(application.status)) {
           throw new AppError('Không thể sắp lịch phỏng vấn cho hồ sơ ở trạng thái hiện tại', 400);
         }
@@ -275,21 +333,29 @@ Trả về duy nhất JSON hợp lệ dạng: {"score": number, "summary": "tóm
           throw new AppError('Vui lòng cung cấp ngày giờ phỏng vấn (scheduled_at)', 400);
         }
         if (!metadata.interview_type) {
-          throw new AppError('Vui lòng cung cấp hình thức phỏng vấn (interview_type: online/offline/phone)', 400);
+          throw new AppError(
+            'Vui lòng cung cấp hình thức phỏng vấn (interview_type: online/offline/phone)',
+            400
+          );
+        }
+
+        const allowedInterviewTypes = ['online', 'offline', 'phone'];
+        if (!allowedInterviewTypes.includes(metadata.interview_type)) {
+          throw new AppError('Hình thức phỏng vấn phải là online, offline hoặc phone', 400);
         }
 
         const scheduledAt = new Date(metadata.scheduled_at);
         if (Number.isNaN(scheduledAt.getTime())) {
-          throw new AppError('Ngay gio phong van khong hop le', 400);
+          throw new AppError('Ngày giờ phỏng vấn không hợp lệ', 400);
         }
 
         if (scheduledAt.getTime() <= Date.now()) {
-          throw new AppError('Vui long chon thoi gian phong van trong tuong lai', 400);
+          throw new AppError('Vui lòng chọn thời gian phỏng vấn trong tương lai', 400);
         }
 
         const durationMinutes = Number(metadata.duration_minutes ?? 60);
-        if (!Number.isFinite(durationMinutes) || durationMinutes <= 0) {
-          throw new AppError('Thoi luong phong van khong hop le', 400);
+        if (!Number.isInteger(durationMinutes) || durationMinutes < 15 || durationMinutes > 480) {
+          throw new AppError('Thời lượng phỏng vấn phải từ 15 đến 480 phút', 400);
         }
 
         await InterviewScheduleRepository.create({
@@ -306,8 +372,20 @@ Trả về duy nhất JSON hợp lệ dạng: {"score": number, "summary": "tóm
       }
 
       case 'offered': {
-        // Validate bắt buộc phải có ít nhất 1 thông tin offer
-        // (salary có thể null = "Thỏa thuận" nhưng phải gọi route offer)
+        if (metadata.response_deadline) {
+          const responseDeadline = new Date(metadata.response_deadline);
+          if (Number.isNaN(responseDeadline.getTime())) {
+            throw new AppError('Hạn phản hồi offer không hợp lệ', 400);
+          }
+        }
+
+        if (metadata.start_date) {
+          const startDate = new Date(metadata.start_date);
+          if (Number.isNaN(startDate.getTime())) {
+            throw new AppError('Ngày bắt đầu làm việc không hợp lệ', 400);
+          }
+        }
+
         await ApplicationOfferRepository.upsert({
           application_id: applicationId,
           salary_offered: metadata.salary_offered ?? null,
@@ -322,6 +400,15 @@ Trả về duy nhất JSON hợp lệ dạng: {"score": number, "summary": "tóm
         break;
       }
 
+      case 'interviewed': {
+        const latestInterview =
+          await InterviewScheduleRepository.findLatestByApplication(applicationId);
+        if (latestInterview?.id) {
+          await InterviewScheduleRepository.updateStatus(latestInterview.id, 'completed');
+        }
+        break;
+      }
+
       case 'hired': {
         // Auto-reject các đơn pending khác của cùng candidate
         const rejected = await ApplicationRepository.rejectOtherApplications(
@@ -329,22 +416,26 @@ Trả về duy nhất JSON hợp lệ dạng: {"score": number, "summary": "tóm
           applicationId
         );
         if (rejected > 0) {
-          logger.info(`Auto-rejected ${rejected} pending applications for candidate ${application.candidate_id} after hire.`);
+          logger.info(
+            `Auto-rejected ${rejected} pending applications for candidate ${application.candidate_id} after hire.`
+          );
         }
 
         // Cập nhật phản hồi offer thành accepted (nếu tồn tại)
-        await ApplicationOfferRepository.recordResponse(applicationId, 'accepted').catch(() => { });
+        await ApplicationOfferRepository.recordResponse(applicationId, 'accepted').catch(() => {});
         break;
       }
 
       case 'rejected': {
         // Nếu có offer, cập nhật candidate_response = declined
-        await ApplicationOfferRepository.recordResponse(applicationId, 'declined').catch(() => { });
+        await ApplicationOfferRepository.recordResponse(applicationId, 'declined').catch(() => {});
         break;
       }
 
       case 'withdrawn': {
-        // Không cần quyền recruiter — candidate route sẽ gọi trực tiếp
+        if (metadata?.candidateWithdrawalToken !== CANDIDATE_WITHDRAWAL_TOKEN) {
+          throw new AppError('Chỉ ứng viên mới được rút hồ sơ ứng tuyển', 400);
+        }
         break;
       }
 
@@ -356,7 +447,15 @@ Trả về duy nhất JSON hợp lệ dạng: {"score": number, "summary": "tóm
   /**
    * Gửi email và notification cho candidate/recruiter sau khi status thay đổi.
    */
-  async _sendStatusNotifications(applicationId, oldStatus, newStatus, notes, application, job, metadata) {
+  async _sendStatusNotifications(
+    applicationId,
+    oldStatus,
+    newStatus,
+    notes,
+    application,
+    job,
+    metadata
+  ) {
     const EmailService = require('./email');
     const NotificationService = require('./notification');
 
@@ -403,7 +502,10 @@ Trả về duy nhất JSON hợp lệ dạng: {"score": number, "summary": "tóm
                 ? new Date(schedule.scheduled_at).toLocaleDateString('vi-VN')
                 : null,
               time: schedule?.scheduled_at
-                ? new Date(schedule.scheduled_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+                ? new Date(schedule.scheduled_at).toLocaleTimeString('vi-VN', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
                 : null,
               location: schedule?.location,
               type: schedule?.interview_type,
@@ -438,14 +540,23 @@ Trả về duy nhất JSON hợp lệ dạng: {"score": number, "summary": "tóm
 
       case 'hired': {
         if (candidateEmail) {
-          await EmailService.sendApplicationHired(candidateEmail, { candidateName, jobTitle, companyName });
+          await EmailService.sendApplicationHired(candidateEmail, {
+            candidateName,
+            jobTitle,
+            companyName,
+          });
         }
         break;
       }
 
       case 'rejected': {
         if (candidateEmail) {
-          await EmailService.sendApplicationRejected(candidateEmail, { candidateName, jobTitle, companyName, notes });
+          await EmailService.sendApplicationRejected(candidateEmail, {
+            candidateName,
+            jobTitle,
+            companyName,
+            notes,
+          });
         }
         break;
       }
@@ -474,14 +585,36 @@ Trả về duy nhất JSON hợp lệ dạng: {"score": number, "summary": "tóm
     }
   }
 
+  // ─── CANDIDATE DELETE ──────────────────────────────────────────────────────────
+
+  /**
+   * Ứng viên xóa đơn của chính mình.
+   * Chỉ xóa khi applicationId thuộc về candidateId hiện tại.
+   */
+  async deleteCandidateApplication(applicationId, candidateId) {
+    const application = await ApplicationRepository.findCandidateApplicationById(
+      applicationId,
+      candidateId
+    );
+    if (!application) throw new AppError('Không tìm thấy hồ sơ ứng tuyển', 404);
+
+    const deleted = await ApplicationRepository.deleteByCandidateId(applicationId, candidateId);
+    if (!deleted) throw new AppError('Không tìm thấy hồ sơ ứng tuyển', 404);
+
+    return true;
+  }
+
   // ─── CANDIDATE WITHDRAW ────────────────────────────────────────────────────────
 
   /**
    * Ứng viên tự rút đơn — chỉ được rút khi canWithdraw = true
    */
   async withdrawApplication(applicationId, candidateId) {
-    const application = await ApplicationRepository.findCandidateApplicationById(applicationId, candidateId);
-    if (!application) throw new AppError('Application not found', 404);
+    const application = await ApplicationRepository.findCandidateApplicationById(
+      applicationId,
+      candidateId
+    );
+    if (!application) throw new AppError('Không tìm thấy hồ sơ ứng tuyển', 404);
 
     const CANNOT_WITHDRAW = ['interviewed', 'hired', 'rejected', 'withdrawn'];
     if (CANNOT_WITHDRAW.includes(application.status)) {
@@ -490,12 +623,12 @@ Trả về duy nhất JSON hợp lệ dạng: {"score": number, "summary": "tóm
 
     await this.updateApplicationStatus(
       applicationId,
-      null,     // companyId — bypass check khi candidate rút
-      candidateId,
+      null, // companyId — bypass check khi candidate rút
+      application.user_id || null,
       'withdrawn',
       'Ứng viên tự rút đơn.',
-      true,     // isAdmin flag để bypass company check
-      {}
+      true, // isAdmin flag để bypass company check
+      { candidateWithdrawalToken: CANDIDATE_WITHDRAWAL_TOKEN }
     );
 
     return true;
@@ -516,8 +649,11 @@ Trả về duy nhất JSON hợp lệ dạng: {"score": number, "summary": "tóm
   }
 
   async getCandidateApplication(applicationId, candidateId) {
-    const application = await ApplicationRepository.findCandidateApplicationById(applicationId, candidateId);
-    if (!application) throw new AppError('Application not found', 404);
+    const application = await ApplicationRepository.findCandidateApplicationById(
+      applicationId,
+      candidateId
+    );
+    if (!application) throw new AppError('Không tìm thấy hồ sơ ứng tuyển', 404);
 
     // Enrich với interview + offer details
     application.interviews = await InterviewScheduleRepository.findByApplication(applicationId);
@@ -526,21 +662,25 @@ Trả về duy nhất JSON hợp lệ dạng: {"score": number, "summary": "tóm
   }
 
   async getCandidateApplicationHistory(applicationId, candidateId) {
-    const application = await ApplicationRepository.findCandidateApplicationById(applicationId, candidateId);
-    if (!application) throw new AppError('Application not found', 404);
+    const application = await ApplicationRepository.findCandidateApplicationById(
+      applicationId,
+      candidateId
+    );
+    if (!application) throw new AppError('Không tìm thấy hồ sơ ứng tuyển', 404);
     return await ApplicationRepository.getHistory(applicationId);
   }
 
   async getJobApplications(jobId, companyId, isAdmin = false) {
     const job = await JobRepository.findById(jobId);
-    if (!job) throw new AppError('Job not found', 404);
-    if (!isAdmin && Number(job.company_id) !== Number(companyId)) throw new AppError('Not authorized to view these applications', 403);
+    if (!job) throw new AppError('Không tìm thấy tin tuyển dụng', 404);
+    if (!isAdmin && Number(job.company_id) !== Number(companyId))
+      throw new AppError('Bạn không có quyền xem danh sách ứng viên của tin này', 403);
     return await ApplicationRepository.findByJobId(jobId);
   }
 
   async getCompanyInterviewSchedules(companyId, isAdmin = false, filters = {}) {
     if (!isAdmin && companyId == null) {
-      throw new AppError('Company profile is required to view interview schedules', 403);
+      throw new AppError('Vui lòng hoàn thiện hồ sơ công ty trước khi xem lịch phỏng vấn', 403);
     }
 
     return await InterviewScheduleRepository.findByCompany(companyId, filters, isAdmin);
@@ -549,18 +689,24 @@ Trả về duy nhất JSON hợp lệ dạng: {"score": number, "summary": "tóm
   async updateInterviewScheduleStatus(interviewId, companyId, userId, status, isAdmin = false) {
     const allowedStatuses = ['scheduled', 'completed', 'cancelled', 'no_show'];
     if (!allowedStatuses.includes(status)) {
-      throw new AppError(`Invalid interview status. Must be one of: ${allowedStatuses.join(', ')}`, 400);
+      throw new AppError(
+        `Trạng thái lịch phỏng vấn không hợp lệ. Giá trị hợp lệ: ${allowedStatuses.join(', ')}`,
+        400
+      );
     }
 
     if (!isAdmin && companyId == null) {
-      throw new AppError('Company profile is required to update interview schedules', 403);
+      throw new AppError(
+        'Vui lòng hoàn thiện hồ sơ công ty trước khi cập nhật lịch phỏng vấn',
+        403
+      );
     }
 
     const interview = await InterviewScheduleRepository.findByIdWithDetails(interviewId);
     if (!interview) throw new AppError('Interview schedule not found', 404);
 
     if (!isAdmin && Number(interview.company_id) !== Number(companyId)) {
-      throw new AppError('Not authorized to update this interview schedule', 403);
+      throw new AppError('Bạn không có quyền cập nhật lịch phỏng vấn này', 403);
     }
 
     if (interview.status === status) return interview;
@@ -594,7 +740,7 @@ Trả về duy nhất JSON hợp lệ dạng: {"score": number, "summary": "tóm
 
   async getApplication(applicationId, companyId, isAdmin = false) {
     const application = await ApplicationRepository.findByIdWithDetails(applicationId);
-    if (!application) throw new AppError('Application not found', 404);
+    if (!application) throw new AppError('Không tìm thấy hồ sơ ứng tuyển', 404);
 
     if (isAdmin) {
       // Enrich
@@ -604,11 +750,11 @@ Trả về duy nhất JSON hợp lệ dạng: {"score": number, "summary": "tóm
     }
 
     if (companyId == null) {
-      throw new AppError('Company profile is required to view this application', 403);
+      throw new AppError('Vui lòng hoàn thiện hồ sơ công ty trước khi xem hồ sơ ứng tuyển', 403);
     }
 
     if (Number(application.company_id) !== Number(companyId)) {
-      throw new AppError('Not authorized to view this application', 403);
+      throw new AppError('Bạn không có quyền xem hồ sơ ứng tuyển này', 403);
     }
 
     application.interviews = await InterviewScheduleRepository.findByApplication(applicationId);
@@ -618,52 +764,62 @@ Trả về duy nhất JSON hợp lệ dạng: {"score": number, "summary": "tóm
 
   async getApplicationHistory(applicationId, companyId, isAdmin = false) {
     const application = await ApplicationRepository.findById(applicationId);
-    if (!application) throw new AppError('Application not found', 404);
+    if (!application) throw new AppError('Không tìm thấy hồ sơ ứng tuyển', 404);
 
-    const job = await JobRepository.findById(application.job_id);
-    if (!job) throw new AppError('Job not found', 404);
-    if (!isAdmin && companyId == null) {
-      throw new AppError('Company profile is required to view history', 403);
+    if (isAdmin) {
+      return await ApplicationRepository.getHistory(applicationId);
     }
 
-    if (!isAdmin && Number(job.company_id) !== Number(companyId)) {
-      throw new AppError('Not authorized to view history', 403);
+    if (companyId == null) {
+      throw new AppError('Vui lòng hoàn thiện hồ sơ công ty trước khi xem lịch sử hồ sơ', 403);
+    }
+
+    const job = await JobRepository.findById(application.job_id);
+    if (!job) throw new AppError('Không tìm thấy tin tuyển dụng', 404);
+
+    if (Number(job.company_id) !== Number(companyId)) {
+      throw new AppError('Bạn không có quyền xem lịch sử hồ sơ này', 403);
     }
 
     return await ApplicationRepository.getHistory(applicationId);
   }
 
   async addApplicationNote(applicationId, companyId, userId, notes, isAdmin = false) {
-    if (!notes || !notes.trim()) throw new AppError('Notes are required', 400);
+    if (!notes || !notes.trim()) throw new AppError('Vui lòng nhập nội dung ghi chú', 400);
 
     const application = await ApplicationRepository.findById(applicationId);
-    if (!application) throw new AppError('Application not found', 404);
+    if (!application) throw new AppError('Không tìm thấy hồ sơ ứng tuyển', 404);
 
     const job = await JobRepository.findById(application.job_id);
-    if (!job) throw new AppError('Job not found', 404);
+    if (!job) throw new AppError('Không tìm thấy tin tuyển dụng', 404);
     if (!isAdmin && companyId == null) {
-      throw new AppError('Company profile is required to add note to this application', 403);
+      throw new AppError('Vui lòng hoàn thiện hồ sơ công ty trước khi ghi chú hồ sơ', 403);
     }
 
     if (!isAdmin && Number(job.company_id) !== Number(companyId)) {
-      throw new AppError('Not authorized to add note to this application', 403);
+      throw new AppError('Bạn không có quyền ghi chú hồ sơ này', 403);
     }
 
-    return await ApplicationRepository.addHistoryNote(applicationId, userId, application.status, notes.trim());
+    return await ApplicationRepository.addHistoryNote(
+      applicationId,
+      userId,
+      application.status,
+      notes.trim()
+    );
   }
 
   async getInterviewSchedules(applicationId, companyId, isAdmin = false) {
     const application = await ApplicationRepository.findById(applicationId);
-    if (!application) throw new AppError('Application not found', 404);
+    if (!application) throw new AppError('Không tìm thấy hồ sơ ứng tuyển', 404);
 
     const job = await JobRepository.findById(application.job_id);
-    if (!job) throw new AppError('Job not found', 404);
+    if (!job) throw new AppError('Không tìm thấy tin tuyển dụng', 404);
     if (!isAdmin && companyId == null) {
-      throw new AppError('Company profile is required to view interview schedules', 403);
+      throw new AppError('Vui lòng hoàn thiện hồ sơ công ty trước khi xem lịch phỏng vấn', 403);
     }
 
     if (!isAdmin && Number(job.company_id) !== Number(companyId)) {
-      throw new AppError('Not authorized', 403);
+      throw new AppError('Bạn không có quyền xem lịch phỏng vấn của hồ sơ này', 403);
     }
 
     return await InterviewScheduleRepository.findByApplication(applicationId);
@@ -671,16 +827,16 @@ Trả về duy nhất JSON hợp lệ dạng: {"score": number, "summary": "tóm
 
   async getOfferDetails(applicationId, companyId, isAdmin = false) {
     const application = await ApplicationRepository.findById(applicationId);
-    if (!application) throw new AppError('Application not found', 404);
+    if (!application) throw new AppError('Không tìm thấy hồ sơ ứng tuyển', 404);
 
     const job = await JobRepository.findById(application.job_id);
-    if (!job) throw new AppError('Job not found', 404);
+    if (!job) throw new AppError('Không tìm thấy tin tuyển dụng', 404);
     if (!isAdmin && companyId == null) {
-      throw new AppError('Company profile is required to view offer details', 403);
+      throw new AppError('Vui lòng hoàn thiện hồ sơ công ty trước khi xem thông tin offer', 403);
     }
 
     if (!isAdmin && Number(job.company_id) !== Number(companyId)) {
-      throw new AppError('Not authorized', 403);
+      throw new AppError('Bạn không có quyền xem offer của hồ sơ này', 403);
     }
 
     return await ApplicationOfferRepository.findByApplication(applicationId);

@@ -35,17 +35,11 @@ const PageHeader = ({
             <ChevronLeft size={18} />
           </button>
         )}
-        
-        <h1 className="truncate text-3xl font-bold tracking-tight text-foreground">
-          {title}
-        </h1>
+
+        <h1 className="truncate text-3xl font-bold tracking-tight text-foreground">{title}</h1>
       </div>
 
-      {actions && (
-        <div className="ds-page-actions">
-          {actions}
-        </div>
-      )}
+      {actions && <div className="ds-page-actions">{actions}</div>}
     </div>
   );
 };

@@ -28,6 +28,11 @@ class SkillRepository extends BaseRepository {
     return rows[0];
   }
 
+  async countAll() {
+    const [rows] = await this.pool.query('SELECT COUNT(*) AS total FROM skills');
+    return Number(rows[0]?.total || 0);
+  }
+
   async findByCandidateId(candidateId) {
     const query = `
       SELECT s.*
@@ -136,8 +141,7 @@ class SkillRepository extends BaseRepository {
   }
 
   async findById(id, options = {}) {
-    const whereSql =
-      options.includeInactive === true ? 's.id = ?' : 's.id = ? AND s.is_active = 1';
+    const whereSql = options.includeInactive === true ? 's.id = ?' : 's.id = ? AND s.is_active = 1';
     const [rows] = await this.pool.query(`${this.buildDetailedQuery(whereSql)} LIMIT 1`, [id]);
     return rows[0];
   }

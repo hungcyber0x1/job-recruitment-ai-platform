@@ -1,7 +1,22 @@
 import PropTypes from 'prop-types';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, DollarSign, Bookmark, Calendar, Building2, Heart, Home, Share2, Check, Loader2, ArrowRight, Briefcase, Globe, Users } from 'lucide-react';
+import {
+  MapPin,
+  DollarSign,
+  Bookmark,
+  Calendar,
+  Building2,
+  Heart,
+  Home,
+  Share2,
+  Check,
+  Loader2,
+  ArrowRight,
+  Briefcase,
+  Globe,
+  Users,
+} from 'lucide-react';
 import { cn } from '../../../utils/cn';
 import { Link, useNavigate } from 'react-router-dom';
 import { candidateService } from '../../../services';
@@ -12,7 +27,8 @@ import {
   calendarDaysLeftUntilDeadline,
   isJobApplicationDeadlinePassed,
 } from '../../../utils/jobDeadline';
-import { formatDate } from '../../../utils/formatters';
+import { formatDate, getInitials } from '../../../utils/formatters';
+import { resolveMediaUrl } from '../../../utils/mediaUrl';
 
 const MAX_SKILLS_DISPLAY = 4;
 
@@ -29,19 +45,19 @@ const WORK_MODE_CONFIG = {
     label: 'Từ xa',
     icon: Globe,
     className: 'bg-violet-50 text-violet-700 border-violet-200',
-    iconClass: 'text-violet-500'
+    iconClass: 'text-violet-500',
   },
   hybrid: {
     label: 'Kết hợp',
     icon: Home,
     className: 'bg-blue-50 text-blue-700 border-blue-200',
-    iconClass: 'text-blue-500'
+    iconClass: 'text-blue-500',
   },
   onsite: {
     label: 'Tại văn phòng',
     icon: Building2,
     className: 'bg-amber-50 text-amber-700 border-amber-200',
-    iconClass: 'text-amber-500'
+    iconClass: 'text-amber-500',
   },
 };
 
@@ -58,7 +74,10 @@ function avatarBackgroundHex(companyName) {
 
 function formatJobType(type) {
   if (!type || typeof type !== 'string') return 'Đang cập nhật';
-  const key = type.trim().toLowerCase().replace(/[_\s]+/g, '-');
+  const key = type
+    .trim()
+    .toLowerCase()
+    .replace(/[_\s]+/g, '-');
   return TYPE_LABELS[key] || type;
 }
 
@@ -76,10 +95,12 @@ const WorkModeBadge = ({ mode }) => {
   const Icon = config.icon;
 
   return (
-    <span className={cn(
-      'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border',
-      config.className
-    )}>
+    <span
+      className={cn(
+        'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border',
+        config.className
+      )}
+    >
       <Icon size={12} className={config.iconClass} />
       {config.label}
     </span>
@@ -110,40 +131,66 @@ const SkillPill = ({ skill, index }) => {
  */
 const DeadlineIndicator = ({ daysLeft, deadlinePassed }) => {
   const getDeadlineConfig = () => {
-    if (deadlinePassed || daysLeft === 0) {
+    if (deadlinePassed) {
       return {
         bg: 'bg-red-50',
         border: 'border-red-200',
         text: 'text-red-600',
         icon: 'text-red-500',
-        label: 'Hết hạn'
+        label: 'Hết hạn',
       };
     }
-    if (daysLeft && daysLeft <= 3) {
+
+    if (daysLeft == null) {
+      return {
+        bg: 'bg-emerald-50',
+        border: 'border-emerald-200',
+        text: 'text-emerald-600',
+        icon: 'text-emerald-500',
+        label: 'Không giới hạn',
+      };
+    }
+
+    if (daysLeft === 0) {
       return {
         bg: 'bg-amber-50',
         border: 'border-amber-200',
         text: 'text-amber-600',
         icon: 'text-amber-500',
-        label: `${daysLeft} ngày nữa`
+        label: 'Hạn hôm nay',
       };
     }
+
+    if (daysLeft <= 3) {
+      return {
+        bg: 'bg-amber-50',
+        border: 'border-amber-200',
+        text: 'text-amber-600',
+        icon: 'text-amber-500',
+        label: `${daysLeft} ngày nữa`,
+      };
+    }
+
     return {
       bg: 'bg-emerald-50',
       border: 'border-emerald-200',
       text: 'text-emerald-600',
       icon: 'text-emerald-500',
-      label: `${daysLeft || '∞'} ngày nữa`
+      label: `${daysLeft} ngày nữa`,
     };
   };
 
   const config = getDeadlineConfig();
 
   return (
-    <div className={cn(
-      'inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1',
-      config.bg, config.border, config.text
-    )}>
+    <div
+      className={cn(
+        'inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1',
+        config.bg,
+        config.border,
+        config.text
+      )}
+    >
       <Calendar size={12} className={config.icon} />
       <span className="text-xs font-semibold">{config.label}</span>
     </div>
@@ -164,17 +211,36 @@ const JobCard = ({ job, basePath = '/candidate/jobs' }) => {
   const [savingCompany, setSavingCompany] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [companyLogoFailed, setCompanyLogoFailed] = useState(false);
   const { showNotification } = useNotification();
+  const companyName = job.company_name || job.company?.name || 'Công ty';
 
   const salaryDisplay = useMemo(() => getJobSalaryCardLabel(job), [job]);
   const hasConcreteSalary = useMemo(() => hasConcreteJobSalary(job), [job]);
 
   const companyLogoSrc = useMemo(() => {
-    if (job.company_logo) return job.company_logo;
-    const name = encodeURIComponent(job.company_name || 'Company');
-    const bg = avatarBackgroundHex(job.company_name);
-    return `https://ui-avatars.com/api/?name=${name}&background=${bg}&color=ffffff&size=128&font-size=0.42&bold=true`;
-  }, [job.company_logo, job.company_name]);
+    const rawLogo =
+      job.company_logo ||
+      job.logo ||
+      job.company?.company_logo ||
+      job.company?.logo ||
+      job.company?.logo_url ||
+      '';
+    return resolveMediaUrl(rawLogo);
+  }, [
+    job.company?.company_logo,
+    job.company?.logo,
+    job.company?.logo_url,
+    job.company_logo,
+    job.logo,
+  ]);
+
+  useEffect(() => {
+    setCompanyLogoFailed(false);
+  }, [job.id, companyLogoSrc]);
+
+  const companyLogoInitials = useMemo(() => getInitials(companyName).slice(0, 2), [companyName]);
+  const companyLogoBg = useMemo(() => avatarBackgroundHex(companyName), [companyName]);
 
   const typeDisplay = formatJobType(job.type || job.job_type || job.employment_type);
   const hasSkills = Array.isArray(job.skills) && job.skills.length > 0;
@@ -255,13 +321,16 @@ const JobCard = ({ job, basePath = '/candidate/jobs' }) => {
     e.preventDefault();
     e.stopPropagation();
     const url = `${window.location.origin}${detailPath}`;
-    navigator.clipboard.writeText(url).then(() => {
-      setCopied(true);
-      showNotification('Đã sao chép liên kết!', 'success');
-      setTimeout(() => setCopied(false), 2000);
-    }).catch(() => {
-      showNotification('Không thể sao chép liên kết', 'error');
-    });
+    navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        setCopied(true);
+        showNotification('Đã sao chép liên kết!', 'success');
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(() => {
+        showNotification('Không thể sao chép liên kết', 'error');
+      });
   };
 
   return (
@@ -274,12 +343,14 @@ const JobCard = ({ job, basePath = '/candidate/jobs' }) => {
       className="group relative"
     >
       {/* Card */}
-      <div className={cn(
-        'relative overflow-hidden rounded-lg border bg-white transition-all duration-300',
-        isHovered
-          ? 'border-emerald-200 shadow-lg shadow-emerald-100/40'
-          : 'border-slate-200/80 shadow-sm'
-      )}>
+      <div
+        className={cn(
+          'relative overflow-hidden rounded-lg border bg-white transition-all duration-300',
+          isHovered
+            ? 'border-emerald-200 shadow-lg shadow-emerald-100/40'
+            : 'border-slate-200/80 shadow-sm'
+        )}
+      >
         {/* Content */}
         <div className="p-4 sm:p-5">
           {/* Header: Logo & Info */}
@@ -294,11 +365,23 @@ const JobCard = ({ job, basePath = '/candidate/jobs' }) => {
                   isHovered ? 'border-emerald-200 shadow-md' : 'border-slate-200 shadow-sm'
                 )}
               >
-                <img
-                  src={companyLogoSrc}
-                  alt={job.company_name || 'Công ty'}
-                  className="h-full w-full object-cover"
-                />
+                {companyLogoSrc && !companyLogoFailed ? (
+                  <img
+                    key={companyLogoSrc}
+                    src={companyLogoSrc}
+                    alt={`${companyName} logo`}
+                    className="h-full w-full object-cover"
+                    onError={() => setCompanyLogoFailed(true)}
+                  />
+                ) : (
+                  <span
+                    className="flex h-full w-full select-none items-center justify-center text-lg font-black text-white"
+                    style={{ backgroundColor: `#${companyLogoBg}` }}
+                    aria-label={`${companyName} logo fallback`}
+                  >
+                    {companyLogoInitials}
+                  </span>
+                )}
                 {/* Save company button overlay */}
                 <button
                   onClick={handleToggleSaveCompany}
@@ -310,10 +393,7 @@ const JobCard = ({ job, basePath = '/candidate/jobs' }) => {
                       : 'bg-white/95 text-slate-400 shadow-sm hover:bg-rose-50 hover:text-rose-500'
                   )}
                 >
-                  <Heart
-                    size={12}
-                    fill={isCompanySaved ? 'currentColor' : 'none'}
-                  />
+                  <Heart size={12} fill={isCompanySaved ? 'currentColor' : 'none'} />
                 </button>
               </motion.div>
             </div>
@@ -324,10 +404,12 @@ const JobCard = ({ job, basePath = '/candidate/jobs' }) => {
                 <div className="flex-1 min-w-0">
                   {/* Title */}
                   <Link to={detailPath}>
-                    <h3 className={cn(
-                      'line-clamp-2 text-base font-extrabold leading-tight tracking-normal transition-colors duration-200',
-                      isHovered ? 'text-emerald-700' : 'text-slate-950'
-                    )}>
+                    <h3
+                      className={cn(
+                        'line-clamp-2 text-base font-extrabold leading-tight tracking-normal transition-colors duration-200',
+                        isHovered ? 'text-emerald-700' : 'text-slate-950'
+                      )}
+                    >
                       {job.title}
                     </h3>
                   </Link>
@@ -340,12 +422,12 @@ const JobCard = ({ job, basePath = '/candidate/jobs' }) => {
                         className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 transition-colors hover:text-emerald-700"
                       >
                         <Building2 size={14} className="opacity-60" />
-                        {job.company_name}
+                        {companyName}
                       </Link>
                     ) : (
                       <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500">
                         <Building2 size={14} className="opacity-60" />
-                        {job.company_name}
+                        {companyName}
                       </span>
                     )}
                   </div>
@@ -363,12 +445,14 @@ const JobCard = ({ job, basePath = '/candidate/jobs' }) => {
             </div>
 
             {/* Salary */}
-            <div className={cn(
-              'flex items-center gap-1.5 rounded-lg border px-3 py-1 text-sm font-bold',
-              hasConcreteSalary
-                ? 'border-emerald-100 bg-emerald-50 text-emerald-700'
-                : 'border-slate-200 bg-slate-50 text-slate-600'
-            )}>
+            <div
+              className={cn(
+                'flex items-center gap-1.5 rounded-lg border px-3 py-1 text-sm font-bold',
+                hasConcreteSalary
+                  ? 'border-emerald-100 bg-emerald-50 text-emerald-700'
+                  : 'border-slate-200 bg-slate-50 text-slate-600'
+              )}
+            >
               <DollarSign size={14} />
               <span>{salaryDisplay}</span>
             </div>
@@ -406,20 +490,17 @@ const JobCard = ({ job, basePath = '/candidate/jobs' }) => {
         </div>
 
         {/* Footer */}
-        <div className={cn(
-          'flex flex-col gap-3 border-t border-slate-100 px-4 py-4 transition-all duration-300 sm:flex-row sm:items-center sm:justify-between sm:px-5',
-          isHovered ? 'bg-emerald-50/25' : 'bg-slate-50/40'
-        )}>
+        <div
+          className={cn(
+            'flex flex-col gap-3 border-t border-slate-100 px-4 py-4 transition-all duration-300 sm:flex-row sm:items-center sm:justify-between sm:px-5',
+            isHovered ? 'bg-emerald-50/25' : 'bg-slate-50/40'
+          )}
+        >
           {/* Deadline */}
           <div className="flex flex-wrap items-center gap-3">
-            <DeadlineIndicator
-              daysLeft={daysLeft}
-              deadlinePassed={deadlinePassed}
-            />
+            <DeadlineIndicator daysLeft={daysLeft} deadlinePassed={deadlinePassed} />
             {job.deadline && (
-              <span className="text-xs text-slate-400">
-                Hạn: {formatDate(job.deadline)}
-              </span>
+              <span className="text-xs text-slate-400">Hạn: {formatDate(job.deadline)}</span>
             )}
           </div>
 

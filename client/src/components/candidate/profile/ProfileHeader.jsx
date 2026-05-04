@@ -134,9 +134,7 @@ const ProfileHeader = ({ user, profile }) => {
                   {profile?.title || 'Kỹ sư phần mềm'}
                 </h2>
                 <span className="hidden sm:block w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600" />
-                <span className="text-sm">
-                  {profile?.yearsOfExperience || '5'} năm kinh nghiệm
-                </span>
+                <span className="text-sm">{profile?.yearsOfExperience || '5'} năm kinh nghiệm</span>
               </div>
             </motion.div>
 

@@ -74,30 +74,34 @@ export const NotificationProvider = ({ children }) => {
   }, []);
 
   return (
-    <NotificationContext.Provider value={{ 
-      showNotification,
-      removeNotification,
-      unreadCount,
-      updateUnreadCount,
-      addNotification,
-      isLoading,
-      setIsLoading
-    }}>
+    <NotificationContext.Provider
+      value={{
+        showNotification,
+        removeNotification,
+        unreadCount,
+        updateUnreadCount,
+        addNotification,
+        isLoading,
+        setIsLoading,
+      }}
+    >
       {children}
       {/* Toast Container — rendered into document.body via Portal to avoid z-index stacking issues */}
-      {typeof document !== 'undefined' && document.body && createPortal(
-        <div className="fixed top-24 right-6 z-[200] flex flex-col gap-3 w-80">
-          {notifications.map((n) => (
-            <Alert
-              key={n.id}
-              type={n.type}
-              message={n.message}
-              onClose={() => removeNotification(n.id)}
-            />
-          ))}
-        </div>,
-        document.body
-      )}
+      {typeof document !== 'undefined' &&
+        document.body &&
+        createPortal(
+          <div className="fixed top-24 right-6 z-[200] flex flex-col gap-3 w-80">
+            {notifications.map((n) => (
+              <Alert
+                key={n.id}
+                type={n.type}
+                message={n.message}
+                onClose={() => removeNotification(n.id)}
+              />
+            ))}
+          </div>,
+          document.body
+        )}
     </NotificationContext.Provider>
   );
 };

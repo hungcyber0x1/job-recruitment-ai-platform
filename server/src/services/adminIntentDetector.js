@@ -79,10 +79,7 @@ const ADMIN_INTENTS = {
     label: 'Liệt kê jobs',
   },
   GET_JOB: {
-    patterns: [
-      /job\s+#?\d+|việc\s+#?\d+/i,
-      /chi tiết (job|việc)\s+#?\d+/i,
-    ],
+    patterns: [/job\s+#?\d+|việc\s+#?\d+/i, /chi tiết (job|việc)\s+#?\d+/i],
     tool: 'get_job_detail',
     label: 'Chi tiết job',
   },
@@ -107,21 +104,14 @@ const ADMIN_INTENTS = {
     label: 'Liệt kê applications',
   },
   GET_APPLICATION: {
-    patterns: [
-      /application\s+#?\d+|đơn\s+#?\d+/i,
-      /chi tiết (application|đơn)\s+#?\d+/i,
-    ],
+    patterns: [/application\s+#?\d+|đơn\s+#?\d+/i, /chi tiết (application|đơn)\s+#?\d+/i],
     tool: 'get_application_detail',
     label: 'Chi tiết application',
   },
 
   // Companies
   LIST_COMPANIES: {
-    patterns: [
-      /danh sách (company|công ty)/i,
-      /xem company|tất cả company/i,
-      /quản lý company/i,
-    ],
+    patterns: [/danh sách (company|công ty)/i, /xem company|tất cả company/i, /quản lý company/i],
     tool: 'list_companies',
     label: 'Liệt kê companies',
   },
@@ -216,20 +206,14 @@ const ADMIN_INTENTS = {
 
   // Blog
   LIST_BLOG: {
-    patterns: [
-      /danh sách blog|blog post|xem blog/i,
-      /quản lý blog|iểm duyệt blog/i,
-    ],
+    patterns: [/danh sách blog|blog post|xem blog/i, /quản lý blog|iểm duyệt blog/i],
     tool: 'list_blog_posts',
     label: 'Liệt kê blog posts',
   },
 
   // Categories
   LIST_CATEGORIES: {
-    patterns: [
-      /danh sách (category|tag|chủ đề|ngành)/i,
-      /category.*management|xem category/i,
-    ],
+    patterns: [/danh sách (category|tag|chủ đề|ngành)/i, /category.*management|xem category/i],
     tool: 'list_categories',
     label: 'Liệt kê categories',
   },
@@ -266,7 +250,7 @@ function detectAdminIntents(message) {
   // Sort by confidence, deduplicate
   const seen = new Set();
   return results
-    .filter(r => {
+    .filter((r) => {
       if (seen.has(r.tool)) return false;
       seen.add(r.tool);
       return true;
@@ -390,7 +374,7 @@ function extractParams(intentName, message) {
 function buildToolContext(results) {
   if (!results || results.length === 0) return '';
 
-  const sections = results.map(r => {
+  const sections = results.map((r) => {
     const tool = r.tool || r.executedTool;
     const data = r.result;
 
@@ -432,7 +416,7 @@ function formatDataForAI(toolName, data) {
       }
       if (appStats.distribution && appStats.distribution.length > 0) {
         lines.push('  Applications by job type:');
-        appStats.distribution.forEach(d => {
+        appStats.distribution.forEach((d) => {
           lines.push(`    - ${d.name}: ${Number(d.value).toLocaleString('vi-VN')}`);
         });
       }
@@ -446,7 +430,7 @@ function formatDataForAI(toolName, data) {
       }
       if (data.applicationStats?.distribution) {
         lines.push('Applications by type:');
-        data.applicationStats.distribution.forEach(d => {
+        data.applicationStats.distribution.forEach((d) => {
           lines.push(`  ${d.name}: ${Number(d.value).toLocaleString('vi-VN')}`);
         });
       }
@@ -456,7 +440,7 @@ function formatDataForAI(toolName, data) {
     case 'list_users': {
       if (data.total === 0) return 'Không có user nào.';
       const lines = [`Total: ${data.total.toLocaleString('vi-VN')} users`];
-      data.items.forEach(u => {
+      data.items.forEach((u) => {
         lines.push(`  #${u.id} | ${u.name || u.email} | ${u.role} | ${u.status}`);
       });
       if (data.hasMore) lines.push(`  ... và ${data.total - data.items.length} users khác`);
@@ -466,8 +450,10 @@ function formatDataForAI(toolName, data) {
     case 'list_jobs': {
       if (data.total === 0) return 'Không có job nào.';
       const lines = [`Total: ${data.total.toLocaleString('vi-VN')} jobs`];
-      data.items.forEach(j => {
-        lines.push(`  #${j.id} | ${j.title} | ${j.status} | ${j.applications} apps | ${j.company || ''}`);
+      data.items.forEach((j) => {
+        lines.push(
+          `  #${j.id} | ${j.title} | ${j.status} | ${j.applications} apps | ${j.company || ''}`
+        );
       });
       if (data.hasMore) lines.push(`  ... và ${data.total - data.items.length} jobs khác`);
       return lines.join('\n');
@@ -476,8 +462,10 @@ function formatDataForAI(toolName, data) {
     case 'list_applications': {
       if (data.total === 0) return 'Không có application nào.';
       const lines = [`Total: ${data.total.toLocaleString('vi-VN')} applications`];
-      data.items.forEach(a => {
-        lines.push(`  #${a.id} | ${a.candidate || 'N/A'} | ${a.job || 'N/A'} | ${a.status} | ${a.applied}`);
+      data.items.forEach((a) => {
+        lines.push(
+          `  #${a.id} | ${a.candidate || 'N/A'} | ${a.job || 'N/A'} | ${a.status} | ${a.applied}`
+        );
       });
       if (data.hasMore) lines.push(`  ... và ${data.total - data.items.length} applications khác`);
       return lines.join('\n');
@@ -491,7 +479,7 @@ function formatDataForAI(toolName, data) {
       ];
       if (data.topIntents && data.topIntents.length > 0) {
         lines.push('Top Intents:');
-        data.topIntents.forEach(i => lines.push(`  - ${i.intent}: ${i.count}`));
+        data.topIntents.forEach((i) => lines.push(`  - ${i.intent}: ${i.count}`));
       }
       return lines.join('\n');
     }
@@ -501,8 +489,11 @@ function formatDataForAI(toolName, data) {
       Object.entries(data).forEach(([category, settings]) => {
         lines.push(`${category}:`);
         if (Array.isArray(settings)) {
-          settings.forEach(s => {
-            const val = typeof s.value === 'string' && s.value.length > 100 ? s.value.slice(0, 100) + '...' : s.value;
+          settings.forEach((s) => {
+            const val =
+              typeof s.value === 'string' && s.value.length > 100
+                ? s.value.slice(0, 100) + '...'
+                : s.value;
             lines.push(`  ${s.key}: ${val}`);
           });
         }
@@ -516,7 +507,10 @@ function formatDataForAI(toolName, data) {
         if (data.length === 0) return 'Không có dữ liệu.';
         const lines = data.slice(0, 15).map((item, i) => {
           const fields = Object.entries(item || {})
-            .filter(([k]) => !['password', 'hashedPassword', 'token', 'secret', 'ip', 'user_agent'].includes(k))
+            .filter(
+              ([k]) =>
+                !['password', 'hashedPassword', 'token', 'secret', 'ip', 'user_agent'].includes(k)
+            )
             .slice(0, 5)
             .map(([k, v]) => `${k}=${formatValue(v)}`)
             .join(', ');
@@ -528,7 +522,10 @@ function formatDataForAI(toolName, data) {
       }
       // Object
       const entries = Object.entries(data || {})
-        .filter(([k]) => !['password', 'hashedPassword', 'token', 'secret', 'ip', 'user_agent'].includes(k))
+        .filter(
+          ([k]) =>
+            !['password', 'hashedPassword', 'token', 'secret', 'ip', 'user_agent'].includes(k)
+        )
         .map(([k, v]) => `  ${k}: ${formatValue(v)}`);
       return entries.join('\n') || 'No data';
     }

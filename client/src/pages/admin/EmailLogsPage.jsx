@@ -8,7 +8,7 @@ import {
   AlertCircle,
   Clock,
   RefreshCw,
-  Loader2
+  Loader2,
 } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import adminService from '../../services/adminService';
@@ -41,14 +41,14 @@ const EmailLogsPage = () => {
         page,
         limit: 15,
       };
-      
+
       const response = await adminService.getEmailLogs(params);
       if (response.data.success) {
         setLogs(response.data.data || []);
         if (response.data.pagination) {
           setPaginationMeta({
             total: Number(response.data.pagination.total) || 0,
-            pages: Number(response.data.pagination.pages) || 1
+            pages: Number(response.data.pagination.pages) || 1,
           });
         }
       }
@@ -89,28 +89,29 @@ const EmailLogsPage = () => {
     {
       header: 'Trạng thái',
       width: '140px',
-      render: (log) => (
+      render: (log) =>
         log.status === 'sent' ? (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 uppercase tracking-normal">
-            <CheckCircle className="w-3 h-3" strokeWidth={2.5} />Thành công
+            <CheckCircle className="w-3 h-3" strokeWidth={2.5} />
+            Thành công
           </span>
         ) : (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-red-50 text-red-700 border border-red-100 uppercase tracking-normal">
-            <AlertCircle className="w-3 h-3" strokeWidth={2.5} />Thất bại
+            <AlertCircle className="w-3 h-3" strokeWidth={2.5} />
+            Thất bại
           </span>
-        )
-      ),
+        ),
     },
     {
       header: 'Người nhận',
-      render: (log) => (
-        <span className="text-sm font-bold text-slate-700">{log.recipient}</span>
-      ),
+      render: (log) => <span className="text-sm font-bold text-slate-700">{log.recipient}</span>,
     },
     {
       header: 'Tiêu đề',
       render: (log) => (
-        <span className="text-sm font-medium text-slate-600 truncate max-w-[350px] block">{log.subject}</span>
+        <span className="text-sm font-medium text-slate-600 truncate max-w-[350px] block">
+          {log.subject}
+        </span>
       ),
     },
     {
@@ -146,8 +147,17 @@ const EmailLogsPage = () => {
         title="Lịch sử Email Hệ thống"
         description="Theo dõi và quản lý tất cả thông báo email đã gửi đi."
         actions={
-          <Button variant="outline" onClick={fetchLogs} disabled={loading} className="h-12 rounded-xl px-4 font-bold border-emerald-200 text-emerald-700 hover:bg-emerald-50 shadow-sm">
-            {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+          <Button
+            variant="outline"
+            onClick={fetchLogs}
+            disabled={loading}
+            className="h-12 rounded-xl px-4 font-bold border-emerald-200 text-emerald-700 hover:bg-emerald-50 shadow-sm"
+          >
+            {loading ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <RefreshCw className="w-4 h-4 mr-2" />
+            )}
             Làm mới
           </Button>
         }
@@ -165,13 +175,16 @@ const EmailLogsPage = () => {
               onChange={(e) => setRecipientFilter(e.target.value)}
             />
           </div>
-          
+
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-slate-400" />
             <select
               className="bg-slate-50 border border-slate-200 rounded-xl px-5 py-3 text-sm font-bold text-slate-600 focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
               value={statusFilter}
-              onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setPage(1);
+              }}
             >
               <option value="all">Tất cả trạng thái</option>
               <option value="sent">Thành công</option>
@@ -179,7 +192,10 @@ const EmailLogsPage = () => {
             </select>
           </div>
 
-          <Button type="submit" className="h-12 px-8 rounded-xl bg-slate-900 text-white font-bold uppercase tracking-normal hover:bg-slate-800 shadow-lg shadow-slate-900/10 transition-all">
+          <Button
+            type="submit"
+            className="h-12 px-8 rounded-xl bg-slate-900 text-white font-bold uppercase tracking-normal hover:bg-slate-800 shadow-lg shadow-slate-900/10 transition-all"
+          >
             Lọc kết quả
           </Button>
         </form>
@@ -209,11 +225,15 @@ const EmailLogsPage = () => {
           <div className="space-y-6 py-2">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-normal block mb-1.5">Người nhận</span>
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-normal block mb-1.5">
+                  Người nhận
+                </span>
                 <p className="text-slate-900 font-bold">{selectedLog.recipient}</p>
               </div>
               <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-normal block mb-1.5">Tiêu đề</span>
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-normal block mb-1.5">
+                  Tiêu đề
+                </span>
                 <p className="text-slate-900 font-bold">{selectedLog.subject}</p>
               </div>
             </div>
@@ -223,15 +243,21 @@ const EmailLogsPage = () => {
                 <div className="flex items-start gap-3">
                   <AlertCircle className="w-5 h-5 text-red-500 mt-0.5" />
                   <div>
-                    <span className="text-sm font-bold text-red-700 uppercase tracking-normal">Lỗi gửi email:</span>
-                    <p className="text-sm font-semibold text-red-600 mt-1 italic">{selectedLog.error_message}</p>
+                    <span className="text-sm font-bold text-red-700 uppercase tracking-normal">
+                      Lỗi gửi email:
+                    </span>
+                    <p className="text-sm font-semibold text-red-600 mt-1 italic">
+                      {selectedLog.error_message}
+                    </p>
                   </div>
                 </div>
               </div>
             )}
 
             <div className="space-y-2">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-normal block">Nội dung (Preview)</span>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-normal block">
+                Nội dung (Preview)
+              </span>
               <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-inner">
                 <div className="bg-slate-900 p-2.5 flex items-center justify-between">
                   <div className="flex space-x-2">
@@ -239,7 +265,9 @@ const EmailLogsPage = () => {
                     <div className="w-2.5 h-2.5 rounded-full bg-amber-500"></div>
                     <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
                   </div>
-                  <span className="text-xs font-bold text-white/40 uppercase tracking-normal">email-render-view.html</span>
+                  <span className="text-xs font-bold text-white/40 uppercase tracking-normal">
+                    email-render-view.html
+                  </span>
                   <div className="w-12"></div>
                 </div>
                 <div

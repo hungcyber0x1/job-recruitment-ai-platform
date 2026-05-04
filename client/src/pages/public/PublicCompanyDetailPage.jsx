@@ -30,10 +30,7 @@ import { normalizeCompanyEntity } from '@/utils/domain';
 import { getJobSalaryCardLabel } from '@/utils/jobSalary';
 import { resolveMediaUrl } from '@/utils/mediaUrl';
 import { sanitizeHtml } from '@/utils/sanitizeHtml';
-import {
-  calendarDaysLeftUntilDeadline,
-  isJobApplicationDeadlinePassed,
-} from '@/utils/jobDeadline';
+import { calendarDaysLeftUntilDeadline, isJobApplicationDeadlinePassed } from '@/utils/jobDeadline';
 
 function initialsFromName(name) {
   return (
@@ -142,7 +139,9 @@ const SummaryTile = ({ icon: Icon, label, value, tone = 'emerald' }) => {
 
   return (
     <div className="flex min-h-[74px] items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-3">
-      <div className={`flex size-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset ${toneClass}`}>
+      <div
+        className={`flex size-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset ${toneClass}`}
+      >
         <Icon className="size-4" aria-hidden />
       </div>
       <div className="min-w-0">
@@ -164,7 +163,9 @@ const SectionHeader = ({ icon: Icon, eyebrow, title, children, tone = 'emerald' 
   return (
     <div className="mb-4 flex items-start justify-between gap-3 border-b border-slate-100 pb-3">
       <div className="flex min-w-0 items-start gap-3">
-        <div className={`flex size-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset ${toneClass}`}>
+        <div
+          className={`flex size-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset ${toneClass}`}
+        >
           <Icon className="size-[18px]" aria-hidden />
         </div>
         <div className="min-w-0">
@@ -179,9 +180,7 @@ const SectionHeader = ({ icon: Icon, eyebrow, title, children, tone = 'emerald' 
 
 const CompanyFact = ({ icon: Icon, label, value, href }) => {
   const content = (
-    <span className="break-words text-sm font-bold text-slate-800">
-      {value || 'Chưa cập nhật'}
-    </span>
+    <span className="break-words text-sm font-bold text-slate-800">{value || 'Chưa cập nhật'}</span>
   );
 
   return (
@@ -235,9 +234,9 @@ const PublicCompanyDetailPage = () => {
         setCompany(
           rawCompany
             ? {
-              ...normalizeCompanyEntity(rawCompany),
-              jobs: Array.isArray(rawCompany.jobs) ? rawCompany.jobs : [],
-            }
+                ...normalizeCompanyEntity(rawCompany),
+                jobs: Array.isArray(rawCompany.jobs) ? rawCompany.jobs : [],
+              }
             : null
         );
       } catch (fetchError) {
@@ -280,7 +279,7 @@ const PublicCompanyDetailPage = () => {
       .then((res) => {
         if (active) setIsSaved(!!res.data?.data?.saved);
       })
-      .catch(() => { });
+      .catch(() => {});
 
     return () => {
       active = false;
@@ -374,21 +373,28 @@ const PublicCompanyDetailPage = () => {
     : isSaved
       ? 'Đã lưu công ty'
       : 'Lưu công ty';
-  const primaryActionLabel = openJobsCount > 0 ? `Xem ${openJobsCount} việc làm` : 'Khám phá việc làm';
+  const primaryActionLabel =
+    openJobsCount > 0 ? `Xem ${openJobsCount} việc làm` : 'Khám phá việc làm';
   const createdDateLabel =
     company.created_at && !Number.isNaN(new Date(company.created_at).getTime())
       ? new Date(company.created_at).toLocaleDateString('vi-VN', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-      })
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        })
       : 'Đang cập nhật';
 
   return (
     <div className="min-h-screen bg-slate-50 pb-12">
       <main className="mx-auto max-w-6xl px-4 py-5 sm:px-6 lg:px-8">
-        <nav className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500" aria-label="Breadcrumb">
-          <Link to="/companies" className="inline-flex items-center gap-1.5 font-semibold transition hover:text-primary">
+        <nav
+          className="mb-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500"
+          aria-label="Breadcrumb"
+        >
+          <Link
+            to="/companies"
+            className="inline-flex items-center gap-1.5 font-semibold transition hover:text-primary"
+          >
             <ArrowLeft className="size-4" aria-hidden />
             Danh sách công ty
           </Link>
@@ -408,7 +414,11 @@ const PublicCompanyDetailPage = () => {
                   className={`flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 p-2 text-lg font-bold shadow-sm ${avatarPalette(company.name)}`}
                 >
                   {companyLogoSrc ? (
-                    <img src={companyLogoSrc} alt={company.name} className="h-full w-full object-contain" />
+                    <img
+                      src={companyLogoSrc}
+                      alt={company.name}
+                      className="h-full w-full object-contain"
+                    />
                   ) : (
                     initials
                   )}
@@ -463,10 +473,30 @@ const PublicCompanyDetailPage = () => {
               </div>
 
               <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                <SummaryTile icon={MapPin} label="Địa điểm" value={company.location || 'Đang cập nhật'} tone="emerald" />
-                <SummaryTile icon={Users} label="Quy mô" value={company.size || 'Chưa cập nhật'} tone="sky" />
-                <SummaryTile icon={Briefcase} label="Việc mở" value={`${openJobsCount} tin tuyển dụng`} tone="amber" />
-                <SummaryTile icon={CalendarDays} label="Cập nhật" value={createdDateLabel} tone="slate" />
+                <SummaryTile
+                  icon={MapPin}
+                  label="Địa điểm"
+                  value={company.location || 'Đang cập nhật'}
+                  tone="emerald"
+                />
+                <SummaryTile
+                  icon={Users}
+                  label="Quy mô"
+                  value={company.size || 'Chưa cập nhật'}
+                  tone="sky"
+                />
+                <SummaryTile
+                  icon={Briefcase}
+                  label="Việc mở"
+                  value={`${openJobsCount} tin tuyển dụng`}
+                  tone="amber"
+                />
+                <SummaryTile
+                  icon={CalendarDays}
+                  label="Cập nhật"
+                  value={createdDateLabel}
+                  tone="slate"
+                />
               </div>
             </section>
 
@@ -483,7 +513,10 @@ const PublicCompanyDetailPage = () => {
               />
             </section>
 
-            <section id="open-jobs" className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <section
+              id="open-jobs"
+              className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
+            >
               <SectionHeader
                 icon={Briefcase}
                 eyebrow="Cơ hội hiện có"
@@ -537,12 +570,18 @@ const PublicCompanyDetailPage = () => {
                             <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-semibold text-slate-500">
                               <span className="inline-flex items-center gap-1.5">
                                 <MapPin className="size-4 text-slate-400" aria-hidden />
-                                {job.location || job.location_name || company.location || 'Đang cập nhật'}
+                                {job.location ||
+                                  job.location_name ||
+                                  company.location ||
+                                  'Đang cập nhật'}
                               </span>
                             </div>
                           </div>
 
-                          <Button asChild className="h-10 rounded-lg px-4 text-sm font-bold lg:shrink-0">
+                          <Button
+                            asChild
+                            className="h-10 rounded-lg px-4 text-sm font-bold lg:shrink-0"
+                          >
                             <Link to={`/jobs/${job.id}`}>
                               Xem chi tiết
                               <ArrowRight className="size-4" aria-hidden />
@@ -562,7 +601,9 @@ const PublicCompanyDetailPage = () => {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-xs font-bold uppercase text-emerald-300">Tuyển dụng</p>
-                  <p className="mt-1 text-2xl font-bold tracking-normal">{openJobsCount} việc làm</p>
+                  <p className="mt-1 text-2xl font-bold tracking-normal">
+                    {openJobsCount} việc làm
+                  </p>
                   <p className="mt-1 text-xs font-semibold text-slate-400">
                     Tin đang công khai và có thể xem chi tiết ngay.
                   </p>
@@ -573,7 +614,11 @@ const PublicCompanyDetailPage = () => {
               </div>
 
               <div className="mt-4 space-y-2">
-                <Button asChild size="lg" className="h-11 w-full rounded-lg bg-emerald-500 text-sm font-bold text-white hover:bg-emerald-400">
+                <Button
+                  asChild
+                  size="lg"
+                  className="h-11 w-full rounded-lg bg-emerald-500 text-sm font-bold text-white hover:bg-emerald-400"
+                >
                   <a href={jobs.length > 0 ? '#open-jobs' : '/jobs'}>
                     {primaryActionLabel}
                     <ArrowRight className="size-4" aria-hidden />
@@ -635,7 +680,11 @@ const PublicCompanyDetailPage = () => {
                 <Button asChild className="h-10 rounded-lg text-sm font-bold">
                   <Link to="/register">Tạo tài khoản ứng viên</Link>
                 </Button>
-                <Button asChild variant="outline" className="h-10 rounded-lg border-emerald-200 bg-white text-sm font-bold text-emerald-700 hover:bg-emerald-50">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="h-10 rounded-lg border-emerald-200 bg-white text-sm font-bold text-emerald-700 hover:bg-emerald-50"
+                >
                   <Link to="/jobs">
                     <Search className="size-4" aria-hidden />
                     Khám phá thêm việc làm

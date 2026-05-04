@@ -5,12 +5,12 @@
 
 export { default as api } from './api';
 export { default as adminService } from './adminService';
-export { default as adminChatbotService } from './adminChatbotService';
 export { default as applicationService } from './applicationService';
 export {
   default as blogService,
   unwrapBlogListResponse,
   unwrapBlogDetailResponse,
+  unwrapBlogTaxonomyResponse,
 } from './blogService';
 export { default as authService } from './authService';
 export { default as candidateService } from './candidateService';
@@ -29,6 +29,7 @@ export { default as featureCatalogService, getFeatureCatalog } from './featureCa
 export { default as privacyService } from './privacyService';
 export { default as unifiedProfileService } from './unifiedProfileService';
 export { default as notificationService } from './notificationService';
+export { default as newsletterService } from './newsletterService';
 export { default as messageService } from './messageService';
 export { default as auditService } from './auditService';
 export { default as employerTeamService } from './employerTeamService';

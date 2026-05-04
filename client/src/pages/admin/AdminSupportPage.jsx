@@ -18,6 +18,7 @@ import {
   X,
 } from 'lucide-react';
 
+import StatCard from '@/components/common/StatCard';
 import adminService from '../../services/adminService';
 import { useNotification } from '../../context/NotificationContext';
 import { Badge } from '../../components/ui/badge';
@@ -119,34 +120,7 @@ const getPriorityMeta = (priority) => PRIORITY_META[priority] || PRIORITY_META.m
 const getStatusMeta = (status) => STATUS_META[status] || STATUS_META.open;
 
 function SupportStatCard({ icon: Icon, label, value, helper, tone = 'emerald' }) {
-  const tones = {
-    emerald: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
-    blue: 'bg-blue-50 text-blue-700 ring-blue-100',
-    amber: 'bg-amber-50 text-amber-700 ring-amber-100',
-    violet: 'bg-violet-50 text-violet-700 ring-violet-100',
-  };
-
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-            {label}
-          </p>
-          <p className="mt-3 text-3xl font-bold tracking-tight text-slate-950">{value}</p>
-          <p className="mt-2 text-sm leading-6 text-slate-500">{helper}</p>
-        </div>
-        <div
-          className={cn(
-            'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ring-1 ring-inset',
-            tones[tone] || tones.emerald
-          )}
-        >
-          <Icon className="h-5 w-5" />
-        </div>
-      </div>
-    </div>
-  );
+  return <StatCard title={label} value={value} subtitle={helper} icon={Icon} type={tone} />;
 }
 
 function SectionCard({ icon: Icon, title, description, action, children }) {
@@ -305,9 +279,15 @@ const AdminSupportPage = () => {
       const query = searchTicket.trim().toLowerCase();
       next = next.filter(
         (ticket) =>
-          String(ticket.subject || '').toLowerCase().includes(query) ||
-          String(ticket.email || '').toLowerCase().includes(query) ||
-          String(ticket.description || '').toLowerCase().includes(query) ||
+          String(ticket.subject || '')
+            .toLowerCase()
+            .includes(query) ||
+          String(ticket.email || '')
+            .toLowerCase()
+            .includes(query) ||
+          String(ticket.description || '')
+            .toLowerCase()
+            .includes(query) ||
           String(ticket.id || '').includes(query)
       );
     }
@@ -386,7 +366,10 @@ const AdminSupportPage = () => {
       setMessages(response.data?.data || []);
       setReply('');
       setIsInternal(false);
-      showNotification(isInternal ? 'Đã lưu ghi chú nội bộ.' : 'Đã gửi phản hồi ticket.', 'success');
+      showNotification(
+        isInternal ? 'Đã lưu ghi chú nội bộ.' : 'Đã gửi phản hồi ticket.',
+        'success'
+      );
     } catch (error) {
       console.error('Error replying to ticket:', error);
       showNotification('Không thể gửi phản hồi ticket.', 'error');
@@ -445,7 +428,7 @@ const AdminSupportPage = () => {
   }
 
   return (
-    <div className="min-h-full bg-slate-50 text-slate-900">
+    <div className="min-h-full bg-slate-50/40 text-slate-900">
       <div className="relative overflow-hidden border-b border-emerald-100/70 bg-[linear-gradient(180deg,#ecfdf5_0%,#ffffff_82%)]">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
@@ -471,7 +454,9 @@ const AdminSupportPage = () => {
             </div>
 
             <div className="max-w-4xl">
-              <p className="text-sm font-semibold text-emerald-600">Doanh nghiệp hỗ trợ người dùng</p>
+              <p className="text-sm font-semibold text-emerald-600">
+                Doanh nghiệp hỗ trợ người dùng
+              </p>
               <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl lg:text-[2.8rem]">
                 Hệ thống hỗ trợ
               </h1>
@@ -521,7 +506,8 @@ const AdminSupportPage = () => {
                 </p>
                 <p className="mt-1 text-2xl font-bold text-slate-950">Queue control</p>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Tìm ticket theo email hoặc tiêu đề, bật lọc nhanh và xuất snapshot làm báo cáo hỗ trợ.
+                  Tìm ticket theo email hoặc tiêu đề, bật lọc nhanh và xuất snapshot làm báo cáo hỗ
+                  trợ.
                 </p>
               </div>
               <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-3 py-2 text-right">
@@ -550,7 +536,9 @@ const AdminSupportPage = () => {
                 <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
                   Ticket chưa bàn giao
                 </p>
-                <p className="mt-1 text-sm font-semibold text-slate-950">{unassignedCount} yêu cầu</p>
+                <p className="mt-1 text-sm font-semibold text-slate-950">
+                  {unassignedCount} yêu cầu
+                </p>
               </div>
               <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
@@ -765,7 +753,8 @@ const AdminSupportPage = () => {
                               <div className="min-w-0">
                                 <div className="flex flex-wrap items-center gap-2">
                                   <p className="line-clamp-1 text-sm font-semibold text-slate-950">
-                                    #{String(ticket.id).padStart(4, '0')} • {ticket.subject || 'Không tiêu đề'}
+                                    #{String(ticket.id).padStart(4, '0')} •{' '}
+                                    {ticket.subject || 'Không tiêu đề'}
                                   </p>
                                   <span
                                     className={cn(
@@ -822,7 +811,9 @@ const AdminSupportPage = () => {
                       <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
                         <Search className="h-6 w-6" />
                       </div>
-                      <p className="mt-4 text-lg font-semibold text-slate-950">Không có ticket phù hợp</p>
+                      <p className="mt-4 text-lg font-semibold text-slate-950">
+                        Không có ticket phù hợp
+                      </p>
                       <p className="mt-2 max-w-sm text-sm leading-6 text-slate-500">
                         Thử thay đổi bộ lọc hoặc tìm kiếm để xem thêm ticket trong hàng đợi.
                       </p>
@@ -833,7 +824,8 @@ const AdminSupportPage = () => {
                     <div className="flex items-center justify-between gap-3">
                       <p className="text-xs font-medium text-slate-500">
                         Hiển thị {(page - 1) * limit + (paginatedTickets.length ? 1 : 0)} -{' '}
-                        {(page - 1) * limit + paginatedTickets.length} trên {filteredTickets.length} ticket
+                        {(page - 1) * limit + paginatedTickets.length} trên {filteredTickets.length}{' '}
+                        ticket
                       </p>
                       <div className="flex gap-2">
                         <Button
@@ -895,7 +887,8 @@ const AdminSupportPage = () => {
                               </span>
                             </div>
                             <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500">
-                              {selectedTicket.description || 'Người dùng chưa nhập mô tả chi tiết cho ticket này.'}
+                              {selectedTicket.description ||
+                                'Người dùng chưa nhập mô tả chi tiết cho ticket này.'}
                             </p>
                           </div>
 
@@ -940,7 +933,9 @@ const AdminSupportPage = () => {
                                 Phụ trách
                               </p>
                               <p className="mt-1 text-sm font-semibold text-slate-950">
-                                {selectedTicket.admin_id ? selectedTicket.assignee : 'Chưa bàn giao'}
+                                {selectedTicket.admin_id
+                                  ? selectedTicket.assignee
+                                  : 'Chưa bàn giao'}
                               </p>
                             </div>
                           </div>
@@ -1039,12 +1034,18 @@ const AdminSupportPage = () => {
                                         Ghi chú nội bộ
                                       </div>
                                     ) : null}
-                                    <p className="whitespace-pre-wrap">{msg.message || msg.content || ''}</p>
+                                    <p className="whitespace-pre-wrap">
+                                      {msg.message || msg.content || ''}
+                                    </p>
                                   </div>
 
                                   <div className="flex items-center gap-2 px-2 text-xs text-slate-400">
                                     <span className="font-semibold uppercase tracking-[0.12em]">
-                                      {isSystem ? 'Hệ thống' : isSupport ? 'Đội hỗ trợ' : 'Khách hàng'}
+                                      {isSystem
+                                        ? 'Hệ thống'
+                                        : isSupport
+                                          ? 'Đội hỗ trợ'
+                                          : 'Khách hàng'}
                                     </span>
                                     <span className="h-1 w-1 rounded-full bg-slate-300" />
                                     <span>
@@ -1063,9 +1064,12 @@ const AdminSupportPage = () => {
                             <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-100 text-slate-400">
                               <MessageSquare className="h-7 w-7" />
                             </div>
-                            <p className="mt-4 text-lg font-semibold text-slate-950">Chưa có hội thoại</p>
+                            <p className="mt-4 text-lg font-semibold text-slate-950">
+                              Chưa có hội thoại
+                            </p>
                             <p className="mt-2 max-w-sm text-sm leading-6 text-slate-500">
-                              Ticket này chưa có lịch sử trao đổi. Hãy gửi phản hồi đầu tiên hoặc thêm ghi chú nội bộ để bắt đầu xử lý.
+                              Ticket này chưa có lịch sử trao đổi. Hãy gửi phản hồi đầu tiên hoặc
+                              thêm ghi chú nội bộ để bắt đầu xử lý.
                             </p>
                           </div>
                         )}
@@ -1131,9 +1135,12 @@ const AdminSupportPage = () => {
                       <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-100 text-slate-400">
                         <Ticket className="h-7 w-7" />
                       </div>
-                      <p className="mt-4 text-lg font-semibold text-slate-950">Chưa có ticket để xử lý</p>
+                      <p className="mt-4 text-lg font-semibold text-slate-950">
+                        Chưa có ticket để xử lý
+                      </p>
                       <p className="mt-2 max-w-sm text-sm leading-6 text-slate-500">
-                        Khi hàng đợi có dữ liệu, bạn sẽ thấy chi tiết ticket và toàn bộ lịch sử trao đổi tại khu vực này.
+                        Khi hàng đợi có dữ liệu, bạn sẽ thấy chi tiết ticket và toàn bộ lịch sử trao
+                        đổi tại khu vực này.
                       </p>
                     </div>
                   )}

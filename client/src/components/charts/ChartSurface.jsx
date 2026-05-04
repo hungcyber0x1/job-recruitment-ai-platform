@@ -65,7 +65,7 @@ export default function ChartSurface({
     const updateSize = () => {
       if (!node) return;
       const { width, height } = node.getBoundingClientRect();
-      
+
       // Recharts needs positive dimensions. we use a small threshold to be safe.
       const measuredHeight = Math.max(height, minChartHeight);
       const isValid = width > 0.5 && measuredHeight > 0.5;
@@ -103,10 +103,10 @@ export default function ChartSurface({
     <div
       ref={hostRef}
       className={cn('w-full min-w-0 relative flex-1', className)}
-      style={{ 
-        minHeight: minChartHeight, 
+      style={{
+        minHeight: minChartHeight,
         height: '100%',
-        display: 'block' 
+        display: 'block',
       }}
     >
       {isReady ? (
@@ -120,11 +120,7 @@ export default function ChartSurface({
           {children}
         </ResponsiveContainer>
       ) : (
-        <div 
-          className="w-full opacity-0" 
-          style={{ height: minChartHeight }} 
-          aria-hidden="true" 
-        />
+        <div className="w-full opacity-0" style={{ height: minChartHeight }} aria-hidden="true" />
       )}
     </div>
   );

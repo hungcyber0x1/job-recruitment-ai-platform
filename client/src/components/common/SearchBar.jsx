@@ -4,7 +4,12 @@ import { Search, MapPin, X } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import Button from './Button';
 
-const QUICK_SEARCHES = ['Lập trình viên React', 'Nhà thiết kế UI/UX', 'Chuyên viên phân tích dữ liệu', 'Quản lý sản phẩm'];
+const QUICK_SEARCHES = [
+  'Lập trình viên React',
+  'Nhà thiết kế UI/UX',
+  'Chuyên viên phân tích dữ liệu',
+  'Quản lý sản phẩm',
+];
 
 const SearchBar = ({ onSearch, className }) => {
   const [query, setQuery] = useState('');

@@ -5,12 +5,7 @@ import { cn } from '@/utils/cn';
  * Generic Skeleton loading placeholder
  */
 const Skeleton = ({ className, ...props }) => {
-  return (
-    <div
-      className={cn("animate-pulse rounded-md bg-muted/40", className)}
-      {...props}
-    />
-  );
+  return <div className={cn('animate-pulse rounded-md bg-muted/40', className)} {...props} />;
 };
 
 export const BlogCardSkeleton = () => {
@@ -41,15 +36,15 @@ export const BlogPostSkeleton = () => {
         <Skeleton className="h-4 w-32 mx-auto" />
         <Skeleton className="h-12 md:h-16 w-3/4 mx-auto" />
       </div>
-      
+
       <Skeleton className="aspect-[21/9] w-full rounded-xl mt-12" />
-      
+
       <div className="max-w-3xl mx-auto space-y-6 mt-12">
         <Skeleton className="h-8 w-1/3" />
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-5/6" />
-        
+
         <Skeleton className="h-8 w-1/2 mt-12" />
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-full" />

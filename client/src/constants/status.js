@@ -19,14 +19,14 @@ import {
 } from 'lucide-react';
 
 export const APPLICATION_STATUS = {
-  SUBMITTED:           'submitted',
-  SHORTLISTED:         'shortlisted',
+  SUBMITTED: 'submitted',
+  SHORTLISTED: 'shortlisted',
   INTERVIEW_SCHEDULED: 'interview_scheduled',
-  INTERVIEWED:         'interviewed',
-  OFFERED:             'offered',
-  HIRED:               'hired',
-  REJECTED:            'rejected',
-  WITHDRAWN:           'withdrawn',
+  INTERVIEWED: 'interviewed',
+  OFFERED: 'offered',
+  HIRED: 'hired',
+  REJECTED: 'rejected',
+  WITHDRAWN: 'withdrawn',
 };
 
 export const APP_STATUS_PIPELINE_ORDER = [
@@ -212,12 +212,27 @@ export const PIPELINE_STAGES = [
   { key: 'all', label: 'Tất cả', icon: null, color: 'bg-muted-foreground' },
   { key: APPLICATION_STATUS.SUBMITTED, label: 'Đã nộp', icon: Clock, color: 'bg-warning/100' },
   { key: APPLICATION_STATUS.SHORTLISTED, label: 'Phù hợp SB', icon: Star, color: 'bg-warning/100' },
-  { key: APPLICATION_STATUS.INTERVIEW_SCHEDULED, label: 'Lịch PV', icon: Calendar, color: 'bg-warning/100' },
-  { key: APPLICATION_STATUS.INTERVIEWED, label: 'Đã PV', icon: CheckCircle, color: 'bg-warning/100' },
+  {
+    key: APPLICATION_STATUS.INTERVIEW_SCHEDULED,
+    label: 'Lịch PV',
+    icon: Calendar,
+    color: 'bg-warning/100',
+  },
+  {
+    key: APPLICATION_STATUS.INTERVIEWED,
+    label: 'Đã PV',
+    icon: CheckCircle,
+    color: 'bg-warning/100',
+  },
   { key: APPLICATION_STATUS.OFFERED, label: 'Offer', icon: Award, color: 'bg-success/100' },
   { key: APPLICATION_STATUS.HIRED, label: 'Tuyển', icon: UserCheck, color: 'bg-success/100' },
   { key: APPLICATION_STATUS.REJECTED, label: 'Từ chối', icon: XCircle, color: 'bg-danger/100' },
-  { key: APPLICATION_STATUS.WITHDRAWN, label: 'Rút', icon: RotateCcw, color: 'bg-muted-foreground' },
+  {
+    key: APPLICATION_STATUS.WITHDRAWN,
+    label: 'Rút',
+    icon: RotateCcw,
+    color: 'bg-muted-foreground',
+  },
 ];
 
 export const getAppStatusConfig = (status) =>
@@ -226,32 +241,29 @@ export const getAppStatusConfig = (status) =>
 export const getAppStatusLabel = (status) =>
   getAppStatusConfig(status)?.label || status || 'Không xác định';
 
-export const getAppStatusShortLabel = (status) =>
-  getAppStatusConfig(status).shortLabel || status;
+export const getAppStatusShortLabel = (status) => getAppStatusConfig(status).shortLabel || status;
 
-export const getPipelineGroup = (status) =>
-  getAppStatusConfig(status).pipelineGroup || 'active';
+export const getPipelineGroup = (status) => getAppStatusConfig(status).pipelineGroup || 'active';
 
 export const getActiveStatuses = () =>
-  Object.values(APPLICATION_STATUS).filter(s =>
-    APP_STATUS_CONFIG[s]?.pipelineGroup === 'active' ||
-    APP_STATUS_CONFIG[s]?.pipelineGroup === 'interview'
+  Object.values(APPLICATION_STATUS).filter(
+    (s) =>
+      APP_STATUS_CONFIG[s]?.pipelineGroup === 'active' ||
+      APP_STATUS_CONFIG[s]?.pipelineGroup === 'interview'
   );
 
-export const getInterviewStatuses = () =>
-  [APPLICATION_STATUS.INTERVIEW_SCHEDULED, APPLICATION_STATUS.INTERVIEWED];
+export const getInterviewStatuses = () => [
+  APPLICATION_STATUS.INTERVIEW_SCHEDULED,
+  APPLICATION_STATUS.INTERVIEWED,
+];
 
-export const getSuccessStatuses = () =>
-  [APPLICATION_STATUS.OFFERED, APPLICATION_STATUS.HIRED];
+export const getSuccessStatuses = () => [APPLICATION_STATUS.OFFERED, APPLICATION_STATUS.HIRED];
 
-export const getClosedStatuses = () =>
-  [APPLICATION_STATUS.REJECTED, APPLICATION_STATUS.WITHDRAWN];
+export const getClosedStatuses = () => [APPLICATION_STATUS.REJECTED, APPLICATION_STATUS.WITHDRAWN];
 
-export const canCandidateWithdraw = (status) =>
-  getAppStatusConfig(status).canWithdraw ?? false;
+export const canCandidateWithdraw = (status) => getAppStatusConfig(status).canWithdraw ?? false;
 
-export const getStatusColor = (status) =>
-  getAppStatusConfig(status).color || 'slate';
+export const getStatusColor = (status) => getAppStatusConfig(status).color || 'slate';
 
 export const statusToBadgeVariant = (status) => {
   const color = getStatusColor(status);
@@ -279,14 +291,14 @@ export { getAppStatusLabel as getStatusLabel };
  *            suspended (admin can suspend any published job)
  */
 export const JOB_STATUS = {
-  DRAFT:           'draft',
-  PENDING_REVIEW:  'pending_review',
-  APPROVED:        'approved',
-  REJECTED:        'rejected',
-  PUBLISHED:       'published',
-  EXPIRED:         'expired',
-  CLOSED:          'closed',
-  SUSPENDED:       'suspended',
+  DRAFT: 'draft',
+  PENDING_REVIEW: 'pending_review',
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
+  PUBLISHED: 'published',
+  EXPIRED: 'expired',
+  CLOSED: 'closed',
+  SUSPENDED: 'suspended',
 };
 
 export const JOB_STATUS_CONFIG = {
@@ -394,8 +406,7 @@ export const JOB_STATUS_ORDER = [
 export const getJobStatusConfig = (status) =>
   JOB_STATUS_CONFIG[status] || JOB_STATUS_CONFIG[JOB_STATUS.DRAFT];
 
-export const getJobStatusLabel = (status) =>
-  getJobStatusConfig(status).label || status;
+export const getJobStatusLabel = (status) => getJobStatusConfig(status).label || status;
 
 export const isJobVisibleToCandidate = (status) =>
   getJobStatusConfig(status).candidateVisible ?? false;
@@ -415,23 +426,23 @@ export const jobStatusToBadgeVariant = (status) => {
 
 // ─── COMPANY MEMBER ROLES ────────────────────────────────────────────────────
 export const COMPANY_ROLES = {
-  OWNER:     'owner',
-  ADMIN:     'admin',
+  OWNER: 'owner',
+  ADMIN: 'admin',
   RECRUITER: 'recruiter',
 };
 
 export const COMPANY_ROLE_LABELS = {
-  owner:     'Chủ sở hữu',
-  admin:     'Quản trị viên',
+  owner: 'Chủ sở hữu',
+  admin: 'Quản trị viên',
   recruiter: 'Nhà tuyển dụng',
 };
 
 // ─── USER STATUS (Account status) ───────────────────────────────────────────
 export const USER_STATUS = {
-  ACTIVE:               'active',
+  ACTIVE: 'active',
   PENDING_VERIFICATION: 'pending_verification',
-  SUSPENDED:            'suspended',
-  BANNED:               'banned',
+  SUSPENDED: 'suspended',
+  BANNED: 'banned',
 };
 
 export const USER_STATUS_CONFIG = {
@@ -472,39 +483,40 @@ export const USER_STATUS_CONFIG = {
 export const getUserStatusConfig = (status) =>
   USER_STATUS_CONFIG[status] || USER_STATUS_CONFIG[USER_STATUS.ACTIVE];
 
-export const getUserStatusLabel = (status) =>
-  getUserStatusConfig(status).label || status;
+export const getUserStatusLabel = (status) => getUserStatusConfig(status).label || status;
 
-export const getCompanyRoleLabel = (role) =>
-  COMPANY_ROLE_LABELS[role] || role;
+export const getCompanyRoleLabel = (role) => COMPANY_ROLE_LABELS[role] || role;
 
 // ─── JOB TYPE MAPPINGS ───────────────────────────────────────────────────────
 export const FORM_VALUE_TO_JOB_TYPE = {
   'full-time': 'full_time',
   'part-time': 'part_time',
-  'contract': 'contract',
-  'internship': 'internship',
-  'remote': 'remote',
-  'full_time': 'full-time',
-  'part_time': 'part-time',
+  full_time: 'full_time',
+  part_time: 'part_time',
+  contract: 'contract',
+  internship: 'internship',
+  freelance: 'freelance',
+  remote: 'remote',
 };
 
 export const JOB_TYPE_TO_FORM_VALUE = {
-  'full_time': 'full-time',
-  'part_time': 'part-time',
-  'contract': 'contract',
-  'internship': 'internship',
-  'remote': 'remote',
+  full_time: 'full_time',
+  part_time: 'part_time',
   'full-time': 'full_time',
-  'part-time': 'part-time',
+  'part-time': 'part_time',
+  contract: 'contract',
+  internship: 'internship',
+  freelance: 'freelance',
+  remote: 'remote',
 };
 
 export const JOB_TYPE_FORM_LABELS = {
-  'full_time': 'Toàn thời gian',
-  'part_time': 'Bán thời gian',
-  'contract': 'Hợp đồng',
-  'internship': 'Thực tập',
-  'remote': 'Làm việc từ xa',
+  full_time: 'Toàn thời gian',
+  part_time: 'Bán thời gian',
+  contract: 'Hợp đồng',
+  internship: 'Thực tập',
+  freelance: 'Freelance',
+  remote: 'Làm việc từ xa',
 };
 
 // ─── NOTIFICATION TYPE CONFIG ─────────────────────────────────────────────────
